@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+python-multipart
+httpx
+python-jose
+pydantic
+requests       
+pydantic-settings>=0.2.0
