@@ -18,17 +18,32 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const MOCK_AUTH = false;
 
 const transformRoles = (keycloakRoles: string[]): string[] => {
-  const roleMapping: { [key: string]: string } = {
-    'ROLE_ENSEIGNANT': 'enseignant',
-    'ROLE_DIRECTEUR': 'directeur',
-    'ROLE_ELEVE': 'eleve',
-    'ROLE_PARENT': 'parent',
-    'ROLE_ADMIN_SYSTEME': 'administrateur',
-    'ROLE_ADMIN_FONCTIONNEL': 'administrateur',
-    'ROLE_ESPACE_FAMILLE': 'espaceFamille',
-  };
-
-  const appRoles = keycloakRoles.map(role => roleMapping[role]).filter(Boolean);
+  const appRoles: string[] = [];
+  keycloakRoles.forEach(role => {
+    switch (role) {
+      case 'ROLE_ENSEIGANT':
+        appRoles.push('enseignant');
+        break;
+      case 'ROLE_DIRECTEUR':
+        appRoles.push('directeur');
+        break;
+      case 'ROLE_ELEVE':
+        appRoles.push('eleve');
+        break;
+      case 'ROLE_PARENT':
+        appRoles.push('parent');
+        break;
+      case 'ROLE_ADMIN_SYSTEME':
+      case 'ROLE_ADMIN_FONCTIONNEL':
+        appRoles.push('administrateur');
+        break;
+      case 'ROLE_ESPACE_FAMILLE':
+        appRoles.push('espaceFamille');
+        break;
+      default:
+        break;
+    }
+  });
   return [...new Set(appRoles)];
 };
 
@@ -61,7 +76,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           redirectUri: 'http://localhost:5173/login',
           pkceMethod: 'S256',
           responseMode: 'fragment',
-          scope: 'openid',
+          scope: 'openid profile email roles',
         });
         setIsAuthenticated(authenticated);
 
@@ -69,7 +84,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const profile = await keycloak.loadUserProfile();
           setUser(profile);
           const keycloakRoles = keycloak.tokenParsed?.realm_access?.roles || [];
-          setRoles(transformRoles(keycloakRoles));
+          console.log("[DEBUG] Rôles bruts reçus de Keycloak:", keycloakRoles);
+          const appRoles = transformRoles(keycloakRoles);
+          console.log("[DEBUG] Rôles transformés pour l'application:", appRoles);
+          setRoles(appRoles);
           if (keycloak.token) {
             sessionStorage.setItem('keycloak-token', keycloak.token);
           }
@@ -84,26 +102,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     initAuth();
 
-    // Éviter la redondance dans les callbacks
-    keycloak.onAuthSuccess = () => {
-      setIsAuthenticated(true);
-    };
-
-    keycloak.onAuthError = () => {
-      setIsAuthenticated(false);
-      setUser(null);
-      setRoles([]);
-      sessionStorage.removeItem('keycloak-token');
-    };
-
-    keycloak.onAuthLogout = () => {
-      setIsAuthenticated(false);
-      setUser(null);
-      setRoles([]);
-      sessionStorage.removeItem('keycloak-token');
-    };
-
-    // Actualiser le token périodiquement
     keycloak.onTokenExpired = () => {
       keycloak.updateToken(30).catch(() => {
         console.error('Échec du rafraîchissement du token');
