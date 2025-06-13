@@ -1,21 +1,17 @@
-import { useKeycloak } from "@react-keycloak/web";
+import { useAuth } from '../authentification/useAuth';
+import { useEffect } from 'react';
 
 export const LoginPage = () => {
-  const { keycloak } = useKeycloak();
+  const { login } = useAuth();
 
-  const login = () => {
-    keycloak.login();
-  };
+  useEffect(() => {
+    login();
+  }, [login]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-2xl font-bold mb-4">Connexion</h1>
-      <button
-        onClick={login}
-        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-      >
-        Se connecter
-      </button>
+      <h1 className="text-2xl font-bold mb-4">Redirection vers la page de connexion...</h1>
+      {/* Vous pouvez ajouter un spinner ou un indicateur de chargement ici */}
     </div>
   );
 };

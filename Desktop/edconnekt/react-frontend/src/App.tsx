@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { useAuth } from "./pages/authentification/useAuth"; // Utiliser notre nouveau hook
 
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -22,13 +27,19 @@ import ProfilePage from "./pages/profile/ProfilePage";
 import MesCoursPage from "./pages/eleves/MesCoursPage";
 import DetailCoursPage from "./pages/eleves/DetailCoursPage";
 import DetailLeconPage from "./pages/eleves/DetailLeconPage";
-import MesCours from './pages/enseignants/MesCoursPage';
-import PdiSeancePage from './pages/PdiSeancePage';
-import PdiDetailPage from './pages/PdiDetailPage';
+import MesCours from "./pages/enseignants/MesCoursPage";
+import PdiSeancePage from "./pages/PdiSeancePage";
+import PdiDetailPage from "./pages/PdiDetailPage";
 import { JSX } from "react/jsx-runtime";
 
 // Définition des types de rôles pour la clarté
-type Role = "enseignant" | "directeur" | "eleve" | "parent" | "administrateur" | "espaceFamille";
+type Role =
+  | "enseignant"
+  | "directeur"
+  | "eleve"
+  | "parent"
+  | "administrateur"
+  | "espaceFamille";
 
 // Configuration des routes par rôle
 const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
@@ -91,12 +102,17 @@ const rolesPriority: Role[] = [
   "enseignant",
   "eleve",
   "parent",
-  "espaceFamille"
+  "espaceFamille",
 ];
 
 // Composant qui gère la logique de routage
 const AppContent = () => {
-  const { isAuthenticated, roles } = useAuth();
+  const { isAuthenticated, roles, loading } = useAuth();
+
+  // Affiche un message de chargement pendant l'initialisation de Keycloak
+  if (loading) {
+    return <div>Chargement de l'application...</div>;
+  }
 
   // Si l'utilisateur n'est pas authentifié, il n'a accès qu'à la page de connexion.
   if (!isAuthenticated) {
@@ -110,14 +126,17 @@ const AppContent = () => {
   }
 
   // L'utilisateur est authentifié, on détermine son rôle et ses routes.
-  const userRole = rolesPriority.find(r => roles.includes(r));
+  const userRole = rolesPriority.find((r) => roles.includes(r));
 
   // Si l'utilisateur a un rôle non reconnu, on affiche une page d'erreur.
   if (!userRole) {
     return (
-        <Routes>
-            <Route path="*" element={<div>Accès non autorisé. Rôle inconnu.</div>} />
-        </Routes>
+      <Routes>
+        <Route
+          path="*"
+          element={<div>Accès non autorisé. Rôle inconnu.</div>}
+        />
+      </Routes>
     );
   }
 
