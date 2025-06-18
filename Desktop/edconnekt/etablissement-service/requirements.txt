@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+sqlalchemy
+alembic
+psycopg2-binary
+python-jose
+pika
+pydantic[email]
+Faker==24.8.0
+requests
