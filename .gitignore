@@ -1,0 +1,65 @@
+# macOS
+.DS_Store
+# Node
+node_modules/
+# Secrets
+.env
+
+# Exclure les dossiers et fichiers non pertinents
+abonnement-scolaire-app/
+node_modules/
+*.zip
+*.pdf
+*.lnk
+desktop.ini
+Projetstage/
+Projetstage2/
+Projet_stage/
+Stage Engy Partners/
+adjaratou_maimouna/
+abonnement-scol-app/
+edconnekt.zip
+package-lock.json
+package.json
+# Dossiers système
+Application Data/
+Cookies/
+Local Settings/
+Menu Démarrer/
+Mes documents/
+Modèles/
+Recent/
+SendTo/
+Voisinage d'impression/
+Voisinage réseau/
+.VirtualBox/
+.android/
+.docker/
+.gradle/
+.kube/
+.ssh/
+.vscode/
+AndroidStudioProjects/
+AppData/
+Contacts/
+Documents/
+Downloads/
+Favorites/
+IntelGraphicsProfiles/
+Links/
+Music/
+OneDrive/
+Pictures/
+Saved Games/
+Searches/
+Videos/
+VirtualBox VMs/
+ntuser.*
+NTUSER.*
+.bash_history
+.cursor/
+.emulator_console_auth_token
+.gitconfig
+.lesshst
+.skiko/
+.viminfo

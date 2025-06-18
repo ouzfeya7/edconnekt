@@ -1,0 +1,44 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Ignorer les fichiers Node.js
+node_modules/
+package-lock.json
+
+# Ignorer les fichiers système et temporaires
+desktop.ini
+*.lnk
+*.zip
+*.pdf
+*.log
+
+# Ignorer les dossiers sensibles ou inutiles
+.VirtualBox/
+.android/
+.gradle/
+.vscode/
+AppData/
+Documents/
+Downloads/

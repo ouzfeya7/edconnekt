@@ -1,0 +1,315 @@
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2.1
+    container_name: keycloak
+    command: start-dev
+    environment:
+      KC_DB: dev-file
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_LOG_LEVEL: INFO
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: keycloak.localhost
+    ports:
+      - "8081:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=Host(`keycloak.localhost`)"
+      - "traefik.http.routers.keycloak.entrypoints=web"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+    networks:
+      - backend-net
+  utilisateur-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: utilisateur_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - utilisateur_pgdata:/var/lib/postgresql/data
+    networks:
+      - backend-net
+    ports:
+      - "5436:5432" 
+  utilisateur-service:
+    build:
+      context: ./utilisateur-service
+    container_name: utilisateur-service
+    depends_on:
+      - utilisateur-db
+    environment:
+      DB_HOST: utilisateur-db
+      DB_NAME: utilisateur_db
+      DB_USER: postgres
+      DB_PASS: postgres
+      KEYCLOAK_URL: http://keycloak.localhost
+      KEYCLOAK_REALM: EdConnect
+      KEYCLOAK_CLIENT_ID: myclient
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.utilisateur.rule=Host(`utilisateur.localhost`)"
+      - "traefik.http.routers.utilisateur.entrypoints=web"
+      - "traefik.http.services.utilisateur.loadbalancer.server.port=8000"
+    networks:
+      - backend-net
+    ports:
+      - "8010:8000" 
+
+  # Base de données : PostgreSQL (etablissement)
+  etablissement-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: etablissement_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - etablissement_pgdata:/var/lib/postgresql/data
+    networks:
+      - backend-net
+
+  # Microservice : etablissement-service
+  etablissement-service:
+    build: ./etablissement-service
+    container_name: etablissement-service
+    ports:
+      - "8001:8000"
+    environment:
+      DB_HOST: etablissement-db
+      DB_NAME: etablissement_db
+      DB_USER: postgres
+      DB_PASS: postgres
+      RABBITMQ_URL: amqp://user:pass@rabbitmq:5672/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.etablissement.rule=Host(`etab.localhost`)"
+      - "traefik.http.routers.etablissement.entrypoints=web"
+      - "traefik.http.services.etablissement.loadbalancer.server.port=8000"
+    depends_on:
+      - etablissement-db
+      - rabbitmq
+    networks:
+      - backend-net
+  eleve-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: eleve_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - eleve_pgdata:/var/lib/postgresql/data
+    networks:
+      - backend-net
+
+  # Microservice eleve
+  eleve-service:
+    build: ./eleve-service
+    container_name: eleve-service
+    ports:
+      - "8004:8000"
+    depends_on:
+      - eleve-db
+      - rabbitmq
+    environment:
+      DB_HOST: eleve-db
+      DB_NAME: eleve_db
+      DB_USER: postgres
+      DB_PASS: postgres
+      RABBITMQ_URL: amqp://user:pass@rabbitmq:5672/
+      KEYCLOAK_URL: http://keycloak.localhost:8081
+      KEYCLOAK_REALM: EdConnect
+      KEYCLOAK_CLIENT_ID: myclient
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.eleve.rule=Host(`eleve.localhost`)"
+      - "traefik.http.routers.eleve.entrypoints=web"
+      - "traefik.http.services.eleve.loadbalancer.server.port=8000"
+    networks:
+      - backend-net
+  classe-db:
+    image: postgres:15
+    container_name: classe-db
+    environment:
+      POSTGRES_DB: classe_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - classe_pgdata:/var/lib/postgresql/data
+    networks:
+      - backend-net
+  classe-service:
+    build:
+      context: ./classe-service
+    container_name: classe-service
+    depends_on:
+      - classe-db
+      - rabbitmq
+    environment:
+      DB_HOST: classe-db
+      DB_NAME: classe_db
+      DB_USER: postgres
+      DB_PASS: postgres
+      RABBITMQ_URL: amqp://user:pass@rabbitmq:5672/
+      KEYCLOAK_URL: http://keycloak.localhost:8081
+      KEYCLOAK_REALM: EdConnect
+      KEYCLOAK_CLIENT_ID: myclient
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.classe.rule=Host(`classe.localhost`)"
+      - "traefik.http.routers.classe.entrypoints=web"
+      - "traefik.http.services.classe.loadbalancer.server.port=8000"
+    networks:
+      - backend-net
+    ports:
+      - "8002:8000"
+#  Microservice : calendar-service
+  calendar-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: agenda_db
+      POSTGRES_USER: agenda_user
+      POSTGRES_PASSWORD: agenda_pass
+    ports:
+      - "5434:5432"
+    networks:
+      - backend-net
+  calendar-service:
+    build:
+      context: ./calendar-service
+    container_name: calendar-service
+    depends_on:
+      - calendar-db
+      - rabbitmq
+    environment:
+      DATABASE_URL: postgresql://agenda_user:agenda_pass@calendar-db:5432/agenda_db
+      RABBITMQ_URL: amqp://user:pass@rabbitmq:5672/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.calendar.rule=Host(`calendar.localhost`)"
+      - "traefik.http.routers.calendar.entrypoints=web"
+      - "traefik.http.services.calendar.loadbalancer.server.port=3000"
+    networks:
+      - backend-net
+   # --- POSTGRES POUR RESSOURCES ---
+  ressources-db:
+    image: postgres:15
+    container_name: ressources-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ressources
+    volumes:
+      - ressources_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5437:5432"
+    networks:
+      - backend-net
+
+  # --- MICROSERVICE RESSOURCES (FastAPI) ---
+  ressources-service:
+    build:
+      context: ./ressource-service
+      dockerfile: Dockerfile       
+    container_name: ressources-service
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://postgres:password@ressources-db:5432/ressources
+      RABBITMQ_URL: amqp://user:password@rabbitmq:5672/
+    depends_on:
+      - ressources-db
+      - rabbitmq
+    ports:
+      - "8040:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ressources.rule=Host(`ressources.localhost`)"
+      - "traefik.http.routers.ressources.entrypoints=web"
+      - "traefik.http.services.ressources.loadbalancer.server.port=8000"
+    networks:
+      - backend-net
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: pass
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - backend-net
+
+  #  Observabilité : ELK
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - backend-net
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.13.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - backend-net
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.13.0
+    container_name: filebeat
+    user: root
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - elasticsearch
+      - kibana
+    networks:
+      - backend-net
+
+  #  Traefik - Reverse Proxy
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+
+    ports:
+      - "8082:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml
+    networks:
+      - backend-net
+
+volumes:
+  utilisateur_pgdata:
+  etablissement_pgdata:
+  eleve_pgdata:
+  calendar_pgdata:
+  esdata:
+  classe_pgdata:
+  ressources_pgdata:
+networks:
+  backend-net:
+    driver: bridge
