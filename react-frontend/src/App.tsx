@@ -32,8 +32,7 @@ import PdiSeancePage from "./pages/PdiSeancePage";
 import PdiDetailPage from "./pages/PdiDetailPage";
 import RessourceDetailPage from "./pages/RessourceDetailPage";
 import { JSX } from "react/jsx-runtime";
-import { ResourceProvider } from "./contexts/ResourceContext"; // Importer le nouveau Provider
-import { FilterProvider } from "./contexts/FilterContext";
+import { ResourceProvider } from "./contexts/ResourceContext";
 import GestionNotesPage from './pages/gestionNotes/GestionNotesPage';
 import GestionDevoirsPage from './pages/gestionNotes/GestionDevoirsPage';
 import DevoirDetailPage from './pages/gestionNotes/DevoirDetailPage';
@@ -175,9 +174,7 @@ const App = () => {
   return (
     <Router>
       <ResourceProvider>
-        <FilterProvider>
-          <AppContent />
-        </FilterProvider>
+        <AppContent />
       </ResourceProvider>
     </Router>
   );

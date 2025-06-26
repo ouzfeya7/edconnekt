@@ -27,7 +27,7 @@ export interface StudentNote {
 // Système de notation
 export const getGradingStatus = (note: number | 'absent' | 'non-evalue') => {
   if (note === 'absent') return { text: 'Abs', color: 'text-gray-500' };
-  if (note === 'non-evalue') return { text: 'NE', color: 'text-gray-500' };
+  if (note === 'non-evalue') return { text: '-', color: 'text-gray-500' };
   
   if (typeof note === 'number') {
     if (note >= 75) return { text: `${note}`, color: 'text-green-600' }; // Succès
@@ -158,20 +158,24 @@ const subjectsByClass: { [classId: string]: Domain[] } = {
         { 
           id: 'francais', name: 'Français',
           competences: [
-            { id: 'cp-fr-orale', label: 'Comm. orale' },
-            { id: 'cp-fr-ecrite', label: 'Prod. écrite' },
-            { id: 'cp-fr-fluidite', label: 'Fluidité' },
-            { id: 'cp-fr-idm', label: 'IDM' },
+            { id: 'cp1-fr-orale', label: 'Exp Orale' },
+            { id: 'cp1-fr-vocab', label: 'Vocabulaire' },
+            { id: 'cp1-fr-gram', label: 'Grammaire' },
+            { id: 'cp1-fr-conj', label: 'Conjugaison' },
+            { id: 'cp1-fr-ortho', label: 'Orthographe' },
+            { id: 'cp1-fr-lect-comp', label: 'Compréhension' },
+            { id: 'cp1-fr-lect-idm', label: 'IDM' },
+            { id: 'cp1-fr-lect-fluid', label: 'Fluidité' },
+            { id: 'cp1-fr-prod-ecrite', label: 'Prod. Ecrite' },
           ],
         },
         {
           id: 'anglais', name: 'Anglais',
           competences: [
-              { id: 'cp-en-convo', label: 'Conversation' },
-              { id: 'cp-en-vocab', label: 'Vocabulaire' },
-              { id: 'cp-en-story', label: 'Story Telling' },
-              { id: 'cp-en-gram', label: 'Grammaire' },
-              { id: 'cp-en-listen-speak', label: 'Listening/Speaking' },
+              { id: 'cp1-en-speak-gram', label: 'Speaking-Gram' },
+              { id: 'cp1-en-listen', label: 'Listening' },
+              { id: 'cp1-en-vocab', label: 'vocab' },
+              { id: 'cp1-en-read-write', label: 'reading-writing' },
           ],
         }
       ],
@@ -179,32 +183,43 @@ const subjectsByClass: { [classId: string]: Domain[] } = {
     {
         id: 'sci-hum', name: 'Sciences Humaines',
         subjects: [
-            { id: 'geographie', name: 'Géographie', competences: [{id: 'cp-geo-repere', label:'Repères mobiles'}]},
-            { id: 'lecture-arabe', name: 'Lecture arabe', competences: [{id: 'cp-ar-lecture', label:'Lecture'}]},
-            { id: 'etudes-islamiques', name: 'Études islamiques', competences: [{id: 'cp-ei-dogme', label:'Dogme'}]},
-            { id: 'qran', name: 'Qran', competences: [{id: 'cp-quran-memo', label:'Mémorisation'}]},
+            { id: 'cp1-hist', name: 'Histoire', competences: [{id: 'cp1-hist-comp', label:'Histoire Comp'}]},
+            { id: 'cp1-geo', name: 'Geographie', competences: [{id: 'cp1-geo-comp', label:'Geographie Comp'}]},
+            { id: 'cp1-ei', name: 'Etude Islamique', competences: [{id: 'cp1-ei-comp', label:'Etude Islamique Comp'}]},
+            { id: 'cp1-quran', name: 'Quran', competences: [{id: 'cp1-quran-comp', label:'Quran Comp'}]},
+            { id: 'cp1-ve', name: 'Vivre Ensemble', competences: [{id: 'cp1-ve-comp', label:'Vivre Ensemble Comp'}]},
+            { id: 'cp1-vdsm', name: 'VDSM', competences: [{id: 'cp1-vdsm-comp', label:'VDSM Comp'}]},
         ]
     },
     {
       id: 'stem', name: 'STEM',
       subjects: [
           {
-              id: 'maths', name: 'Mathématiques',
+              id: 'maths', name: 'MATHS',
               competences: [
-                  { id: 'cp-math-mesure', label: 'Mesure' },
-                  { id: 'cp-math-geo', label: 'Géométrie' },
-                  { id: 'cp-math-problemes', label: 'Résolution de problèmes' },
+                  { id: 'cp1-math-num', label: 'Act Numérique' },
+                  { id: 'cp1-math-mesure', label: 'Act de Mesure' },
+                  { id: 'cp1-math-geo', label: 'Act géométrique' },
+                  { id: 'cp1-math-prob', label: 'Rés de Problèm' },
               ]
+          },
+          {
+            id: 'ist', name: 'IST',
+            competences: [
+                { id: 'cp1-ist-comp', label: 'IST Comp' },
+            ]
           }
       ]
     },
     {
-        id: 'art-sport', name: 'Créativité & Sport',
+        id: 'art-sport', name: 'CREATIVITE ARTISTIQUE / SPORTIVE',
         subjects: [
-            {id: 'eps', name: 'EPS', competences: [{id: 'cp-as-course', label: 'Course'}]},
-            {id: 'arts-plastiques', name: 'Arts plastiques', competences: [{id: 'cp-as-dessin', label: 'Dessin'}]},
-            {id: 'theatre', name: 'Théâtre/Drama', competences: [{id: 'cp-as-impro', label: 'Improvisation'}]},
-            {id: 'musique', name: 'Musique', competences: [{id: 'cp-as-chant', label: 'Chant'}]},
+            {id: 'eps', name: 'EPS', competences: [{id: 'cp1-eps-comp', label: 'Activités Physiques'}]},
+            {id: 'arts', name: 'Arts', competences: [
+                { id: 'cp1-arts-plast', label: 'Arts Plastiques'},
+                { id: 'cp1-arts-theatre', label: 'Theatre/Drama'},
+                { id: 'cp1-arts-drum', label: 'Drumming/Mus'},
+            ]},
         ]
     }
   ],
@@ -240,6 +255,7 @@ const subjectsByClass: { [classId: string]: Domain[] } = {
             { id: 'lecture-arabe', name: 'Lecture arabe', competences: [{id: 'cp-ar-lecture', label:'Lecture'}]},
             { id: 'etudes-islamiques', name: 'Études islamiques', competences: [{id: 'cp-ei-dogme', label:'Dogme'}]},
             { id: 'qran', name: 'Qran', competences: [{id: 'cp-quran-memo', label:'Mémorisation'}]},
+            { id: 'vivre-ensemble', name: 'Vivre ensemble', competences: [{id: 'cm2-sh-ve', label:'Civisme'}]},
         ]
     },
     {
@@ -248,9 +264,10 @@ const subjectsByClass: { [classId: string]: Domain[] } = {
           {
               id: 'maths', name: 'Mathématiques',
               competences: [
-                  { id: 'cp-math-mesure', label: 'Mesure' },
-                  { id: 'cp-math-geo', label: 'Géométrie' },
-                  { id: 'cp-math-problemes', label: 'Résolution de problèmes' },
+                  { id: 'cm2-math-num', label: 'Activités numériques' },
+                  { id: 'cm2-math-mesure', label: 'Mesure' },
+                  { id: 'cm2-math-geo', label: 'Géométrie' },
+                  { id: 'cm2-math-problemes', label: 'Résolution de problèmes' },
               ]
           }
       ]
@@ -258,10 +275,10 @@ const subjectsByClass: { [classId: string]: Domain[] } = {
     {
         id: 'art-sport', name: 'Créativité & Sport',
         subjects: [
-            {id: 'eps', name: 'EPS', competences: [{id: 'cp-as-course', label: 'Course'}]},
-            {id: 'arts-plastiques', name: 'Arts plastiques', competences: [{id: 'cp-as-dessin', label: 'Dessin'}]},
-            {id: 'theatre', name: 'Théâtre/Drama', competences: [{id: 'cp-as-impro', label: 'Improvisation'}]},
-            {id: 'musique', name: 'Musique', competences: [{id: 'cp-as-chant', label: 'Chant'}]},
+            {id: 'eps', name: 'EPS', competences: [{id: 'cm2-as-sport', label: 'Sport collectif'}]},
+            {id: 'arts-plastiques', name: 'Arts plastiques', competences: [{id: 'cm2-as-crea', label: 'Création libre'}]},
+            {id: 'theatre', name: 'Théâtre/Drama', competences: [{id: 'cm2-as-piece', label: 'Jouer une pièce'}]},
+            {id: 'musique', name: 'Musique', competences: [{id: 'cm2-as-compo', label: 'Composition'}]},
         ]
     }
   ],
@@ -459,84 +476,96 @@ const subjectsByClass: { [classId: string]: Domain[] } = {
   ],
 };
 
-// Données de notes des élèves
-const studentNotesByClass: { [classId: string]: StudentNote[] } = {
-    presk1: [
-        {
-            studentId: 'presk1-eleve-1', studentName: 'Amina Fall', studentAvatar: 'https://randomuser.me/api/portraits/women/4.jpg',
-            notes: { 'presk-fr-langage': 92, 'presk-fr-conte': 88, 'presk-math-num': 95, 'presk-as-marche': 75 }
-        },
-        {
-            studentId: 'presk1-eleve-2', studentName: 'Babacar Dieng', studentAvatar: 'https://randomuser.me/api/portraits/men/5.jpg',
-            notes: { 'presk-fr-langage': 75, 'presk-fr-conte': 'absent', 'presk-math-num': 82, 'presk-as-marche': 90 }
-        },
-    ],
-    presk2: [
-        {
-            studentId: 'presk2-eleve-1', studentName: 'Bineta Sarr', studentAvatar: 'https://randomuser.me/api/portraits/women/6.jpg',
-            notes: { 'presk-fr-vocab': 85, 'presk-en-convo': 91, 'presk-math-geo': 78, 'presk-as-algo': 88 }
-        },
-    ],
-    cp1: [
-        {
-            studentId: 'cp1-eleve-1', studentName: 'Fatou Diop', studentAvatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-            notes: {
-                'cp-fr-orale': 95, 'cp-fr-ecrite': 82, 'cp-fr-fluidite': 91, 'cp-fr-idm': 85,
-                'cp-en-convo': 88, 'cp-en-vocab': 76, 'cp-en-story': 92,
-                'cp-math-mesure': 75, 'cp-math-geo': 68, 'cp-math-problemes': 81,
-            }
-        },
-        {
-            studentId: 'cp1-eleve-2', studentName: 'Moussa Sow', studentAvatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-            notes: {
-                'cp-fr-orale': 45, 'cp-fr-ecrite': 65, 'cp-fr-fluidite': 55, 'cp-fr-idm': 72,
-                'cp-en-convo': 'absent', 'cp-en-vocab': 80, 'cp-en-story': 68,
-                'cp-math-mesure': 92, 'cp-math-geo': 85, 'cp-math-problemes': 95,
-            }
-        },
-        {
-            studentId: 'cp1-eleve-3', studentName: 'Awa Gueye', studentAvatar: 'https://randomuser.me/api/portraits/women/3.jpg',
-            notes: {
-                'cp-fr-orale': 88, 'cp-fr-ecrite': 91, 'cp-fr-fluidite': 94, 'cp-fr-idm': 89,
-                'cp-en-convo': 92, 'cp-en-vocab': 'non-evalue', 'cp-en-story': 85,
-                'cp-math-mesure': 34, 'cp-math-geo': 45, 'cp-math-problemes': 25,
-            }
-        }
-    ],
-    cp2: [
-        {
-            studentId: 'cp2-eleve-1', studentName: 'Ousmane Ba', studentAvatar: 'https://randomuser.me/api/portraits/men/7.jpg',
-            notes: { 'cp-fr-idm': 88, 'cp-en-gram': 76, 'cp-math-geo': 91, 'cp-as-dessin': 85 }
-        },
-    ],
-    ce1: [
-        {
-            studentId: 'ce1-eleve-1', studentName: 'Ndeye Coumba', studentAvatar: 'https://randomuser.me/api/portraits/women/8.jpg',
-            notes: { 'ce-fr-ortho': 78, 'ce-en-reading': 85, 'ce-math-num': 90, 'ce-as-parcours': 95 }
-        },
-    ],
-    ce2: [
-        {
-            studentId: 'ce2-eleve-1', studentName: 'Pape Diouf', studentAvatar: 'https://randomuser.me/api/portraits/men/9.jpg',
-            notes: { 'ce-fr-gram': 68, 'ce-en-vocab': 79, 'ce-math-problemes': 82, 'ce-as-coord': 77 }
-        },
-    ],
-    cm2: [
-        {
-            studentId: 'cm2-eleve-1', studentName: 'Rama Cisse', studentAvatar: 'https://randomuser.me/api/portraits/women/10.jpg',
-            notes: { 'cm2-fr-expr-orale': 91, 'cm2-en-speak-gram': 88, 'cm2-math-num': 95, 'cm2-as-sport': 89 }
-        },
-        {
-            studentId: 'cm2-eleve-2', studentName: 'Alioune Tine', studentAvatar: 'https://randomuser.me/api/portraits/men/11.jpg',
-            notes: { 'cm2-fr-expr-orale': 72, 'cm2-en-speak-gram': 65, 'cm2-math-num': 'absent', 'cm2-as-sport': 92 }
-        },
-    ]
+// DONNÉES DES ÉLÈVES PAR CLASSE
+// Source de vérité pour les élèves. 
+// Pour ajouter un élève, il suffit de l'ajouter à la bonne classe ici.
+const studentDataByClass = {
+  presk1: [
+    { studentId: 'presk1-eleve-1', studentName: 'Amina Fall', studentAvatar: 'https://randomuser.me/api/portraits/women/4.jpg' },
+    { studentId: 'presk1-eleve-2', studentName: 'Babacar Dieng', studentAvatar: 'https://randomuser.me/api/portraits/men/5.jpg' },
+  ],
+  presk2: [
+    { studentId: 'presk2-eleve-1', studentName: 'Bineta Sarr', studentAvatar: 'https://randomuser.me/api/portraits/women/6.jpg' },
+  ],
+  cp1: [
+    // === NOUVELLE LISTE DE 20 ÉLÈVES POUR CP1 ===
+    // --- 8 Filles ---
+    { studentId: 'cp1-eleve-1', studentName: 'Awa Gueye', studentAvatar: 'https://i.pravatar.cc/150?img=1' },
+    { studentId: 'cp1-eleve-2', studentName: 'Fatou Diop', studentAvatar: 'https://i.pravatar.cc/150?img=5' },
+    { studentId: 'cp1-eleve-3', studentName: 'Mariama Sow', studentAvatar: 'https://i.pravatar.cc/150?img=7' },
+    { studentId: 'cp1-eleve-4', studentName: 'Ndeye Fall', studentAvatar: 'https://i.pravatar.cc/150?img=8' },
+    { studentId: 'cp1-eleve-5', studentName: 'Astou Ndiaye', studentAvatar: 'https://i.pravatar.cc/150?img=10' },
+    { studentId: 'cp1-eleve-6', studentName: 'Coumba Diallo', studentAvatar: 'https://i.pravatar.cc/150?img=11' },
+    { studentId: 'cp1-eleve-7', studentName: 'Khadija Ba', studentAvatar: 'https://i.pravatar.cc/150?img=12' },
+    { studentId: 'cp1-eleve-8', studentName: 'Aminata Cissé', studentAvatar: 'https://i.pravatar.cc/150?img=14' },
+    // --- 12 Garçons ---
+    { studentId: 'cp1-eleve-9', studentName: 'Moussa Sow', studentAvatar: 'https://i.pravatar.cc/150?img=3' },
+    { studentId: 'cp1-eleve-10', studentName: 'Ousmane Traoré', studentAvatar: 'https://i.pravatar.cc/150?img=15' },
+    { studentId: 'cp1-eleve-11', studentName: 'Ibrahima Diallo', studentAvatar: 'https://i.pravatar.cc/150?img=16' },
+    { studentId: 'cp1-eleve-12', studentName: 'Cheikh Dieng', studentAvatar: 'https://i.pravatar.cc/150?img=18' },
+    { studentId: 'cp1-eleve-13', studentName: 'Alioune Badara Thiam', studentAvatar: 'https://i.pravatar.cc/150?img=20' },
+    { studentId: 'cp1-eleve-14', studentName: 'Pape Diouf', studentAvatar: 'https://i.pravatar.cc/150?img=22' },
+    { studentId: 'cp1-eleve-15', studentName: 'El Hadji Sy', studentAvatar: 'https://i.pravatar.cc/150?img=25' },
+    { studentId: 'cp1-eleve-16', studentName: 'Daouda Faye', studentAvatar: 'https://i.pravatar.cc/150?img=28' },
+    { studentId: 'cp1-eleve-17', studentName: 'Abdoulaye Sarr', studentAvatar: 'https://i.pravatar.cc/150?img=31' },
+    { studentId: 'cp1-eleve-18', studentName: 'Lamine Camara', studentAvatar: 'https://i.pravatar.cc/150?img=33' },
+    { studentId: 'cp1-eleve-19', studentName: 'Mamadou Diallo', studentAvatar: 'https://i.pravatar.cc/150?img=35' },
+    { studentId: 'cp1-eleve-20', studentName: 'Souleymane Ba', studentAvatar: 'https://i.pravatar.cc/150?img=40' },
+  ],
+  cp2: [
+    { studentId: 'cp2-eleve-1', studentName: 'Ousmane Ba', studentAvatar: 'https://randomuser.me/api/portraits/men/7.jpg' },
+  ],
+  ce1: [
+    { studentId: 'ce1-eleve-1', studentName: 'Ndeye Coumba', studentAvatar: 'https://randomuser.me/api/portraits/women/8.jpg' },
+  ],
+  ce2: [
+    { studentId: 'ce2-eleve-1', studentName: 'Pape Diouf', studentAvatar: 'https://randomuser.me/api/portraits/men/9.jpg' },
+  ],
+  cm2: [
+    { studentId: 'cm2-eleve-1', studentName: 'Rama Cisse', studentAvatar: 'https://randomuser.me/api/portraits/women/10.jpg' },
+    { studentId: 'cm2-eleve-2', studentName: 'Alioune Tine', studentAvatar: 'https://randomuser.me/api/portraits/men/11.jpg' },
+  ]
 };
 
 export const getSubjectsForClass = (classId: string): Domain[] => {
     return subjectsByClass[classId] || [];
 }
 
-export const getNotesForClass = (classId: string): StudentNote[] => {
-    return studentNotesByClass[classId] || [];
-} 
+/**
+ * Génère des données de notes pour une classe et une liste d'élèves données.
+ * Les notes sont initialisées comme 'non-evalue'.
+ */
+export const getNotesForClass = (classId: string, students: { id: string, name: string, avatar: string }[]): StudentNote[] => {
+  const subjects = subjectsByClass[classId] || [];
+  const allCompetences = subjects.flatMap(d => d.subjects.flatMap(s => s.competences));
+
+  return students.map(student => {
+    const notes: { [competenceId: string]: number | 'absent' | 'non-evalue' } = {};
+    allCompetences.forEach(competence => {
+      // Les notes sont initialisées à 'non-evalue' pour que l'enseignant les remplisse.
+      notes[competence.id] = 'non-evalue';
+    });
+    
+    return {
+      studentId: student.id,
+      studentName: student.name,
+      studentAvatar: student.avatar,
+      notes,
+    };
+  });
+};
+
+/**
+ * Combine les données des élèves et les notes pour l'export.
+ * C'est la variable que le StudentContext va utiliser.
+ */
+export const studentNotesByClass: { [classId: string]: StudentNote[] } = {};
+
+Object.keys(studentDataByClass).forEach(classId => {
+  const studentsOfClass = studentDataByClass[classId as keyof typeof studentDataByClass].map(s => ({
+    id: s.studentId,
+    name: s.studentName,
+    avatar: s.studentAvatar
+  }));
+  studentNotesByClass[classId] = getNotesForClass(classId, studentsOfClass);
+}); 

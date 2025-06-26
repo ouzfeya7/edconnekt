@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import NotesTable, { NoteData, NoteColumn, TableAction } from './NotesTable';
+import NotesTable, { NoteData, NoteColumn } from './NotesTable';
 import Toolbar from '../ui/Toolbar';
 import { Eye, Download, Edit3 } from 'lucide-react';
 
@@ -63,31 +63,25 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
     return filteredNotes.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredNotes, currentPage]);
 
-  // Handlers
-  const handleViewReport = (id: string) => console.log(`View report for: ${id}, Role: ${role}`);
-  const handleDownloadReport = (id: string) => console.log(`Download report for: ${id}, Role: ${role}`);
-  const handleEditAccess = (id: string) => console.log(`Edit access for: ${id}`);
-
-  // Définition des actions de base
-  const baseActions: TableAction[] = [
-    { id: 'view', icon: <Eye size={16} />, onClick: handleViewReport, tooltip: 'Voir rapports' },
-    { id: 'download', icon: <Download size={16} />, onClick: handleDownloadReport, tooltip: 'Télécharger les rapports' }
-  ];
-
-  // Ajout des actions spécifiques à l'enseignant
-  const tableActions: TableAction[] = isEnseignant 
-    ? [
-        ...baseActions,
-        { id: 'editAccess', icon: <Edit3 size={16} />, onClick: handleEditAccess, tooltip: 'Modifier accès/rapports' }
-      ]
-    : baseActions;
-
   const noteColumns: NoteColumn[] = [
+    {
+        key: isEnseignant ? 'studentName' : 'eleveName',
+        label: 'Élève',
+        render: (_, item) => (
+            <div className="flex items-center">
+                <img
+                    src={(isEnseignant ? (item as EnseignantTrimestrielleData).studentAvatar : (item as EleveTrimestrielleData).eleveImage) || 'https://via.placeholder.com/40'}
+                    alt="avatar"
+                    className="w-8 h-8 rounded-full mr-3 object-cover"
+                />
+                <span>{isEnseignant ? (item as EnseignantTrimestrielleData).studentName : (item as EleveTrimestrielleData).eleveName}</span>
+            </div>
+        )
+    },
     { key: 'dateNaissance', label: 'Date de naissance' },
     { key: 'trimestre1', label: 'Trimestre 1', render: (value, note) => value ? <a href="#" onClick={(e) => e.preventDefault()} className="text-blue-600 hover:underline">{value as string}</a> : <span className="text-gray-400">-</span> },
     { key: 'trimestre2', label: 'Trimestre 2', render: (value, note) => value ? <a href="#" onClick={(e) => e.preventDefault()} className="text-blue-600 hover:underline">{value as string}</a> : <span className="text-gray-400">-</span> },
     { key: 'trimestre3', label: 'Trimestre 3', render: (value, note) => value ? <a href="#" onClick={(e) => e.preventDefault()} className="text-blue-600 hover:underline">{value as string}</a> : <span className="text-gray-400">-</span> },
-    { key: 'placeholder', label: '-', render: () => <span className="text-gray-400">-</span> }
   ];
   
   const notesTableData = paginatedNotes.map(note => {
@@ -114,8 +108,6 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
       <NotesTable 
         data={notesTableData} 
         noteColumns={noteColumns} 
-        actions={tableActions} 
-        showProgressionColumn={false}
       />
     </div>
   );

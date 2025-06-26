@@ -1,38 +1,30 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { useFilters } from './FilterContext'; // Importer pour accéder à la classe actuelle
+import { studentNotesByClass, StudentNote } from '../lib/notes-data'; // Importer les données
 
 export type StudentStatus = 'Présent' | 'Retard' | 'Absent';
 
+// L'interface Student est maintenant plus simple, car les notes sont gérées ailleurs.
 export interface Student {
-  id: number;
+  id: string; // Utiliser le studentId comme id
   name: string;
-  competence: string;
-  status: StudentStatus;
-  imageUrl: string;
-  ref: string;
-  gender: string;
-  birthDate: string;
-  email: string;
-  address: string;
-  department: string;
-  class: string;
-  admissionDate: string;
+  avatar: string;
+  classId: string;
+  status: StudentStatus; 
 }
 
-export const initialStudents: Student[] = new Array(20).fill(null).map((_, i) => ({
-  id: i + 1,
-  name: i === 0 ? "Khadija Ndiaye" : i === 1 ? "Maty Diop" : `Mouhamed Fall ${i - 1}`,
-  imageUrl: `https://i.pravatar.cc/150?u=a042581f4e29026704d${i}`,
-  competence: "Lecture anglais",
-  status: i % 10 === 5 ? "Retard" : i % 10 === 7 ? "Absent" : "Présent",
-  ref: `STU1234${i}`,
-  gender: i % 2 === 0 ? 'FÉMININ' : 'MASCULIN',
-  birthDate: '01 JANVIER 2010',
-  email: `student${i}@example.com`,
-  address: 'Dakar, Sénégal',
-  department: 'SCIENCES',
-  class: '4ème B',
-  admissionDate: '01 SEPTEMBRE 2018',
-}));
+// Transformation des données importées pour les adapter au contexte
+const allStudents: Student[] = Object.entries(studentNotesByClass).flatMap(([classId, students]) =>
+  students.map((student, index) => ({
+    id: student.studentId,
+    name: student.studentName,
+    avatar: student.studentAvatar,
+    classId: classId,
+    // Statut par défaut
+    status: index % 10 === 5 ? "Retard" : index % 10 === 7 ? "Absent" : "Présent",
+  }))
+);
+
 
 interface StudentCount {
   total: number;
@@ -43,14 +35,22 @@ interface StudentCount {
 
 interface StudentContextType {
   students: Student[];
-  updateStudentStatus: (studentId: number, status: StudentStatus) => void;
+  updateStudentStatus: (studentId: string, status: StudentStatus) => void;
   studentCount: StudentCount;
 }
 
 const StudentContext = createContext<StudentContextType | undefined>(undefined);
 
 export const StudentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [students, setStudents] = useState<Student[]>(initialStudents);
+  const { currentClasse } = useFilters();
+  const [students, setStudents] = useState<Student[]>([]);
+  
+  // Filtrer les étudiants à chaque changement de classe
+  useEffect(() => {
+    const classStudents = allStudents.filter(s => s.classId === currentClasse);
+    setStudents(classStudents);
+  }, [currentClasse]);
+
   const [studentCount, setStudentCount] = useState<StudentCount>({
     total: 0,
     present: 0,
@@ -71,7 +71,7 @@ export const StudentProvider: React.FC<{ children: ReactNode }> = ({ children })
     });
   }, [students]);
 
-  const updateStudentStatus = (studentId: number, status: StudentStatus) => {
+  const updateStudentStatus = (studentId: string, status: StudentStatus) => {
     setStudents(currentStudents =>
       currentStudents.map(student =>
         student.id === studentId ? { ...student, status } : student

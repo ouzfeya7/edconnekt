@@ -14,6 +14,7 @@ import './index.css';
 import { AuthProvider } from './pages/authentification/AuthContext';
 import { EventProvider } from './contexts/EventContext';
 import { StudentProvider } from './contexts/StudentContext';
+import { FilterProvider } from './contexts/FilterContext';
 
 // Synchronize dayjs locale with i18next
 const updateDayjsLocale = (lng: string | undefined) => {
@@ -41,11 +42,13 @@ createRoot(document.getElementById('root')!).render(
   //     console.log('Keycloak event', event, error);
   //   }}>
   <AuthProvider>
-    <EventProvider>
-      <StudentProvider>
-        <App />
-      </StudentProvider>
-    </EventProvider>
+    <FilterProvider>
+      <EventProvider>
+        <StudentProvider>
+          <App />
+        </StudentProvider>
+      </EventProvider>
+    </FilterProvider>
   </AuthProvider>
   //  </ReactKeycloakProvider>
 );

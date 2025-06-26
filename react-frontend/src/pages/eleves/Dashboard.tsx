@@ -29,7 +29,7 @@ function Globale() {
     email: user.email,
     address: user.address,
     department: user.department || 'Département non disponible',
-    class: '4ème B', // Donnée non disponible, valeur par défaut
+    class: 'CP1',
     admissionDate: user.entryDate || 'Date non disponible',
     status: 'Présent',// Statut non disponible, valeur par défaut
     competence: "Lecture anglais",
@@ -37,7 +37,7 @@ function Globale() {
 
 
   return (
-    <main className="flex gap-6 items-start">
+    <main className="flex gap-6 items-start p-6">
       <section className="flex flex-col flex-1 gap-6">
         <ClassInfoSection studentClassName={student.class} />
         <AssignmentsSection />

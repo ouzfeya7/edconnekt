@@ -8,9 +8,10 @@ import { Calendar } from 'lucide-react';
 interface DateCardProps {
   value: Date;
   onChange: (date: Date) => void;
+  disabled?: boolean;
 }
 
-const DateCard: React.FC<DateCardProps> = ({ value, onChange }) => {
+const DateCard: React.FC<DateCardProps> = ({ value, onChange, disabled = false }) => {
   const { t, i18n } = useTranslation();
 
   useEffect(() => {
@@ -32,7 +33,7 @@ const DateCard: React.FC<DateCardProps> = ({ value, onChange }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-full flex flex-col justify-center">
+    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-full flex flex-col justify-center transition-opacity duration-300 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
       <label htmlFor="date-picker-input" className="block text-sm text-gray-500 font-medium">{t('date')}</label>
       <div className="relative mt-2 flex items-center">
         {/* L'input est stylé pour être transparent et superposé */}
@@ -42,6 +43,7 @@ const DateCard: React.FC<DateCardProps> = ({ value, onChange }) => {
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           value={toInputFormat(value)}
           onChange={handleDateChange}
+          disabled={disabled}
         />
         {/* Le texte affiché est contrôlé manuellement */}
         <span className="text-gray-900 font-medium">

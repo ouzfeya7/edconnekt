@@ -99,13 +99,15 @@ const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onS
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
               >
-                <td className="py-3 px-4">{student.id}</td>
+                <td className="py-3 px-4 text-gray-700">
+                  {(currentPage - 1) * studentsPerPage + idx + 1}
+                </td>
                 <td 
                   className="py-3 px-4 flex items-center gap-2 cursor-pointer hover:bg-gray-100 rounded-md transition-colors"
                   onClick={() => onStudentClick?.(student)}
                 >
                   <img
-                    src={student.imageUrl}
+                    src={student.avatar}
                     alt="avatar"
                     className="w-8 h-8 rounded-full object-cover"
                   />

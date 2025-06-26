@@ -48,9 +48,9 @@ const StudentProfileSection: React.FC<StudentProfileProps> = ({ student, onBack 
       {/* Photo de profil et nom */}
       <div className="flex flex-col items-center mb-8">
         <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg" style={{ borderColor: '#184867' }}>
-          {student.imageUrl ? (
+          {student.avatar ? (
             <img
-              src={student.imageUrl}
+              src={student.avatar}
               alt={student.name}
               className="w-full h-full object-cover"
             />

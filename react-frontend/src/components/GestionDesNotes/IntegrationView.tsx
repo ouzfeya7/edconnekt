@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import NotesTable, { NoteData, NoteColumn, TableAction } from './NotesTable';
+import NotesTable, { NoteData, NoteColumn } from './NotesTable';
 import Toolbar from '../ui/Toolbar';
 import { Eye, Edit3, UserCog, Filter, MoreHorizontal } from 'lucide-react';
 
@@ -81,23 +81,22 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
         setCurrentPage(1);
     }, [activeMonth, searchTerm]);
 
-    // Handlers
-    const handleEditNote = (noteId: string) => console.log("Edit integration note:", noteId);
-    const handleViewDetails = (noteId: string) => console.log("View details for note:", noteId);
-    const handleViewStudent = (noteId: string) => console.log("View student profile for note:", noteId);
-
-    // Actions
-    const baseActions: TableAction[] = [
-        { id: 'edit', icon: <div className="w-5 h-5 bg-orange-400 rounded-sm flex items-center justify-center"><Edit3 size={12} className="text-white"/></div>, onClick: handleEditNote, tooltip: 'Modifier' },
-        { id: 'view', icon: <Eye size={16} />, onClick: handleViewDetails, tooltip: 'Voir Détails' }
-    ];
-
-    const tableActions: TableAction[] = isEnseignant
-        ? [ ...baseActions, { id: 'viewStudent', icon: <UserCog size={16} />, onClick: handleViewStudent, tooltip: 'Voir profil élève' } ]
-        : baseActions;
-
     // Colonnes
     const noteColumns: NoteColumn[] = [
+        { 
+            key: isEnseignant ? 'studentName' : 'facilitator', 
+            label: isEnseignant ? 'Élève' : 'Facilitateur',
+            render: (_, item) => (
+                <div className="flex items-center">
+                    <img 
+                        src={(isEnseignant ? (item as EnseignantIntegrationData).studentAvatar : (item as EleveIntegrationData).facilitatorImage) || 'https://via.placeholder.com/40'} 
+                        alt="avatar"
+                        className="w-8 h-8 rounded-full mr-3 object-cover"
+                    />
+                    <span>{isEnseignant ? (item as EnseignantIntegrationData).studentName : (item as EleveIntegrationData).facilitator}</span>
+                </div>
+            )
+        },
         { key: 'langage', label: "Langage" },
         { key: 'conte', label: "Conte" },
         { key: 'vocabulaire', label: "Vocabulaire" },
@@ -152,8 +151,6 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
             <NotesTable 
                 data={notesTableData} 
                 noteColumns={noteColumns} 
-                actions={tableActions} 
-                showProgressionColumn={true}
             />
         </div>
     );

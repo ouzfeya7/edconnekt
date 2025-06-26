@@ -19,7 +19,7 @@ export interface NoteColumn {
 interface NotesTableProps {
   data: NoteData[];
   noteColumns: NoteColumn[];
-  onNoteUpdate: (studentId: string, competenceId: string, value: number) => void;
+  onNoteUpdate?: (studentId: string, competenceId: string, value: number) => void;
 }
 
 const NotesTable: React.FC<NotesTableProps> = ({ data, noteColumns, onNoteUpdate }) => {
@@ -34,7 +34,7 @@ const NotesTable: React.FC<NotesTableProps> = ({ data, noteColumns, onNoteUpdate
       const target = e.target as HTMLInputElement;
       const newValue = parseInt(target.value, 10);
       if (!isNaN(newValue) && newValue >= 0 && newValue <= 100) {
-        onNoteUpdate(studentId, competenceId, newValue);
+        onNoteUpdate?.(studentId, competenceId, newValue);
       }
       setEditingCell(null);
     } else if (e.key === 'Escape') {
@@ -68,7 +68,7 @@ const NotesTable: React.FC<NotesTableProps> = ({ data, noteColumns, onNoteUpdate
                     key={`${item.id}-${col.key}`} 
                     className="px-4 py-3 whitespace-nowrap text-sm text-gray-700"
                     onDoubleClick={() => {
-                      if (col.key !== 'studentName') {
+                      if (onNoteUpdate && col.key !== 'studentName') {
                         setEditingCell({ studentId: item.id, competenceId: col.key });
                       }
                     }}

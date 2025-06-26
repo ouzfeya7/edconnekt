@@ -49,7 +49,7 @@ const MesNotesPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100 min-h-screen p-4 md:p-6">
       <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes notes</h1>
       <p className="text-sm text-gray-500 mb-6">Evaluation / Gestion des notes</p>
 

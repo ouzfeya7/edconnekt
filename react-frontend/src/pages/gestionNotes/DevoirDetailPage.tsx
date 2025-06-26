@@ -3,20 +3,21 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, Calendar, Book, CheckCircle, XCircle, Eye, Send, Download } from 'lucide-react';
 import { mockDevoirs } from './GestionDevoirsPage'; 
-import { initialStudents, Student } from '../../contexts/StudentContext';
+import { useStudents, Student } from '../../contexts/StudentContext';
 import dayjs from 'dayjs';
 import { ActionCard } from '../../components/ui/ActionCard';
 
 const DevoirDetailPage: React.FC = () => {
   const { devoirId } = useParams<{ devoirId: string }>();
   const { t } = useTranslation();
+  const { students } = useStudents();
   
   const devoir = mockDevoirs.find(d => d.id === devoirId);
 
   // Simulation: on ne sait pas *qui* a soumis, juste combien.
   // On assigne un statut aléatoire et une date de soumission factice.
   const submittedCount = devoir?.submitted || 0;
-  const studentSubmissions = initialStudents.map((student: Student, index: number) => {
+  const studentSubmissions = students.map((student, index) => {
     const hasSubmitted = index < submittedCount;
     let submissionDate = null;
     if (hasSubmitted) {
@@ -121,7 +122,7 @@ const DevoirDetailPage: React.FC = () => {
               {studentSubmissions.map((student: Student & { hasSubmitted: boolean, submissionDate: string | null }) => (
                 <li key={student.id} className="grid grid-cols-10 gap-4 items-center px-4 py-3 border-b last:border-b-0 hover:bg-gray-50 transition-colors">
                   <div className="flex items-center gap-3 col-span-4">
-                    <img className="h-10 w-10 rounded-full object-cover" src={student.imageUrl} alt={student.name} />
+                    <img className="h-10 w-10 rounded-full object-cover" src={student.avatar} alt={student.name} />
                     <span className="text-sm font-medium text-gray-900">{student.name}</span>
                   </div>
                   <div className="text-sm text-gray-600 col-span-2">
