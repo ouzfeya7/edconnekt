@@ -1,157 +1,352 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import NotesTable, { NoteData, NoteColumn } from './NotesTable';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import NotesTable from './NotesTable';
+import type { NoteColumn } from './NotesTable';
 import Toolbar from '../ui/Toolbar';
-import { Eye, Edit3, UserCog, Filter, MoreHorizontal } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useFilters } from '../../contexts/FilterContext';
+import { useStudents } from '../../contexts/StudentContext';
+import { getSubjectsForClass, getNotesForClass, getGradingStatus } from '../../lib/notes-data';
+import type { StudentNote, Domain } from '../../lib/notes-data';
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { MoreHorizontal, FileSpreadsheet, FileText, Library, ArrowDownToLine } from 'lucide-react';
 
-type Role = 'eleve' | 'enseignant';
+interface jsPDFWithAutoTable extends jsPDF {
+    lastAutoTable?: {
+        finalY?: number;
+    };
+}
+
+const ITEMS_PER_PAGE = 10;
 
 interface IntegrationViewProps {
-  role: Role;
+  role: 'enseignant' | 'eleve';
 }
-
-// Interfaces de données
-interface BaseIntegrationData extends NoteData {
-    date: string;
-    langage?: number;
-    conte?: number;
-    vocabulaire?: number;
-    lecture?: number;
-    graphisme?: number;
-    month: string;
-}
-
-interface EleveIntegrationData extends BaseIntegrationData {
-  facilitator: string;
-  facilitatorImage?: string;
-}
-
-interface EnseignantIntegrationData extends BaseIntegrationData {
-  studentName: string;
-  studentAvatar?: string;
-}
-
-
-// Mocks
-const mockEleveNotes: EleveIntegrationData[] = [
-    { id: 'integS1', facilitator: 'Khadija Ndiaye', facilitatorImage: 'https://randomuser.me/api/portraits/women/65.jpg', date: '2 Mars 2025', langage: 75, conte: 79, vocabulaire: 68, lecture: 40, graphisme: 79, progression: 70, month: "Septembre", subjectId: 'integration-sept' },
-    { id: 'integS2', facilitator: 'Maty Diop', facilitatorImage: 'https://randomuser.me/api/portraits/women/60.jpg', date: '2 Mars 2025', langage: 86, conte: 83, vocabulaire: 56, lecture: 82, graphisme: 28, progression: 75, month: "Septembre", subjectId: 'integration-sept' },
-    { id: 'integO1', facilitator: 'Awa Gueye', facilitatorImage: 'https://randomuser.me/api/portraits/women/61.jpg', date: '10 Octobre 2025', langage: 88, conte: 92, vocabulaire: 85, lecture: 90, graphisme: 88, progression: 89, month: "Octobre", subjectId: 'integration-oct' },
-];
-
-const mockEnseignantNotes: EnseignantIntegrationData[] = [
-    { id: 's1-int-sep', studentName: 'Khadija Ndiaye', studentAvatar: 'https://randomuser.me/api/portraits/women/1.jpg', date: '15 Septembre 2024', langage: 70, conte: 65, vocabulaire: 72, lecture: 78, graphisme: 60, progression: 70, month: "Septembre", subjectId: 'integration-sept' },
-    { id: 's2-int-sep', studentName: 'Maty Diop', studentAvatar: 'https://randomuser.me/api/portraits/women/2.jpg', date: '18 Septembre 2024', langage: 80, conte: 75, vocabulaire: 82, lecture: 88, graphisme: 70, progression: 80, month: "Septembre", subjectId: 'integration-sept' },
-    { id: 's1-int-oct', studentName: 'Khadija Ndiaye', studentAvatar: 'https://randomuser.me/api/portraits/women/1.jpg', date: '12 Octobre 2024', langage: 75, conte: 70, vocabulaire: 77, lecture: 83, graphisme: 65, progression: 75, month: "Octobre", subjectId: 'integration-oct' },
-];
-
-const ITEMS_PER_PAGE = 5;
-const MONTHS = ["Septembre", "Octobre", "Novembre", "Décembre", "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août"];
-
 
 const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
-    const [activeMonth, setActiveMonth] = useState(MONTHS[0]);
+    const { t } = useTranslation();
+    const { currentClasse, currentMonth } = useFilters();
+    const { students } = useStudents();
+    
+    const [domains, setDomains] = useState<Domain[]>([]);
+    const [notes, setNotes] = useState<StudentNote[]>([]);
+    const [activeDomainId, setActiveDomainId] = useState<string>('');
+    const [activeSubjectId, setActiveSubjectId] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
 
-    const isEnseignant = role === 'enseignant';
-    const notesData = isEnseignant ? mockEnseignantNotes : mockEleveNotes;
-
-    const filteredAndSortedNotes = useMemo(() => {
-        return notesData
-            .filter(note => {
-                const searchLower = searchTerm.toLowerCase();
-                const name = isEnseignant ? (note as EnseignantIntegrationData).studentName : (note as EleveIntegrationData).facilitator;
-
-                const matchesSearch =
-                    name.toLowerCase().includes(searchLower) ||
-                    note.date.toLowerCase().includes(searchLower);
-
-                const matchesMonth = note.month === activeMonth;
-                return matchesSearch && matchesMonth;
-            })
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [searchTerm, activeMonth, notesData, isEnseignant]);
-
-    const paginatedNotes = useMemo(() => {
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        return filteredAndSortedNotes.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-    }, [filteredAndSortedNotes, currentPage]);
-
     useEffect(() => {
-        setCurrentPage(1);
-    }, [activeMonth, searchTerm]);
+        const classDomains = getSubjectsForClass(currentClasse);
+        setDomains(classDomains);
+        const classNotes = getNotesForClass(currentClasse, students.map(s => ({ id: s.id, name: s.name, avatar: s.avatar })));
+        setNotes(classNotes);
 
-    // Colonnes
-    const noteColumns: NoteColumn[] = [
-        { 
-            key: isEnseignant ? 'studentName' : 'facilitator', 
-            label: isEnseignant ? 'Élève' : 'Facilitateur',
-            render: (_, item) => (
-                <div className="flex items-center">
-                    <img 
-                        src={(isEnseignant ? (item as EnseignantIntegrationData).studentAvatar : (item as EleveIntegrationData).facilitatorImage) || 'https://via.placeholder.com/40'} 
-                        alt="avatar"
-                        className="w-8 h-8 rounded-full mr-3 object-cover"
-                    />
-                    <span>{isEnseignant ? (item as EnseignantIntegrationData).studentName : (item as EleveIntegrationData).facilitator}</span>
-                </div>
-            )
-        },
-        { key: 'langage', label: "Langage" },
-        { key: 'conte', label: "Conte" },
-        { key: 'vocabulaire', label: "Vocabulaire" },
-        { key: 'lecture', label: "Lecture" },
-        { key: 'graphisme', label: "Graphisme" },
-    ];
-    
-    const notesTableData = paginatedNotes.map(note => {
-        const eleveNote = note as EleveIntegrationData;
-        const enseignantNote = note as EnseignantIntegrationData;
-        return {
-            ...note,
-            facilitator: isEnseignant ? enseignantNote.studentName : eleveNote.facilitator,
-            facilitatorImage: isEnseignant ? enseignantNote.studentAvatar : eleveNote.facilitatorImage,
+        if (classDomains.length > 0) {
+            const firstDomain = classDomains[0];
+            setActiveDomainId(firstDomain.id);
+            if (firstDomain.subjects.length > 0) {
+                setActiveSubjectId(firstDomain.subjects[0].id);
+            }
         }
-    });
+    }, [currentClasse, students]);
+    
+    const handleNoteUpdate = (studentId: string, competenceId: string, newValue: number | 'absent' | 'non-evalue') => {
+        setNotes(currentNotes =>
+            currentNotes.map(note => {
+                if (note.studentId === studentId) {
+                    return { ...note, notes: { ...note.notes, [competenceId]: newValue } };
+                }
+                return note;
+            })
+        );
+    };
+    
+    const handleExport = () => {
+        if (!activeSubject) return;
 
-    const monthTabs = (
-        <div className="flex flex-wrap gap-2 items-center justify-center">
-            {MONTHS.map(month => (
-                <button
-                    key={month}
-                    onClick={() => { setActiveMonth(month); }}
-                    className={`px-4 py-1.5 text-sm font-medium focus:outline-none whitespace-nowrap transition-all duration-150 ease-in-out 
-                                ${activeMonth === month 
-                                ? 'border-orange-500 text-orange-600 border-b-2 font-semibold' 
-                                : 'text-gray-600 hover:text-orange-500 border-b-2 border-transparent'}`}
-                >
-                    {month.toUpperCase()}
-                </button>
-            ))}
-        </div>
-    );
+        const dataToExport = filteredNotes.map(note => {
+            const studentData: {[key: string]: string | number} = {
+                'Prénom et Nom': note.studentName,
+            };
+            activeSubject.competences.forEach(c => {
+                const noteValue = note.notes[c.id];
+                if (typeof noteValue === 'number') {
+                    studentData[c.label] = `${noteValue}%`;
+                } else if (noteValue === 'absent') {
+                    studentData[c.label] = 'Absent';
+                } else if (noteValue === 'non-evalue') {
+                    studentData[c.label] = 'Non évalué';
+                } else {
+                    studentData[c.label] = '-';
+                }
+            });
+            return studentData;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, activeSubject.name);
+        
+        const colWidths = Object.keys(dataToExport[0] || {}).map(key => ({
+            wch: Math.max(key.length, ...dataToExport.map(row => (row[key] || '').toString().length)) + 2
+        }));
+        worksheet['!cols'] = colWidths;
+
+        XLSX.writeFile(workbook, `Notes_Integration_${currentClasse}_${currentMonth}_${activeSubject.name}.xlsx`);
+    };
+
+    const handleExportAll = () => {
+        const workbook = XLSX.utils.book_new();
+
+        domains.forEach(domain => {
+            domain.subjects.forEach(subject => {
+                const dataToExport = filteredNotes.map(note => {
+                    const studentData: { [key: string]: string | number } = {
+                        'Prénom et Nom': note.studentName,
+                    };
+                    subject.competences.forEach(c => {
+                        const noteValue = note.notes[c.id];
+                        if (typeof noteValue === 'number') {
+                            studentData[c.label] = `${noteValue}%`;
+                        } else if (noteValue === 'absent') {
+                            studentData[c.label] = 'Absent';
+                        } else if (noteValue === 'non-evalue') {
+                            studentData[c.label] = 'Non évalué';
+                        } else {
+                            studentData[c.label] = '-';
+                        }
+                    });
+                    return studentData;
+                });
+                
+                if (dataToExport.length > 0) {
+                    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+                    
+                    const sheetName = subject.name.replace(/[:\\/?*[\]]/g, '').substring(0, 31);
+
+                    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+                    
+                    const colWidths = Object.keys(dataToExport[0] || {}).map(key => ({
+                        wch: Math.max(key.length, ...dataToExport.map(row => (row[key] || '').toString().length)) + 2
+                    }));
+                    worksheet['!cols'] = colWidths;
+                }
+            });
+        });
+
+        if (workbook.SheetNames.length > 0) {
+            XLSX.writeFile(workbook, `Notes_Integration_${currentClasse}_${currentMonth}_Toutes_Matieres.xlsx`);
+        } else {
+            console.warn("Aucune donnée à exporter.");
+        }
+    };
+
+    const handleExportPdf = () => {
+        if (!activeSubject) {
+            console.error("Export PDF annulé : aucune matière active.");
+            return;
+        }
+
+        try {
+            const doc = new jsPDF();
+            const tableColumns = ["Prénom et Nom", ...activeSubject.competences.map(c => c.label)];
+            const tableRows = filteredNotes.map(note => [
+                note.studentName,
+                ...activeSubject.competences.map(c => {
+                    const noteValue = note.notes[c.id];
+                    if (typeof noteValue === 'number') return `${noteValue}%`;
+                    if (noteValue === 'absent') return 'Absent';
+                    if (noteValue === 'non-evalue') return 'Non évalué';
+                    return '-';
+                })
+            ]);
+
+            doc.setFontSize(16);
+            doc.text(`Notes Intégration - ${activeSubject.name} (${currentClasse} - ${currentMonth})`, 14, 15);
+
+            autoTable(doc, {
+                head: [tableColumns],
+                body: tableRows,
+                startY: 20,
+            });
+
+            doc.save(`Notes_Integration_${currentClasse}_${currentMonth}_${activeSubject.name}.pdf`);
+        } catch (error) {
+            console.error("Erreur lors de la génération du PDF :", error);
+            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+        }
+    };
+
+    const handleExportAllPdf = () => {
+        try {
+            const doc: jsPDFWithAutoTable = new jsPDF();
+            doc.setFontSize(18);
+            doc.text(`Rapport d'intégration complet - Classe: ${currentClasse} (${currentMonth})`, 14, 22);
+
+            let startY = 30;
+
+            domains.forEach(domain => {
+                domain.subjects.forEach(subject => {
+                    if (subject.competences.length === 0) return;
+
+                    const tableColumns = ["Prénom et Nom", ...subject.competences.map(c => c.label)];
+                    const tableRows = filteredNotes.map(note => [
+                        note.studentName,
+                        ...subject.competences.map(c => {
+                            const noteValue = note.notes[c.id];
+                            if (typeof noteValue === 'number') return `${noteValue}%`;
+                            if (noteValue === 'absent') return 'Absent';
+                            if (noteValue === 'non-evalue') return 'Non évalué';
+                            return '-';
+                        })
+                    ]);
+
+                    autoTable(doc, {
+                        head: [[`${domain.name} - ${subject.name}`]],
+                        startY: startY,
+                        theme: 'plain',
+                        styles: { fontStyle: 'bold', fontSize: 12, halign: 'left' }
+                    });
+
+                    autoTable(doc, {
+                        head: [tableColumns],
+                        body: tableRows,
+                        startY: doc.lastAutoTable?.finalY,
+                    });
+
+                    startY = (doc.lastAutoTable?.finalY || startY) + 10;
+                });
+            });
+
+            doc.save(`Rapport_Integration_Complet_${currentClasse}_${currentMonth}.pdf`);
+
+        } catch (error) {
+            console.error("Erreur lors de la génération du PDF complet :", error);
+            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+        }
+    };
+
+    const activeDomain = useMemo(() => domains.find(d => d.id === activeDomainId), [domains, activeDomainId]);
+    const subjectsForActiveDomain = useMemo(() => activeDomain?.subjects || [], [activeDomain]);
+    const activeSubject = useMemo(() => subjectsForActiveDomain.find(s => s.id === activeSubjectId), [subjectsForActiveDomain, activeSubjectId]);
+
+    const noteColumns: NoteColumn[] = useMemo(() => {
+        const studentColumn: NoteColumn = {
+            key: 'studentName', label: 'Prénom et Nom',
+            render: (_, item) => (
+                <div className="flex items-center"><img className="h-8 w-8 rounded-full object-cover" src={item.studentAvatar} alt={item.studentName} /><div className="ml-3"><div className="text-sm font-medium">{item.studentName}</div></div></div>
+            )
+        };
+        const competenceColumns: NoteColumn[] = activeSubject?.competences.map(c => ({
+            key: c.id, label: c.label,
+            render: (value) => {
+                const status = getGradingStatus(value);
+                return <span className={`font-semibold ${status.color}`}>{status.text}{typeof value === 'number' ? '%' : ''}</span>;
+            }
+        })) || [];
+        return [studentColumn, ...competenceColumns];
+    }, [activeSubject]);
+
+    const filteredNotes = useMemo(() => notes.filter(note => note.studentName.toLowerCase().includes(searchTerm.toLowerCase())), [notes, searchTerm]);
+    const paginatedNotes = useMemo(() => filteredNotes.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE), [filteredNotes, currentPage]);
+    const notesTableData = useMemo(() => paginatedNotes.map(note => ({ id: note.studentId, studentName: note.studentName, studentAvatar: note.studentAvatar, ...note.notes })), [paginatedNotes]);
 
     return (
-        <div className="mt-6 bg-white p-4 md:p-6 rounded-lg shadow-md">
-            <div className="flex border-b-2 border-gray-200 mb-4 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                {monthTabs}
+        <div className="bg-white rounded-lg shadow-sm">
+            <div className="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                {domains.map(domain => (
+                <button
+                        key={domain.id}
+                        onClick={() => setActiveDomainId(domain.id)}
+                        className={`px-4 py-3 text-sm font-medium focus:outline-none transition-colors duration-150 ${
+                            activeDomainId === domain.id
+                                ? 'border-orange-500 text-orange-600 border-b-2'
+                                : 'text-gray-500 hover:text-orange-500 border-b-2 border-transparent'
+                        }`}
+                    >
+                        {domain.name.toUpperCase()}
+                </button>
+            ))}
             </div>
+            <div className="p-4 md:p-6">
             <Toolbar
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
-                searchPlaceholder={isEnseignant ? "Rechercher élève, date..." : "Rechercher facilitateur, date..."}
-                centerSlot={<button className="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"><Filter size={16}/> Filtre</button>}
-                showPagination={true}
+                    searchPlaceholder={t('search_by_name', 'Rechercher par nom...')}
+                    centerSlot={
+                        <div className="flex flex-wrap items-center gap-2">
+                            {subjectsForActiveDomain.map(subject => (
+                                <button
+                                    key={subject.id}
+                                    onClick={() => setActiveSubjectId(subject.id)}
+                                    className={`px-3 py-1.5 text-sm rounded-full font-medium transition-colors ${
+                                        activeSubjectId === subject.id
+                                            ? 'bg-blue-600 text-white shadow'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                                >
+                                    {subject.name}
+                                </button>
+                            ))}
+                        </div>
+                    }
+                    showPagination={filteredNotes.length > ITEMS_PER_PAGE}
                 currentPage={currentPage}
-                totalItems={filteredAndSortedNotes.length}
+                    totalItems={filteredNotes.length}
                 itemsPerPage={ITEMS_PER_PAGE}
                 onPageChange={setCurrentPage}
-                rightActions={<button className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100" title="Plus d'options"><MoreHorizontal size={18} /></button>}
+                    rightActions={
+                        role === 'enseignant' ? (
+                            <Menu as="div" className="relative">
+                                <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    <MoreHorizontal className="w-5 h-5" />
+                                </MenuButton>
+                                <MenuItems anchor="bottom end" className="w-56 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                                    <div className="px-1 py-1">
+                                        <MenuItem>
+                                            {({ active }) => (
+                                                <button onClick={handleExport} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                    <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Excel (Matière)
+                                                </button>
+                                            )}
+                                        </MenuItem>
+                                        <MenuItem>
+                                            {({ active }) => (
+                                                <button onClick={handleExportAll} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                    <Library className="w-5 h-5 mr-2" /> Exporter Excel (Tout)
+                                                </button>
+                                            )}
+                                        </MenuItem>
+                                    </div>
+                                    <div className="px-1 py-1">
+                                        <MenuItem>
+                                            {({ active }) => (
+                                                <button onClick={handleExportPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                    <FileText className="w-5 h-5 mr-2" /> Exporter PDF (Matière)
+                                                </button>
+                                            )}
+                                        </MenuItem>
+                                        <MenuItem>
+                                            {({ active }) => (
+                                                <button onClick={handleExportAllPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                    <ArrowDownToLine className="w-5 h-5 mr-2" /> Exporter PDF (Tout)
+                                                </button>
+                                            )}
+                                        </MenuItem>
+                                    </div>
+                                </MenuItems>
+                            </Menu>
+                        ) : null
+                    }
             />
             <NotesTable 
                 data={notesTableData} 
                 noteColumns={noteColumns} 
+                    onNoteUpdate={role === 'enseignant' ? handleNoteUpdate : undefined}
             />
+            </div>
         </div>
     );
 };

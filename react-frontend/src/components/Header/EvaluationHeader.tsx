@@ -4,6 +4,7 @@ import DateCard from './DateCard';
 import ClassNameCard from './ClassNameCard';
 import TrimestreCard from './TrimestreCard';
 import EvaluationTypeTabs from './EvaluationTypeTabs';
+import MonthCard from './MonthCard';
 
 interface EvaluationHeaderProps {
   initialEvaluationType?: string;
@@ -22,7 +23,9 @@ const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
     currentClasse, 
     setCurrentClasse, 
     currentTrimestre, 
-    setCurrentTrimestre 
+    setCurrentTrimestre,
+    currentMonth,
+    setCurrentMonth
   } = useFilters();
   
   const [evaluationType, setEvaluationType] = useState(initialEvaluationType);
@@ -38,7 +41,11 @@ const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <DateCard value={currentDate} onChange={setCurrentDate} disabled={isDateDisabled} />
+      {evaluationType === 'Intégration' ? (
+        <MonthCard value={currentMonth} onChange={setCurrentMonth} />
+      ) : (
+        <DateCard value={currentDate} onChange={setCurrentDate} disabled={isDateDisabled} />
+      )}
       <ClassNameCard className={currentClasse} onClassChange={setCurrentClasse} isEditable={isClasseEditable} />
       <TrimestreCard value={currentTrimestre} onChange={setCurrentTrimestre} />
       <EvaluationTypeTabs value={evaluationType} onChange={handleEvaluationTypeChangeInternal} />

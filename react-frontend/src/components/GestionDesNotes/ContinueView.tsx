@@ -25,7 +25,7 @@ interface ContinueViewProps {
 
 const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
     const { t } = useTranslation();
-    const { currentClasse } = useFilters();
+    const { currentClasse, formattedCurrentDate } = useFilters();
     const { students } = useStudents();
     
     const [domains, setDomains] = useState<Domain[]>([]);
@@ -130,8 +130,6 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         });
     }, [notes, searchTerm]);
 
-    const totalPages = Math.ceil(filteredNotes.length / ITEMS_PER_PAGE);
-
     const paginatedNotes = useMemo(() => {
         const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
         return filteredNotes.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -176,7 +174,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         }));
         worksheet['!cols'] = colWidths;
 
-        XLSX.writeFile(workbook, `Notes_${currentClasse}_${activeSubject.name}.xlsx`);
+        XLSX.writeFile(workbook, `Notes_Continue_${currentClasse}_${formattedCurrentDate}_${activeSubject.name}.xlsx`);
     };
 
     const handleExportAll = () => {
@@ -220,7 +218,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         });
 
         if (workbook.SheetNames.length > 0) {
-            XLSX.writeFile(workbook, `Notes_Toutes_Matieres_${currentClasse}.xlsx`);
+            XLSX.writeFile(workbook, `Notes_Continue_Toutes_Matieres_${currentClasse}_${formattedCurrentDate}.xlsx`);
         } else {
             // Maybe show a notification to the user
             console.warn("Aucune donnée à exporter.");
@@ -248,7 +246,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
             ]);
 
             doc.setFontSize(16);
-            doc.text(`Notes - ${activeSubject.name} (${currentClasse})`, 14, 15);
+            doc.text(`Notes - ${activeSubject.name} (${currentClasse} - ${formattedCurrentDate})`, 14, 15);
 
             autoTable(doc, {
                 head: [tableColumns],
@@ -256,7 +254,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                 startY: 20,
             });
 
-            doc.save(`Notes_${currentClasse}_${activeSubject.name}.pdf`);
+            doc.save(`Notes_Continue_${currentClasse}_${formattedCurrentDate}_${activeSubject.name}.pdf`);
         } catch (error) {
             console.error("Erreur lors de la génération du PDF :", error);
             alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
@@ -267,7 +265,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         try {
             const doc: jsPDFWithAutoTable = new jsPDF();
             doc.setFontSize(18);
-            doc.text(`Rapport de notes complet - Classe: ${currentClasse}`, 14, 22);
+            doc.text(`Rapport de notes complet - Classe: ${currentClasse} (${formattedCurrentDate})`, 14, 22);
 
             let startY = 30;
 
@@ -304,7 +302,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                 });
             });
 
-            doc.save(`Rapport_Complet_${currentClasse}.pdf`);
+            doc.save(`Rapport_Continue_Complet_${currentClasse}_${formattedCurrentDate}.pdf`);
 
         } catch (error) {
             console.error("Erreur lors de la génération du PDF complet :", error);

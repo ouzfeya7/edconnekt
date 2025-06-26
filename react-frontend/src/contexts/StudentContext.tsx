@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useFilters } from './FilterContext'; // Importer pour accéder à la classe actuelle
-import { studentNotesByClass, StudentNote } from '../lib/notes-data'; // Importer les données
+import { studentNotesByClass } from '../lib/notes-data'; // Importer les données
 
 export type StudentStatus = 'Présent' | 'Retard' | 'Absent';
 
@@ -10,11 +10,12 @@ export interface Student {
   name: string;
   avatar: string;
   classId: string;
-  status: StudentStatus; 
+  status: StudentStatus;
+  comment: string; // Ajout du champ commentaire
 }
 
 // Transformation des données importées pour les adapter au contexte
-const allStudents: Student[] = Object.entries(studentNotesByClass).flatMap(([classId, students]) =>
+const allStudents: Omit<Student, 'comment'>[] = Object.entries(studentNotesByClass).flatMap(([classId, students]) =>
   students.map((student, index) => ({
     id: student.studentId,
     name: student.studentName,
@@ -36,6 +37,7 @@ interface StudentCount {
 interface StudentContextType {
   students: Student[];
   updateStudentStatus: (studentId: string, status: StudentStatus) => void;
+  updateStudentComment: (studentId: string, comment: string) => void;
   studentCount: StudentCount;
 }
 
@@ -45,10 +47,11 @@ export const StudentProvider: React.FC<{ children: ReactNode }> = ({ children })
   const { currentClasse } = useFilters();
   const [students, setStudents] = useState<Student[]>([]);
   
-  // Filtrer les étudiants à chaque changement de classe
+  // Filtrer et initialiser les étudiants à chaque changement de classe
   useEffect(() => {
     const classStudents = allStudents.filter(s => s.classId === currentClasse);
-    setStudents(classStudents);
+    // Initialise le commentaire pour chaque élève
+    setStudents(classStudents.map(s => ({ ...s, comment: '-' })));
   }, [currentClasse]);
 
   const [studentCount, setStudentCount] = useState<StudentCount>({
@@ -79,8 +82,16 @@ export const StudentProvider: React.FC<{ children: ReactNode }> = ({ children })
     );
   };
 
+  const updateStudentComment = (studentId: string, comment: string) => {
+    setStudents(currentStudents =>
+      currentStudents.map(student =>
+        student.id === studentId ? { ...student, comment } : student
+      )
+    );
+  };
+
   return (
-    <StudentContext.Provider value={{ students, updateStudentStatus, studentCount }}>
+    <StudentContext.Provider value={{ students, updateStudentStatus, updateStudentComment, studentCount }}>
       {children}
     </StudentContext.Provider>
   );

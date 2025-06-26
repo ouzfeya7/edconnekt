@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useStudents } from '../../contexts/StudentContext';
 import { Student, StudentStatus } from "../../contexts/StudentContext";
 
 interface StudentListProps {
-  students: Student[];
   onStudentClick?: (student: Student) => void;
-  onStatusChange: (studentId: number, status: StudentStatus) => void;
 }
 
 const statusOptions: readonly StudentStatus[] = ["Présent", "Retard", "Absent"];
@@ -22,8 +21,9 @@ const statusStyle: Record<StudentStatus, string> = {
   Absent: "bg-red-100 text-red-700",
 };
 
-const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onStatusChange }) => {
+const StudentList: React.FC<StudentListProps> = ({ onStudentClick }) => {
   const { t } = useTranslation();
+  const { students, updateStudentStatus, updateStudentComment } = useStudents();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StudentStatus | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -87,8 +87,8 @@ const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onS
             <tr className="text-gray-500 text-xs uppercase tracking-wide border-b">
               <th className="py-3 px-4 text-left">#</th>
               <th className="py-3 px-4 text-left">{t('name')}</th>
-              <th className="py-3 px-4 text-left">{t('skill_header')}</th>
               <th className="py-3 px-4 text-left">{t('status_header')}</th>
+              <th className="py-3 px-4 text-left">{t('comment_header', 'Commentaire')}</th>
             </tr>
           </thead>
           <tbody>
@@ -113,11 +113,10 @@ const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onS
                   />
                   <span className="font-medium text-gray-800">{student.name}</span>
                 </td>
-                <td className="py-3 px-4 text-gray-700">{student.competence}</td>
                 <td className="py-3 px-4">
                   <select
                     value={student.status}
-                    onChange={(e) => onStatusChange(student.id, e.target.value as StudentStatus)}
+                    onChange={(e) => updateStudentStatus(student.id, e.target.value as StudentStatus)}
                     className={`px-2 py-1 rounded-full text-xs font-semibold border-none focus:ring-2 focus:ring-offset-2 ${
                       statusStyle[student.status]
                     }`}
@@ -128,6 +127,15 @@ const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onS
                       </option>
                     ))}
                   </select>
+                </td>
+                <td className="py-3 px-4">
+                  <input
+                    type="text"
+                    value={student.comment}
+                    onChange={(e) => updateStudentComment(student.id, e.target.value)}
+                    className="w-full px-2 py-1 border border-transparent rounded-md bg-transparent hover:border-gray-300 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                    placeholder="Ajouter un commentaire..."
+                  />
                 </td>
               </tr>
             ))}

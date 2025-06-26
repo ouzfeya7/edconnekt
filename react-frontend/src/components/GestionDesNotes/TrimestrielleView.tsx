@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import NotesTable, { NoteData, NoteColumn } from './NotesTable';
 import Toolbar from '../ui/Toolbar';
-import { Eye, Download, Edit3 } from 'lucide-react';
+import { useStudents } from '../../contexts/StudentContext';
 
 type Role = 'eleve' | 'enseignant';
 
@@ -9,99 +9,78 @@ interface TrimestrielleViewProps {
   role: Role;
 }
 
-// Interfaces de données spécifiques
-interface EleveTrimestrielleData extends NoteData {
-    eleveName: string;
-    eleveImage?: string;
-    dateNaissance: string;
-    trimestre1?: string;
-    trimestre2?: string;
-    trimestre3?: string;
-}
-
-interface EnseignantTrimestrielleData extends NoteData {
+// Interface pour les données de cette vue
+interface TrimestrielleNoteData extends NoteData {
     studentName: string;
-    studentAvatar?: string;
-    dateNaissance: string;
+    studentAvatar: string;
     trimestre1?: string;
     trimestre2?: string;
     trimestre3?: string;
 }
 
-// Données Mock (pourrait être remplacé par un fetch)
-const mockEleveNotes: EleveTrimestrielleData[] = [
-    { id: '1', eleveName: 'Khadija Ndiaye', eleveImage: 'https://randomuser.me/api/portraits/women/70.jpg', dateNaissance: '2 Mars 2025', trimestre1: 'rapportT1_khadija.pdf', trimestre2: 'rapportT2_khadija.pdf', trimestre3: 'rapportT3_khadija.pdf', date: '2 Mars 2025', progression: 0, subjectId: 'trimestriel', facilitator: 'Khadija Ndiaye' },
-    { id: '2', eleveName: 'Mamadou Sow', eleveImage: 'https://randomuser.me/api/portraits/men/70.jpg', dateNaissance: '15 Mai 2024', trimestre1: 'rapportT1_mamadou.pdf', trimestre3: 'rapportT3_mamadou.pdf', date: '15 Mai 2024', progression: 0, subjectId: 'trimestriel', facilitator: 'Mamadou Sow' },
-];
-
-const mockEnseignantNotes: EnseignantTrimestrielleData[] = [
-    { id: 's1-trim', studentName: 'Khadija Ndiaye', studentAvatar: 'https://randomuser.me/api/portraits/women/1.jpg', dateNaissance: '2 Mars 2025', trimestre1: 'rapportT1.pdf', trimestre2: 'rapportT2.pdf', trimestre3: 'rapportT3.pdf', date: 'N/A', progression: 0, subjectId:'trim', facilitator:'Khadija Ndiaye', facilitatorImage:'https://randomuser.me/api/portraits/women/1.jpg'},
-    { id: 's2-trim', studentName: 'Maty Diop', studentAvatar: 'https://randomuser.me/api/portraits/women/2.jpg', dateNaissance: '15 Avril 2025', trimestre1: 'rapportT1.pdf', trimestre3: 'rapportT3.pdf', date: 'N/A', progression: 0, subjectId:'trim', facilitator:'Maty Diop', facilitatorImage:'https://randomuser.me/api/portraits/women/2.jpg'},
-];
-
-
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
+  const { students } = useStudents();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
   const isEnseignant = role === 'enseignant';
 
-  const notesData = isEnseignant ? mockEnseignantNotes : mockEleveNotes;
+  const filteredStudents = useMemo(() => {
+    return students.filter(student =>
+        student.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, students]);
 
-  const filteredNotes = useMemo(() => {
-    return notesData.filter(note => {
-        const name = isEnseignant ? (note as EnseignantTrimestrielleData).studentName : (note as EleveTrimestrielleData).eleveName;
-        return name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-               note.dateNaissance.toLowerCase().includes(searchTerm.toLowerCase())
-    });
-  }, [searchTerm, notesData, isEnseignant]);
-
-  const paginatedNotes = useMemo(() => {
+  const paginatedStudents = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredNotes.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredNotes, currentPage]);
+    return filteredStudents.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredStudents, currentPage]);
 
   const noteColumns: NoteColumn[] = [
     {
-        key: isEnseignant ? 'studentName' : 'eleveName',
+        key: 'student',
         label: 'Élève',
-        render: (_, item) => (
-            <div className="flex items-center">
-                <img
-                    src={(isEnseignant ? (item as EnseignantTrimestrielleData).studentAvatar : (item as EleveTrimestrielleData).eleveImage) || 'https://via.placeholder.com/40'}
-                    alt="avatar"
-                    className="w-8 h-8 rounded-full mr-3 object-cover"
-                />
-                <span>{isEnseignant ? (item as EnseignantTrimestrielleData).studentName : (item as EleveTrimestrielleData).eleveName}</span>
-            </div>
-        )
+        render: (_, item) => {
+            const studentItem = item as TrimestrielleNoteData;
+            return (
+                <div className="flex items-center">
+                    <img
+                        src={studentItem.studentAvatar || 'https://via.placeholder.com/40'}
+                        alt="avatar"
+                        className="w-8 h-8 rounded-full mr-3 object-cover"
+                    />
+                    <span>{studentItem.studentName}</span>
+                </div>
+            )
+        }
     },
-    { key: 'dateNaissance', label: 'Date de naissance' },
-    { key: 'trimestre1', label: 'Trimestre 1', render: (value, note) => value ? <a href="#" onClick={(e) => e.preventDefault()} className="text-blue-600 hover:underline">{value as string}</a> : <span className="text-gray-400">-</span> },
-    { key: 'trimestre2', label: 'Trimestre 2', render: (value, note) => value ? <a href="#" onClick={(e) => e.preventDefault()} className="text-blue-600 hover:underline">{value as string}</a> : <span className="text-gray-400">-</span> },
-    { key: 'trimestre3', label: 'Trimestre 3', render: (value, note) => value ? <a href="#" onClick={(e) => e.preventDefault()} className="text-blue-600 hover:underline">{value as string}</a> : <span className="text-gray-400">-</span> },
+    { key: 'trimestre1', label: 'Trimestre 1', render: (value) => value ? <a href="#" onClick={(e) => e.preventDefault()} className="text-blue-600 hover:underline">{value as string}</a> : <span className="text-gray-400">-</span> },
+    { key: 'trimestre2', label: 'Trimestre 2', render: (value) => value ? <a href="#" onClick={(e) => e.preventDefault()} className="text-blue-600 hover:underline">{value as string}</a> : <span className="text-gray-400">-</span> },
+    { key: 'trimestre3', label: 'Trimestre 3', render: (value) => value ? <a href="#" onClick={(e) => e.preventDefault()} className="text-blue-600 hover:underline">{value as string}</a> : <span className="text-gray-400">-</span> },
   ];
   
-  const notesTableData = paginatedNotes.map(note => {
-    const eleveNote = note as EleveTrimestrielleData;
-    const enseignantNote = note as EnseignantTrimestrielleData;
-    return {
-      ...note,
-      facilitator: isEnseignant ? enseignantNote.studentName : eleveNote.eleveName,
-      facilitatorImage: isEnseignant ? enseignantNote.studentAvatar : eleveNote.eleveImage
-  }});
+  const notesTableData: TrimestrielleNoteData[] = paginatedStudents.map(student => ({
+      id: student.id,
+      studentName: student.name,
+      studentAvatar: student.avatar,
+      // Les rapports seront ajoutés plus tard
+  }));
+
+  if (!isEnseignant) {
+    return <div className="text-center p-8">Vue non disponible pour ce rôle.</div>;
+  }
 
   return (
     <div className="mt-6 bg-white p-4 md:p-6 rounded-lg shadow-md">
       <Toolbar
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        searchPlaceholder="Rechercher par nom, date de naissance..."
+        searchPlaceholder="Rechercher par nom..."
         showPagination={true}
         currentPage={currentPage}
-        totalItems={filteredNotes.length}
+        totalItems={filteredStudents.length}
         itemsPerPage={ITEMS_PER_PAGE}
         onPageChange={setCurrentPage}
       />

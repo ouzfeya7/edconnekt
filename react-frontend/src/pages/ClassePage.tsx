@@ -5,7 +5,9 @@ import ClassHeader from '../components/classe/ClassHeader';
 import ClassDetailsCard from '../components/classe/ClassDetailsCard';
 import EventCard from '../components/events/EventCard';
 import { useEvents } from '../contexts/EventContext';
-import { useStudents, Student, StudentStatus } from '../contexts/StudentContext';
+
+
+import { useStudents, Student } from '../contexts/StudentContext';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs'; // Utiliser dayjs pour la gestion des dates
 import { useFilters } from '../contexts/FilterContext'; // Importer useFilters
@@ -13,13 +15,13 @@ import { useFilters } from '../contexts/FilterContext'; // Importer useFilters
 const ClassePage = () => {
   const { t, i18n } = useTranslation();
   const { events } = useEvents();
-  const { students, updateStudentStatus, studentCount } = useStudents();
+  const { studentCount } = useStudents();
   const { 
     currentClasse, 
     setCurrentClasse, 
     currentDate, 
     setCurrentDate 
-  } = useFilters(); // Utiliser le contexte
+  } = useFilters();
 
   // Mettre à jour la locale de dayjs lorsque la langue change
   dayjs.locale(i18n.language);
@@ -44,10 +46,6 @@ const ClassePage = () => {
     setSelectedStudent(null);
   };
 
-  const handleStudentStatusChange = (studentId: number, status: StudentStatus) => {
-    updateStudentStatus(studentId, status);
-  };
-
   return (
     <div className="flex-1 p-6 overflow-auto bg-[#F5F7FA]">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">{t('my_classes')}</h1>
@@ -65,9 +63,7 @@ const ClassePage = () => {
             studentStats={studentCount}
           />
           <StudentList 
-            students={students} 
             onStudentClick={handleStudentClick}
-            onStatusChange={handleStudentStatusChange}
           />
         </div>
 
