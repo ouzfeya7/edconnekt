@@ -6,11 +6,15 @@ import ProgressionChart from '../../components/charts/ProgressionChart';
 import { ActionCard } from '../../components/ui/ActionCard';
 import ClassHeader from '../../components/classe/ClassHeader';
 import CourseDetailHeader from '../../components/course/CourseDetailHeader';
-import LessonCard from '../../components/course/LessonCard';
+import CourseCard from '../../components/course/CourseCard';
 import ProgressSteps from '../../components/ui/ProgressSteps';
 import { Combobox } from '../../components/ui/Combobox';
-import { mockCourses } from '../../lib/mock-data'; // Importer les données
+import { mockWeeklySkills, WeeklySkill } from '../../lib/mock-data';
 import { useStudents } from '../../contexts/StudentContext';
+import dayjs from 'dayjs';
+import { useFilters } from '../../contexts/FilterContext';
+import { useAuth } from '../authentification/useAuth';
+import AddFicheModal, { NewFicheData } from '../../components/course/AddFicheModal';
 
 // Import icons from lucide-react
 import { PlusCircle, BarChart2, Mail, Calendar } from 'lucide-react';
@@ -75,45 +79,85 @@ const progressionDataByStudent: ProgressionData = {
 
 const studentOptions = Object.keys(progressionDataByStudent).map(name => ({ value: name, label: name }));
 
-const skillOptions = [
-  "Français",
-  "Anglais",
-  "Histoire",
-  "Géographie",
-  "Éducation civique",
-  "Arts plastiques",
-  "Éducation physique et sportive (EPS)",
-  "Informatique",
-].map(skill => ({ value: skill, label: skill }));
-
 const Dashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { students, studentCount } = useStudents();
+  const { user } = useAuth();
+  const { studentCount } = useStudents();
+  const { 
+    currentClasse, 
+    setCurrentClasse, 
+    currentDate, 
+    setCurrentDate 
+  } = useFilters();
   
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [chartData, setChartData] = useState(initialEvaluationData);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const [skills, setSkills] = useState<WeeklySkill[]>([]);
+  const [skillOptions, setSkillOptions] = useState<{ value: string, label: string }[]>([]);
 
   const [selectedStudent, setSelectedStudent] = useState(studentOptions[0].value);
-  const [selectedSkill, setSelectedSkill] = useState(skillOptions[0].value);
+  const [selectedSkill, setSelectedSkill] = useState("");
   const [progressionChartData, setProgressionChartData] = useState<ProgressionPoint[]>([]);
 
   useEffect(() => {
-    console.log(`Simulation de la récupération des données pour la date : ${selectedDate}`);
-    const shuffledData = [...initialEvaluationData].sort(() => Math.random() - 0.5);
-    setChartData(shuffledData);
-  }, [selectedDate]);
+    const skillsForClass = mockWeeklySkills
+      .filter(s => s.classId === currentClasse)
+      .slice(0, 4); 
+    setSkills(skillsForClass);
+
+    const availableSkills = Array.from(new Set(mockWeeklySkills
+        .filter(s => s.classId === currentClasse)
+        .map(s => s.subject)
+      ))
+      .map(subject => ({ value: subject, label: subject }));
+      
+    setSkillOptions(availableSkills);
+    if (availableSkills.length > 0) {
+      setSelectedSkill(availableSkills[0].value);
+    } else {
+      setSelectedSkill("");
+    }
+  }, [currentClasse]);
 
   useEffect(() => {
+    console.log(`Simulation de la récupération des données pour la date : ${currentDate}`);
+    const shuffledData = [...initialEvaluationData].sort(() => Math.random() - 0.5);
+    setChartData(shuffledData);
+  }, [currentDate]);
+
+  useEffect(() => {
+    if (selectedStudent && selectedSkill) {
     const data = progressionDataByStudent[selectedStudent]?.[selectedSkill] || [];
     setProgressionChartData(data);
+    } else {
+      setProgressionChartData([]);
+    }
   }, [selectedStudent, selectedSkill]);
+
+  const handleAddFiche = (data: NewFicheData) => {
+    const teacherName = user ? `${user.firstName} ${user.lastName}` : t('unknown_teacher', 'Enseignant non identifié');
+    const newSkill: WeeklySkill = {
+      id: `skill-${Date.now()}`,
+      classId: currentClasse,
+        title: data.title,
+        subject: data.subject,
+      teacher: teacherName,
+      teacherImage: "https://via.placeholder.com/40x40",
+        time: data.time,
+      presentCount: 0,
+      absentCount: 0,
+    };
+    setSkills(prevSkills => [newSkill, ...prevSkills].slice(0, 4));
+    setIsModalOpen(false);
+  };
 
   const actionButtons = [
     {
       icon: <PlusCircle className="text-[#FF8C00] w-5 h-5" />,
-      label: t('add_course', 'Ajouter une fiche'),
-      onClick: () => console.log('Add course clicked')
+      label: t('add_sheet', 'Ajouter une fiche'),
+      onClick: () => setIsModalOpen(true)
     },
     {
       icon: <BarChart2 className="text-[#FF8C00] w-5 h-5" />,
@@ -132,25 +176,17 @@ const Dashboard = () => {
     }
   ];
 
-  // Fonction pour formater la date en "jour Mois Année"
-  const formatDate = (date: Date): string => {
-    const day = date.getDate();
-    const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-    ];
-    const month = monthNames[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-  };
-
   return (
-    <div className="flex flex-col min-h-full bg-[#F5F7FA]"> {/* Changed background to a lighter gray */}
-      {/* Utiliser CourseDetailHeader */}
+    <div className="flex flex-col min-h-full bg-[#F5F7FA] p-6">
+      <AddFicheModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onApply={handleAddFiche}
+      />
       <CourseDetailHeader title={t('theme_title', 'Thème : Vivre ensemble et respecter les règles de l\'école')} />
 
-      <div className="flex-1 p-6"> {/* Removed bg-gray-50 as it's already on the parent */}
-        {/* Actions buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 my-6">
           {actionButtons.map((button, index) => (
             <ActionCard
               key={index}
@@ -161,45 +197,55 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Filters and Stats */}
         <div className="mb-6">
           <ClassHeader 
-            currentClasse="6ème A" 
-            onClasseChange={() => console.log('Classe changed')}
-            currentDate={formatDate(new Date())}
-            onDateChange={() => console.log('Date changed')}
+            currentClasse={currentClasse} 
+            onClasseChange={setCurrentClasse}
+            currentDate={currentDate}
+            onDateChange={setCurrentDate}
             studentStats={studentCount}
           />
         </div>
 
+        {/* Course Cards Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-gray-800">{t('courses_of_the_day', 'Cours du jour')}</h2>
+          <button 
+            onClick={() => navigate('/mes-cours')}
+            className="text-blue-600 font-semibold hover:underline text-sm"
+          >
+            {t('view_more', 'Voir Plus')}
+          </button>
+        </div>
+
         {/* Course Cards */}
-        <div className="grid grid-cols-3 gap-6 mb-6">
-          {mockCourses.find(c => c.id === 'mathematique')?.lessons.slice(0, 3).map((lesson) => (
-            <LessonCard
-              key={lesson.id}
-              id={lesson.id}
-              title={t(`lesson_title_${lesson.id}`, lesson.lessonTitle)}
-              subject={lesson.remediation?.subject || "N/A"}
-              time={lesson.remediation?.time || "N/A"}
-              teacher={lesson.remediation?.teacher || "N/A"}
-              presentCount={studentCount.present}
-              absentCount={studentCount.absent}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {skills.map((skill) => (
+            <CourseCard
+              key={skill.id}
+              title={skill.title}
+              subject={skill.subject}
+              time={skill.time}
+              teacher={skill.teacher}
+              presentCount={skill.presentCount}
+              absentCount={skill.absentCount}
+              onClick={() => navigate(`/mes-cours/${skill.id}`)}
             />
           ))}
         </div>
 
-        {/* Charts Section */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('evaluation_statistics', 'Statistiques des évaluations')}</h2>
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-lg text-gray-800">{t('evaluation', 'Evaluation')}</h3>
               
-              {/* Sélecteur de date fonctionnel */}
               <div className="relative">
                 <input
                   type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
+                  value={dayjs(currentDate).format('YYYY-MM-DD')}
+                  onChange={(e) => setCurrentDate(new Date(e.target.value))}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-3 p-2.5"
                 />
               </div>
@@ -209,15 +255,15 @@ const Dashboard = () => {
             </div>
             <div className="flex gap-6 mt-6 justify-center">
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#82D0BC]"></span> {/* Specific green color */}
+                  <span className="w-3 h-3 rounded-full bg-[#82D0BC]"></span>
                 <span className="text-gray-700 text-sm">{t('acquired', 'Acquis')}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#F3797E]"></span> {/* Specific red color */}
+                  <span className="w-3 h-3 rounded-full bg-[#F3797E]"></span>
                 <span className="text-gray-700 text-sm">{t('not_acquired', 'Non acquise')}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#FDC374]"></span> {/* Specific emerald color */}
+                  <span className="w-3 h-3 rounded-full bg-[#FDC374]"></span>
                 <span className="text-gray-700 text-sm">{t('in_progress', 'En cours d\'acquisition')}</span>
               </div>
             </div>
@@ -225,37 +271,33 @@ const Dashboard = () => {
           
           <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-lg text-gray-800">{t('progression', 'Progression')}</h3>
-              <div className="flex gap-4">
+                <h3 className="font-semibold text-lg text-gray-800">{t('progression_chart_title', "Progression des compétences")}</h3>
+                <div className="flex gap-2">
                 <Combobox
                     options={studentOptions}
                     value={selectedStudent}
                     onChange={setSelectedStudent}
-                    placeholder="Choisir un élève..."
-                    searchPlaceholder="Rechercher un élève..."
-                    noResultsMessage="Aucun élève trouvé."
+                    placeholder={t('select_student', 'Élève...')}
                 />
                 <Combobox
                     options={skillOptions}
                     value={selectedSkill}
                     onChange={setSelectedSkill}
-                    placeholder="Choisir une compétence..."
-                    searchPlaceholder="Rechercher..."
-                    noResultsMessage="Aucune compétence."
+                    placeholder={t('select_skill', 'Matière...')}
                 />
               </div>
             </div>
             <div className="h-[300px]">
               <ProgressionChart data={progressionChartData} />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* PDI Table */}
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold text-lg text-gray-800">PDI 08-13</h3> {/* Increased font size, changed color */}
-            <button className="text-[#FF8C00] text-sm font-medium hover:underline">{t('view_all', 'Voir tout')}</button> {/* Specific orange color, text-sm, font-medium */}
+            <h3 className="font-semibold text-lg text-gray-800">PDI 08-13</h3>
+            <button className="text-[#FF8C00] text-sm font-medium hover:underline cursor-pointer">{t('view_all', 'Voir tout')}</button>
           </div>
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <table className="w-full text-gray-700 text-sm">

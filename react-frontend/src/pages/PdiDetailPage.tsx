@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { mockFacilitators, pdiSessionStats, Facilitator } from '../lib/mock-data';
+import { useFilters } from '../contexts/FilterContext';
 
 // Import des composants réutilisables
 import DateCard from '../components/Header/DateCard';
@@ -21,8 +22,7 @@ const PdiDetailPage: React.FC = () => {
   const facilitator = mockFacilitators.find((f: Facilitator) => f.id === facilitatorId);
 
   // États pour les filtres de l'en-tête
-  const [date] = useState('12 Mars 2025'); 
-  const [trimestre, setTrimestre] = useState('Trimestre 1');
+  const { currentDate, currentTrimestre, setCurrentTrimestre } = useFilters();
   const [pdi, setPdi] = useState('PDI 08-13');
   
   // États pour le tableau (recherche et pagination)
@@ -87,8 +87,8 @@ const PdiDetailPage: React.FC = () => {
       {/* En-tête avec filtres et stats générales */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <DateCard value={date} />
-          <TrimestreCard value={trimestre} onChange={setTrimestre} />
+          <DateCard value={currentDate} onChange={() => {}} />
+          <TrimestreCard value={currentTrimestre} onChange={setCurrentTrimestre} />
           <PdiCard value={pdi} onChange={setPdi} />
         </div>
         <StatsCard stats={pdiSessionStats} />

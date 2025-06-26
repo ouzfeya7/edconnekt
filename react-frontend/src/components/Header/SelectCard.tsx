@@ -1,11 +1,14 @@
 import React from 'react';
 
+type Option = string | { value: string; label: string };
+
 interface SelectCardProps {
   label: string;
   value: string;
-  options: string[];
+  options: Option[];
   onChange?: (value: string) => void;
   containerClassName?: string;
+  displayTransformer?: (value: string) => string;
 }
 
 const SelectCard: React.FC<SelectCardProps> = ({
@@ -13,20 +16,35 @@ const SelectCard: React.FC<SelectCardProps> = ({
   value,
   options,
   onChange,
-  containerClassName = ""
+  containerClassName = "",
+  displayTransformer = v => v,
 }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (onChange) {
+      const selectedOption = options.find(opt => {
+        if (typeof opt === 'string') return opt === e.target.value;
+        return opt.label === e.target.value;
+      });
+      if (selectedOption) {
+        onChange(typeof selectedOption === 'string' ? selectedOption : selectedOption.value);
+      }
+    }
+  };
+
   return (
     <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 ${containerClassName}`}>
-      <label className="block text-sm text-gray-500 mb-2 font-medium">{label}</label>
-      <div className="relative">
+      <label className="block text-sm text-gray-500 font-medium">{label}</label>
+      <div className="relative mt-2">
         <select 
-          className="w-full appearance-none pr-8 py-2 text-gray-900 font-medium focus:outline-none bg-transparent"
-          value={value}
-          onChange={(e) => onChange?.(e.target.value)}
+          className="w-full appearance-none pr-8 py-1 text-gray-900 font-medium focus:outline-none bg-transparent"
+          value={displayTransformer(value)}
+          onChange={handleChange}
         >
-          {options.map((option) => (
-            <option key={option}>{option}</option>
-          ))}
+          {options.map((option) => {
+            const val = typeof option === 'string' ? option : option.value;
+            const lbl = typeof option === 'string' ? option : option.label;
+            return <option key={val} value={lbl}>{lbl}</option>;
+          })}
         </select>
         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
           <svg className="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">

@@ -2,14 +2,18 @@ import React from 'react';
 import CourseCard from '../../components/course/CourseCard';
 import { useNavigate } from 'react-router-dom';
 import { mockCourses } from '../../lib/mock-data'; // Importer les données centralisées
+import { useFilters } from '../../contexts/FilterContext';
 
 const MesCoursPage: React.FC = () => {
   const navigate = useNavigate();
+  const { currentClasse } = useFilters();
 
-  // Utiliser les données depuis le fichier centralisé
-  const courses = mockCourses.map(course => ({
+  // Filtrer les cours par la classe sélectionnée
+  const courses = mockCourses
+    .filter(course => course.classId === currentClasse)
+    .map(course => ({
     ...course,
-    onViewDetails: () => navigate(`/mes-cours/${course.id}`),
+      onViewDetails: () => navigate(`/eleves/mes-cours/${course.id}`),
   }));
 
   return (

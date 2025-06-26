@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next';
+import { classes } from '../../lib/mock-data';
+
 interface ClassDetailsCardProps {
   className: string; // ex: "4ème B"
   seriesName: string; // ex: "Series one"
@@ -16,21 +19,25 @@ const ClassDetailsCard: React.FC<ClassDetailsCardProps> = ({
   teacherName,
   genderCount
 }) => {
+  const { t } = useTranslation();
   const totalStudents = genderCount.male + genderCount.female;
   // Calculer les pourcentages pour les barres, éviter la division par zéro
   const malePercentage = totalStudents > 0 ? (genderCount.male / totalStudents) * 100 : 0;
   const femalePercentage = totalStudents > 0 ? (genderCount.female / totalStudents) * 100 : 0;
+  
+  const classInfo = classes.find(c => c.id === className);
+  const displayName = classInfo ? classInfo.name : className;
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-xs mx-auto font-sans">
+    <div className="bg-white rounded-xl shadow-sm p-6 w-full font-sans">
       {/* Cercle avec nom de la classe */}
       <div className="w-24 h-24 bg-pink-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto">
-        {className}
+        {displayName}
       </div>
 
       {/* Titre de la classe */}
       <h2 className="text-xl font-semibold text-center mt-4 text-gray-800">
-        Classe {className}
+        {t('class_info', { className: displayName })}
       </h2>
 
       {/* Section Série */}
@@ -44,7 +51,7 @@ const ClassDetailsCard: React.FC<ClassDetailsCardProps> = ({
 
       {/* Professeur titulaire */}
       <div className="mt-6">
-        <p className="text-xs text-gray-500 uppercase tracking-wider">Professeur titulaire</p>
+        <p className="text-xs text-gray-500 uppercase tracking-wider">{t('homeroom_teacher')}</p>
         <p className="text-md font-semibold text-gray-800 mt-1">{teacherName}</p>
       </div>
 
@@ -52,11 +59,11 @@ const ClassDetailsCard: React.FC<ClassDetailsCardProps> = ({
       <div className="mt-6">
         <div className="flex justify-between items-end">
           <div>
-            <p className="text-xs text-gray-500">Masculin</p>
+            <p className="text-xs text-gray-500">{t('male')}</p>
             <p className="text-2xl font-bold text-gray-800">{genderCount.male}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 text-right">Féminin</p>
+            <p className="text-xs text-gray-500 text-right">{t('female')}</p>
             <p className="text-2xl font-bold text-gray-800 text-right">{genderCount.female}</p>
           </div>
         </div>

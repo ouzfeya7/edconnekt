@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // --- Définition des types ---
 interface Resource {
@@ -32,11 +33,11 @@ interface ResourceContextType {
 }
 
 // --- Données Mock Initiales ---
-const initialResources: Resource[] = [
-    { id: 1, title: "Histoire", subject: "Histoire", description: "Cours sur l'histoire du monde.", imageUrl: "https://picsum.photos/seed/history/400/300" },
-    { id: 2, title: "Géographie", subject: "Géographie", description: "Étude des cartes et des paysages.", imageUrl: "https://picsum.photos/seed/geography/400/300" },
-    { id: 3, title: "Anglais", subject: "Anglais", description: "Apprentissage de la langue anglaise.", imageUrl: "https://picsum.photos/seed/english/400/300" },
-    { id: 4, title: "Mathématique", subject: "Mathématique", description: "Algèbre, géométrie et analyse.", imageUrl: "https://picsum.photos/seed/math/400/300" },
+const getInitialResources = (t: (key: string) => string): Resource[] => [
+    { id: 1, title: t('history', 'Histoire'), subject: t('history', 'Histoire'), description: "Cours sur l'histoire du monde.", imageUrl: "https://images.unsplash.com/photo-1528722828614-77b962af6832?q=80&w=2070&auto=format&fit=crop" },
+    { id: 2, title: t('geography', 'Géographie'), subject: t('geography', 'Géographie'), description: "Étude des cartes et des paysages.", imageUrl: "https://images.unsplash.com/photo-1565292419430-6e621a1f0a2e?q=80&w=1974&auto=format&fit=crop" },
+    { id: 3, title: t('english', 'Anglais'), subject: t('english', 'Anglais'), description: "Apprentissage de la langue anglaise.", imageUrl: "https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1973&auto=format&fit=crop" },
+    { id: 4, title: t('mathematics', 'Mathématique'), subject: t('mathematics', 'Mathématique'), description: "Algèbre, géométrie et analyse.", imageUrl: "https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?q=80&w=2070&auto=format&fit=crop" },
 ];
 
 const initialFiles: FilesByResource = {
@@ -61,8 +62,13 @@ const ResourceContext = createContext<ResourceContextType | undefined>(undefined
 
 // --- Fournisseur du Contexte (Provider) ---
 export const ResourceProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [resources, setResources] = useState<Resource[]>(initialResources);
+    const { t } = useTranslation();
+    const [resources, setResources] = useState<Resource[]>(() => getInitialResources(t));
     const [files, setFiles] = useState<FilesByResource>(initialFiles);
+
+    React.useEffect(() => {
+        setResources(getInitialResources(t));
+    }, [t]);
 
     const addResource = (newResourceData: Omit<Resource, 'id'>) => {
         setResources(prev => {

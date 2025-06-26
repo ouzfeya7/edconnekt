@@ -6,9 +6,10 @@ import {
   CalendarPlus,
   LucideIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ShortcutButton {
-  label: string;
+  labelKey: keyof typeof import('../../../public/locales/fr/translation.json');
   icon: LucideIcon;
   bgColor: string;
   textColor: string;
@@ -17,9 +18,10 @@ interface ShortcutButton {
 }
 
 const Shortcuts: FC = () => {
+  const { t } = useTranslation();
   const shortcutButtons: ShortcutButton[] = [
     {
-      label: "Ajouter un devoir",
+      labelKey: "ajouter_devoir",
       icon: PlusCircle,
       bgColor: "bg-rose-100",
       textColor: "text-rose-600",
@@ -27,7 +29,7 @@ const Shortcuts: FC = () => {
       alertMessage: "Fonctionnalité : Ajouter un devoir",
     },
     {
-      label: "Gestion des notes",
+      labelKey: "gestion_notes",
       icon: BookOpenCheck,
       bgColor: "bg-blue-100",
       textColor: "text-blue-600",
@@ -35,7 +37,7 @@ const Shortcuts: FC = () => {
       alertMessage: "Fonctionnalité : Accéder à la gestion des notes",
     },
     {
-      label: "Nouveau message",
+      labelKey: "nouveau_message",
       icon: MessageCircleMore,
       bgColor: "bg-green-100",
       textColor: "text-green-600",
@@ -43,7 +45,7 @@ const Shortcuts: FC = () => {
       alertMessage: "Fonctionnalité : Envoyer un nouveau message",
     },
     {
-      label: "Ajouter un événement",
+      labelKey: "ajouter_evenement",
       icon: CalendarPlus,
       bgColor: "bg-yellow-100",
       textColor: "text-yellow-600",
@@ -54,14 +56,14 @@ const Shortcuts: FC = () => {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {shortcutButtons.map(({ label, icon: Icon, bgColor, textColor, hoverColor, alertMessage }) => (
+      {shortcutButtons.map(({ labelKey, icon: Icon, bgColor, textColor, hoverColor, alertMessage }) => (
         <button
-          key={label}
+          key={labelKey}
           onClick={() => alert(alertMessage)}
           className={`${bgColor} ${textColor} ${hoverColor} flex items-center gap-2 px-4 py-2 rounded-lg shadow font-medium transition`}
         >
           <Icon size={18} />
-          {label}
+          {t(labelKey)}
         </button>
       ))}
     </div>

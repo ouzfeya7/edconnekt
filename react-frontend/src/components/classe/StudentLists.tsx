@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Student, StudentStatus } from "../../contexts/StudentContext";
 
 interface StudentListProps {
@@ -9,6 +10,12 @@ interface StudentListProps {
 
 const statusOptions: readonly StudentStatus[] = ["Présent", "Retard", "Absent"];
 
+const statusKeyMap: Record<StudentStatus, string> = {
+  Présent: "present",
+  Retard: "late",
+  Absent: "absent",
+};
+
 const statusStyle: Record<StudentStatus, string> = {
   Présent: "bg-green-100 text-green-700",
   Retard: "bg-yellow-100 text-yellow-700",
@@ -16,6 +23,7 @@ const statusStyle: Record<StudentStatus, string> = {
 };
 
 const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onStatusChange }) => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StudentStatus | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,11 +58,11 @@ const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onS
   return (
     <div className="bg-white rounded-2xl shadow-md p-6 mt-4">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800">Liste des élèves</h2>
+        <h2 className="text-xl font-semibold text-gray-800">{t('student_list')}</h2>
         <div className="flex items-center gap-4">
           <input
             type="text"
-            placeholder="Rechercher un élève..."
+            placeholder={t('search_student_placeholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
@@ -64,10 +72,10 @@ const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onS
             onChange={(e) => setStatusFilter(e.target.value as StudentStatus | 'all')}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
-            <option value="all">Tous les statuts</option>
+            <option value="all">{t('all_statuses')}</option>
             {statusOptions.map((option) => (
               <option key={option} value={option}>
-                {option}
+                {t(statusKeyMap[option])}
               </option>
             ))}
           </select>
@@ -78,9 +86,9 @@ const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onS
           <thead>
             <tr className="text-gray-500 text-xs uppercase tracking-wide border-b">
               <th className="py-3 px-4 text-left">#</th>
-              <th className="py-3 px-4 text-left">Nom</th>
-              <th className="py-3 px-4 text-left">Compétence</th>
-              <th className="py-3 px-4 text-left">Statut</th>
+              <th className="py-3 px-4 text-left">{t('name')}</th>
+              <th className="py-3 px-4 text-left">{t('skill_header')}</th>
+              <th className="py-3 px-4 text-left">{t('status_header')}</th>
             </tr>
           </thead>
           <tbody>
@@ -114,7 +122,7 @@ const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onS
                   >
                     {statusOptions.map((option) => (
                       <option key={option} value={option}>
-                        {option}
+                        {t(statusKeyMap[option])}
                       </option>
                     ))}
                   </select>
@@ -128,7 +136,7 @@ const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onS
       {totalPages > 1 && (
         <div className="flex justify-between items-center mt-4 pt-4 border-t">
           <span className="text-sm text-gray-700">
-            Page <span className="font-semibold">{currentPage}</span> sur <span className="font-semibold">{totalPages}</span>
+            {t('page_of', { currentPage, totalPages })}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -136,14 +144,14 @@ const StudentList: React.FC<StudentListProps> = ({ students, onStudentClick, onS
               disabled={currentPage === 1}
               className="px-4 py-2 border rounded-lg text-sm font-medium bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              Précédent
+              {t('previous', 'Précédent')}
             </button>
             <button
               onClick={handleNextPage}
               disabled={currentPage === totalPages || totalPages === 0}
               className="px-4 py-2 border rounded-lg text-sm font-medium bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              Suivant
+              {t('next', 'Suivant')}
             </button>
           </div>
         </div>

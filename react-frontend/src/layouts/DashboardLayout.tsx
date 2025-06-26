@@ -102,7 +102,16 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
   }
 
   return (
-    <div className="h-screen flex bg-gray-100 dark:bg-gdark700">
+    <div className="flex h-screen bg-gray-100 dark:bg-gdark700">
+      <div className="hidden lg:flex lg:flex-shrink-0">
+        <Sidebar role={user.role} isOpen={true} />
+      </div>
+
+      <div className="flex flex-col flex-1 min-w-0">
+        <header className="w-full z-30">
+          <Topbar toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} user={user} />
+        </header>
+
       {/* Sidebar pour mobile/tablette. Devient un overlay sur le contenu */}
       <div className={`fixed inset-y-0 left-0 z-50 transition-transform duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:hidden`}>
         <Sidebar role={user.role} isOpen={isSidebarOpen} />
@@ -111,13 +120,7 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
       {/* Overlay sombre quand le sidebar est ouvert sur mobile */}
       {isSidebarOpen && <div onClick={toggleSidebar} className="fixed inset-0 bg-black/50 z-40 lg:hidden" />}
 
-      {/* Conteneur principal qui contient Topbar + Contenu */}
-      <div className="flex-1 flex flex-col w-full">
-        <header className="w-full z-30"> 
-          <Topbar toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} user={user} />
-        </header>
-
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto">
           <Outlet context={{ user: user, updateUser: handleUpdateUser }} />
         </main>
       </div>

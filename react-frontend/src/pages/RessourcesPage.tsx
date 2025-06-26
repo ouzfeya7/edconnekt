@@ -5,6 +5,7 @@ import { ActionCard } from "../components/ui/ActionCard";
 import ResourceCard from "../components/course/ResourceCard";
 import { useNavigate } from "react-router-dom";
 import { useResources } from "../contexts/ResourceContext";
+import { useTranslation } from "react-i18next";
 
 interface ResourceFormData {
   title: string;
@@ -14,6 +15,7 @@ interface ResourceFormData {
 }
 
 function RessourcesPage() {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const { resources, files, addResource, deleteResource } = useResources();
@@ -24,15 +26,15 @@ function RessourcesPage() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-6">Ressources</h1>
+    <div className="p-6 bg-[#F5F7FA] min-h-screen">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">{t('resources_title')}</h1>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogTrigger asChild>
           <div className="mb-8 inline-block">
             <ActionCard 
               icon={<Plus className="text-orange-500 w-5 h-5" />} 
-              label="Ajouter une ressource" 
+              label={t('add_resource')}
               onClick={() => setIsModalOpen(true)}
             />
           </div>
@@ -59,6 +61,7 @@ function RessourcesPage() {
 }
 
 function AddResourceForm({ onAddResource }: { onAddResource: (data: ResourceFormData) => void }) {
+  const { t } = useTranslation();
   const initialFormState: ResourceFormData = {
     title: "",
     subject: "",
@@ -91,11 +94,11 @@ function AddResourceForm({ onAddResource }: { onAddResource: (data: ResourceForm
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-1">
-      <h2 className="text-xl font-semibold mb-2 text-gray-700">Ajouter une nouvelle ressource</h2>
+      <h2 className="text-xl font-semibold mb-2 text-gray-700">{t('add_new_resource', 'Ajouter une nouvelle ressource')}</h2>
       <input
         name="title"
         type="text"
-        placeholder="Titre de la ressource"
+        placeholder={t('resource_title_placeholder', 'Titre de la ressource')}
         value={formState.title}
         onChange={handleChange}
         className="border p-2 rounded-md focus:ring-2 focus:ring-orange-400 focus:border-transparent"
@@ -104,7 +107,7 @@ function AddResourceForm({ onAddResource }: { onAddResource: (data: ResourceForm
       <input
         name="subject"
         type="text"
-        placeholder="Matière (ex: Français, Mathématique)"
+        placeholder={t('subject_placeholder', 'Matière (ex: Français, Mathématique)')}
         value={formState.subject}
         onChange={handleChange}
         className="border p-2 rounded-md focus:ring-2 focus:ring-orange-400 focus:border-transparent"
@@ -112,7 +115,7 @@ function AddResourceForm({ onAddResource }: { onAddResource: (data: ResourceForm
       />
       <textarea
         name="description"
-        placeholder="Courte description"
+        placeholder={t('short_description_placeholder', 'Courte description')}
         value={formState.description}
         onChange={handleChange}
         className="border p-2 rounded-md h-24 focus:ring-2 focus:ring-orange-400 focus:border-transparent"
@@ -120,7 +123,7 @@ function AddResourceForm({ onAddResource }: { onAddResource: (data: ResourceForm
       />
       
       <div>
-        <label htmlFor="imageUpload" className="text-sm font-medium text-gray-700">Image de la ressource</label>
+        <label htmlFor="imageUpload" className="text-sm font-medium text-gray-700">{t('resource_image', 'Image de la ressource')}</label>
         <input
             id="imageUpload"
             name="image"
@@ -134,8 +137,8 @@ function AddResourceForm({ onAddResource }: { onAddResource: (data: ResourceForm
 
       {imagePreview && (
           <div className="mt-2">
-              <p className="text-sm font-medium text-gray-600 mb-1">Aperçu :</p>
-              <img src={imagePreview} alt="Aperçu" className="w-full h-32 object-cover rounded-md border" />
+              <p className="text-sm font-medium text-gray-600 mb-1">{t('preview', 'Aperçu :')}</p>
+              <img src={imagePreview} alt={t('preview_alt', 'Aperçu')} className="w-full h-32 object-cover rounded-md border" />
           </div>
       )}
 
@@ -143,7 +146,7 @@ function AddResourceForm({ onAddResource }: { onAddResource: (data: ResourceForm
         type="submit"
         className="bg-orange-500 text-white px-4 py-2.5 rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 transition-colors duration-150"
       >
-        Ajouter la ressource
+        {t('add_resource_button', 'Ajouter la ressource')}
       </button>
     </form>
   );

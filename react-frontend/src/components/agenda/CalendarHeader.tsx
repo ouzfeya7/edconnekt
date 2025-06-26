@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface CalendarHeaderProps {
   title: string;
@@ -11,10 +12,11 @@ interface CalendarHeaderProps {
 }
 
 const CalendarHeader: React.FC<CalendarHeaderProps> = ({ title, currentView, onPrev, onNext, onToday, onViewChange }) => {
+  const { t } = useTranslation();
   const viewOptions = [
-    { value: 'dayGridMonth', label: 'Mois' },
-    { value: 'timeGridWeek', label: 'Semaine' },
-    { value: 'timeGridDay', label: 'Jour' },
+    { value: 'dayGridMonth', label: t('month', 'Mois') },
+    { value: 'timeGridWeek', label: t('week', 'Semaine') },
+    { value: 'timeGridDay', label: t('day', 'Jour') },
   ];
 
   return (
@@ -25,7 +27,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({ title, currentView, onP
           onClick={onToday} 
           className="p-2 px-4 border border-gray-300 rounded-md hover:bg-gray-100 text-sm font-medium text-gray-700 transition-colors"
         >
-          Aujourd'hui
+          {t('today', "Aujourd'hui")}
         </button>
       </div>
 

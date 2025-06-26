@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import FacilitatorCard from '../components/pdi/FacilitatorCard';
 import { mockFacilitators, pdiSessionStats } from '../lib/mock-data';
+import { useFilters } from '../contexts/FilterContext';
 
 // Import des composants de l'en-tête
 import DateCard from '../components/Header/DateCard';
@@ -9,8 +10,7 @@ import PdiCard from '../components/Header/PdiCard';
 import StatsCard from '../components/Header/StatsCard';
 
 const PdiSeancePage: React.FC = () => {
-  const [date, setDate] = useState('12 Mars 2025');
-  const [trimestre, setTrimestre] = useState('Trimestre 1');
+  const { currentDate, currentTrimestre, setCurrentTrimestre } = useFilters();
   const [pdi, setPdi] = useState('PDI 08-13');
 
   return (
@@ -20,8 +20,8 @@ const PdiSeancePage: React.FC = () => {
       {/* En-tête reconstruit avec les composants réutilisables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <DateCard value={date} />
-          <TrimestreCard value={trimestre} onChange={setTrimestre} />
+          <DateCard value={currentDate} onChange={() => {}} />
+          <TrimestreCard value={currentTrimestre} onChange={setCurrentTrimestre} />
           <PdiCard value={pdi} onChange={setPdi} />
         </div>
         <StatsCard stats={pdiSessionStats} />

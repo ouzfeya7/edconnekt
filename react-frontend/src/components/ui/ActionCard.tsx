@@ -4,14 +4,32 @@ type Props = {
   icon: React.ReactNode;
   label: string;
   onClick?: () => void;
+  href?: string;
+  download?: boolean | string;
+  className?: string;
 };
 
-export const ActionCard: React.FC<Props> = ({ icon, label, onClick }) => (
-  <div
-    onClick={onClick}
-    className="cursor-pointer p-4 bg-white shadow rounded-2xl flex gap-2 items-center justify-center hover:bg-gray-50 transition"
-  >
-    <div>{icon}</div>
-    <div className="text-gray-700 font-semibold">{label}</div>
-  </div>
-); 
+export const ActionCard: React.FC<Props> = ({ icon, label, onClick, href, download, className }) => {
+  const baseClasses = "cursor-pointer p-4 bg-white shadow rounded-2xl flex gap-2 items-center justify-center hover:bg-gray-50 transition";
+  
+  const content = (
+    <>
+      <div>{icon}</div>
+      <div className="text-gray-700 font-semibold">{label}</div>
+    </>
+  );
+
+  if (href) {
+    return (
+      <a href={href} download={download} className={`${baseClasses} ${className || ''}`}>
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <button onClick={onClick} className={`${baseClasses} ${className || ''}`}>
+      {content}
+    </button>
+  );
+}; 

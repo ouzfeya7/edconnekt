@@ -5,21 +5,24 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
+import enLocale from '@fullcalendar/core/locales/en-gb';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import AgendaSidebar from '../components/agenda/AgendaSidebar';
 import EventDetailsModal from '../components/agenda/EventDetailsModal';
 import EventFormModal from '../components/agenda/EventFormModal';
-import { SchoolEvent, defaultEventState, eventCategories } from '../components/agenda/agenda_data';
+import { SchoolEvent, defaultEventState, getEventCategories } from '../components/agenda/agenda_data';
 import CalendarHeader from '../components/agenda/CalendarHeader';
 import { useEvents } from '../contexts/EventContext';
 
 const Agenda: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const { events, setEvents } = useEvents();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [currentEvent, setCurrentEvent] = useState<SchoolEvent>(defaultEventState);
+  const [currentEvent, setCurrentEvent] = useState<SchoolEvent>(() => defaultEventState(t));
   const [viewingEvent, setViewingEvent] = useState<SchoolEvent | null>(null);
   const [errors, setErrors] = useState<{ title?: string }>({});
   const calendarRef = useRef<FullCalendar>(null);
@@ -55,7 +58,7 @@ const Agenda: React.FC = () => {
     setIsEditMode(false);
     const startDate = arg ? arg.dateStr + 'T09:00' : new Date().toISOString().slice(0, 16);
     const endDate = arg ? arg.dateStr + 'T10:00' : new Date(new Date().getTime() + 60 * 60 * 1000).toISOString().slice(0, 16);
-    setCurrentEvent({ ...defaultEventState, start: startDate, end: endDate });
+    setCurrentEvent({ ...defaultEventState(t), start: startDate, end: endDate });
     setErrors({});
     setIsFormOpen(true);
   };
@@ -63,10 +66,10 @@ const Agenda: React.FC = () => {
   const openFormForExistingEvent = (eventData: SchoolEvent) => {
     setIsEditMode(true);
     setCurrentEvent({
-      ...defaultEventState,
+      ...defaultEventState(t),
       ...eventData,
-      start: eventData.start ? new Date(eventData.start as string).toISOString().slice(0, 16) : defaultEventState.start,
-      end: eventData.end ? new Date(eventData.end as string).toISOString().slice(0, 16) : defaultEventState.end,
+      start: eventData.start ? new Date(eventData.start as string).toISOString().slice(0, 16) : defaultEventState(t).start,
+      end: eventData.end ? new Date(eventData.end as string).toISOString().slice(0, 16) : defaultEventState(t).end,
       targetAudience: eventData.targetAudience || [],
     });
     setErrors({});
@@ -79,7 +82,7 @@ const Agenda: React.FC = () => {
   const validateForm = () => {
     const newErrors: { title?: string } = {};
     if (!(currentEvent.title || '').trim()) {
-      newErrors.title = "Le titre est obligatoire.";
+      newErrors.title = t('title_is_required', "Le titre est obligatoire.");
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -88,6 +91,7 @@ const Agenda: React.FC = () => {
   const handleSaveEvent = () => {
     if (!validateForm()) return;
 
+    const eventCategories = getEventCategories(t);
     const eventToSave: SchoolEvent = {
         ...currentEvent,
         className: eventCategories[currentEvent.category].className,
@@ -224,7 +228,7 @@ const Agenda: React.FC = () => {
       
       .fc-event-main { padding: 4px 6px; }
     `}</style>
-    <div className="flex gap-6 p-6 bg-gray-50 h-full">
+    <div className="flex gap-6 p-6 bg-[#F5F7FA] h-full">
       <AgendaSidebar
         groupedEvents={groupedEvents}
         onAddEvent={() => openFormForNewEvent()}
@@ -243,14 +247,18 @@ const Agenda: React.FC = () => {
         />
         <div className="flex-1">
             <FullCalendar
+              key={i18n.language}
               ref={calendarRef}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView={currentView}
               headerToolbar={false}
               events={events}
+              locale={i18n.language === 'fr' ? frLocale : enLocale}
+              editable={true}
+              selectable={true}
+              selectMirror={true}
               dateClick={(arg) => openFormForNewEvent(arg)}
               eventClick={(clickInfo) => openDetailsModal(clickInfo.event.toPlainObject({ collapseExtendedProps: true }))}
-              locale={frLocale}
               height="100%"
               eventClassNames="border-l-4"
               buttonText={{ today: "Aujourd'hui", month: 'Mois', week: 'Semaine', day: 'Jour' }}

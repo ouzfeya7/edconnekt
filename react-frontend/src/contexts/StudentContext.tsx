@@ -18,7 +18,7 @@ export interface Student {
   admissionDate: string;
 }
 
-const initialStudents: Student[] = new Array(20).fill(null).map((_, i) => ({
+export const initialStudents: Student[] = new Array(20).fill(null).map((_, i) => ({
   id: i + 1,
   name: i === 0 ? "Khadija Ndiaye" : i === 1 ? "Maty Diop" : `Mouhamed Fall ${i - 1}`,
   imageUrl: `https://i.pravatar.cc/150?u=a042581f4e29026704d${i}`,

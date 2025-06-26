@@ -53,7 +53,7 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({
 
         <button 
           onClick={onViewDetails}
-          className="mt-4 w-full px-4 py-2 text-sm font-medium text-orange-600 bg-orange-100 rounded-md hover:bg-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+          className="mt-4 w-full px-4 py-2 text-sm font-medium text-orange-600 bg-orange-100 rounded-md hover:bg-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 cursor-pointer"
         >
           Voir détails
         </button>

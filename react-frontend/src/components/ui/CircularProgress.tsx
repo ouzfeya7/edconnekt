@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CircularProgress: React.FC<{ percentage: number, colorClass: string }> = ({ percentage, colorClass }) => {
+const CircularProgress: React.FC<{ percentage: number, colorClass: string, showPercentage?: boolean }> = ({ percentage, colorClass, showPercentage = true }) => {
   const radius = 40; // Le rayon réel du cercle
   const circumference = 2 * Math.PI * radius;
   // S'assurer que le décalage ne cause pas de dépassement si le pourcentage est 0 ou 100
@@ -33,7 +33,7 @@ const CircularProgress: React.FC<{ percentage: number, colorClass: string }> = (
         />
       </svg>
       {/* Afficher le pourcentage au centre seulement si ce n'est pas le stat "Remédiation" ou "Nombre d'élèves" */}
-      {percentage !== undefined && <span className={`absolute text-sm font-semibold ${colorClass}`}>{percentage}%</span>}
+      {showPercentage && percentage !== undefined && <span className={`absolute text-sm font-semibold ${colorClass}`}>{percentage}%</span>}
     </div>
   );
 };

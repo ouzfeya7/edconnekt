@@ -6,21 +6,23 @@ import ClassDetailsCard from '../components/classe/ClassDetailsCard';
 import EventCard from '../components/events/EventCard';
 import { useEvents } from '../contexts/EventContext';
 import { useStudents, Student, StudentStatus } from '../contexts/StudentContext';
+import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs'; // Utiliser dayjs pour la gestion des dates
+import { useFilters } from '../contexts/FilterContext'; // Importer useFilters
 
 const ClassePage = () => {
+  const { t, i18n } = useTranslation();
   const { events } = useEvents();
   const { students, updateStudentStatus, studentCount } = useStudents();
+  const { 
+    currentClasse, 
+    setCurrentClasse, 
+    currentDate, 
+    setCurrentDate 
+  } = useFilters(); // Utiliser le contexte
 
-  // Fonction pour formater la date en "jour Mois Année"
-  const formatDate = (date: Date): string => {
-    const day = date.getDate();
-    const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-    ];
-    const month = monthNames[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-  };
+  // Mettre à jour la locale de dayjs lorsque la langue change
+  dayjs.locale(i18n.language);
 
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
@@ -33,9 +35,6 @@ const ClassePage = () => {
       female: 8,
     },
   };
-
-  const [currentClasse, setCurrentClasse] = useState(mockData.className);
-  const [currentDate, setCurrentDate] = useState(formatDate(new Date()));
 
   const handleStudentClick = (student: Student) => {
     setSelectedStudent(student);
@@ -50,11 +49,11 @@ const ClassePage = () => {
   };
 
   return (
-    <div className="flex-1 p-6 overflow-auto bg-gray-50">
-      <h1 className="text-2xl font-semibold text-[#184867] mb-4">Mes classes</h1>
+    <div className="flex-1 p-6 overflow-auto bg-[#F5F7FA]">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">{t('my_classes')}</h1>
       
       {/* Grille principale pour la mise en page en deux colonnes */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
         
         {/* Colonne de gauche (plus grande) */}
         <div className="lg:col-span-2 space-y-6">
@@ -79,7 +78,7 @@ const ClassePage = () => {
           ) : (
             <>
               <ClassDetailsCard 
-                className={mockData.className}
+                className={currentClasse}
                 seriesName={mockData.seriesName}
                 teacherName={mockData.teacherName}
                 genderCount={mockData.genderCount}

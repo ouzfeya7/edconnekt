@@ -53,7 +53,7 @@ const FacilitatorCard: React.FC<FacilitatorCardProps> = ({ facilitator }) => {
       </div>
       <button 
         onClick={handleViewDetails}
-        className="mt-auto w-full rounded-lg bg-orange-50 py-3 px-4 font-semibold text-gray-700 transition-colors hover:bg-orange-100"
+        className="mt-auto w-full rounded-lg bg-orange-50 py-3 px-4 font-semibold text-gray-700 transition-colors hover:bg-orange-100 cursor-pointer"
       >
         Voir détails
       </button>

@@ -33,6 +33,12 @@ import PdiDetailPage from "./pages/PdiDetailPage";
 import RessourceDetailPage from "./pages/RessourceDetailPage";
 import { JSX } from "react/jsx-runtime";
 import { ResourceProvider } from "./contexts/ResourceContext"; // Importer le nouveau Provider
+import { FilterProvider } from "./contexts/FilterContext";
+import GestionNotesPage from './pages/gestionNotes/GestionNotesPage';
+import GestionDevoirsPage from './pages/gestionNotes/GestionDevoirsPage';
+import DevoirDetailPage from './pages/gestionNotes/DevoirDetailPage';
+import CreateDevoirPage from './pages/gestionNotes/CreateDevoirPage';
+import AppLoader from './components/ui/AppLoader';
 
 // Définition des types de rôles pour la clarté
 type Role =
@@ -48,7 +54,6 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   enseignant: [
     { path: "/", element: <EnseignantDashboard /> },
     { path: "/eleves", element: <Eleves /> },
-    { path: "/evaluations", element: <Evaluations /> },
     { path: "/evaluations/notes", element: <GNote /> },
     { path: "/classes", element: <Classe /> },
     { path: "/calendar", element: <Agenda /> },
@@ -61,6 +66,12 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/mes-cours", element: <MesCours /> },
     { path: "/mes-cours/:courseId", element: <DetailCoursPage /> },
     { path: "/lecons/:lessonId", element: <DetailLeconPage /> },
+    { path: "/classes/:classId", element: <Classe /> },
+    { path: "/gestion-notes", element: <GestionNotesPage /> },
+    { path: "/devoirs", element: <GestionDevoirsPage /> },
+    { path: "/devoirs/creer", element: <CreateDevoirPage /> },
+    { path: "/devoirs/:devoirId", element: <DevoirDetailPage /> },
+    { path: "/evaluations", element: <Evaluations /> },
     { path: "*", element: <NotFound /> }, // Utilisation de '*' pour le catch-all
   ],
   directeur: [
@@ -114,7 +125,7 @@ const AppContent = () => {
 
   // Affiche un message de chargement pendant l'initialisation de Keycloak
   if (loading) {
-    return <div>Chargement de l'application...</div>;
+    return <AppLoader />;
   }
 
   // Si l'utilisateur n'est pas authentifié, il n'a accès qu'à la page de connexion.
@@ -164,7 +175,9 @@ const App = () => {
   return (
     <Router>
       <ResourceProvider>
-        <AppContent />
+        <FilterProvider>
+          <AppContent />
+        </FilterProvider>
       </ResourceProvider>
     </Router>
   );

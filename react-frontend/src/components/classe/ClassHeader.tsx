@@ -13,8 +13,8 @@ interface StudentStats {
 }
 
 interface ClassHeaderProps {
-  currentDate: string;
-  onDateChange: (date: string) => void;
+  currentDate: Date;
+  onDateChange: (date: Date) => void;
   currentClasse: string;
   onClasseChange: (classe: string) => void;
   studentStats: StudentStats;
@@ -36,7 +36,7 @@ const ClassHeader: React.FC<ClassHeaderProps> = ({
         <DateCard value={currentDate} onChange={onDateChange} />
       </div>
       <div className="flex-grow flex-basis-0 min-w-[180px]">
-        <ClassNameCard value={currentClasse} onChange={onClasseChange} />
+        <ClassNameCard className={currentClasse} onClassChange={onClasseChange} />
       </div>
       <div className="flex-grow flex-basis-0 min-w-[180px]">
         <StatsCard stats={studentStats} />

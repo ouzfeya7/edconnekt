@@ -1,7 +1,8 @@
 import React from 'react';
 import { Dialog } from '@headlessui/react';
 import { Calendar, MapPin, Users } from 'lucide-react';
-import { SchoolEvent, eventCategories } from './agenda_data';
+import { SchoolEvent, getEventCategories } from './agenda_data';
+import { useTranslation } from 'react-i18next';
 
 interface EventDetailsModalProps {
   isOpen: boolean;
@@ -10,7 +11,12 @@ interface EventDetailsModalProps {
 }
 
 const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ isOpen, onClose, event }) => {
+  const { t, i18n } = useTranslation();
+
   if (!event) return null;
+  
+  const eventCategories = getEventCategories(t);
+  const locale = i18n.language;
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="fixed z-50 inset-0 overflow-y-auto">
@@ -32,13 +38,17 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ isOpen, onClose, 
             <div className="flex items-start gap-3">
               <Calendar size={20} className="text-gray-500 mt-1 flex-shrink-0" />
               <div>
-                <h3 className="font-semibold text-gray-800">Date et Heure</h3>
+                <h3 className="font-semibold text-gray-800">{t('date_and_time', 'Date et Heure')}</h3>
                 <p className="text-sm">
-                  {new Date(event.start as string).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                  {new Date(event.start as string).toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                   <br />
                   {event.allDay
-                    ? 'Toute la journée'
-                    : `De ${new Date(event.start as string).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} à ${new Date(event.end as string).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}
+                    ? t('all_day', 'Toute la journée')
+                    : t('from_to', { 
+                        start: new Date(event.start as string).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
+                        end: new Date(event.end as string).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+                      })
+                  }
                 </p>
               </div>
             </div>
@@ -47,7 +57,7 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ isOpen, onClose, 
               <div className="flex items-start gap-3">
                 <MapPin size={20} className="text-gray-500 mt-1 flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold text-gray-800">Lieu</h3>
+                  <h3 className="font-semibold text-gray-800">{t('location', 'Lieu')}</h3>
                   <p className="text-sm">{event.location}</p>
                 </div>
               </div>
@@ -57,7 +67,7 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ isOpen, onClose, 
               <div className="flex items-start gap-3">
                 <Users size={20} className="text-gray-500 mt-1 flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold text-gray-800">Public Cible</h3>
+                  <h3 className="font-semibold text-gray-800">{t('target_audience', 'Public Cible')}</h3>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {event.targetAudience.map(audience => (
                       <span key={audience} className="px-3 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
@@ -71,7 +81,7 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ isOpen, onClose, 
           </div>
 
           <div className="mt-8 flex justify-end">
-            <button onClick={onClose} className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-4 py-2 rounded-lg">Fermer</button>
+            <button onClick={onClose} className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-4 py-2 rounded-lg">{t('close', 'Fermer')}</button>
           </div>
         </Dialog.Panel>
       </div>

@@ -7,6 +7,8 @@ import Navbar from "./Navbar";
 import { Role } from "../../config/navigation";
 import SchoolLogo from "../../assets/logo-yka-1.png";
 import { useAuth } from "../../pages/authentification/useAuth";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 interface TopbarProps {
   toggleSidebar: () => void;
@@ -15,6 +17,7 @@ interface TopbarProps {
 }
 
 const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
+  const { t } = useTranslation();
   const { events } = useEvents();
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -39,7 +42,7 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
 
   const handleLogout = () => {
     logout();
-    navigate('/'); // Rediriger vers la page d'accueil après la déconnexion
+    // navigate('/'); // Redirection supprimée. Keycloak s'en charge.
   };
 
   // Fermer le menu si on clique en dehors
@@ -95,6 +98,7 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
 
       {/* Section Droite: Notifications, Profil Utilisateur */}
       <div className="flex items-center gap-4">
+        <LanguageSwitcher />
         <Link to="/messages" className="relative p-2 rounded-full hover:bg-gray-100">
           <Bell className="h-6 w-6 text-gray-700" />
           {events.length > 0 && (
@@ -111,7 +115,7 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
             />
             <div className="hidden md:flex flex-col text-left">
               <span className="text-sm font-semibold text-gray-800">{userName}</span>
-              <span className="text-xs text-gray-500 capitalize">{role}</span>
+              <span className="text-xs text-gray-500">{t('teacher_role')}</span>
             </div>
           </button>
 
@@ -119,11 +123,11 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
               <Link to="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <UserIcon className="mr-2 h-4 w-4" />
-                Mon Profil
+                {t('my_profile')}
               </Link>
               <button onClick={handleLogout} className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <LogOut className="mr-2 h-4 w-4" />
-                Déconnexion
+                {t('logout')}
               </button>
             </div>
           )}
