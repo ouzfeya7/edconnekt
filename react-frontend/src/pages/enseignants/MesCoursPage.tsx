@@ -1,4 +1,4 @@
-import { Plus, BookOpen, MessageSquare, Calendar } from 'lucide-react';
+import { Plus, BarChart2, MessageSquare, Calendar } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import 'dayjs/locale/fr';
@@ -66,7 +66,7 @@ const MesCours = () => {
 
   const actionButtons = [
     { icon: <Plus className="text-orange-500" />, label: t('add_sheet'), onClick: () => setIsModalOpen(true) },
-    { icon: <BookOpen className="text-orange-500" />, label: t('gestion_notes'), onClick: () => navigate('/evaluations') },
+    { icon: <BarChart2 className="text-orange-500" />, label: t('grade_management'), onClick: () => navigate('/gestion-notes') },
     { icon: <MessageSquare className="text-orange-500" />, label: t('send_message'), onClick: () => navigate('/messages', { state: { composeNew: true } }) },
     { icon: <Calendar className="text-orange-500" />, label: t('add_event'), onClick: () => navigate('/calendar', { state: { showAddEventModal: true } }) },
   ];

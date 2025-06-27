@@ -5,7 +5,7 @@ const EvaluationPage = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-semibold mb-4">Evaluation</h1>
+      <h1 className="text-2xl font-semibold mb-4">Evaluations</h1>
 
       {/* Onglets */}
       <div className="flex gap-6 overflow-x-auto mb-6">

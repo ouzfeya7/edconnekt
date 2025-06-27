@@ -114,7 +114,7 @@ const Evaluations = () => {
   return (
     <div className="p-6 bg-gray-100 min-h-screen text-gray-700">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        {t('evaluation', 'Evaluation')}
+        {t('evaluation', 'Evaluations')}
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -129,7 +129,7 @@ const Evaluations = () => {
           {/* Quadrant Chart Card */}
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col">
               <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold text-gray-800">Évaluation</h3>
+                  <h3 className="text-lg font-bold text-gray-800">Évaluations</h3>
                   <input
                     type="date"
                     value={dayjs(currentDate).format('YYYY-MM-DD')}

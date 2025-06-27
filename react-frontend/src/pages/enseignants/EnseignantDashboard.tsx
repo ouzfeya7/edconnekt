@@ -17,7 +17,7 @@ import { useAuth } from '../authentification/useAuth';
 import AddFicheModal, { NewFicheData } from '../../components/course/AddFicheModal';
 
 // Import icons from lucide-react
-import { PlusCircle, BarChart2, Mail, Calendar } from 'lucide-react';
+import { Plus, BarChart2, Mail, Calendar } from 'lucide-react';
 
 // --- Données de Test Externalisées ---
 
@@ -155,22 +155,22 @@ const Dashboard = () => {
 
   const actionButtons = [
     {
-      icon: <PlusCircle className="text-[#FF8C00] w-5 h-5" />,
+      icon: <Plus className="text-orange-500" />,
       label: t('add_sheet', 'Ajouter une fiche'),
       onClick: () => setIsModalOpen(true)
     },
     {
-      icon: <BarChart2 className="text-[#FF8C00] w-5 h-5" />,
-      label: t('manage_grades', 'Gestion des notes'),
-      onClick: () => navigate('/evaluations'),
+      icon: <BarChart2 className="text-orange-500" />,
+      label: t('grade_management', 'Gestion des notes'),
+      onClick: () => navigate('/gestion-notes'),
     },
     {
-      icon: <Mail className="text-[#FF8C00] w-5 h-5" />,
+      icon: <Mail className="text-orange-500" />,
       label: t('send_message', 'Envoyer un message'),
       onClick: () => navigate('/messages', { state: { composeNew: true } }),
     },
     {
-      icon: <Calendar className="text-[#FF8C00] w-5 h-5" />,
+      icon: <Calendar className="text-orange-500" />,
       label: t('add_event', 'Ajouter un événement'),
       onClick: () => navigate('/calendar', { state: { showAddEventModal: true } }),
     }
@@ -239,7 +239,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-lg text-gray-800">{t('evaluation', 'Evaluation')}</h3>
+              <h3 className="font-semibold text-lg text-gray-800">{t('evaluation', 'Evaluations')}</h3>
               
               <div className="relative">
                 <input
@@ -294,7 +294,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div>
+        <div> 
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-semibold text-lg text-gray-800">PDI 08-13</h3>
             <button className="text-[#FF8C00] text-sm font-medium hover:underline cursor-pointer">{t('view_all', 'Voir tout')}</button>
