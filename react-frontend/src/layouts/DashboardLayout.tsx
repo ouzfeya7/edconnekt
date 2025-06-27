@@ -1,9 +1,10 @@
 import { Outlet, useOutletContext } from "react-router-dom";
 import Sidebar from "../components/layout/Sidebar";
 import Topbar from "../components/layout/Topbar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Role } from "../config/navigation"; // Importer Role
 import { useAuth } from "../pages/authentification/useAuth";
+import ScrollToTop from "../components/layout/ScrollToTop";
 
 // Définir une structure pour les données de l'utilisateur
 export interface User {
@@ -29,6 +30,7 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
   const { user: authUser, loading } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const mainContentRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (authUser) {
@@ -120,7 +122,8 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
       {/* Overlay sombre quand le sidebar est ouvert sur mobile */}
       {isSidebarOpen && <div onClick={toggleSidebar} className="fixed inset-0 bg-black/50 z-40 lg:hidden" />}
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto" ref={mainContentRef}>
+          <ScrollToTop containerRef={mainContentRef} />
           <Outlet context={{ user: user, updateUser: handleUpdateUser }} />
         </main>
       </div>

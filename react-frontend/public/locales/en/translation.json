@@ -146,8 +146,8 @@
     "trimestrielle": "Quarterly",
     "mathematics": "Mathematics",
     "teacher_role": "Teacher",
-    "courses_of_the_day": "Today's Courses",
-    "view_more": "View More",
+    "courses_of_the_day": "Today's courses",
+    "view_more": "View more",
     "cancel": "Cancel",
     "apply": "Apply",
     "all_classes": "All classes",
@@ -166,6 +166,11 @@
     "files": "Files",
     "create_assignment": "Create assignment",
     "view_submission": "View submission",
-    "send_reminder": "Send reminder"
+    "send_reminder": "Send reminder",
+    "students_concerned_one": "{{count}} student concerned",
+    "students_concerned_other": "{{count}} students concerned",
+    "Terminé": "Completed",
+    "À venir": "Upcoming",
+    "En cours": "In progress"
   }
   

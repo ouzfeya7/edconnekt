@@ -10,7 +10,7 @@ import TrimestreCard from '../../components/Header/TrimestreCard';
 import StatsCard from '../../components/Header/StatsCard';
 import RemediationCard from '../../components/course/RemediationCard';
 import AddFicheModal, { NewFicheData } from '../../components/course/AddFicheModal';
-import { mockWeeklySkills, WeeklySkill } from '../../lib/mock-data';
+import { mockWeeklySkills, WeeklySkill, mockRemediations, RemediationSession } from '../../lib/mock-data';
 import { useStudents } from '../../contexts/StudentContext';
 import { useFilters } from '../../contexts/FilterContext';
 import { useNavigate } from 'react-router-dom';
@@ -33,18 +33,15 @@ const MesCours = () => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [skills, setSkills] = useState<WeeklySkill[]>([]);
+  const [remediations, setRemediations] = useState<RemediationSession[]>([]);
 
   useEffect(() => {
-    // Filtrer les compétences par la classe sélectionnée
     const skillsForClass = mockWeeklySkills.filter(skill => skill.classId === currentClasse);
     setSkills(skillsForClass);
-  }, [currentClasse]);
 
-  const remediations = [
-    { title: "Résoudre une équation du second degré", subject: "Mathématique", time: "15H30 - 16H00", teacher: "Mouhamed Sall" },
-    { title: "Résoudre une équation du second degré", subject: "Mathématique", time: "15H30 - 16H00", teacher: "Mouhamed Sall" },
-    { title: "Résoudre une équation du second degré", subject: "Mathématique", time: "15H30 - 16H00", teacher: "Mouhamed Sall" },
-  ].map(rem => ({...rem, title: t('lesson_title_lecon123'), subject: t('subject_math')}));
+    const remediationsForClass = mockRemediations.filter(rem => rem.classId === currentClasse);
+    setRemediations(remediationsForClass);
+  }, [currentClasse]);
 
   const handleAddFiche = (data: NewFicheData) => {
     const teacherName = user ? `${user.firstName} ${user.lastName}` : t('unknown_teacher', 'Enseignant non identifié');
@@ -122,11 +119,15 @@ const MesCours = () => {
       </div>
 
       {/* Remediation Section */}
-      <div className="bg-white p-4 rounded-lg shadow-sm">
+      <div className="mt-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('remediation')}</h2>
         <div className="grid md:grid-cols-3 gap-6">
-          {remediations.map((remediation, index) => (
-            <RemediationCard key={index} {...remediation} />
+          {remediations.map((remediation) => (
+            <RemediationCard 
+              key={remediation.id} 
+              remediation={remediation}
+              onClick={() => navigate(`/remediations/${remediation.id}`)}
+            />
           ))}
         </div>
       </div>

@@ -290,7 +290,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                             ))}
                         </div>
                     }
-                    showPagination={true}
+                showPagination={true}
                 currentPage={currentPage}
                     totalItems={filteredNotes.length}
                 itemsPerPage={ITEMS_PER_PAGE}

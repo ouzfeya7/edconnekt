@@ -1,5 +1,6 @@
 import { BookText, CheckCircle2, ClipboardCheck } from 'lucide-react';
 import courseIllustrationImage from '../assets/illustration.png';
+import dayjs from 'dayjs';
 
 export interface Lesson {
   id: string;
@@ -23,6 +24,10 @@ export interface Lesson {
     statusText: string;
     statusColor: string;
   };
+  theme: string;
+  date: string;
+  teacher: string;
+  studentCount: number;
 }
 
 export interface Course {
@@ -224,6 +229,83 @@ export const mockWeeklySkills: WeeklySkill[] = [
     createSkill('cm2', 'math1', 'Mathématiques', 'Calculer le périmètre d\'un cercle'),
     createSkill('cm2', 'math2', 'Mathématiques', 'Tracer un triangle'),
   ]
+];
+
+export interface RemediationStudent {
+  id: string;
+  name: string;
+  avatar: string;
+  status: 'present' | 'absent' | 'late';
+}
+export interface RemediationSession {
+  id: string;
+  classId: string;
+  title: string;
+  subject: string;
+  theme: string;
+  date: string;
+  teacher: string;
+  studentCount: number;
+  status: 'completed' | 'upcoming' | 'in_progress';
+  skillToAcquire: string;
+  students: RemediationStudent[];
+}
+
+export const mockRemediations: RemediationSession[] = [
+  {
+    id: 'rem1',
+    classId: 'cp1',
+    title: 'Remédiation en lecture',
+    subject: 'Français',
+    theme: 'Fluidité de la lecture',
+    date: dayjs().subtract(5, 'day').toISOString(),
+    teacher: 'Mme Sagna',
+    studentCount: 5,
+    status: 'completed',
+    skillToAcquire: "Identifier les sons complexes (ou, on, an).",
+    students: [
+      { id: '1', name: 'Aminata Sow', avatar: 'https://i.pravatar.cc/150?img=1', status: 'present' },
+      { id: '2', name: 'Babacar Diop', avatar: 'https://i.pravatar.cc/150?img=2', status: 'present' },
+      { id: '3', name: 'Coumba Ndiaye', avatar: 'https://i.pravatar.cc/150?img=3', status: 'absent' },
+      { id: '4', name: 'Daouda Faye', avatar: 'https://i.pravatar.cc/150?img=4', status: 'present' },
+      { id: '5', name: 'Fatou Gueye', avatar: 'https://i.pravatar.cc/150?img=5', status: 'late' },
+    ]
+  },
+  {
+    id: 'rem2',
+    classId: 'cp1',
+    title: 'Soutien en numération',
+    subject: 'Mathématiques',
+    theme: 'Nombres et calcul',
+    date: dayjs().add(2, 'day').toISOString(),
+    teacher: 'Mme Sagna',
+    studentCount: 3,
+    status: 'upcoming',
+    skillToAcquire: "Additionner des nombres à deux chiffres sans retenue.",
+    students: [
+      { id: '6', name: 'Ibrahima Fall', avatar: 'https://i.pravatar.cc/150?img=6', status: 'present' },
+      { id: '7', name: 'Khady Cisse', avatar: 'https://i.pravatar.cc/150?img=7', status: 'present' },
+      { id: '8', name: 'Lamine Thiam', avatar: 'https://i.pravatar.cc/150?img=8', status: 'present' },
+    ]
+  },
+  {
+    id: 'rem3',
+    classId: 'ce1',
+    title: 'Atelier de conjugaison',
+    subject: 'Français',
+    theme: 'Grammaire et conjugaison',
+    date: dayjs().subtract(1, 'day').toISOString(),
+    teacher: 'M. Diouf',
+    studentCount: 4,
+    status: 'in_progress',
+    skillToAcquire: "Conjuguer les verbes du 1er groupe au présent de l'indicatif.",
+    students: [
+      { id: '9', name: 'Mamadou Ba', avatar: 'https://i.pravatar.cc/150?img=9', status: 'present' },
+      { id: '10', name: 'Ndeye Seck', avatar: 'https://i.pravatar.cc/150?img=10', status: 'present' },
+      { id: '11', name: 'Ousmane Camara', avatar: 'https://i.pravatar.cc/150?img=11', status: 'present' },
+      { id: '12', name: 'Penda Diallo', avatar: 'https://i.pravatar.cc/150?img=12', status: 'absent' },
+    ]
+  },
 ];
 
 export const mockCourses: Course[] = [

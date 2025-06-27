@@ -31,13 +31,18 @@ import MesCours from "./pages/enseignants/MesCoursPage";
 import PdiSeancePage from "./pages/PdiSeancePage";
 import PdiDetailPage from "./pages/PdiDetailPage";
 import RessourceDetailPage from "./pages/RessourceDetailPage";
+import AddResourcePage from "./pages/AddResourcePage";
+import ArchivesPage from "./pages/ArchivesPage";
 import { JSX } from "react/jsx-runtime";
 import { ResourceProvider } from "./contexts/ResourceContext";
 import GestionNotesPage from './pages/gestionNotes/GestionNotesPage';
 import GestionDevoirsPage from './pages/gestionNotes/GestionDevoirsPage';
-import DevoirDetailPage from './pages/gestionNotes/DevoirDetailPage';
+import EnseignantDevoirDetailPage from './pages/gestionNotes/DevoirDetailPage';
 import CreateDevoirPage from './pages/gestionNotes/CreateDevoirPage';
 import AppLoader from './components/ui/AppLoader';
+import RemediationDetailPage from './pages/RemediationDetailPage';
+import DevoirsPage from './pages/eleves/DevoirsPage';
+import EleveDevoirDetailPage from './pages/eleves/DevoirDetailPage';
 
 // Définition des types de rôles pour la clarté
 type Role =
@@ -58,6 +63,8 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/calendar", element: <Agenda /> },
     { path: "/messages", element: <MessageEnseignant /> },
     { path: "/ressources", element: <Ressource /> },
+    { path: "/ressources/ajouter", element: <AddResourcePage /> },
+    { path: "/ressources/archives", element: <ArchivesPage /> },
     { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
     { path: "/pdi", element: <PdiSeancePage /> },
     { path: "/pdi/:facilitatorId", element: <PdiDetailPage /> },
@@ -69,8 +76,9 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/gestion-notes", element: <GestionNotesPage /> },
     { path: "/devoirs", element: <GestionDevoirsPage /> },
     { path: "/devoirs/creer", element: <CreateDevoirPage /> },
-    { path: "/devoirs/:devoirId", element: <DevoirDetailPage /> },
+    { path: "/devoirs/:devoirId", element: <EnseignantDevoirDetailPage /> },
     { path: "/evaluations", element: <Evaluations /> },
+    { path: "/remediations/:remediationId", element: <RemediationDetailPage /> },
     { path: "*", element: <NotFound /> }, // Utilisation de '*' pour le catch-all
   ],
   directeur: [
@@ -82,6 +90,8 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   eleve: [
     { path: "/", element: <Dash /> },
     { path: "/mes-notes", element: <MesNotesPage /> },
+    { path: "/devoirs", element: <DevoirsPage /> },
+    { path: "/devoirs/:devoirId", element: <EleveDevoirDetailPage /> },
     { path: "/calendar", element: <Agenda /> },
     { path: "/messages", element: <MessageEleve /> },
     { path: "/evaluations/notes", element: <GNote /> },

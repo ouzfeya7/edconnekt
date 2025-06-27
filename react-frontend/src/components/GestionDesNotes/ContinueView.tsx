@@ -132,7 +132,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
         return filteredNotes.slice(startIndex, startIndex + ITEMS_PER_PAGE);
     }, [filteredNotes, currentPage]);
-
+    
     const notesTableData = useMemo(() => paginatedNotes.map(note => ({
         id: note.studentId,
         studentName: note.studentName,
@@ -332,12 +332,12 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                 ))}
             </div>
             <div className="p-4 md:p-6">
-                <Toolbar
-                    searchTerm={searchTerm}
-                    onSearchChange={setSearchTerm}
+            <Toolbar
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
                     searchPlaceholder="Rechercher par nom..."
-                    centerSlot={
-                        <div className="flex flex-wrap gap-2 items-center">
+                centerSlot={
+                    <div className="flex flex-wrap gap-2 items-center">
                             {subjectsForActiveDomain.map(subject => (
                                 <button key={subject.id} onClick={() => {
                                     setActiveSubjectId(subject.id);
@@ -345,16 +345,16 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                                 }}
                                     className={`px-4 py-1.5 text-sm rounded-full font-medium focus:outline-none transition-colors ${activeSubjectId === subject.id ? 'bg-sky-700 text-white shadow-md' : 'bg-gray-100 text-gray-700 border hover:bg-gray-200'}`}>
                                     {subject.name}
-                                </button>
-                            ))}
-                        </div>
-                    }
-                    showPagination={true}
-                    currentPage={currentPage}
+                            </button>
+                        ))}
+                    </div>
+                }
+                showPagination={true}
+                currentPage={currentPage}
                     totalItems={filteredNotes.length}
-                    itemsPerPage={ITEMS_PER_PAGE}
-                    onPageChange={setCurrentPage}
-                    rightActions={
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={setCurrentPage}
+                rightActions={
                         <Menu as="div" className="relative">
                             <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 <MoreHorizontal className="w-5 h-5" />
@@ -396,14 +396,14 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                                 </div>
                             </MenuItems>
                         </Menu>
-                    }
-                />
+                }
+            />
                 
-                <NotesTable 
+            <NotesTable 
                     noteColumns={noteColumns}
-                    data={notesTableData} 
+                data={notesTableData} 
                     onNoteUpdate={role === 'enseignant' ? handleNoteUpdate : undefined}
-                />
+            />
             </div>
         </div>
     );

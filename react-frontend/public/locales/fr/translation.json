@@ -148,7 +148,7 @@
     "email": "EMAIL",
     "address": "ADRESSE",
     "courses_of_the_day": "Cours du jour",
-    "view_more": "Voir Plus",
+    "view_more": "Voir plus",
     "cancel": "Annuler",
     "apply": "Appliquer",
     "all_classes": "Toutes les classes",
@@ -167,6 +167,14 @@
     "files": "Fichiers",
     "create_assignment": "Créer le devoir",
     "view_submission": "Voir la copie",
-    "send_reminder": "Envoyer un rappel"
+    "send_reminder": "Envoyer un rappel",
+    "students_concerned_one": "{{count}} élève concerné",
+    "students_concerned_other": "{{count}} élèves concernés",
+    "Terminé": "Terminé",
+    "À venir": "À venir",
+    "En cours": "En cours",
+    "present": "Présent",
+    "absent": "Absent",
+    "late": "En retard"
   }
   
