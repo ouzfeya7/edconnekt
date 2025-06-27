@@ -14,8 +14,6 @@ import TrimestrielleView from "../../components/GestionDesNotes/TrimestrielleVie
 const GestionNotesPage = () => {
   const { t } = useTranslation();
   const [evaluationType, setEvaluationType] = useState("Continue");
-  const [currentClasse, setCurrentClasse] = useState("4e B");
-  const [currentTrimestre, setCurrentTrimestre] = useState("Trimestre 1");
   const [isCreateEvalModalOpen, setIsCreateEvalModalOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -23,14 +21,6 @@ const GestionNotesPage = () => {
     setEvaluationType(type);
   };
   
-  const handleClasseChangeHeader = (newClasse: string) => {
-    setCurrentClasse(newClasse);
-  };
-
-  const handleTrimestreChangeHeader = (newTrimestre: string) => {
-    setCurrentTrimestre(newTrimestre);
-  };
-
   const handleCreateEvaluation = (data: NewEvaluationData) => {
     console.log("Nouvelle évaluation créée :", data);
     // TODO: Implémenter la logique pour ajouter la nouvelle évaluation
@@ -72,13 +62,9 @@ const GestionNotesPage = () => {
         </div>
 
         <EvaluationHeader 
-          initialClasse={currentClasse}
-          initialTrimestre={currentTrimestre}
           initialEvaluationType={evaluationType}
-          onClasseChange={handleClasseChangeHeader}
-          onTrimestreChange={handleTrimestreChangeHeader}
           onEvaluationTypeChange={handleEvaluationTypeChangeHeader}
-          isClasseEditable={false}
+          isClasseEditable={true}
         />
         
         {/* Afficher la vue sélectionnée */} 

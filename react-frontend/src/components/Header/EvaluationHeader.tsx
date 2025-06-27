@@ -3,7 +3,7 @@ import { useFilters } from '../../contexts/FilterContext';
 import DateCard from './DateCard';
 import ClassNameCard from './ClassNameCard';
 import TrimestreCard from './TrimestreCard';
-import EvaluationTypeTabs from './EvaluationTypeTabs';
+import EvaluationTypeCard from './EvaluationTypeCard';
 import MonthCard from './MonthCard';
 
 interface EvaluationHeaderProps {
@@ -48,7 +48,7 @@ const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
       )}
       <ClassNameCard className={currentClasse} onClassChange={setCurrentClasse} isEditable={isClasseEditable} />
       <TrimestreCard value={currentTrimestre} onChange={setCurrentTrimestre} />
-      <EvaluationTypeTabs value={evaluationType} onChange={handleEvaluationTypeChangeInternal} />
+      <EvaluationTypeCard value={evaluationType} onChange={handleEvaluationTypeChangeInternal} />
     </div>
   );
 };

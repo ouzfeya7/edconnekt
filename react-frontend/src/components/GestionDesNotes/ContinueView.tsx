@@ -6,7 +6,6 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import NotesTable, { NoteColumn } from './NotesTable';
 import Toolbar from '../ui/Toolbar';
 import { ArrowDownToLine, FileSpreadsheet, FileText, Library, MoreHorizontal } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import { useFilters } from '../../contexts/FilterContext';
 import { useStudents } from '../../contexts/StudentContext';
 import { getSubjectsForClass, getNotesForClass, StudentNote, Domain, getGradingStatus } from '../../lib/notes-data';
@@ -24,7 +23,6 @@ interface ContinueViewProps {
 }
 
 const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
-    const { t } = useTranslation();
     const { currentClasse, formattedCurrentDate } = useFilters();
     const { students } = useStudents();
     
@@ -311,103 +309,102 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
     };
 
     return (
-        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm mt-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-                <div className="flex items-center gap-4 flex-wrap">
-                    {domains.map(domain => (
-                        <button
-                            key={domain.id}
-                            onClick={() => {
-                                setActiveDomainId(domain.id);
-                                if (domain.subjects.length > 0) {
-                                    setActiveSubjectId(domain.subjects[0].id);
-                                }
-                                setCurrentPage(1);
-                            }}
-                            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
-                                activeDomainId === domain.id
-                                    ? 'text-orange-600 border-b-2 border-orange-600'
-                                    : 'text-gray-600 hover:text-gray-900'
-                            }`}
-                        >
-                            {t(domain.name)}
+        <div className="bg-white rounded-lg shadow-sm mt-6">
+            <div className="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                {domains.map(domain => (
+                    <button
+                        key={domain.id}
+                        onClick={() => {
+                            setActiveDomainId(domain.id);
+                            if (domain.subjects.length > 0) {
+                                setActiveSubjectId(domain.subjects[0].id);
+                            }
+                            setCurrentPage(1);
+                        }}
+                        className={`px-4 py-3 text-sm font-medium focus:outline-none transition-colors duration-150 ${
+                            activeDomainId === domain.id
+                                ? 'border-orange-500 text-orange-600 border-b-2'
+                                : 'text-gray-500 hover:text-orange-500 border-b-2 border-transparent'
+                        }`}
+                    >
+                        {domain.name.toUpperCase()}
                     </button>
                 ))}
-                </div>
             </div>
-
-            <Toolbar
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                searchPlaceholder="Rechercher par nom..."
-                centerSlot={
-                    <div className="flex flex-wrap gap-2 items-center">
-                        {subjectsForActiveDomain.map(subject => (
-                            <button key={subject.id} onClick={() => {
-                                setActiveSubjectId(subject.id);
-                                setCurrentPage(1);
-                            }}
-                                className={`px-4 py-1.5 text-sm rounded-full font-medium focus:outline-none transition-colors ${activeSubjectId === subject.id ? 'bg-sky-700 text-white shadow-md' : 'bg-gray-100 text-gray-700 border hover:bg-gray-200'}`}>
-                                {subject.name}
-                            </button>
-                        ))}
-                    </div>
-                }
-                showPagination={true}
-                currentPage={currentPage}
-                totalItems={filteredNotes.length}
-                itemsPerPage={ITEMS_PER_PAGE}
-                onPageChange={setCurrentPage}
-                rightActions={
-                    <Menu as="div" className="relative">
-                        <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            <MoreHorizontal className="w-5 h-5" />
-                        </MenuButton>
-                        <MenuItems anchor="bottom end" className="w-56 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                            {role === 'enseignant' && (
+            <div className="p-4 md:p-6">
+                <Toolbar
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    searchPlaceholder="Rechercher par nom..."
+                    centerSlot={
+                        <div className="flex flex-wrap gap-2 items-center">
+                            {subjectsForActiveDomain.map(subject => (
+                                <button key={subject.id} onClick={() => {
+                                    setActiveSubjectId(subject.id);
+                                    setCurrentPage(1);
+                                }}
+                                    className={`px-4 py-1.5 text-sm rounded-full font-medium focus:outline-none transition-colors ${activeSubjectId === subject.id ? 'bg-sky-700 text-white shadow-md' : 'bg-gray-100 text-gray-700 border hover:bg-gray-200'}`}>
+                                    {subject.name}
+                                </button>
+                            ))}
+                        </div>
+                    }
+                    showPagination={true}
+                    currentPage={currentPage}
+                    totalItems={filteredNotes.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    onPageChange={setCurrentPage}
+                    rightActions={
+                        <Menu as="div" className="relative">
+                            <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <MoreHorizontal className="w-5 h-5" />
+                            </MenuButton>
+                            <MenuItems anchor="bottom end" className="w-56 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                                {role === 'enseignant' && (
+                                    <div className="px-1 py-1">
+                                        <MenuItem>
+                                            {({ active }) => (
+                                                <button onClick={handleExport} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                    <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Excel (Matière)
+                                                </button>
+                                            )}
+                                        </MenuItem>
+                                        <MenuItem>
+                                            {({ active }) => (
+                                                <button onClick={handleExportAll} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                    <Library className="w-5 h-5 mr-2" /> Exporter Excel (Tout)
+                                                </button>
+                                            )}
+                                        </MenuItem>
+                                    </div>
+                                )}
                                 <div className="px-1 py-1">
                                     <MenuItem>
                                         {({ active }) => (
-                                            <button onClick={handleExport} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Excel (Matière)
+                                            <button onClick={handleExportPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                <FileText className="w-5 h-5 mr-2" /> Exporter PDF (Matière)
                                             </button>
                                         )}
                                     </MenuItem>
                                     <MenuItem>
                                         {({ active }) => (
-                                            <button onClick={handleExportAll} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <Library className="w-5 h-5 mr-2" /> Exporter Excel (Tout)
+                                            <button onClick={handleExportAllPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                <ArrowDownToLine className="w-5 h-5 mr-2" /> Exporter PDF (Tout)
                                             </button>
                                         )}
                                     </MenuItem>
                                 </div>
-                            )}
-                            <div className="px-1 py-1">
-                                <MenuItem>
-                                    {({ active }) => (
-                                        <button onClick={handleExportPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                            <FileText className="w-5 h-5 mr-2" /> Exporter PDF (Matière)
-                                        </button>
-                                    )}
-                                </MenuItem>
-                                <MenuItem>
-                                    {({ active }) => (
-                                        <button onClick={handleExportAllPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                            <ArrowDownToLine className="w-5 h-5 mr-2" /> Exporter PDF (Tout)
-                                        </button>
-                                    )}
-                                </MenuItem>
-                            </div>
-                        </MenuItems>
-                    </Menu>
-                }
-            />
-            
-            <NotesTable 
-                noteColumns={noteColumns}
-                data={notesTableData} 
-                onNoteUpdate={role === 'enseignant' ? handleNoteUpdate : undefined}
-            />
+                            </MenuItems>
+                        </Menu>
+                    }
+                />
+                
+                <NotesTable 
+                    noteColumns={noteColumns}
+                    data={notesTableData} 
+                    onNoteUpdate={role === 'enseignant' ? handleNoteUpdate : undefined}
+                />
+            </div>
         </div>
     );
 };

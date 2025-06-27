@@ -5,7 +5,6 @@ import autoTable from 'jspdf-autotable';
 import NotesTable from './NotesTable';
 import type { NoteColumn } from './NotesTable';
 import Toolbar from '../ui/Toolbar';
-import { useTranslation } from 'react-i18next';
 import { useFilters } from '../../contexts/FilterContext';
 import { useStudents } from '../../contexts/StudentContext';
 import { getSubjectsForClass, getNotesForClass, getGradingStatus } from '../../lib/notes-data';
@@ -26,7 +25,6 @@ interface IntegrationViewProps {
 }
 
 const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
-    const { t } = useTranslation();
     const { currentClasse, currentMonth } = useFilters();
     const { students } = useStudents();
     
@@ -274,17 +272,17 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
             <Toolbar
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
-                    searchPlaceholder={t('search_by_name', 'Rechercher par nom...')}
+                    searchPlaceholder={'Rechercher par nom...'}
                     centerSlot={
                         <div className="flex flex-wrap items-center gap-2">
                             {subjectsForActiveDomain.map(subject => (
                                 <button
                                     key={subject.id}
                                     onClick={() => setActiveSubjectId(subject.id)}
-                                    className={`px-3 py-1.5 text-sm rounded-full font-medium transition-colors ${
+                                    className={`px-4 py-1.5 text-sm rounded-full font-medium focus:outline-none transition-colors ${
                                         activeSubjectId === subject.id
-                                            ? 'bg-blue-600 text-white shadow'
-                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                            ? 'bg-sky-700 text-white shadow-md'
+                                            : 'bg-gray-100 text-gray-700 border hover:bg-gray-200'
                                     }`}
                                 >
                                     {subject.name}
@@ -292,7 +290,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                             ))}
                         </div>
                     }
-                    showPagination={filteredNotes.length > ITEMS_PER_PAGE}
+                    showPagination={true}
                 currentPage={currentPage}
                     totalItems={filteredNotes.length}
                 itemsPerPage={ITEMS_PER_PAGE}
