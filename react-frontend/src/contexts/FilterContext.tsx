@@ -14,6 +14,8 @@ interface FilterContextType {
   setCurrentTrimestre: (trimestre: string) => void;
   currentMonth: string;
   setCurrentMonth: (month: string) => void;
+  currentSubject: string;
+  setCurrentSubject: (subject: string) => void;
 }
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);
@@ -25,6 +27,7 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
   const [currentClasse, setCurrentClasse] = useState("cp1");
   const [currentTrimestre, setCurrentTrimestre] = useState("Trimestre 1");
   const [currentMonth, setCurrentMonth] = useState("Septembre");
+  const [currentSubject, setCurrentSubject] = useState("Tout");
   const [formattedCurrentDate, setFormattedCurrentDate] = useState('');
 
   useEffect(() => {
@@ -41,7 +44,9 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
     currentTrimestre,
     setCurrentTrimestre,
     currentMonth,
-    setCurrentMonth
+    setCurrentMonth,
+    currentSubject,
+    setCurrentSubject
   };
 
   return (

@@ -17,7 +17,8 @@ export interface Domain {
 
 export interface StudentNote {
   studentId: string;
-  studentName: string;
+  firstName: string;
+  lastName: string;
   studentAvatar: string;
   notes: {
     [competenceId: string]: number | 'absent' | 'non-evalue';
@@ -481,49 +482,49 @@ const subjectsByClass: { [classId: string]: Domain[] } = {
 // Pour ajouter un élève, il suffit de l'ajouter à la bonne classe ici.
 const studentDataByClass = {
   presk1: [
-    { studentId: 'presk1-eleve-1', studentName: 'Amina Fall', studentAvatar: 'https://randomuser.me/api/portraits/women/4.jpg' },
-    { studentId: 'presk1-eleve-2', studentName: 'Babacar Dieng', studentAvatar: 'https://randomuser.me/api/portraits/men/5.jpg' },
+    { studentId: 'presk1-eleve-1', firstName: 'Amina', lastName: 'Fall', studentAvatar: 'https://randomuser.me/api/portraits/women/4.jpg' },
+    { studentId: 'presk1-eleve-2', firstName: 'Babacar', lastName: 'Dieng', studentAvatar: 'https://randomuser.me/api/portraits/men/5.jpg' },
   ],
   presk2: [
-    { studentId: 'presk2-eleve-1', studentName: 'Bineta Sarr', studentAvatar: 'https://randomuser.me/api/portraits/women/6.jpg' },
+    { studentId: 'presk2-eleve-1', firstName: 'Bineta', lastName: 'Sarr', studentAvatar: 'https://randomuser.me/api/portraits/women/6.jpg' },
   ],
   cp1: [
     // === NOUVELLE LISTE DE 20 ÉLÈVES POUR CP1 ===
     // --- 8 Filles ---
-    { studentId: 'cp1-eleve-1', studentName: 'Awa Gueye', studentAvatar: 'https://i.pravatar.cc/150?img=1' },
-    { studentId: 'cp1-eleve-2', studentName: 'Fatou Diop', studentAvatar: 'https://i.pravatar.cc/150?img=5' },
-    { studentId: 'cp1-eleve-3', studentName: 'Mariama Sow', studentAvatar: 'https://i.pravatar.cc/150?img=7' },
-    { studentId: 'cp1-eleve-4', studentName: 'Ndeye Fall', studentAvatar: 'https://i.pravatar.cc/150?img=8' },
-    { studentId: 'cp1-eleve-5', studentName: 'Astou Ndiaye', studentAvatar: 'https://i.pravatar.cc/150?img=10' },
-    { studentId: 'cp1-eleve-6', studentName: 'Coumba Diallo', studentAvatar: 'https://i.pravatar.cc/150?img=11' },
-    { studentId: 'cp1-eleve-7', studentName: 'Khadija Ba', studentAvatar: 'https://i.pravatar.cc/150?img=12' },
-    { studentId: 'cp1-eleve-8', studentName: 'Aminata Cissé', studentAvatar: 'https://i.pravatar.cc/150?img=14' },
+    { studentId: 'cp1-eleve-1', firstName: 'Awa', lastName: 'Gueye', studentAvatar: 'https://i.pravatar.cc/150?img=1' },
+    { studentId: 'cp1-eleve-2', firstName: 'Fatou', lastName: 'Diop', studentAvatar: 'https://i.pravatar.cc/150?img=5' },
+    { studentId: 'cp1-eleve-3', firstName: 'Mariama', lastName: 'Sow', studentAvatar: 'https://i.pravatar.cc/150?img=7' },
+    { studentId: 'cp1-eleve-4', firstName: 'Ndeye', lastName: 'Fall', studentAvatar: 'https://i.pravatar.cc/150?img=8' },
+    { studentId: 'cp1-eleve-5', firstName: 'Astou', lastName: 'Ndiaye', studentAvatar: 'https://i.pravatar.cc/150?img=10' },
+    { studentId: 'cp1-eleve-6', firstName: 'Coumba', lastName: 'Diallo', studentAvatar: 'https://i.pravatar.cc/150?img=11' },
+    { studentId: 'cp1-eleve-7', firstName: 'Khadija', lastName: 'Ba', studentAvatar: 'https://i.pravatar.cc/150?img=12' },
+    { studentId: 'cp1-eleve-8', firstName: 'Aminata', lastName: 'Cissé', studentAvatar: 'https://i.pravatar.cc/150?img=14' },
     // --- 12 Garçons ---
-    { studentId: 'cp1-eleve-9', studentName: 'Moussa Sow', studentAvatar: 'https://i.pravatar.cc/150?img=3' },
-    { studentId: 'cp1-eleve-10', studentName: 'Ousmane Traoré', studentAvatar: 'https://i.pravatar.cc/150?img=15' },
-    { studentId: 'cp1-eleve-11', studentName: 'Ibrahima Diallo', studentAvatar: 'https://i.pravatar.cc/150?img=16' },
-    { studentId: 'cp1-eleve-12', studentName: 'Cheikh Dieng', studentAvatar: 'https://i.pravatar.cc/150?img=18' },
-    { studentId: 'cp1-eleve-13', studentName: 'Alioune Badara Thiam', studentAvatar: 'https://i.pravatar.cc/150?img=20' },
-    { studentId: 'cp1-eleve-14', studentName: 'Pape Diouf', studentAvatar: 'https://i.pravatar.cc/150?img=22' },
-    { studentId: 'cp1-eleve-15', studentName: 'El Hadji Sy', studentAvatar: 'https://i.pravatar.cc/150?img=25' },
-    { studentId: 'cp1-eleve-16', studentName: 'Daouda Faye', studentAvatar: 'https://i.pravatar.cc/150?img=28' },
-    { studentId: 'cp1-eleve-17', studentName: 'Abdoulaye Sarr', studentAvatar: 'https://i.pravatar.cc/150?img=31' },
-    { studentId: 'cp1-eleve-18', studentName: 'Lamine Camara', studentAvatar: 'https://i.pravatar.cc/150?img=33' },
-    { studentId: 'cp1-eleve-19', studentName: 'Mamadou Diallo', studentAvatar: 'https://i.pravatar.cc/150?img=35' },
-    { studentId: 'cp1-eleve-20', studentName: 'Souleymane Ba', studentAvatar: 'https://i.pravatar.cc/150?img=40' },
+    { studentId: 'cp1-eleve-9', firstName: 'Moussa', lastName: 'Sow', studentAvatar: 'https://i.pravatar.cc/150?img=3' },
+    { studentId: 'cp1-eleve-10', firstName: 'Ousmane', lastName: 'Traoré', studentAvatar: 'https://i.pravatar.cc/150?img=15' },
+    { studentId: 'cp1-eleve-11', firstName: 'Ibrahima', lastName: 'Diallo', studentAvatar: 'https://i.pravatar.cc/150?img=16' },
+    { studentId: 'cp1-eleve-12', firstName: 'Cheikh', lastName: 'Dieng', studentAvatar: 'https://i.pravatar.cc/150?img=18' },
+    { studentId: 'cp1-eleve-13', firstName: 'Alioune Badara', lastName: 'Thiam', studentAvatar: 'https://i.pravatar.cc/150?img=20' },
+    { studentId: 'cp1-eleve-14', firstName: 'Pape', lastName: 'Diouf', studentAvatar: 'https://i.pravatar.cc/150?img=22' },
+    { studentId: 'cp1-eleve-15', firstName: 'El Hadji', lastName: 'Sy', studentAvatar: 'https://i.pravatar.cc/150?img=25' },
+    { studentId: 'cp1-eleve-16', firstName: 'Daouda', lastName: 'Faye', studentAvatar: 'https://i.pravatar.cc/150?img=28' },
+    { studentId: 'cp1-eleve-17', firstName: 'Abdoulaye', lastName: 'Sarr', studentAvatar: 'https://i.pravatar.cc/150?img=31' },
+    { studentId: 'cp1-eleve-18', firstName: 'Lamine', lastName: 'Camara', studentAvatar: 'https://i.pravatar.cc/150?img=33' },
+    { studentId: 'cp1-eleve-19', firstName: 'Mamadou', lastName: 'Diallo', studentAvatar: 'https://i.pravatar.cc/150?img=35' },
+    { studentId: 'cp1-eleve-20', firstName: 'Souleymane', lastName: 'Ba', studentAvatar: 'https://i.pravatar.cc/150?img=40' },
   ],
   cp2: [
-    { studentId: 'cp2-eleve-1', studentName: 'Ousmane Ba', studentAvatar: 'https://randomuser.me/api/portraits/men/7.jpg' },
+    { studentId: 'cp2-eleve-1', firstName: 'Ousmane', lastName: 'Ba', studentAvatar: 'https://randomuser.me/api/portraits/men/7.jpg' },
   ],
   ce1: [
-    { studentId: 'ce1-eleve-1', studentName: 'Ndeye Coumba', studentAvatar: 'https://randomuser.me/api/portraits/women/8.jpg' },
+    { studentId: 'ce1-eleve-1', firstName: 'Ndeye', lastName: 'Coumba', studentAvatar: 'https://randomuser.me/api/portraits/women/8.jpg' },
   ],
   ce2: [
-    { studentId: 'ce2-eleve-1', studentName: 'Pape Diouf', studentAvatar: 'https://randomuser.me/api/portraits/men/9.jpg' },
+    { studentId: 'ce2-eleve-1', firstName: 'Pape', lastName: 'Diouf', studentAvatar: 'https://randomuser.me/api/portraits/men/9.jpg' },
   ],
   cm2: [
-    { studentId: 'cm2-eleve-1', studentName: 'Rama Cisse', studentAvatar: 'https://randomuser.me/api/portraits/women/10.jpg' },
-    { studentId: 'cm2-eleve-2', studentName: 'Alioune Tine', studentAvatar: 'https://randomuser.me/api/portraits/men/11.jpg' },
+    { studentId: 'cm2-eleve-1', firstName: 'Rama', lastName: 'Cisse', studentAvatar: 'https://randomuser.me/api/portraits/women/10.jpg' },
+    { studentId: 'cm2-eleve-2', firstName: 'Alioune', lastName: 'Tine', studentAvatar: 'https://randomuser.me/api/portraits/men/11.jpg' },
   ]
 };
 
@@ -535,7 +536,7 @@ export const getSubjectsForClass = (classId: string): Domain[] => {
  * Génère des données de notes pour une classe et une liste d'élèves données.
  * Les notes sont initialisées comme 'non-evalue'.
  */
-export const getNotesForClass = (classId: string, students: { id: string, name: string, avatar: string }[]): StudentNote[] => {
+export const getNotesForClass = (classId: string, students: { id: string, firstName: string, lastName: string, avatar: string }[]): StudentNote[] => {
   const subjects = subjectsByClass[classId] || [];
   const allCompetences = subjects.flatMap(d => d.subjects.flatMap(s => s.competences));
 
@@ -548,7 +549,8 @@ export const getNotesForClass = (classId: string, students: { id: string, name: 
     
     return {
       studentId: student.id,
-      studentName: student.name,
+      firstName: student.firstName,
+      lastName: student.lastName,
       studentAvatar: student.avatar,
       notes,
     };
@@ -564,7 +566,8 @@ export const studentNotesByClass: { [classId: string]: StudentNote[] } = {};
 Object.keys(studentDataByClass).forEach(classId => {
   const studentsOfClass = studentDataByClass[classId as keyof typeof studentDataByClass].map(s => ({
     id: s.studentId,
-    name: s.studentName,
+    firstName: s.firstName,
+    lastName: s.lastName,
     avatar: s.studentAvatar
   }));
   studentNotesByClass[classId] = getNotesForClass(classId, studentsOfClass);

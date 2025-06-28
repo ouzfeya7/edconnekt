@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import { Role } from "../config/navigation"; // Importer Role
 import { useAuth } from "../pages/authentification/useAuth";
 import ScrollToTop from "../components/layout/ScrollToTop";
+import { FilterProvider } from "../contexts/FilterContext";
 
 // Définir une structure pour les données de l'utilisateur
 export interface User {
@@ -124,7 +125,9 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
 
         <main className="flex-1 overflow-y-auto" ref={mainContentRef}>
           <ScrollToTop containerRef={mainContentRef} />
-          <Outlet context={{ user: user, updateUser: handleUpdateUser }} />
+          <FilterProvider>
+            <Outlet context={{ user: user, updateUser: handleUpdateUser }} />
+          </FilterProvider>
         </main>
       </div>
     </div>

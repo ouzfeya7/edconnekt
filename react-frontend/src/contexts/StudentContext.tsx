@@ -7,18 +7,24 @@ export type StudentStatus = 'Présent' | 'Retard' | 'Absent';
 // L'interface Student est maintenant plus simple, car les notes sont gérées ailleurs.
 export interface Student {
   id: string; // Utiliser le studentId comme id
-  name: string;
+  firstName: string;
+  lastName: string;
   avatar: string;
   classId: string;
   status: StudentStatus;
   comment: string; // Ajout du champ commentaire
+  remediation?: {
+    required: boolean;
+    subject: string;
+  };
 }
 
 // Transformation des données importées pour les adapter au contexte
 const allStudents: Omit<Student, 'comment'>[] = Object.entries(studentNotesByClass).flatMap(([classId, students]) =>
   students.map((student, index) => ({
     id: student.studentId,
-    name: student.studentName,
+    firstName: student.firstName,
+    lastName: student.lastName,
     avatar: student.studentAvatar,
     classId: classId,
     // Statut par défaut
