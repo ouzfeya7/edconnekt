@@ -2,11 +2,12 @@
 import React from "react";
 import MessageContainer from "../../../components/message/MessageContainer";
 
+// Dans un cas réel, ce rôle viendrait de votre système d'authentification
+const userRole = 'enseignant'; // Peut être 'eleve', 'parent', 'enseignant' ou 'admin'
+
 const Message = () => {
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <MessageContainer userRole="enseignant" />
-    </div>
+    <MessageContainer userRole={userRole} />
   );
 };
 

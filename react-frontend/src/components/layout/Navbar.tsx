@@ -20,11 +20,24 @@ const Navbar = ({ role }: NavbarProps) => {
       {currentMenu
         .filter(item => !item.hideInNavbar)
         .map((item) => {
-          const isActive = item.to === '/evaluations' 
-            ? location.pathname.startsWith('/evaluations') || 
-              location.pathname.startsWith('/gestion-notes') ||
-              location.pathname.startsWith('/devoirs')
-            : location.pathname === item.to;
+          let isActive = false;
+          
+          if (item.to === '/evaluations') {
+            // Logique pour les évaluations
+            isActive = location.pathname.startsWith('/evaluations') || 
+                      location.pathname.startsWith('/gestion-notes') ||
+                      location.pathname.startsWith('/devoirs');
+          } else if (item.to === '/mes-cours') {
+            // Logique pour "Mes cours" - actif pour toutes les pages de cours et leçons
+            isActive = location.pathname.startsWith('/mes-cours') || 
+                      location.pathname.startsWith('/lecons');
+          } else if (item.to === '/devoirs') {
+            // Logique pour "Devoirs" - actif pour toutes les pages de devoirs
+            isActive = location.pathname.startsWith('/devoirs');
+          } else {
+            // Logique standard pour les autres routes
+            isActive = location.pathname === item.to;
+          }
           
           return (
             <NavLink

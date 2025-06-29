@@ -4,15 +4,15 @@ import { studentNotesByClass } from '../lib/notes-data'; // Importer les donnée
 
 export type StudentStatus = 'Présent' | 'Retard' | 'Absent';
 
-// L'interface Student est maintenant plus simple, car les notes sont gérées ailleurs.
+// L'interface Student pour le contexte (structure simple)
 export interface Student {
-  id: string; // Utiliser le studentId comme id
+  id: string;
   firstName: string;
   lastName: string;
   avatar: string;
   classId: string;
   status: StudentStatus;
-  comment: string; // Ajout du champ commentaire
+  comment: string;
   remediation?: {
     required: boolean;
     subject: string;

@@ -6,48 +6,29 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
 import enLocale from '@fullcalendar/core/locales/en-gb';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import AgendaSidebar from '../components/agenda/AgendaSidebar';
 import EventDetailsModal from '../components/agenda/EventDetailsModal';
-import EventFormModal from '../components/agenda/EventFormModal';
-import { SchoolEvent, defaultEventState, getEventCategories } from '../components/agenda/agenda_data';
+import { SchoolEvent } from '../components/agenda/agenda_data';
 import CalendarHeader from '../components/agenda/CalendarHeader';
 import { useEvents } from '../contexts/EventContext';
+import Toast from '../components/ui/Toast';
 
 const Agenda: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { events, setEvents } = useEvents();
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const { events } = useEvents();
+  const navigate = useNavigate();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [currentEvent, setCurrentEvent] = useState<SchoolEvent>(() => defaultEventState(t));
   const [viewingEvent, setViewingEvent] = useState<SchoolEvent | null>(null);
-  const [errors, setErrors] = useState<{ title?: string }>({});
   const calendarRef = useRef<FullCalendar>(null);
   const [calendarTitle, setCalendarTitle] = useState('');
   const [currentView, setCurrentView] = useState('dayGridMonth');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const location = useLocation();
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setCurrentEvent(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleAudienceChange = (audience: string) => {
-    setCurrentEvent(prev => {
-      const newAudience = prev.targetAudience.includes(audience)
-        ? prev.targetAudience.filter(a => a !== audience)
-        : [...prev.targetAudience, audience];
-      return { ...prev, targetAudience: newAudience };
-    });
-  };
-  
-  const handleAllDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCurrentEvent(p => ({...p, allDay: e.target.checked}));
-  };
 
   const openDetailsModal = (eventData: EventInput) => {
     setViewingEvent(eventData as SchoolEvent);
@@ -55,60 +36,17 @@ const Agenda: React.FC = () => {
   };
 
   const openFormForNewEvent = (arg?: DateClickArg) => {
-    setIsEditMode(false);
-    const startDate = arg ? arg.dateStr + 'T09:00' : new Date().toISOString().slice(0, 16);
-    const endDate = arg ? arg.dateStr + 'T10:00' : new Date(new Date().getTime() + 60 * 60 * 1000).toISOString().slice(0, 16);
-    setCurrentEvent({ ...defaultEventState(t), start: startDate, end: endDate });
-    setErrors({});
-    setIsFormOpen(true);
+    const dateStr = arg?.dateStr || new Date().toISOString().slice(0, 10);
+    navigate('/agenda/create', { 
+      state: { date: dateStr }
+    });
   };
 
   const openFormForExistingEvent = (eventData: SchoolEvent) => {
-    setIsEditMode(true);
-    setCurrentEvent({
-      ...defaultEventState(t),
-      ...eventData,
-      start: eventData.start ? new Date(eventData.start as string).toISOString().slice(0, 16) : defaultEventState(t).start,
-      end: eventData.end ? new Date(eventData.end as string).toISOString().slice(0, 16) : defaultEventState(t).end,
-      targetAudience: eventData.targetAudience || [],
-    });
-    setErrors({});
-    setIsFormOpen(true);
+    navigate(`/agenda/edit/${eventData.id}`);
   };
   
-  const closeFormModal = () => setIsFormOpen(false);
   const closeDetailsModal = () => setIsDetailsOpen(false);
-
-  const validateForm = () => {
-    const newErrors: { title?: string } = {};
-    if (!(currentEvent.title || '').trim()) {
-      newErrors.title = t('title_is_required', "Le titre est obligatoire.");
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSaveEvent = () => {
-    if (!validateForm()) return;
-
-    const eventCategories = getEventCategories(t);
-    const eventToSave: SchoolEvent = {
-        ...currentEvent,
-        className: eventCategories[currentEvent.category].className,
-    };
-    
-    if (isEditMode) {
-      setEvents(events.map(event => event.id === eventToSave.id ? eventToSave : event));
-    } else {
-      setEvents([...events, { ...eventToSave, id: new Date().getTime().toString() }]);
-    }
-    setIsFormOpen(false);
-  };
-
-  const handleDeleteEvent = () => {
-    setEvents(events.filter(event => event.id !== currentEvent.id));
-    setIsFormOpen(false);
-  };
 
   const groupedEvents = useMemo(() => {
     const grouped: { [key: string]: SchoolEvent[] } = {};
@@ -133,6 +71,7 @@ const Agenda: React.FC = () => {
     if (calendarApi) {
       calendarApi.gotoDate(date);
     }
+    setIsSidebarOpen(false); // Fermer la sidebar sur mobile après sélection
   };
 
   const handleDatesSet = (dateInfo: { view: ViewApi }) => {
@@ -142,9 +81,12 @@ const Agenda: React.FC = () => {
 
   const calendarApi = calendarRef.current?.getApi();
 
+  // Afficher un message de succès s'il y en a un
   useEffect(() => {
-    if (location.state?.showAddEventModal) {
-      openFormForNewEvent();
+    if (location.state?.message) {
+      setToastMessage(location.state.message);
+      // Nettoyer le state pour éviter de réafficher le message
+      window.history.replaceState({}, document.title);
     }
   }, [location.state]);
 
@@ -153,53 +95,54 @@ const Agenda: React.FC = () => {
     <style>{`
       /* --- Style pour les boutons de FullCalendar --- */
       .fc .fc-button-primary {
-        background-color: #f3f4f6; /* gray-100 */
-        border-color: #d1d5db; /* gray-300 */
-        color: #374151; /* gray-700 */
-        transition: background-color 0.2s, border-color 0.2s, color 0.2s;
-        font-weight: 600;
+        background-color: #ffffff;
+        border-color: #e5e7eb;
+        color: #374151;
+        transition: all 0.2s ease;
+        font-weight: 500;
         padding: 0.5rem 1rem;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
       }
       .fc .fc-button-primary:hover {
-        background-color: #e5e7eb; /* gray-200 */
-        border-color: #d1d5db; /* gray-300 */
-        color: #184867;
+        background-color: #f97316;
+        border-color: #f97316;
+        color: white;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       }
       .fc .fc-button-primary:focus {
-        box-shadow: 0 0 0 2px #184867;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+        outline: none;
       }
-      /* Bouton actif (thème sombre) */
+      /* Bouton actif */
       .fc .fc-button-primary:not(:disabled).fc-button-active,
       .fc .fc-button-primary:not(:disabled):active {
-        background-color: #184867; /* blue-600 */
-        border-color: #184867; /* blue-700 */
+        background-color: #f97316;
+        border-color: #f97316;
         color: white;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       }
       .fc .fc-button-primary:disabled {
-        background-color: #f3f4f6;
-        border-color: #d1d5db;
-        color: #9ca3af; /* gray-400 */
+        background-color: #f9fafb;
+        border-color: #e5e7eb;
+        color: #9ca3af;
       }
       .fc .fc-today-button {
-        background-color: #f3f4f6; /* blue-50 */
-        border-color: #184867; /* blue-200 */
-        color: #184867; /* blue-600 */
+        background-color: #fff7ed;
+        border-color: #fed7aa;
+        color: #ea580c;
+        font-weight: 500;
       }
-       .fc .fc-today-button:hover {
-        background-color: #dbeafe; /* blue-100 */
+      .fc .fc-today-button:hover {
+        background-color: #f97316;
+        color: white;
       }
       .fc .fc-today-button:disabled {
-        background-color:rgb(218, 221, 225);
-        color:rgb(131, 132, 135);
+        background-color: #f9fafb;
+        color: #9ca3af;
       }
 
       /* --- Style pour les événements du calendrier --- */
-      /* Forcer la couleur du texte pour une meilleure lisibilité */
-      .fc-event.event-reunion .fc-event-title, .fc-event.event-reunion .fc-event-time { color: #1e3a8a !important; }
-      .fc-event.event-activite .fc-event-title, .fc-event.event-activite .fc-event-time { color: #5b21b6 !important; }
-      .fc-event.event-sportif .fc-event-title, .fc-event.event-sportif .fc-event-time { color: #14532d !important; }
-      .fc-event.event-autre .fc-event-title, .fc-event.event-autre .fc-event-time { color: #374151 !important; }
-      
       .fc-event .fc-event-title {
         font-weight: 500;
         cursor: pointer;
@@ -207,85 +150,160 @@ const Agenda: React.FC = () => {
 
       .fc-event.event-reunion { 
         border-color: #3b82f6; 
-        background-color: rgba(59, 130, 246, 0.2); 
+        background-color: rgba(59, 130, 246, 0.1);
+        border-left-width: 4px;
         cursor: pointer;
       }
       .fc-event.event-activite { 
         border-color: #8b5cf6; 
-        background-color: rgba(139, 92, 246, 0.2); 
+        background-color: rgba(139, 92, 246, 0.1);
+        border-left-width: 4px;
         cursor: pointer;
       }
       .fc-event.event-sportif { 
-        border-color: #22c55e; 
-        background-color: rgba(34, 197, 94, 0.2); 
+        border-color: #10b981; 
+        background-color: rgba(16, 185, 129, 0.1);
+        border-left-width: 4px;
         cursor: pointer;
       }
       .fc-event.event-autre { 
         border-color: #6b7280; 
-        background-color: rgba(107, 114, 128, 0.2); 
+        background-color: rgba(107, 114, 128, 0.1);
+        border-left-width: 4px;
         cursor: pointer;
       }
       
-      .fc-event-main { padding: 4px 6px; }
-    `}</style>
-    <div className="flex gap-6 p-6 bg-[#F5F7FA] h-full">
-      <AgendaSidebar
-        groupedEvents={groupedEvents}
-        onAddEvent={() => openFormForNewEvent()}
-        onEventClick={handleSidebarEventClick}
-        onEditEvent={openFormForExistingEvent}
-      />
+      .fc-event-main { 
+        padding: 6px 8px; 
+        border-radius: 6px;
+      }
 
-      <div className="flex-1 bg-white rounded-xl shadow-sm p-6 flex flex-col min-w-0">
-        <CalendarHeader
-          title={calendarTitle}
-          currentView={currentView}
-          onPrev={() => calendarApi?.prev()}
-          onNext={() => calendarApi?.next()}
-          onToday={() => calendarApi?.today()}
-          onViewChange={(view) => calendarApi?.changeView(view)}
+      /* Style pour le calendrier */
+      .fc-theme-standard .fc-scrollgrid {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .fc .fc-daygrid-day-number {
+        color: #374151;
+        font-weight: 500;
+      }
+
+      .fc .fc-day-today {
+        background-color: #fff7ed !important;
+      }
+
+      .fc .fc-col-header-cell {
+        background-color: #f9fafb;
+        border-color: #e5e7eb;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      /* Mobile responsive */
+      @media (max-width: 768px) {
+        .fc .fc-toolbar {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        
+        .fc .fc-button {
+          padding: 0.375rem 0.75rem;
+          font-size: 0.875rem;
+        }
+      }
+    `}</style>
+    
+    <div className="flex h-full bg-white">
+      {/* Sidebar fixe */}
+      <div className={`
+        fixed lg:static lg:translate-x-0 transition-transform duration-300 ease-in-out z-30
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        w-80 h-full
+      `}>
+        <AgendaSidebar
+          groupedEvents={groupedEvents}
+          onAddEvent={() => {
+            openFormForNewEvent();
+            setIsSidebarOpen(false);
+          }}
+          onEventClick={handleSidebarEventClick}
+          onEditEvent={(event) => {
+            openFormForExistingEvent(event);
+            setIsSidebarOpen(false);
+          }}
+          onCloseSidebar={() => setIsSidebarOpen(false)}
         />
-        <div className="flex-1">
-            <FullCalendar
-              key={i18n.language}
-              ref={calendarRef}
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView={currentView}
-              headerToolbar={false}
-              events={events}
-              locale={i18n.language === 'fr' ? frLocale : enLocale}
-              editable={true}
-              selectable={true}
-              selectMirror={true}
-              dateClick={(arg) => openFormForNewEvent(arg)}
-              eventClick={(clickInfo) => openDetailsModal(clickInfo.event.toPlainObject({ collapseExtendedProps: true }))}
-              height="100%"
-              eventClassNames="border-l-4"
-              buttonText={{ today: "Aujourd'hui", month: 'Mois', week: 'Semaine', day: 'Jour' }}
-              viewDidMount={handleDatesSet}
-              datesSet={handleDatesSet}
-            />
+      </div>
+
+      {/* Overlay pour mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Contenu principal avec marge pour la sidebar */}
+      <div className={`flex-1 flex flex-col min-w-0 ${isSidebarOpen ? '' : 'lg:ml-0'}`}>
+        {/* En-tête */}
+        <div className="bg-white border-b border-gray-200 p-4 lg:p-6 flex-shrink-0 border-l border-l-gray-200">
+          <CalendarHeader
+            title={calendarTitle}
+            currentView={currentView}
+            onPrev={() => calendarApi?.prev()}
+            onNext={() => calendarApi?.next()}
+            onToday={() => calendarApi?.today()}
+            onViewChange={(view) => calendarApi?.changeView(view)}
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+            isSidebarOpen={isSidebarOpen}
+          />
+        </div>
+        
+        {/* Calendrier - occupe tout l'espace restant */}
+        <div className="flex-1 min-h-0">
+          <div className="bg-white h-full border-l border-l-gray-200">
+            <div className="h-full p-4">
+              <FullCalendar
+                key={i18n.language}
+                ref={calendarRef}
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                initialView={currentView}
+                headerToolbar={false}
+                events={events}
+                locale={i18n.language === 'fr' ? frLocale : enLocale}
+                editable={true}
+                selectable={true}
+                selectMirror={true}
+                dateClick={(arg) => openFormForNewEvent(arg)}
+                eventClick={(clickInfo) => openDetailsModal(clickInfo.event.toPlainObject({ collapseExtendedProps: true }))}
+                height="100%"
+                eventClassNames="border-l-4"
+                buttonText={{ today: "Aujourd'hui", month: 'Mois', week: 'Semaine', day: 'Jour' }}
+                viewDidMount={handleDatesSet}
+                datesSet={handleDatesSet}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      <EventFormModal
-        isOpen={isFormOpen}
-        onClose={closeFormModal}
-        isEditMode={isEditMode}
-        currentEvent={currentEvent}
-        onInputChange={handleInputChange}
-        onAudienceChange={handleAudienceChange}
-        onAllDayChange={handleAllDayChange}
-        onSave={handleSaveEvent}
-        onDelete={handleDeleteEvent}
-        errors={errors}
-      />
-
+      {/* Seule la modale de détails reste */}
       <EventDetailsModal
         isOpen={isDetailsOpen}
         onClose={closeDetailsModal}
         event={viewingEvent}
       />
+
+      {/* Toast de notification */}
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          type="success"
+          onClose={() => setToastMessage(null)}
+        />
+      )}
     </div>
     </>
   );

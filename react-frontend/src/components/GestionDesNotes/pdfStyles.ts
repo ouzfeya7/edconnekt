@@ -13,6 +13,7 @@ export const getPdfTableStyles = (doc: jsPDF): Partial<UserOptions> => ({
     styles: {
         lineColor: [0, 0, 0],
         lineWidth: 0.1,
+        font: 'times',
     },
     didDrawCell: (data: CellHookData) => {
         if (data.section === 'body' && data.column.index >= 2) { // Competence columns
@@ -25,13 +26,13 @@ export const getPdfTableStyles = (doc: jsPDF): Partial<UserOptions> => ({
                     else if (grade >= 50) textColor = [249, 115, 22]; // Orange for warning
                     else textColor = [220, 38, 38]; // Red for failure
                     doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-                    doc.setFont(doc.getFont().fontName, 'bold');
+                    doc.setFont('times', 'bold');
                 }
             }
         }
     },
     willDrawCell: () => {
         doc.setTextColor(0, 0, 0);
-        doc.setFont(doc.getFont().fontName, 'normal');
+        doc.setFont('times', 'normal');
     }
 }); 

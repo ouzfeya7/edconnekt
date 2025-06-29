@@ -1,6 +1,23 @@
 import React from 'react';
 import { useAuth } from '../../pages/authentification/useAuth';
-import { Student, StudentStatus } from '../contexts/StudentContext';
+import { StudentStatus } from '../../contexts/StudentContext';
+
+// Interface Student temporaire pour le profil
+interface Student {
+  id: number | string;
+  name: string;
+  imageUrl: string;
+  ref: string;
+  gender: string;
+  birthDate: string;
+  email: string;
+  address: string;
+  department: string;
+  class: string;
+  admissionDate: string;
+  status: StudentStatus | string;
+  competence?: string;
+}
 
 // Idéalement, ceci serait dans un fichier partagé
 type Role = "enseignant" | "directeur" | "eleve" | "parent" | "administrateur" | "espaceFamille";
@@ -48,9 +65,9 @@ const StudentProfileSection: React.FC<StudentProfileProps> = ({ student, onBack 
       {/* Photo de profil et nom */}
       <div className="flex flex-col items-center mb-8">
         <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg" style={{ borderColor: '#184867' }}>
-          {student.avatar ? (
+          {student.imageUrl ? (
             <img
-              src={student.avatar}
+              src={student.imageUrl}
               alt={student.name}
               className="w-full h-full object-cover"
             />
@@ -88,7 +105,7 @@ const StudentProfileSection: React.FC<StudentProfileProps> = ({ student, onBack 
           <p className="text-base font-medium text-orange-500">{student.address}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-500 tracking-wider">DÉPARTEMENT</p>
+          <p className="text-xs text-gray-500 tracking-wider">NIVEAU</p>
           <p className="text-base font-medium text-gray-800">{student.department}</p>
         </div>
         <div>

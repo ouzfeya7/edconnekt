@@ -20,8 +20,8 @@ const StudentDetailPage = () => {
     birthDate: user.birthDate || t('dob_unavailable', 'Date de naissance non disponible'),
     email: user.email,
     address: user.address,
-    department: user.department || t('dept_unavailable', 'Département non disponible'),
-    class: '4ème B', // Donnée non disponible, valeur par défaut
+    department: user.classLabel || t('class_unavailable', 'Classe non disponible'),
+    class: user.classId || 'CP1', // Utiliser la classe de l'utilisateur
     admissionDate: user.entryDate || t('date_unavailable', 'Date non disponible'),
     status: t('present'), // Statut non disponible, valeur par défaut
     competence: "Lecture anglais",
@@ -167,7 +167,7 @@ const StudentDetailPage = () => {
             </div>
           </div>
           <div className="flex justify-end pt-4">
-            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">{t('edit', 'Modifier')}</button>
+            <button className="bg-white text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 border border-gray-200 shadow">{t('edit', 'Modifier')}</button>
           </div>
         </div>
       </div>

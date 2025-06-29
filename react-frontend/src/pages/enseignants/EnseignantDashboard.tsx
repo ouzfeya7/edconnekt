@@ -177,15 +177,18 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F5F7FA] p-6">
+    <div className="flex flex-col min-h-full bg-[#F5F7FA]">
       <AddFicheModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onApply={handleAddFiche}
       />
+      
+      {/* Header du thème - collé aux bords */}
       <CourseDetailHeader title={t('theme_title', 'Thème : Vivre ensemble et respecter les règles de l\'école')} />
 
-      <div className="flex-1">
+      {/* Contenu principal avec padding */}
+      <div className="flex-1 p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 my-6">
           {actionButtons.map((button, index) => (
             <ActionCard

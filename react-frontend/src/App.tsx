@@ -43,6 +43,7 @@ import AppLoader from './components/ui/AppLoader';
 import RemediationDetailPage from './pages/RemediationDetailPage';
 import DevoirsPage from './pages/eleves/DevoirsPage';
 import EleveDevoirDetailPage from './pages/eleves/DevoirDetailPage';
+import CreateEventPage from './pages/CreateEventPage';
 
 // Définition des types de rôles pour la clarté
 type Role =
@@ -61,6 +62,9 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/evaluations/notes", element: <GNote /> },
     { path: "/classes", element: <Classe /> },
     { path: "/calendar", element: <Agenda /> },
+    { path: "/agenda", element: <Agenda /> },
+    { path: "/agenda/create", element: <CreateEventPage /> },
+    { path: "/agenda/edit/:eventId", element: <CreateEventPage /> },
     { path: "/messages", element: <MessageEnseignant /> },
     { path: "/ressources", element: <Ressource /> },
     { path: "/ressources/ajouter", element: <AddResourcePage /> },
@@ -93,6 +97,9 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/devoirs", element: <DevoirsPage /> },
     { path: "/devoirs/:devoirId", element: <EleveDevoirDetailPage /> },
     { path: "/calendar", element: <Agenda /> },
+    { path: "/agenda", element: <Agenda /> },
+    { path: "/agenda/create", element: <CreateEventPage /> },
+    { path: "/agenda/edit/:eventId", element: <CreateEventPage /> },
     { path: "/messages", element: <MessageEleve /> },
     { path: "/evaluations/notes", element: <GNote /> },
     { path: "/profile", element: <ProfilePage /> },

@@ -96,7 +96,12 @@ const defaultLessons: Lesson[] = [
       teacherImage: "https://via.placeholder.com/40x40/000000/FFFFFF?text=MS",
       statusText: "À faire",
       statusColor: "text-blue-600",
-    }
+    },
+    // Ajouter les propriétés manquantes
+    theme: "Mathématiques appliquées",
+    date: dayjs().format('YYYY-MM-DD'),
+    teacher: "Mouhamed Sall",
+    studentCount: 25
   },
   {
     id: 'lecon456',
@@ -113,6 +118,11 @@ const defaultLessons: Lesson[] = [
     },
     illustrationImage: courseIllustrationImage,
     resources: [],
+    // Ajouter les propriétés manquantes
+    theme: "Numération et calcul",
+    date: dayjs().add(1, 'day').format('YYYY-MM-DD'),
+    teacher: "Mme Sagna",
+    studentCount: 22
   }
 ];
 
@@ -141,10 +151,30 @@ const createCourse = (
     remediationCount: Math.floor(Math.random() * 5), // 0-5
   },
     illustrationImage: courseIllustrationImage,
-  lessons: lessons.map(l => ({
+  lessons: lessons.map((l, index) => ({
     ...defaultLessons[0], // Utiliser une leçon par défaut comme modèle
     id: l.id,
     lessonTitle: l.lessonTitle,
+    // Personnaliser les propriétés manquantes
+    theme: theme,
+    date: dayjs().add(index, 'week').format('YYYY-MM-DD'),
+    teacher: teacher,
+    studentCount: Math.floor(Math.random() * 10 + 15), // 15-25 élèves
+    // Varier les statistiques pour chaque leçon
+    statsData: {
+      evaluationNote: Math.floor(Math.random() * 40 + 60), // 60-100
+      skillAcquired: Math.floor(Math.random() * 30 + 70), // 70-100
+      skillNotAcquired: Math.floor(Math.random() * 30), // 0-30
+      studentsToRemediate: Math.floor(Math.random() * 5), // 0-5
+    },
+    // Varier les tags de statut
+    statusTags: index === 0 ? [
+      { id: 'tag1', label: "EN COURS", bgColor: "bg-blue-100", textColor: "text-blue-700", Icon: BookText },
+      { id: 'tag2', label: "Évaluation prévue", bgColor: "bg-orange-100", textColor: "text-orange-700", Icon: ClipboardCheck },
+    ] : [
+      { id: 'tag1', label: "EN CLASSE", bgColor: "bg-gray-100", textColor: "text-gray-700", Icon: BookText },
+      { id: 'tag2', label: "Programmé", bgColor: "bg-yellow-100", textColor: "text-yellow-700", Icon: CheckCircle2 },
+    ],
   })),
 });
 

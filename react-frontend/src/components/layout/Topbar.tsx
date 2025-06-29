@@ -16,6 +16,25 @@ interface TopbarProps {
   user: User;
 }
 
+const getRoleTranslationKey = (role: Role): string => {
+  switch (role) {
+    case 'enseignant':
+      return 'teacher_role';
+    case 'eleve':
+      return 'student_role';
+    case 'directeur':
+      return 'director_role';
+    case 'parent':
+      return 'parent_role';
+    case 'administrateur':
+      return 'admin_role';
+    case 'espaceFamille':
+      return 'family_space_role';
+    default:
+      return 'unknown_role';
+  }
+};
+
 const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
   const { t } = useTranslation();
   const { events } = useEvents();
@@ -115,7 +134,7 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
             />
             <div className="hidden md:flex flex-col text-left">
               <span className="text-sm font-semibold text-gray-800">{userName}</span>
-              <span className="text-xs text-gray-500">{t('teacher_role')}</span>
+              <span className="text-xs text-gray-500">{t(getRoleTranslationKey(role))}</span>
             </div>
           </button>
 

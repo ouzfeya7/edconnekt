@@ -1,105 +1,365 @@
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { useFilters } from '../../contexts/FilterContext';
-import DateCard from '../../components/Header/DateCard';
-import ClassNameCard from '../../components/Header/ClassNameCard';
-import TrimestreCard from '../../components/Header/TrimestreCard';
-import MatiereCard from '../../components/Header/MatiereCard';
+import { getStudentAssignments, StudentAssignment } from '../../lib/mock-student-data';
+import { 
+  Search, 
+  Filter, 
+  Clock, 
+  CheckCircle, 
+  Calendar,
+  BookOpen,
+  ArrowRight,
+  Grid,
+  List,
+  Calculator,
+  FileText,
+  Beaker,
+  Globe,
+  MapPin,
+  Book,
+  Users,
+  Palette,
+  Activity
+} from 'lucide-react';
 
-const devoirsData = [
-  {
-    id: 1,
-    title: 'Exercice Livre Math : résoudre une équation du second degrès',
-    subject: 'MATHS',
-    page: '12-13-14',
-    imageUrl: 'https://picsum.photos/seed/math1/400/300'
-  },
-  {
-    id: 2,
-    title: 'Exercice Livre Français : rédiger un poème sur le printemps.',
-    subject: 'Français',
-    page: '12-13-14',
-    imageUrl: 'https://picsum.photos/seed/french1/400/300'
-  },
-  {
-    id: 3,
-    title: 'Exercice Anglais : traduire un texte sur les animaux.',
-    subject: 'Anglais',
-    page: '12-13-14',
-    imageUrl: 'https://picsum.photos/seed/english1/400/300'
-  },
-  {
-    id: 4,
-    title: "Exercice Math : calculer l'aire d'un triangle.",
-    subject: 'MATHS',
-    page: '12-13-14',
-    imageUrl: 'https://picsum.photos/seed/math2/400/300'
+// Fonction pour obtenir l'icône selon la matière
+const getSubjectIcon = (subject: string) => {
+  switch (subject.toLowerCase()) {
+    case 'mathématiques': return Calculator;
+    case 'français': return FileText;
+    case 'sciences': return Beaker;
+    case 'anglais': return Globe;
+    case 'histoire': return BookOpen;
+    case 'géographie': return MapPin;
+    case 'études islamiques': return Book;
+    case 'quran': return Book;
+    case 'vivre ensemble': return Users;
+    case 'arts plastiques': return Palette;
+    case 'eps': return Activity;
+    default: return BookOpen;
   }
-];
+};
 
-const DevoirCard = ({ devoir }: { devoir: typeof devoirsData[0] }) => {
-  const getSubjectInitial = (subject: string) => {
-    if (subject === 'MATHS' || subject === 'Mathématique') return 'M';
-    if (subject === 'Français') return 'F';
-    if (subject === 'Anglais') return 'A';
-    return '?';
+// Fonction pour obtenir la couleur selon le domaine
+const getDomainColor = (domain: string) => {
+  switch (domain) {
+    case 'Langues et Communication': return 'bg-slate-100';
+    case 'STEM': return 'bg-slate-100';
+    case 'Sciences Humaines': return 'bg-slate-100';
+    case 'Créativité & Sport': return 'bg-slate-100';
+    default: return 'bg-slate-100';
+  }
+};
+
+// Fonction pour obtenir la couleur selon le score attendu
+const getScoreColor = (expectedScore?: number) => {
+  if (!expectedScore) return 'text-gray-500';
+  if (expectedScore >= 75) return 'text-green-600';
+  if (expectedScore >= 50) return 'text-orange-500';
+  return 'text-red-600';
+};
+
+// Composant carte de devoir pour la vue en liste
+const DevoirListCard: React.FC<{ assignment: StudentAssignment }> = ({ assignment }) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-700 border-green-200';
+      case 'overdue': return 'bg-red-100 text-red-700 border-red-200';
+      default: return 'bg-amber-100 text-amber-700 border-amber-200';
+    }
   };
-  
-  const getSubjectColor = (subject: string) => {
-    if (subject === 'MATHS' || subject === 'Mathématique') return 'bg-green-500';
-    if (subject === 'Français') return 'bg-purple-500';
-    if (subject === 'Anglais') return 'bg-red-500';
-    return 'bg-gray-500';
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'completed': return 'Terminé';
+      case 'overdue': return 'En retard';
+      default: return 'En attente';
+    }
   };
+
+  const SubjectIcon = getSubjectIcon(assignment.subject);
 
   return (
-    <Link to={`/devoirs/${devoir.id}`} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col transition-transform duration-200 hover:scale-105 hover:shadow-lg">
-      <img src={devoir.imageUrl} alt={devoir.title} className="w-full h-48 object-cover" />
-      <div className="p-4 flex flex-col flex-grow">
-        <h3 className="font-bold text-gray-800 mb-2 flex-grow">{devoir.title}</h3>
-        <p className="text-sm text-gray-500 mb-3">Numéro de page : {devoir.page}</p>
-        <div className="flex items-center text-sm text-gray-700 mb-4">
-          <div className={`w-6 h-6 rounded-full ${getSubjectColor(devoir.subject)} text-white flex items-center justify-center font-bold mr-2`}>
-            {getSubjectInitial(devoir.subject)}
-          </div>
-          <span>{devoir.subject}</span>
+    <Link 
+      to={`/devoirs/${assignment.id}`} 
+      className="bg-white rounded-lg border border-slate-200 p-4 hover:border-slate-300 flex items-center gap-4"
+    >
+      {/* Icône de matière */}
+      <div className="flex-shrink-0">
+        <div className={`w-12 h-12 rounded-lg ${getDomainColor(assignment.domain)} flex items-center justify-center`}>
+          <SubjectIcon className="w-6 h-6 text-slate-600" />
         </div>
-        <div className="mt-auto w-full bg-orange-50 text-orange-600 font-semibold py-2 rounded-lg hover:bg-orange-100 transition-colors text-center">
-          Voir détails
+      </div>
+
+      {/* Contenu principal */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="font-semibold text-slate-800 truncate">
+            {assignment.title}
+          </h3>
+          <div className={`px-2 py-1 rounded-full text-xs font-medium border flex-shrink-0 ml-2 ${getStatusColor(assignment.status)}`}>
+            {getStatusText(assignment.status)}
+          </div>
+        </div>
+        
+        <p className="text-sm text-slate-600 mb-3 line-clamp-1">
+          {assignment.description}
+        </p>
+
+        <div className="flex items-center justify-between">
+          {/* Matière et compétence */}
+          <div className="flex flex-col gap-1">
+            <span className="text-sm text-slate-700 font-medium">{assignment.subject}</span>
+            <span className="text-xs text-slate-500">{assignment.competence}</span>
+          </div>
+
+          {/* Score attendu et date */}
+          <div className="flex flex-col items-end gap-1">
+            {assignment.expectedScore && (
+              <span className={`text-sm font-medium ${getScoreColor(assignment.expectedScore)}`}>
+                {assignment.expectedScore}%
+              </span>
+            )}
+            <div className="flex items-center gap-1 text-sm text-slate-600">
+              <Calendar className="w-4 h-4" />
+              <span>{assignment.dueDate}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Flèche */}
+      <ArrowRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+    </Link>
+  );
+};
+
+// Composant carte de devoir simple pour la grille
+const EnhancedDevoirCard: React.FC<{ assignment: StudentAssignment }> = ({ assignment }) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-700 border-green-200';
+      case 'overdue': return 'bg-red-100 text-red-700 border-red-200';
+      default: return 'bg-amber-100 text-amber-700 border-amber-200';
+    }
+  };
+  
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'completed': return 'Terminé';
+      case 'overdue': return 'En retard';
+      default: return 'En attente';
+    }
+  };
+
+  const SubjectIcon = getSubjectIcon(assignment.subject);
+
+  return (
+    <Link 
+      to={`/devoirs/${assignment.id}`} 
+      className="bg-white rounded-lg border border-slate-200 hover:border-slate-300 flex flex-col"
+    >
+      {/* En-tête avec icône */}
+      <div className="p-4 border-b border-slate-100">
+        <div className="flex items-center justify-between mb-3">
+          <div className={`w-10 h-10 rounded-lg ${getDomainColor(assignment.domain)} flex items-center justify-center`}>
+            <SubjectIcon className="w-5 h-5 text-slate-600" />
+          </div>
+          <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(assignment.status)}`}>
+            {getStatusText(assignment.status)}
+          </div>
+        </div>
+
+        <h3 className="font-semibold text-slate-800 mb-1">
+          {assignment.title}
+        </h3>
+        <p className="text-sm text-slate-600">{assignment.subject}</p>
+        <p className="text-xs text-slate-500 mt-1">{assignment.competence}</p>
+      </div>
+
+      {/* Corps de la carte */}
+      <div className="p-4 flex-1">
+        <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+          {assignment.description}
+        </p>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1 text-sm text-slate-600">
+            <Calendar className="w-4 h-4" />
+            <span>{assignment.dueDate}</span>
+          </div>
+          
+          {assignment.expectedScore && (
+            <span className={`text-sm font-medium ${getScoreColor(assignment.expectedScore)}`}>
+              {assignment.expectedScore}%
+            </span>
+          )}
         </div>
       </div>
     </Link>
   );
 };
 
-const DevoirsPage = () => {
-  const { 
-    currentDate,
-    setCurrentDate, 
-    currentClasse,
-    currentTrimestre, 
-    setCurrentTrimestre,
-    currentSubject,
-    setCurrentSubject
-  } = useFilters();
+const DevoirsPage: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Utilisation directe des nouvelles données
+  const assignments = getStudentAssignments();
+
+  // Filtrage des devoirs
+  const filteredAssignments = useMemo(() => {
+    return assignments.filter(assignment => {
+      const matchesSearch = assignment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          assignment.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          assignment.competence.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesStatus = selectedStatus === 'all' || assignment.status === selectedStatus;
+      
+      return matchesSearch && matchesStatus;
+    });
+  }, [assignments, searchQuery, selectedStatus]);
+
+  // Statistiques
+  const stats = {
+    total: assignments.length,
+    pending: assignments.filter(a => a.status === 'pending').length,
+    completed: assignments.filter(a => a.status === 'completed').length,
+    overdue: assignments.filter(a => a.status === 'overdue').length
+  };
 
   return (
-    <div className="p-6 bg-gray-50">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Devoirs</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <DateCard value={currentDate} onChange={setCurrentDate} />
-        <ClassNameCard className={currentClasse} onClassChange={() => {}} isEditable={false} />
-        <TrimestreCard value={currentTrimestre} onChange={setCurrentTrimestre} />
-        <MatiereCard value={currentSubject} onChange={setCurrentSubject} />
+    <div className="bg-gray-100 min-h-screen p-4 md:p-6">
+      <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes devoirs</h1>
+      <div className="flex items-center text-sm text-gray-500 mb-6">
+        <span>Classe Cours Préparatoire 1</span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {devoirsData
-          .filter(d => currentSubject === 'Tout' || d.subject === currentSubject)
-          .map((devoir) => (
-            <DevoirCard key={devoir.id} devoir={devoir} />
-        ))}
+      {/* Statistiques compactes en ligne */}
+      <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+          <BookOpen className="w-4 h-4 text-gray-600" />
+          <span className="text-sm font-medium text-gray-800">{stats.total} devoirs</span>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+          <Clock className="w-4 h-4 text-amber-600" />
+          <span className="text-sm font-medium text-amber-800">{stats.pending} en attente</span>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+          <CheckCircle className="w-4 h-4 text-green-600" />
+          <span className="text-sm font-medium text-green-800">{stats.completed} terminés</span>
+        </div>
+        {stats.overdue > 0 && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+            <Clock className="w-4 h-4 text-red-600" />
+            <span className="text-sm font-medium text-red-800">{stats.overdue} en retard</span>
+          </div>
+        )}
       </div>
+
+      {/* Barre de recherche, filtres et boutons de vue */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        {/* Recherche - étendue pour utiliser l'espace disponible */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Rechercher un devoir, matière ou description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-transparent bg-white"
+          />
+        </div>
+        
+        {/* Filtres - largeur adaptée au contenu */}
+        <div className="flex gap-2 flex-shrink-0">
+          {[
+            { key: 'all', label: 'Tous les statuts', count: stats.total },
+            { key: 'pending', label: 'En attente', count: stats.pending },
+            { key: 'completed', label: 'Terminés', count: stats.completed },
+            { key: 'overdue', label: 'En retard', count: stats.overdue },
+          ].map((option) => (
+            <button
+              key={option.key}
+              onClick={() => setSelectedStatus(option.key)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 whitespace-nowrap ${
+                selectedStatus === option.key
+                  ? 'bg-white text-gray-700 shadow-md border-2 border-orange-500'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+              }`}
+            >
+              <Filter className={`w-3 h-3 ${selectedStatus === option.key ? 'text-orange-500' : 'text-gray-500'}`} />
+              {option.label}
+              <span className={`px-2 py-0.5 rounded-full text-xs ${
+                selectedStatus === option.key 
+                  ? 'bg-orange-100 text-orange-700' 
+                  : 'bg-gray-100 text-gray-600'
+              }`}>
+                {option.count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Boutons de vue */}
+        <div className="flex bg-white border border-gray-200 rounded-lg shadow flex-shrink-0">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`p-2 rounded-l-lg transition-colors ${
+              viewMode === 'grid'
+                ? 'bg-white text-orange-500 border-2 border-orange-500'
+                : 'text-gray-500 hover:bg-gray-50'
+            }`}
+            title="Vue grille"
+          >
+            <Grid className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`p-2 rounded-r-lg transition-colors ${
+              viewMode === 'list'
+                ? 'bg-white text-orange-500 border-2 border-orange-500'
+                : 'text-gray-500 hover:bg-gray-50'
+            }`}
+            title="Vue liste"
+          >
+            <List className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Liste des devoirs */}
+      {filteredAssignments.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <BookOpen className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-800 mb-2">Aucun devoir trouvé</h3>
+          <p className="text-gray-600">
+            {searchQuery 
+              ? `Aucun devoir ne correspond à "${searchQuery}"`
+              : 'Aucun devoir disponible pour les critères sélectionnés'
+            }
+          </p>
+        </div>
+      ) : (
+        <>
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredAssignments.map((assignment) => (
+                <EnhancedDevoirCard key={assignment.id} assignment={assignment} />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredAssignments.map((assignment) => (
+                <DevoirListCard key={assignment.id} assignment={assignment} />
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import EvaluationHeader from '../../components/Header/EvaluationHeader';
 import ContinueView from '../../components/GestionDesNotes/ContinueView';
 import IntegrationView from '../../components/GestionDesNotes/IntegrationView';
 import TrimestrielleView from '../../components/GestionDesNotes/TrimestrielleView';
 import { useUser } from '../../layouts/DashboardLayout';
+import { useFilters } from '../../contexts/FilterContext';
 
 // const NotesTrimestrielleView: React.FC = () => {
 // return <div className="p-4 mt-6 bg-white rounded-lg shadow">Vue des notes "Trimestrielle" à implémenter...</div>;
@@ -12,6 +13,17 @@ import { useUser } from '../../layouts/DashboardLayout';
 const MesNotesPage: React.FC = () => {
   const [evaluationType, setEvaluationType] = useState('Continue');
   const { user } = useUser();
+  const { setCurrentClasse } = useFilters();
+
+  // Initialiser la classe de l'élève lors du chargement initial
+  useEffect(() => {
+    if (user?.classId) {
+      setCurrentClasse(user.classId);
+    } else {
+      // Valeur par défaut si l'utilisateur n'a pas de classe assignée
+      setCurrentClasse("cp1");
+    }
+  }, [user?.classId, setCurrentClasse]);
 
   // Fonction pour formater la date en "jour Mois Année"
   const formatDate = (date: Date): string => {
@@ -26,7 +38,7 @@ const MesNotesPage: React.FC = () => {
 
   // Données de l'élève (pourrait venir d'un contexte ou d'un store)
   const studentData = {
-    classe: user?.department || 'Classe non définie', // Utiliser une propriété de user ou une valeur par défaut
+    classe: user?.classId || 'Classe non définie', // Utiliser la classe de l'élève
     currentDate: formatDate(new Date()),
     currentTrimestre: "Trimestre 1",
   };
@@ -51,17 +63,16 @@ const MesNotesPage: React.FC = () => {
   return (
     <div className="bg-gray-100 min-h-screen p-4 md:p-6">
       <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes notes</h1>
-      <p className="text-sm text-gray-500 mb-6">Evaluation / Gestion des notes</p>
+      <div className="flex items-center text-sm text-gray-500 mb-6">
+        <span>Evaluation</span>
+        <span className="mx-2">/</span>
+        <span>Gestion des notes</span>
+      </div>
 
       <EvaluationHeader 
-        initialDate={studentData.currentDate}
-        initialClasse={studentData.classe}
-        initialTrimestre={studentData.currentTrimestre}
-        initialEvaluationType={evaluationType} // Le type est géré par l'état local de MesNotesPage
-        isClasseEditable={false} // La classe n'est pas modifiable pour l'élève
-        // onDateChange, onClasseChange, onTrimestreChange ne sont pas nécessaires ici
-        // car l'élève ne modifie pas ces valeurs directement (sauf peut-être le trimestre et le type d'éval)
+        initialEvaluationType={evaluationType}
         onEvaluationTypeChange={handleEvaluationTypeChange}
+        isClasseEditable={false} // La classe n'est pas modifiable pour l'élève
       />
 
       {renderSelectedView()}

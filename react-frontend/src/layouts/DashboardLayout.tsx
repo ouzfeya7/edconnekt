@@ -14,7 +14,8 @@ export interface User {
   email: string;
   phone: string;
   address: string;
-  department?: string;
+  classId?: string; // Classe de l'élève (ex: CP1, CE1, etc.)
+  classLabel?: string; // Nom complet de la classe (ex: "Cours Préparatoire 1")
   specialty?: string;
   entryDate?: string;
   status?: string;
@@ -36,18 +37,19 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
   useEffect(() => {
     if (authUser) {
       setUser({
-        name: `${authUser.firstName} ${authUser.lastName}`,
+        name: `Ouz Feya`, // Utiliser le même nom que dans les données fictives
         role: role,
-        email: authUser.email || '',
-        phone: '', 
-        address: '', 
-        department: "Sciences",
+        email: authUser.email || 'ouz.feya@example.com',
+        phone: '77 123 45 67', 
+        address: 'Dakar, Sénégal', 
+        classId: "cp1", // Classe par défaut
+        classLabel: "Cours Préparatoire 1",
         specialty: "Mathématiques",
         entryDate: "Septembre 2023",
-        status: "Titulaire",
-        birthDate: "1985-05-15",
+        status: "Inscrit",
+        birthDate: "2015-05-15", // Date de naissance plus récente pour un élève
         gender: 'Male',
-        imageUrl: '', 
+        imageUrl: 'https://i.pravatar.cc/150?img=33', // Même avatar que dans les données fictives
       });
     }
   }, [authUser, role]);

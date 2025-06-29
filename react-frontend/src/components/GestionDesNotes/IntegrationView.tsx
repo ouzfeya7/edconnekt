@@ -5,15 +5,18 @@ import autoTable from 'jspdf-autotable';
 import JSZip from 'jszip';
 import NotesTable from './NotesTable';
 import type { NoteColumn } from './NotesTable';
+import StudentIntegrationCards from './StudentIntegrationCards';
 import Toolbar from '../ui/Toolbar';
 import { useFilters } from '../../contexts/FilterContext';
 import { useStudents } from '../../contexts/StudentContext';
 import { getSubjectsForClass, getNotesForClass, getGradingStatus } from '../../lib/notes-data';
 import type { StudentNote, Domain } from '../../lib/notes-data';
+import { getCurrentStudentNotes } from '../../lib/mock-student-notes';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { MoreHorizontal, FileSpreadsheet, FileText, Library, ArrowDownToLine } from 'lucide-react';
 import { CellHookData, UserOptions } from 'jspdf-autotable';
 import schoolLogo from '../../assets/logo-yka-1.png';
+import { useUser } from '../../layouts/DashboardLayout';
 
 interface jsPDFWithAutoTable extends jsPDF {
     lastAutoTable?: {
@@ -43,11 +46,11 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
 
     // School Info
     doc.setFontSize(14);
-    doc.setFont("helvetica", 'bold');
+    doc.setFont("times", 'bold');
     doc.text(schoolInfo.name, 65, 22);
     
     doc.setFontSize(8);
-    doc.setFont("helvetica", 'normal');
+    doc.setFont("times", 'normal');
     doc.text(schoolInfo.address, 65, 28);
     doc.text(`Tél: ${schoolInfo.phone1} / ${schoolInfo.phone2}`, 65, 32);
     doc.text(`Email: ${schoolInfo.email} | Site: ${schoolInfo.website}`, 65, 36);
@@ -55,12 +58,12 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
 
     // Title
     doc.setFontSize(16);
-    doc.setFont("helvetica", 'bold');
+    doc.setFont("times", 'bold');
     doc.text(title, doc.internal.pageSize.getWidth() / 2, 55, { align: 'center' });
     
     // Class Subtitle
     doc.setFontSize(12);
-    doc.setFont("helvetica", 'normal');
+    doc.setFont("times", 'normal');
     doc.text(`Classe: ${classe}`, doc.internal.pageSize.getWidth() / 2, 62, { align: 'center' });
 
     // Header Line
@@ -108,6 +111,7 @@ const getPdfTableStyles = (doc: jsPDF): Partial<UserOptions> => ({
 const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
     const { currentClasse, currentMonth } = useFilters();
     const { students } = useStudents();
+    const { user } = useUser();
     
     const [domains, setDomains] = useState<Domain[]>([]);
     const [notes, setNotes] = useState<StudentNote[]>([]);
@@ -120,7 +124,16 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
         const classDomains = getSubjectsForClass(currentClasse);
         setDomains(classDomains);
         const classNotes = getNotesForClass(currentClasse, students.map(s => ({ id: s.id, firstName: s.firstName, lastName: s.lastName, avatar: s.avatar })));
-        setNotes(classNotes);
+        
+        if (role === 'eleve' && user) {
+            // Utiliser les données fictives pour l'élève connecté
+            const mockNotes = getCurrentStudentNotes(currentClasse);
+            setNotes(mockNotes);
+            // Désactiver la recherche pour l'élève
+            setSearchTerm('');
+        } else {
+            setNotes(classNotes);
+        }
 
         if (classDomains.length > 0) {
             const firstDomain = classDomains[0];
@@ -129,7 +142,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                 setActiveSubjectId(firstDomain.subjects[0].id);
             }
         }
-    }, [currentClasse, students]);
+    }, [currentClasse, students, role, user]);
     
     const handleNoteUpdate = (studentId: string, competenceId: string, newValue: number | 'absent' | 'non-evalue') => {
         setNotes(currentNotes =>
@@ -435,6 +448,14 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
 
     const activeDomain = useMemo(() => domains.find(d => d.id === activeDomainId), [domains, activeDomainId]);
     const subjectsForActiveDomain = useMemo(() => activeDomain?.subjects || [], [activeDomain]);
+
+    useEffect(() => {
+        if (subjectsForActiveDomain.length > 0 && !subjectsForActiveDomain.some(s => s.id === activeSubjectId)) {
+            setActiveSubjectId(subjectsForActiveDomain[0].id);
+            setCurrentPage(1);
+        }
+    }, [subjectsForActiveDomain, activeSubjectId]);
+
     const activeSubject = useMemo(() => subjectsForActiveDomain.find(s => s.id === activeSubjectId), [subjectsForActiveDomain, activeSubjectId]);
 
     const noteColumns: NoteColumn[] = useMemo(() => {
@@ -496,13 +517,208 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
         return domains;
     }
 
+    // === FONCTIONS D'EXPORT PDF POUR LES ÉLÈVES ===
+    
+    const handleStudentExportPdf = () => {
+        if (!activeSubject || !user) {
+            console.error("Export PDF annulé : matière ou utilisateur non disponible.");
+            return;
+        }
+
+        try {
+            const doc = new jsPDF() as jsPDFWithAutoTable;
+            const title = `Bulletin d'Intégration - ${activeSubject.name} (${currentMonth})`;
+            const startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
+            
+            // Récupérer les notes de l'élève pour cette matière
+            const studentNotes = notes.length > 0 ? notes[0].notes : {};
+            
+            // Créer les données du tableau avec la même structure que les enseignants
+            const tableColumns = ["Compétence", "Note", "Statut"];
+            const tableRows = activeSubject.competences.map(competence => {
+                const note = studentNotes[competence.id];
+                let noteDisplay = '-';
+                let statut = 'Non évalué';
+                
+                if (typeof note === 'number') {
+                    noteDisplay = `${note}%`;
+                    if (note >= 75) statut = 'Excellent';
+                    else if (note >= 50) statut = 'En progrès';
+                    else statut = 'À améliorer';
+                } else if (note === 'absent') {
+                    noteDisplay = 'Absent';
+                    statut = 'Absent';
+                } else if (note === 'non-evalue') {
+                    noteDisplay = '-';
+                    statut = 'En attente';
+                }
+                
+                return [competence.label, noteDisplay, statut];
+            });
+
+            // Utiliser exactement le même style que les enseignants
+            autoTable(doc, {
+                ...getPdfTableStyles(doc),
+                head: [tableColumns],
+                body: tableRows,
+                startY: startY,
+                margin: { left: 25, right: 25 }
+            });
+
+            // Ajouter des informations supplémentaires spécifiques à l'élève
+            const finalY = doc.lastAutoTable?.finalY || startY + 50;
+            const notesNumeriques = activeSubject.competences
+                .map(c => studentNotes[c.id])
+                .filter(note => typeof note === 'number') as number[];
+            
+            if (notesNumeriques.length > 0) {
+                const moyenne = notesNumeriques.reduce((sum, note) => sum + note, 0) / notesNumeriques.length;
+                const meilleureNote = Math.max(...notesNumeriques);
+                const competencesReussies = notesNumeriques.filter(note => note >= 50).length;
+                
+                // Utiliser la même police que dans l'en-tête
+                doc.setFontSize(12);
+                doc.setFont("times", "bold");
+                doc.text("Résumé des performances", 25, finalY + 20);
+                
+                doc.setFont("times", "normal");
+                doc.text(`Élève : ${user.name}`, 25, finalY + 35);
+                doc.text(`Moyenne de la matière : ${moyenne.toFixed(1)}%`, 25, finalY + 45);
+                doc.text(`Meilleure performance : ${meilleureNote}%`, 25, finalY + 55);
+                doc.text(`Compétences maîtrisées : ${competencesReussies}/${activeSubject.competences.length}`, 25, finalY + 65);
+            }
+
+            doc.save(`Bulletin_Integration_${user.name.replace(/\s+/g, '_')}_${activeSubject.name.replace(/\s+/g, '_')}_${currentMonth}.pdf`);
+        } catch (error) {
+            console.error("Erreur lors de la génération du PDF :", error);
+            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+        }
+    };
+
+    const handleStudentExportAllPdf = () => {
+        if (!user) {
+            console.error("Export PDF annulé : utilisateur non disponible.");
+            return;
+        }
+
+        try {
+            const doc = new jsPDF() as jsPDFWithAutoTable;
+            const title = `Bulletin Complet d'Intégration - ${user.name} (${currentMonth})`;
+            let startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
+            
+            const studentNotes = notes.length > 0 ? notes[0].notes : {};
+            
+            domains.forEach(domain => {
+                // Utiliser le même style que les enseignants pour les titres de domaine
+                startY += 5;
+                doc.setFontSize(14);
+                doc.setFont("times", "bold");
+                doc.text(domain.name, 25, startY);
+                startY += 7;
+
+                domain.subjects.forEach(subject => {
+                    if (subject.competences.length === 0) return;
+                    
+                    // Titre de la matière comme les enseignants
+                    autoTable(doc, {
+                        ...getPdfTableStyles(doc),
+                        head: [[subject.name]],
+                        startY: startY,
+                        margin: { left: 25, right: 25 },
+                        theme: "plain",
+                        styles: { fontStyle: 'bold', fontSize: 11, halign: 'left' }
+                    });
+
+                    startY = doc.lastAutoTable?.finalY || startY;
+                    
+                    // Données des compétences pour cette matière
+                    const tableColumns = ["Compétence", "Note", "Statut"];
+                    const tableRows = subject.competences.map(competence => {
+                        const note = studentNotes[competence.id];
+                        let noteDisplay = '-';
+                        let statut = 'Non évalué';
+                        
+                        if (typeof note === 'number') {
+                            noteDisplay = `${note}%`;
+                            if (note >= 75) statut = 'Excellent';
+                            else if (note >= 50) statut = 'En progrès';
+                            else statut = 'À améliorer';
+                        } else if (note === 'absent') {
+                            noteDisplay = 'Absent';
+                            statut = 'Absent';
+                        } else if (note === 'non-evalue') {
+                            noteDisplay = '-';
+                            statut = 'En attente';
+                        }
+                        
+                        return [competence.label, noteDisplay, statut];
+                    });
+
+                    // Utiliser exactement le même style que les enseignants
+                    autoTable(doc, {
+                        ...getPdfTableStyles(doc),
+                        head: [tableColumns],
+                        body: tableRows,
+                        startY: startY,
+                        margin: { left: 25, right: 25 }
+                    });
+                    
+                    startY = (doc.lastAutoTable?.finalY || startY) + 10;
+                    
+                    // Même logique de pagination que les enseignants
+                    if (startY > 250) {
+                        doc.addPage();
+                        startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
+                    }
+                });
+            });
+
+            // Page de résumé final
+            doc.addPage();
+            const summaryStartY = addPdfHeader(doc, user.classLabel || 'Non définie', `Résumé Général - ${user.name}`);
+            
+            const totalNotesNumeriques = Object.values(studentNotes)
+                .filter(note => typeof note === 'number') as number[];
+            
+            if (totalNotesNumeriques.length > 0) {
+                const moyenneGenerale = totalNotesNumeriques.reduce((sum, note) => sum + note, 0) / totalNotesNumeriques.length;
+                const meilleureNote = Math.max(...totalNotesNumeriques);
+                const plusBasseNote = Math.min(...totalNotesNumeriques);
+                const competencesReussies = totalNotesNumeriques.filter(note => note >= 50).length;
+                
+                doc.setFontSize(12);
+                doc.setFont("times", "bold");
+                doc.text("Statistiques Générales", 25, summaryStartY + 20);
+                
+                doc.setFont("times", "normal");
+                doc.text(`Moyenne générale d'intégration : ${moyenneGenerale.toFixed(1)}%`, 25, summaryStartY + 35);
+                doc.text(`Meilleure performance : ${meilleureNote}%`, 25, summaryStartY + 45);
+                doc.text(`Performance la plus faible : ${plusBasseNote}%`, 25, summaryStartY + 55);
+                doc.text(`Total des compétences évaluées : ${totalNotesNumeriques.length}`, 25, summaryStartY + 65);
+                doc.text(`Compétences maîtrisées : ${competencesReussies}`, 25, summaryStartY + 75);
+            }
+
+            doc.save(`Bulletin_Integration_Complet_${user.name.replace(/\s+/g, '_')}_${currentMonth}.pdf`);
+        } catch (error) {
+            console.error("Erreur lors de la génération du PDF complet :", error);
+            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+        }
+    };
+
     return (
         <div className="bg-white rounded-lg shadow-sm">
             <div className="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 {domains.map(domain => (
                 <button
                         key={domain.id}
-                        onClick={() => setActiveDomainId(domain.id)}
+                        onClick={() => {
+                            setActiveDomainId(domain.id);
+                            // Sélectionner automatiquement la première matière du domaine
+                            if (domain.subjects.length > 0) {
+                                setActiveSubjectId(domain.subjects[0].id);
+                            }
+                            setCurrentPage(1);
+                        }}
                         className={`px-4 py-3 text-sm font-medium focus:outline-none transition-colors duration-150 ${
                             activeDomainId === domain.id
                                 ? 'border-orange-500 text-orange-600 border-b-2'
@@ -515,96 +731,141 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
             </div>
             <div className="p-4 md:p-6">
             <Toolbar
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                    searchPlaceholder={'Rechercher par nom...'}
-                    centerSlot={
-                        <div className="flex flex-wrap items-center gap-2">
-                            {subjectsForActiveDomain.map(subject => (
-                                <button
-                                    key={subject.id}
-                                    onClick={() => setActiveSubjectId(subject.id)}
-                                    className={`px-4 py-1.5 text-sm rounded-full font-medium focus:outline-none transition-colors ${
-                                        activeSubjectId === subject.id
-                                            ? 'bg-sky-700 text-white shadow-md'
-                                            : 'bg-gray-100 text-gray-700 border hover:bg-gray-200'
-                                    }`}
-                                >
-                                    {subject.name}
-                                </button>
-                            ))}
-                        </div>
-                    }
-                showPagination={true}
-                currentPage={currentPage}
-                    totalItems={filteredNotes.length}
-                itemsPerPage={ITEMS_PER_PAGE}
-                onPageChange={setCurrentPage}
-                    rightActions={
-                        role === 'enseignant' ? (
-                            <Menu as="div" className="relative">
-                                <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    <MoreHorizontal className="w-5 h-5" />
-                                </MenuButton>
-                                <MenuItems anchor="bottom end" className="w-56 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                                    <div className="px-1 py-1">
-                                        <MenuItem>
-                                            {({ active }) => (
-                                                <button onClick={handleExport} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                    <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Excel (Matière)
-                                                </button>
-                                            )}
-                                        </MenuItem>
-                                        <MenuItem>
-                                            {({ active }) => (
-                                                <button onClick={handleExportAll} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                    <Library className="w-5 h-5 mr-2" /> Exporter Excel (Tout)
-                                                </button>
-                                            )}
-                                        </MenuItem>
-                                    </div>
-                                    <div className="px-1 py-1">
-                                        <MenuItem>
-                                            {({ active }) => (
-                                                <button onClick={handleExportPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                    <FileText className="w-5 h-5 mr-2" /> Exporter PDF (Matière)
-                                                </button>
-                                            )}
-                                        </MenuItem>
-                                        <MenuItem>
-                                            {({ active }) => (
-                                                <button onClick={handleExportAllPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                    <ArrowDownToLine className="w-5 h-5 mr-2" /> Exporter PDF (Tout)
-                                                </button>
-                                            )}
-                                        </MenuItem>
-                                    </div>
-                                    <div className="px-1 py-1">
-                                        <MenuItem>
-                                            {({ active }) => (
-                                                <button onClick={handleExportByDomainXlsx} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                    <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Domaines (XLSX)
-                                                </button>
-                                            )}
-                                        </MenuItem>
-                                        <MenuItem>
-                                            {({ active }) => (
-                                                <button onClick={handleExportByDomainPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                    <FileText className="w-5 h-5 mr-2" /> Exporter Domaines (PDF)
-                                                </button>
-                                            )}
-                                        </MenuItem>
-                                    </div>
-                                </MenuItems>
-                            </Menu>
-                        ) : null
-                    }
+                {...(role === 'enseignant' ? {
+                    searchTerm: searchTerm,
+                    onSearchChange: setSearchTerm,
+                    searchPlaceholder: 'Rechercher par nom...',
+                    showPagination: true,
+                    currentPage: currentPage,
+                    totalItems: filteredNotes.length,
+                    itemsPerPage: ITEMS_PER_PAGE,
+                    onPageChange: setCurrentPage
+                } : {
+                    searchTerm: '',
+                    onSearchChange: () => {},
+                    showPagination: false
+                })}
+                centerSlot={
+                    <div className="flex flex-wrap items-center gap-2">
+                        {subjectsForActiveDomain.map(subject => (
+                            <button
+                                key={subject.id}
+                                onClick={() => setActiveSubjectId(subject.id)}
+                                className={`px-4 py-1.5 text-sm rounded-full font-medium focus:outline-none transition-colors ${
+                                    activeSubjectId === subject.id
+                                        ? 'bg-sky-700 text-white shadow-md'
+                                        : 'bg-gray-100 text-gray-700 border hover:bg-gray-200'
+                                }`}
+                            >
+                                {subject.name}
+                            </button>
+                        ))}
+                    </div>
+                }
+                rightActions={
+                    role === 'enseignant' ? (
+                        <Menu as="div" className="relative">
+                            <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <MoreHorizontal className="w-5 h-5" />
+                            </MenuButton>
+                            <MenuItems anchor="bottom end" className="w-56 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                                <div className="px-1 py-1">
+                                    <MenuItem>
+                                        {({ active }) => (
+                                            <button onClick={handleExport} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Excel (Matière)
+                                            </button>
+                                        )}
+                                    </MenuItem>
+                                    <MenuItem>
+                                        {({ active }) => (
+                                            <button onClick={handleExportAll} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                <Library className="w-5 h-5 mr-2" /> Exporter Excel (Tout)
+                                            </button>
+                                        )}
+                                    </MenuItem>
+                                </div>
+                                <div className="px-1 py-1">
+                                    <MenuItem>
+                                        {({ active }) => (
+                                            <button onClick={handleExportPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                <FileText className="w-5 h-5 mr-2" /> Exporter PDF (Matière)
+                                            </button>
+                                        )}
+                                    </MenuItem>
+                                    <MenuItem>
+                                        {({ active }) => (
+                                            <button onClick={handleExportAllPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                <ArrowDownToLine className="w-5 h-5 mr-2" /> Exporter PDF (Tout)
+                                            </button>
+                                        )}
+                                    </MenuItem>
+                                </div>
+                                <div className="px-1 py-1">
+                                    <MenuItem>
+                                        {({ active }) => (
+                                            <button onClick={handleExportByDomainXlsx} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Domaines (XLSX)
+                                            </button>
+                                        )}
+                                    </MenuItem>
+                                    <MenuItem>
+                                        {({ active }) => (
+                                            <button onClick={handleExportByDomainPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                <FileText className="w-5 h-5 mr-2" /> Exporter Domaines (PDF)
+                                            </button>
+                                        )}
+                                    </MenuItem>
+                                </div>
+                            </MenuItems>
+                        </Menu>
+                    ) : role === 'eleve' ? (
+                        <Menu as="div" className="relative">
+                            <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
+                                <ArrowDownToLine className="w-5 h-5" />
+                            </MenuButton>
+                            <MenuItems anchor="bottom end" className="w-64 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                                <div className="px-1 py-1">
+                                    <MenuItem>
+                                        {({ active }) => (
+                                            <button onClick={handleStudentExportPdf} className={`${active ? 'bg-slate-50' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                <FileText className="w-5 h-5 mr-2 text-slate-600" /> Mon Bulletin d'Intégration
+                                            </button>
+                                        )}
+                                    </MenuItem>
+                                    <MenuItem>
+                                        {({ active }) => (
+                                            <button onClick={handleStudentExportAllPdf} className={`${active ? 'bg-slate-50' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
+                                                <FileText className="w-5 h-5 mr-2 text-slate-600" /> Bulletin Complet d'Intégration
+                                            </button>
+                                        )}
+                                    </MenuItem>
+                                </div>
+                            </MenuItems>
+                        </Menu>
+                    ) : null
+                }
             />
-            <NotesTable 
-                data={notesTableData} 
-                noteColumns={noteColumns} 
-                    onNoteUpdate={role === 'enseignant' ? handleNoteUpdate : undefined}
-            />
+            
+            {/* Affichage conditionnel : cartes pour les élèves, tableau pour les enseignants */}
+            {role === 'eleve' && activeSubject && notes.length > 0 ? (
+                <StudentIntegrationCards
+                    competences={activeSubject.competences}
+                    notes={notes[0]?.notes || {}}
+                    subjectName={activeSubject.name}
+                    monthName={currentMonth}
+                />
+            ) : role === 'enseignant' ? (
+                <NotesTable 
+                    data={notesTableData} 
+                    noteColumns={noteColumns} 
+                    onNoteUpdate={handleNoteUpdate}
+                />
+            ) : (
+                <div className="text-center py-8">
+                    <p className="text-gray-500">Aucune donnée disponible pour cette sélection.</p>
+                </div>
+            )}
             </div>
         </div>
     );

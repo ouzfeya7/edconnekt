@@ -30,7 +30,8 @@ const StudentList: React.FC<StudentListProps> = ({ onStudentClick }) => {
   const studentsPerPage = 10;
 
   const filteredStudents = students.filter(student => {
-    const nameMatch = student.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
+    const nameMatch = fullName.includes(searchTerm.toLowerCase());
     const statusMatch = statusFilter === 'all' || student.status === statusFilter;
     return nameMatch && statusMatch;
   });
@@ -111,7 +112,7 @@ const StudentList: React.FC<StudentListProps> = ({ onStudentClick }) => {
                     alt="avatar"
                     className="w-8 h-8 rounded-full object-cover"
                   />
-                  <span className="font-medium text-gray-800">{student.name}</span>
+                  <span className="font-medium text-gray-800">{student.firstName} {student.lastName}</span>
                 </td>
                 <td className="py-3 px-4">
                   <select
