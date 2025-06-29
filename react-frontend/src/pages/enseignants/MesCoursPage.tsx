@@ -103,18 +103,40 @@ const MesCours = () => {
           <button className="text-blue-600 font-semibold hover:underline text-sm">{t('view_more')}</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {skills.map((skill) => (
-          <CourseCard
-            key={skill.id}
-            title={skill.title}
-            subject={skill.subject}
-            time={skill.time}
-            teacher={skill.teacher}
-            presentCount={skill.presentCount}
-            absentCount={skill.absentCount}
-            onClick={() => navigate(`/mes-cours/${skill.id}`)}
-          />
-        ))}
+        {skills.map((skill, index) => {
+          // Génère des heures et des durées de cours réalistes (20-45 min)
+          const timeSlots = [
+            { start: "8:00", end: "8:45" },   // 45 min
+            { start: "9:00", end: "9:30" },   // 30 min
+            { start: "10:15", end: "10:35" }, // 20 min
+            { start: "11:00", end: "11:45" }, // 45 min
+            { start: "14:00", end: "14:25" }, // 25 min
+          ];
+          const currentTimeSlot = timeSlots[index % timeSlots.length];
+
+          // Calcule les présences/absences en fonction de l'effectif total
+          const totalStudents = studentCount?.total || 25; // Fallback
+          // Pattern d'absences pour rendre les données plus réalistes
+          const absencePattern = [2, 1, 3, 0, 4, 1];
+          let absentCount = absencePattern[index % absencePattern.length];
+          if (absentCount > totalStudents) {
+            absentCount = totalStudents;
+          }
+          const presentCount = totalStudents - absentCount;
+
+          return (
+            <CourseCard
+              key={skill.id}
+              title={skill.title}
+              subject={skill.subject}
+              startTime={currentTimeSlot.start}
+              endTime={currentTimeSlot.end}
+              presentCount={presentCount}
+              absentCount={absentCount}
+              onClick={() => navigate(`/mes-cours/${skill.id}`)}
+            />
+          );
+        })}
         </div>
       </div>
 

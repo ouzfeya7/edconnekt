@@ -258,7 +258,7 @@ const StudentProgressionChart: React.FC = () => {
       </div>
 
       {/* Navigation entre types d'évaluation */}
-      <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4">
+      <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm">
         <button
           onClick={goToPrevious}
           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-colors"

@@ -36,20 +36,50 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
 
   useEffect(() => {
     if (authUser) {
+      // Interface étendue pour les attributs Keycloak
+      interface ExtendedKeycloakProfile {
+        attributes?: {
+          picture?: string[];
+          avatar?: string[];
+          phone?: string[];
+          address?: string[];
+          specialty?: string[];
+          classId?: string[];
+          classLabel?: string[];
+        };
+        picture?: string;
+      }
+
+      const extendedAuthUser = authUser as ExtendedKeycloakProfile;
+      
+      // Utiliser les vraies données de Keycloak
+      const fullName = `${authUser.firstName || ''} ${authUser.lastName || ''}`.trim();
+      const userEmail = authUser.email || '';
+      
+      // Récupérer la photo de profil depuis Keycloak
+      const profilePicture = extendedAuthUser?.attributes?.picture?.[0] || 
+                           extendedAuthUser?.attributes?.avatar?.[0] || 
+                           extendedAuthUser?.picture || 
+                           undefined;
+      
+      // Générer un avatar par défaut basé sur les initiales
+      const initials = `${authUser.firstName?.[0] || ''}${authUser.lastName?.[0] || ''}`.toUpperCase();
+      const fallbackAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(initials)}&backgroundColor=184867`;
+
       setUser({
-        name: `Ouz Feya`, // Utiliser le même nom que dans les données fictives
+        name: fullName || authUser.username || 'Utilisateur',
         role: role,
-        email: authUser.email || 'ouz.feya@example.com',
-        phone: '77 123 45 67', 
-        address: 'Dakar, Sénégal', 
-        classId: "cp1", // Classe par défaut
-        classLabel: "Cours Préparatoire 1",
-        specialty: "Mathématiques",
-        entryDate: "Septembre 2023",
-        status: "Inscrit",
-        birthDate: "2015-05-15", // Date de naissance plus récente pour un élève
-        gender: 'Male',
-        imageUrl: 'https://i.pravatar.cc/150?img=33', // Même avatar que dans les données fictives
+        email: userEmail,
+        phone: extendedAuthUser?.attributes?.phone?.[0] || '', 
+        address: extendedAuthUser?.attributes?.address?.[0] || '', 
+        classId: extendedAuthUser?.attributes?.classId?.[0] || undefined,
+        classLabel: extendedAuthUser?.attributes?.classLabel?.[0] || undefined,
+        specialty: extendedAuthUser?.attributes?.specialty?.[0] || undefined,
+        entryDate: undefined, // À configurer dans Keycloak si nécessaire
+        status: "Actif", // Status par défaut
+        birthDate: undefined, // À configurer dans Keycloak si nécessaire
+        gender: undefined, // À configurer dans Keycloak si nécessaire
+        imageUrl: profilePicture || fallbackAvatar,
       });
     }
   }, [authUser, role]);

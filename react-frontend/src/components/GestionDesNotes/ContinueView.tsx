@@ -56,7 +56,7 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
     // Class Subtitle
     doc.setFontSize(12);
     doc.setFont("times", 'normal');
-    doc.text(`Classe: ${classe}`, doc.internal.pageSize.getWidth() / 2, 62, { align: 'center' });
+    doc.text(`Classe: ${classe.toUpperCase()}`, doc.internal.pageSize.getWidth() / 2, 62, { align: 'center' });
 
     // Header Line
     doc.setDrawColor(0);
@@ -144,18 +144,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
             key: 'lastName',
             label: 'Nom',
             render: (_, item) => (
-                <div className="flex items-center">
-                    <div className="flex-shrink-0 h-8 w-8">
-                        <img
-                            className="h-8 w-8 rounded-full object-cover bg-gray-200"
-                            src={item.studentAvatar || `https://via.placeholder.com/40x40/CBD5E0/FFFFFF?text=${item.lastName?.charAt(0) || 'P'}`}
-                            alt={`${item.firstName} ${item.lastName}`}
-                        />
-                    </div>
-                    <div className="ml-3">
-                        <div className="text-sm font-medium text-gray-900">{item.lastName}</div>
-                    </div>
-                </div>
+                <div className="text-sm font-medium text-gray-900">{item.lastName}</div>
             )
         };
         
@@ -201,7 +190,6 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         id: note.studentId,
         firstName: note.firstName,
         lastName: note.lastName,
-        studentAvatar: note.studentAvatar,
         ...note.notes
     })), [paginatedNotes]);
 
@@ -291,15 +279,13 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
     };
 
     const handleExportPdf = () => {
-        if (!activeSubject) {
-            console.error("Export PDF annulé : aucune matière active.");
-            return;
-        }
+        if (!activeSubject) return;
 
         try {
-            const doc = new jsPDF() as jsPDFWithAutoTable;
-            const title = `Rapport d'évaluation - ${activeSubject.name} (${formattedCurrentDate})`;
+            const doc = new jsPDF({ orientation: 'landscape' }) as jsPDFWithAutoTable;
+            const title = `Rapport de Notes Continues - ${activeSubject.name}`;
             const startY = addPdfHeader(doc, currentClasse, title);
+            const baseStyles = getPdfTableStyles(doc);
 
             const tableColumns = ["Nom", "Prénom", ...activeSubject.competences.map(c => c.label)];
             const tableRows = filteredNotes.map(note => [
@@ -309,52 +295,47 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                     const noteValue = note.notes[c.id];
                     if (typeof noteValue === 'number') return `${noteValue}%`;
                     if (noteValue === 'absent') return 'Absent';
-                    if (noteValue === 'non-evalue') return '-';
                     return '-';
                 })
             ]);
 
             autoTable(doc, {
-                ...getPdfTableStyles(doc),
+                ...baseStyles,
                 head: [tableColumns],
                 body: tableRows,
                 startY: startY,
-                margin: { left: 25, right: 25 }
+                styles: { ...baseStyles.styles, fontSize: 8, cellPadding: 2 },
+                columnStyles: {
+                    0: { cellWidth: 30 }, // Nom
+                    1: { cellWidth: 30 }, // Prénom
+                }
             });
 
             doc.save(`Notes_Continue_${currentClasse}_${formattedCurrentDate}_${activeSubject.name}.pdf`);
         } catch (error) {
-            console.error("Erreur lors de la génération du PDF :", error);
-            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+            console.error("Erreur PDF:", error);
         }
     };
 
     const handleExportAllPdf = () => {
         try {
-            const doc = new jsPDF() as jsPDFWithAutoTable;
-            
-            const title = `Rapport d'évaluation Continue Complet (${formattedCurrentDate})`;
+            const doc = new jsPDF({ orientation: 'landscape' }) as jsPDFWithAutoTable;
+            const title = `Rapport Complet des Notes Continues`;
             let startY = addPdfHeader(doc, currentClasse, title);
-            
+            const baseStyles = getPdfTableStyles(doc);
+
             domains.forEach(domain => {
                 startY += 5;
+                if (startY > 180) { doc.addPage(); startY = addPdfHeader(doc, currentClasse, title); }
                 doc.setFontSize(14);
                 doc.text(domain.name, 25, startY);
                 startY += 7;
 
                 domain.subjects.forEach(subject => {
                     if (subject.competences.length === 0) return;
-                    
-                    autoTable(doc, {
-                        ...getPdfTableStyles(doc),
-                        head: [[subject.name]],
-                        startY: startY,
-                        margin: { left: 25, right: 25 },
-                        theme: "plain",
-                        styles: { fontStyle: 'bold', fontSize: 11, halign: 'left' }
-                    });
+                    autoTable(doc, { head: [[subject.name]], startY: startY, theme: "plain", styles: { fontStyle: 'bold' } });
+                    startY = doc.lastAutoTable?.finalY ?? startY;
 
-                    startY = doc.lastAutoTable?.finalY || startY;
                     const tableColumns = ["Nom", "Prénom", ...subject.competences.map(c => c.label)];
                     const tableRows = filteredNotes.map(note => [
                         note.lastName,
@@ -363,32 +344,31 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                             const noteValue = note.notes[c.id];
                             if (typeof noteValue === 'number') return `${noteValue}%`;
                             if (noteValue === 'absent') return 'Absent';
-                            if (noteValue === 'non-evalue') return '-';
                             return '-';
                         })
                     ]);
-
-                    autoTable(doc, {
-                        ...getPdfTableStyles(doc),
-                        head: [tableColumns],
-                        body: tableRows,
+                    autoTable(doc, { 
+                        ...baseStyles,
+                        head: [tableColumns], 
+                        body: tableRows, 
                         startY: startY,
-                        margin: { left: 25, right: 25 },
+                        styles: { ...baseStyles.styles, fontSize: 8, cellPadding: 2 },
+                        columnStyles: {
+                            0: { cellWidth: 30 }, // Nom
+                            1: { cellWidth: 30 }, // Prénom
+                        }
                     });
-                    
-                    startY = (doc.lastAutoTable?.finalY || startY) + 10;
-                    if (startY > 250) { 
-                        doc.addPage();
-                        startY = addPdfHeader(doc, currentClasse, title);
+                    startY = (doc.lastAutoTable?.finalY ?? startY) + 10;
+                    if (startY > 180) { 
+                        doc.addPage(); 
+                        startY = addPdfHeader(doc, currentClasse, title); 
                     }
                 });
             });
 
-            doc.save(`Rapport_Continue_Complet_${currentClasse}_${formattedCurrentDate}.pdf`);
-
+            doc.save(`Notes_Continue_Toutes_Matieres_${currentClasse}_${formattedCurrentDate}.pdf`);
         } catch (error) {
-            console.error("Erreur lors de la génération du PDF complet :", error);
-            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+            console.error("Erreur PDF:", error);
         }
     };
 
@@ -839,16 +819,19 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                 
             {/* Affichage conditionnel : cartes pour les élèves, tableau pour les enseignants */}
             {role === 'eleve' && activeSubject && notes.length > 0 ? (
-                <StudentCompetenceCards
-                    competences={activeSubject.competences}
-                    notes={notes[0]?.notes || {}}
-                    subjectName={activeSubject.name}
-                />
+                <div className="border border-gray-200 rounded-lg p-4">
+                    <StudentCompetenceCards
+                        competences={activeSubject.competences}
+                        notes={notes[0]?.notes || {}}
+                        subjectName={activeSubject.name}
+                    />
+                </div>
             ) : role === 'enseignant' ? (
                 <NotesTable 
                     noteColumns={noteColumns}
                     data={notesTableData} 
-                    onNoteUpdate={handleNoteUpdate}
+                    onUpdateNote={handleNoteUpdate}
+                    isEditable={true}
                 />
             ) : (
                 <div className="text-center py-8">

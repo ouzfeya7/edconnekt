@@ -1,6 +1,4 @@
 import EvaluationHeader from "../../components/Header/EvaluationHeader";
-import { ActionCard } from "../../components/ui/ActionCard";
-import { Plus, FileEdit, Mail, Calendar, FilePlus } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";

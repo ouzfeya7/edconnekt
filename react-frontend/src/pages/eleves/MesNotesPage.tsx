@@ -25,23 +25,9 @@ const MesNotesPage: React.FC = () => {
     }
   }, [user?.classId, setCurrentClasse]);
 
-  // Fonction pour formater la date en "jour Mois Année"
-  const formatDate = (date: Date): string => {
-    const day = date.getDate();
-    const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-    ];
-    const month = monthNames[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-  };
 
-  // Données de l'élève (pourrait venir d'un contexte ou d'un store)
-  const studentData = {
-    classe: user?.classId || 'Classe non définie', // Utiliser la classe de l'élève
-    currentDate: formatDate(new Date()),
-    currentTrimestre: "Trimestre 1",
-  };
+
+  // Les données de l'élève sont gérées dans les composants enfants
 
   const handleEvaluationTypeChange = (type: string) => {
     setEvaluationType(type);
@@ -61,12 +47,21 @@ const MesNotesPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen p-4 md:p-6">
-      <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes notes</h1>
-      <div className="flex items-center text-sm text-gray-500 mb-6">
-        <span>Evaluation</span>
-        <span className="mx-2">/</span>
-        <span>Gestion des notes</span>
+    <div className="bg-white min-h-screen p-4 md:p-6">
+      {/* En-tête avec design moderne */}
+      <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 shadow-sm border border-emerald-200/50 p-6">
+        {/* Motifs décoratifs */}
+        <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-500/8 rounded-full -translate-y-14 translate-x-14"></div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-teal-500/6 rounded-full translate-y-10 -translate-x-10"></div>
+        
+        <div className="relative">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes notes</h1>
+          <div className="flex items-center text-sm text-emerald-600 font-medium">
+            <span>Evaluation</span>
+            <span className="mx-2">/</span>
+            <span>Gestion des notes</span>
+          </div>
+        </div>
       </div>
 
       <EvaluationHeader 

@@ -223,18 +223,41 @@ const Dashboard = () => {
 
         {/* Course Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {skills.map((skill) => (
-            <CourseCard
-              key={skill.id}
-              title={skill.title}
-              subject={skill.subject}
-              time={skill.time}
-              teacher={skill.teacher}
-              presentCount={skill.presentCount}
-              absentCount={skill.absentCount}
-              onClick={() => navigate(`/mes-cours/${skill.id}`)}
-            />
-          ))}
+          {skills.map((skill, index) => {
+            // Heures de début et de fin réalistes pour les cours
+            const timeSlots = [
+              { start: "8:00", end: "8:45" },   // 45 min - Français
+              { start: "9:00", end: "9:30" },   // 30 min - Mathématiques 
+              { start: "10:15", end: "11:00" }, // 45 min - Sciences (après récré)
+              { start: "11:00", end: "11:30" }  // 30 min - Histoire-Géo
+            ];
+            
+            // Génère des statistiques de présence qui correspondent à l'effectif de la classe.
+            const totalStudents = studentCount?.total || 20; // Fallback au cas où l'info n'est pas chargée
+            const absencePattern = [2, 1, 3, 0]; // Pattern d'absences pour varier les cartes
+            
+            let absentCount = absencePattern[index % absencePattern.length];
+            // S'assure que le nombre d'absents n'est pas irréaliste
+            if (absentCount > totalStudents) {
+              absentCount = totalStudents;
+            }
+            const presentCount = totalStudents - absentCount;
+            
+            const currentTimeSlot = timeSlots[index] || { start: "11:30", end: "12:15" };
+            
+            return (
+              <CourseCard
+                key={skill.id}
+                title={skill.title}
+                subject={skill.subject}
+                startTime={currentTimeSlot.start}
+                endTime={currentTimeSlot.end}
+                presentCount={presentCount}
+                absentCount={absentCount}
+                onClick={() => navigate(`/mes-cours/${skill.id}`)}
+              />
+            );
+          })}
         </div>
 
         <div className="mt-8">

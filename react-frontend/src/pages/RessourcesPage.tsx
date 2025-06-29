@@ -1,9 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, FolderDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { 
+    Plus, FolderDown, ChevronLeft, ChevronRight, Search,
+    Palette, Music, Bike, Theater, Move,
+    Languages,
+    Sigma,
+    Globe, ScrollText, BookOpenCheck, BookMarked, Home, Users, HeartPulse,
+    FileText, Calendar, User
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useResources } from "../contexts/ResourceContext";
+import { useUser } from "../layouts/DashboardLayout";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "../components/ui/dialog";
+import AddResourceModal from "../components/ressources/AddResourceModal";
 
 // Data for domains and subjects, mirroring AddResourcePage
 const domainsData: { [key: string]: string[] } = {
@@ -14,14 +23,87 @@ const domainsData: { [key: string]: string[] } = {
 };
 const domainNames = Object.keys(domainsData);
 
+// Couleurs subtiles spécifiques à chaque matière
+const subjectColors: { [key: string]: string } = {
+  // CRÉATIVITÉ & SPORT - Teintes bleu-violet
+  "Arts plastiques": "bg-indigo-400",
+  "EPS": "bg-sky-400", 
+  "Motricité": "bg-cyan-400",
+  "Musique": "bg-violet-400",
+  "Théâtre/Drama": "bg-purple-400",
+  
+  // LANGUES ET COMMUNICATION - Teintes vert
+  "Anglais": "bg-emerald-400",
+  "Français": "bg-green-400",
+  
+  // STEM - Teintes orange-rouge
+  "Mathématiques": "bg-amber-400",
+  
+  // SCIENCES HUMAINES - Teintes rose-brun
+  "Études islamiques": "bg-teal-400",
+  "Géographie": "bg-blue-400",
+  "Histoire": "bg-slate-400", 
+  "Lecture arabe": "bg-lime-400",
+  "Qran": "bg-rose-400",
+  "Vivre dans son milieu": "bg-stone-400",
+  "Vivre ensemble": "bg-pink-400",
+  "Wellness": "bg-orange-400",
+};
+
+const subjectBadgeColors: { [key: string]: string } = {
+  // CRÉATIVITÉ & SPORT
+  "Arts plastiques": "bg-indigo-50 text-indigo-700",
+  "EPS": "bg-sky-50 text-sky-700",
+  "Motricité": "bg-cyan-50 text-cyan-700", 
+  "Musique": "bg-violet-50 text-violet-700",
+  "Théâtre/Drama": "bg-purple-50 text-purple-700",
+  
+  // LANGUES ET COMMUNICATION
+  "Anglais": "bg-emerald-50 text-emerald-700",
+  "Français": "bg-green-50 text-green-700",
+  
+  // STEM
+  "Mathématiques": "bg-amber-50 text-amber-700",
+  
+  // SCIENCES HUMAINES
+  "Études islamiques": "bg-teal-50 text-teal-700",
+  "Géographie": "bg-blue-50 text-blue-700",
+  "Histoire": "bg-slate-50 text-slate-700",
+  "Lecture arabe": "bg-lime-50 text-lime-700", 
+  "Qran": "bg-rose-50 text-rose-700",
+  "Vivre dans son milieu": "bg-stone-50 text-stone-700",
+  "Vivre ensemble": "bg-pink-50 text-pink-700",
+  "Wellness": "bg-orange-50 text-orange-700",
+};
+
+const getIconForSubject = (subject: string) => {
+    switch (subject) {
+        case "Arts plastiques": return Palette;
+        case "EPS": return Bike;
+        case "Motricité": return Move;
+        case "Musique": return Music;
+        case "Théâtre/Drama": return Theater;
+        case "Anglais": return Languages;
+        case "Français": return Languages;
+        case "Mathématiques": return Sigma;
+        case "Études islamiques": return BookMarked;
+        case "Géographie": return Globe;
+        case "Histoire": return ScrollText;
+        case "Lecture arabe": return BookOpenCheck;
+        case "Qran": return BookMarked;
+        case "Vivre dans son milieu": return Home;
+        case "Vivre ensemble": return Users;
+        case "Wellness": return HeartPulse;
+        default: return FileText;
+    }
+};
+
 interface Resource {
     id: number;
     title: string;
     subject: string;
     addedDate: string;
-    imageUrl: string;
     author: string;
-    authorImageUrl: string;
 }
 
 interface ResourceListItemProps {
@@ -30,45 +112,84 @@ interface ResourceListItemProps {
 }
 
 const ResourceListItem: React.FC<ResourceListItemProps> = ({ resource, onArchive }) => {
-  return (
-    <div className="flex items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-4 transition-shadow hover:shadow-md">
-      <img src={resource.imageUrl} alt={resource.title} className="w-28 h-36 object-cover rounded-lg mr-6" />
-      <div className="flex-grow">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">{resource.title}</h3>
-        <div className="flex items-center">
-          <img src={resource.authorImageUrl} alt={resource.author} className="w-8 h-8 rounded-full mr-3" />
-          <span className="text-gray-600 font-medium">{resource.subject}</span>
-        </div>
-      </div>
-      <div className="flex flex-col items-end pl-6">
-         <div className="text-right whitespace-nowrap">
-            <span className="text-sm text-gray-500">Ajouté : {resource.addedDate}</span>
-            
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="ml-4 p-2 rounded-md hover:bg-gray-100 text-orange-500">
-                    <FolderDown className="w-5 h-5" />
-                </button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Confirmer l'archivage</DialogTitle>
-                  <DialogDescription>
-                    Voulez-vous vraiment archiver cette ressource ? Elle ne sera plus visible sur cette page.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <button type="button" className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">Annuler</button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                    <button type="button" onClick={onArchive} className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600">Archiver</button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+  const Icon = getIconForSubject(resource.subject);
+  const bgColor = subjectColors[resource.subject] || "bg-gray-400";
+  const badgeColor = subjectBadgeColors[resource.subject] || "bg-gray-50 text-gray-700";
 
-         </div>
+  return (
+    <div className="group bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 overflow-hidden">
+      <div className="p-6">
+        <div className="flex items-start gap-6">
+          {/* Icône de la matière */}
+          <div className={`w-20 h-20 rounded-xl flex items-center justify-center ${bgColor} shadow-md group-hover:scale-[1.02] transition-transform duration-200`}>
+            <Icon className="w-10 h-10 text-white/90" />
+          </div>
+          
+          {/* Contenu principal */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight">
+                  {resource.title}
+                </h3>
+                
+                {/* Badge de la matière */}
+                <div className="flex items-center gap-3 mb-4">
+                  <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${badgeColor}`}>
+                    {resource.subject}
+                  </span>
+                </div>
+                
+                {/* Informations de l'auteur et date */}
+                <div className="flex items-center gap-6 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    <span className="font-medium">{resource.author}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span>Ajouté le {resource.addedDate}</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Bouton d'archivage */}
+              <div className="flex-shrink-0">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button className="p-3 rounded-xl hover:bg-gray-50 text-gray-400 hover:text-orange-500 transition-colors duration-150 group/btn">
+                      <FolderDown className="w-5 h-5 group-hover/btn:scale-[1.05] transition-transform duration-150" />
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-bold text-gray-900">Confirmer l'archivage</DialogTitle>
+                      <DialogDescription className="text-gray-600 mt-2">
+                        Voulez-vous vraiment archiver la ressource "{resource.title}" ? Elle ne sera plus visible sur cette page.
+                      </DialogDescription>
+                    </DialogHeader>
+                                           <DialogFooter className="gap-3 mt-6">
+                       <DialogClose asChild>
+                         <button type="button" className="flex-1 bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl hover:bg-gray-200 font-medium transition-colors duration-150">
+                           Annuler
+                         </button>
+                       </DialogClose>
+                       <DialogClose asChild>
+                         <button 
+                           type="button" 
+                           onClick={onArchive} 
+                           className="flex-1 bg-orange-500 text-white px-4 py-2.5 rounded-xl hover:bg-orange-600 font-medium transition-colors duration-150"
+                         >
+                           Archiver
+                         </button>
+                       </DialogClose>
+                     </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -77,12 +198,14 @@ const ResourceListItem: React.FC<ResourceListItemProps> = ({ resource, onArchive
 function RessourcesPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { resources, archiveResource } = useResources(); 
+    const { resources, archiveResource } = useResources();
+    const { user } = useUser(); // Récupération de l'utilisateur connecté
     
     const [activeDomain, setActiveDomain] = useState(domainNames[3]); // Default to SCIENCES HUMAINES
     const [activeSubject, setActiveSubject] = useState<string | null>("Histoire"); // Default to Histoire
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const itemsPerPage = 3;
 
     const handleDomainChange = (domain: string) => {
@@ -115,8 +238,7 @@ function RessourcesPage() {
     const displayedResources = paginatedResources.map(resource => ({
         ...resource,
         addedDate: new Date().toLocaleDateString('fr-FR'),
-        author: resource.subject,
-        authorImageUrl: `https://i.pravatar.cc/40?u=${resource.id}`
+        author: user ? user.name || 'Enseignant' : 'Enseignant'
     }));
 
   return (
@@ -124,8 +246,8 @@ function RessourcesPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-bold text-gray-900">Ressources</h1>
         <button 
-            onClick={() => navigate('/ressources/ajouter')}
-            className="flex items-center bg-white text-gray-800 font-semibold py-2 px-5 border border-orange-400 rounded-lg shadow-sm hover:bg-orange-50 hover:border-orange-500 transition-all duration-200"
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center bg-white text-gray-800 font-semibold py-2 px-5 border border-orange-400 rounded-lg shadow-sm hover:bg-orange-50 hover:border-orange-500 transition-all duration-150"
         >
             <Plus className="w-5 h-5 mr-2 text-orange-500" />
             {t('add_resource', 'Ajouter une ressource')}
@@ -165,7 +287,7 @@ function RessourcesPage() {
             <button
               key={subject}
               onClick={() => setActiveSubject(activeSubject === subject ? null : subject)}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ease-in-out transform hover:scale-105 ${
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-150 ease-in-out transform hover:scale-[1.02] ${
                   activeSubject === subject 
                       ? 'bg-[#184867] text-white shadow-lg' 
                       : 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-50'
@@ -178,7 +300,7 @@ function RessourcesPage() {
       </div>
 
       <div className="flex justify-between items-center mb-6">
-        <div className="relative">
+        <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
@@ -209,17 +331,27 @@ function RessourcesPage() {
         </div>
       </div>
 
-      <div>
+      <div className="space-y-6">
         {displayedResources.length > 0 ? (
             displayedResources.map(resource => (
               <ResourceListItem key={resource.id} resource={resource} onArchive={() => archiveResource(resource.id)} />
             ))
         ) : (
-            <div className="text-center py-20 bg-white rounded-lg shadow-sm border border-gray-100">
-                <p className="text-gray-500">Aucune ressource disponible pour cette sélection.</p>
+            <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
+                <div className="max-w-md mx-auto">
+                    <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucune ressource trouvée</h3>
+                    <p className="text-gray-500">Aucune ressource n'est disponible pour cette sélection.</p>
+                </div>
             </div>
         )}
       </div>
+
+      {/* Modale d'ajout de ressource */}
+      <AddResourceModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+      />
     </div>
   );
 }

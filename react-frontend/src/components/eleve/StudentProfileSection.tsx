@@ -1,23 +1,8 @@
 import React from 'react';
 import { useAuth } from '../../pages/authentification/useAuth';
-import { StudentStatus } from '../../contexts/StudentContext';
+import { Student, StudentStatus } from '../../contexts/StudentContext';
 
 // Interface Student temporaire pour le profil
-interface Student {
-  id: number | string;
-  name: string;
-  imageUrl: string;
-  ref: string;
-  gender: string;
-  birthDate: string;
-  email: string;
-  address: string;
-  department: string;
-  class: string;
-  admissionDate: string;
-  status: StudentStatus | string;
-  competence?: string;
-}
 
 // Idéalement, ceci serait dans un fichier partagé
 type Role = "enseignant" | "directeur" | "eleve" | "parent" | "administrateur" | "espaceFamille";
@@ -68,18 +53,18 @@ const StudentProfileSection: React.FC<StudentProfileProps> = ({ student, onBack 
           {student.imageUrl ? (
             <img
               src={student.imageUrl}
-              alt={student.name}
+              alt={`${student.firstName} ${student.lastName}`}
               className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full bg-[#184867] flex items-center justify-center">
               <span className="text-3xl font-bold text-white">
-                {student.name.split(' ').map(n => n[0]).join('')}
+                {student.firstName ? `${student.firstName[0]}${student.lastName[0]}` : 'NN'}
               </span>
             </div>
           )}
         </div>
-        <h2 className="text-2xl font-semibold text-gray-900">{student.name}</h2>
+        <h2 className="text-2xl font-semibold text-gray-900">{student.firstName} {student.lastName}</h2>
       </div>
 
       {/* Informations de l'élève */}
@@ -110,7 +95,7 @@ const StudentProfileSection: React.FC<StudentProfileProps> = ({ student, onBack 
         </div>
         <div>
           <p className="text-xs text-gray-500 tracking-wider">CLASSE</p>
-          <p className="text-base font-medium text-gray-800">{student.class}</p>
+          <p className="text-base font-medium text-gray-800">{student.classId}</p>
         </div>
         <div>
           <p className="text-xs text-gray-500 tracking-wider">DATE D'ADMISSION</p>

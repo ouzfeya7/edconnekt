@@ -26,7 +26,7 @@ export interface StudentNote {
 }
 
 // Système de notation
-export const getGradingStatus = (note: number | 'absent' | 'non-evalue') => {
+export const getGradingStatus = (note: any) => {
   if (note === 'absent') return { text: 'Abs', color: 'text-gray-500' };
   if (note === 'non-evalue') return { text: '-', color: 'text-gray-500' };
   
@@ -571,4 +571,38 @@ Object.keys(studentDataByClass).forEach(classId => {
     avatar: s.studentAvatar
   }));
   studentNotesByClass[classId] = getNotesForClass(classId, studentsOfClass);
-}); 
+});
+
+// Nouvelle fonction pour calculer les moyennes trimestrielles
+export const calculateTrimesterAverages = (allNotes: StudentNote[], trimestre: number): StudentNote[] => {
+    // Dans une vraie application, on filtrerait les notes par date du trimestre.
+    // Ici, on simule en générant 3 sets de notes et en choisissant un.
+    // Cette simulation garantit des moyennes différentes pour chaque trimestre.
+    
+    return allNotes.map(studentNote => {
+        const averagedNotes: { [key: string]: number | 'absent' | 'non-evalue' } = {};
+
+        for (const competenceId in studentNote.notes) {
+            // Simuler 3 notes pour chaque compétence sur l'année
+            const note1 = Math.random() > 0.1 ? Math.floor(40 + Math.random() * 61) : 'absent';
+            const note2 = Math.random() > 0.1 ? Math.floor(40 + Math.random() * 61) : 'absent';
+            const note3 = Math.random() > 0.1 ? Math.floor(40 + Math.random() * 61) : 'absent';
+
+            const trimesterNotes: (number | 'absent' | 'non-evalue')[] = [note1, note2, note3];
+            const selectedNote = trimesterNotes[trimestre -1]; // Choisir la note simulée pour le trimestre
+            
+            // Pour la démo, on ne calcule pas de moyenne mais on prend une note "trimestrielle" simulée
+            // Dans un cas réel, on aurait une liste de notes par date, on filtrerait par trimestre et on ferait la moyenne
+            if(typeof selectedNote === 'number') {
+                averagedNotes[competenceId] = selectedNote;
+            } else {
+                averagedNotes[competenceId] = 'non-evalue'; // ou 'absent'
+            }
+        }
+
+        return {
+            ...studentNote,
+            notes: averagedNotes,
+        };
+    });
+}; 

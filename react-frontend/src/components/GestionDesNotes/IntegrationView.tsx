@@ -1,10 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import autoTable, { Table } from 'jspdf-autotable';
 import JSZip from 'jszip';
-import NotesTable from './NotesTable';
-import type { NoteColumn } from './NotesTable';
+import NotesTable, { NoteColumn } from './NotesTable';
 import StudentIntegrationCards from './StudentIntegrationCards';
 import Toolbar from '../ui/Toolbar';
 import { useFilters } from '../../contexts/FilterContext';
@@ -19,9 +18,7 @@ import schoolLogo from '../../assets/logo-yka-1.png';
 import { useUser } from '../../layouts/DashboardLayout';
 
 interface jsPDFWithAutoTable extends jsPDF {
-    lastAutoTable?: {
-        finalY?: number;
-    };
+    lastAutoTable?: Table;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -64,7 +61,7 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
     // Class Subtitle
     doc.setFontSize(12);
     doc.setFont("times", 'normal');
-    doc.text(`Classe: ${classe}`, doc.internal.pageSize.getWidth() / 2, 62, { align: 'center' });
+    doc.text(`Classe: ${classe.toUpperCase()}`, doc.internal.pageSize.getWidth() / 2, 62, { align: 'center' });
 
     // Header Line
     doc.setDrawColor(0);
@@ -142,9 +139,10 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                 setActiveSubjectId(firstDomain.subjects[0].id);
             }
         }
+        setCurrentPage(1);
     }, [currentClasse, students, role, user]);
     
-    const handleNoteUpdate = (studentId: string, competenceId: string, newValue: number | 'absent' | 'non-evalue') => {
+    const handleNoteUpdate = (studentId: string, competenceId: string, newValue: number) => {
         setNotes(currentNotes =>
             currentNotes.map(note => {
                 if (note.studentId === studentId) {
@@ -244,9 +242,10 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
         }
 
         try {
-            const doc = new jsPDF() as jsPDFWithAutoTable;
+            const doc = new jsPDF({ orientation: 'landscape' }) as jsPDFWithAutoTable;
             const title = `Rapport d'évaluation - ${activeSubject.name} (${currentMonth})`;
             const startY = addPdfHeader(doc, currentClasse, title);
+            const baseStyles = getPdfTableStyles(doc);
             
             const tableColumns = ["Nom", "Prénom", ...activeSubject.competences.map(c => c.label)];
             const tableRows = filteredNotes.map(note => [
@@ -256,52 +255,46 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                     const noteValue = note.notes[c.id];
                     if (typeof noteValue === 'number') return `${noteValue}%`;
                     if (noteValue === 'absent') return 'Absent';
-                    if (noteValue === 'non-evalue') return '-';
                     return '-';
                 })
             ]);
 
             autoTable(doc, {
-                ...getPdfTableStyles(doc),
+                ...baseStyles,
                 head: [tableColumns],
                 body: tableRows,
                 startY: startY,
-                margin: { left: 25, right: 25 }
+                styles: { ...baseStyles.styles, fontSize: 8, cellPadding: 2 },
+                columnStyles: {
+                    0: { cellWidth: 30 }, // Nom
+                    1: { cellWidth: 30 }, // Prénom
+                }
             });
 
             doc.save(`Notes_Integration_${currentClasse}_${currentMonth}_${activeSubject.name}.pdf`);
         } catch (error) {
             console.error("Erreur lors de la génération du PDF :", error);
-            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
         }
     };
 
     const handleExportAllPdf = () => {
         try {
-            const doc = new jsPDF() as jsPDFWithAutoTable;
-            
-            const title = `Rapport d'évaluation d'Intégration Complet (${currentMonth})`;
+            const doc = new jsPDF({ orientation: 'landscape' }) as jsPDFWithAutoTable;
+            const title = `Rapport Complet d'Évaluation d'Intégration (${currentMonth})`;
             let startY = addPdfHeader(doc, currentClasse, title);
+            const baseStyles = getPdfTableStyles(doc);
 
             domains.forEach(domain => {
                 startY += 5;
+                if (startY > 180) { doc.addPage(); startY = addPdfHeader(doc, currentClasse, title); }
                 doc.setFontSize(14);
                 doc.text(domain.name, 25, startY);
                 startY += 7;
 
                 domain.subjects.forEach(subject => {
                     if (subject.competences.length === 0) return;
-                    
-                    autoTable(doc, {
-                        ...getPdfTableStyles(doc),
-                        head: [[subject.name]],
-                        startY: startY,
-                        margin: { left: 25, right: 25 },
-                        theme: "plain",
-                        styles: { fontStyle: 'bold', fontSize: 11, halign: 'left' }
-                    });
-
-                    startY = (doc as jsPDFWithAutoTable).lastAutoTable?.finalY ?? startY;
+                    autoTable(doc, { head: [[subject.name]], startY: startY, theme: "plain", styles: { fontStyle: 'bold' } });
+                    startY = doc.lastAutoTable?.finalY ?? startY;
 
                     const tableColumns = ["Nom", "Prénom", ...subject.competences.map(c => c.label)];
                     const tableRows = filteredNotes.map(note => [
@@ -311,32 +304,31 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                             const noteValue = note.notes[c.id];
                             if (typeof noteValue === 'number') return `${noteValue}%`;
                             if (noteValue === 'absent') return 'Absent';
-                            if (noteValue === 'non-evalue') return '-';
                             return '-';
                         })
                     ]);
-
                     autoTable(doc, {
-                        ...getPdfTableStyles(doc),
+                        ...baseStyles,
                         head: [tableColumns],
                         body: tableRows,
                         startY: startY,
-                        margin: { left: 25, right: 25 },
+                        styles: { ...baseStyles.styles, fontSize: 8, cellPadding: 2 },
+                        columnStyles: {
+                            0: { cellWidth: 30 }, // Nom
+                            1: { cellWidth: 30 }, // Prénom
+                        }
                     });
-                    
-                    startY = ((doc as jsPDFWithAutoTable).lastAutoTable?.finalY ?? startY) + 10;
-                    
-                    if (startY > 250) { 
+                    startY = (doc.lastAutoTable?.finalY ?? startY) + 10;
+                    if (startY > 180) { 
                         doc.addPage();
                         startY = addPdfHeader(doc, currentClasse, title);
                     }
                 });
             });
 
-            doc.save(`Rapport_Integration_Complet_${currentClasse}_${currentMonth}.pdf`);
+            doc.save(`Notes_Integration_Complet_${currentClasse}_${currentMonth}.pdf`);
         } catch (error) {
             console.error("Erreur lors de la génération du PDF complet :", error);
-            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
         }
     };
 
@@ -463,18 +455,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
             key: 'lastName',
             label: 'Nom',
             render: (_, item) => (
-                <div className="flex items-center">
-                    <div className="flex-shrink-0 h-8 w-8">
-                        <img
-                            className="h-8 w-8 rounded-full object-cover bg-gray-200"
-                            src={item.studentAvatar || `https://via.placeholder.com/40x40/CBD5E0/FFFFFF?text=${item.lastName?.charAt(0) || 'P'}`}
-                            alt={`${item.firstName} ${item.lastName}`}
-                        />
-                    </div>
-                    <div className="ml-3">
                         <div className="text-sm font-medium text-gray-900">{item.lastName}</div>
-                    </div>
-                </div>
             )
         };
         
@@ -488,6 +469,9 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
             key: c.id,
             label: c.label,
             render: (value) => {
+                if (value === null || value === undefined || (typeof value !== 'number' && value !== 'absent' && value !== 'non-evalue')) {
+                    return <span className="text-gray-400">-</span>;
+                }
                 const status = getGradingStatus(value);
                 return <span className={`font-semibold ${status.color}`}>{status.text}{typeof value === 'number' ? '%' : ''}</span>;
             }
@@ -509,7 +493,6 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
         id: note.studentId,
         firstName: note.firstName,
         lastName: note.lastName,
-        studentAvatar: note.studentAvatar,
         ...note.notes
     })), [paginatedNotes]);
 
@@ -517,213 +500,18 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
         return domains;
     }
 
-    // === FONCTIONS D'EXPORT PDF POUR LES ÉLÈVES ===
-    
-    const handleStudentExportPdf = () => {
-        if (!activeSubject || !user) {
-            console.error("Export PDF annulé : matière ou utilisateur non disponible.");
-            return;
-        }
-
-        try {
-            const doc = new jsPDF() as jsPDFWithAutoTable;
-            const title = `Bulletin d'Intégration - ${activeSubject.name} (${currentMonth})`;
-            const startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
-            
-            // Récupérer les notes de l'élève pour cette matière
-            const studentNotes = notes.length > 0 ? notes[0].notes : {};
-            
-            // Créer les données du tableau avec la même structure que les enseignants
-            const tableColumns = ["Compétence", "Note", "Statut"];
-            const tableRows = activeSubject.competences.map(competence => {
-                const note = studentNotes[competence.id];
-                let noteDisplay = '-';
-                let statut = 'Non évalué';
-                
-                if (typeof note === 'number') {
-                    noteDisplay = `${note}%`;
-                    if (note >= 75) statut = 'Excellent';
-                    else if (note >= 50) statut = 'En progrès';
-                    else statut = 'À améliorer';
-                } else if (note === 'absent') {
-                    noteDisplay = 'Absent';
-                    statut = 'Absent';
-                } else if (note === 'non-evalue') {
-                    noteDisplay = '-';
-                    statut = 'En attente';
-                }
-                
-                return [competence.label, noteDisplay, statut];
-            });
-
-            // Utiliser exactement le même style que les enseignants
-            autoTable(doc, {
-                ...getPdfTableStyles(doc),
-                head: [tableColumns],
-                body: tableRows,
-                startY: startY,
-                margin: { left: 25, right: 25 }
-            });
-
-            // Ajouter des informations supplémentaires spécifiques à l'élève
-            const finalY = doc.lastAutoTable?.finalY || startY + 50;
-            const notesNumeriques = activeSubject.competences
-                .map(c => studentNotes[c.id])
-                .filter(note => typeof note === 'number') as number[];
-            
-            if (notesNumeriques.length > 0) {
-                const moyenne = notesNumeriques.reduce((sum, note) => sum + note, 0) / notesNumeriques.length;
-                const meilleureNote = Math.max(...notesNumeriques);
-                const competencesReussies = notesNumeriques.filter(note => note >= 50).length;
-                
-                // Utiliser la même police que dans l'en-tête
-                doc.setFontSize(12);
-                doc.setFont("times", "bold");
-                doc.text("Résumé des performances", 25, finalY + 20);
-                
-                doc.setFont("times", "normal");
-                doc.text(`Élève : ${user.name}`, 25, finalY + 35);
-                doc.text(`Moyenne de la matière : ${moyenne.toFixed(1)}%`, 25, finalY + 45);
-                doc.text(`Meilleure performance : ${meilleureNote}%`, 25, finalY + 55);
-                doc.text(`Compétences maîtrisées : ${competencesReussies}/${activeSubject.competences.length}`, 25, finalY + 65);
-            }
-
-            doc.save(`Bulletin_Integration_${user.name.replace(/\s+/g, '_')}_${activeSubject.name.replace(/\s+/g, '_')}_${currentMonth}.pdf`);
-        } catch (error) {
-            console.error("Erreur lors de la génération du PDF :", error);
-            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
-        }
-    };
-
-    const handleStudentExportAllPdf = () => {
-        if (!user) {
-            console.error("Export PDF annulé : utilisateur non disponible.");
-            return;
-        }
-
-        try {
-            const doc = new jsPDF() as jsPDFWithAutoTable;
-            const title = `Bulletin Complet d'Intégration - ${user.name} (${currentMonth})`;
-            let startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
-            
-            const studentNotes = notes.length > 0 ? notes[0].notes : {};
-            
-            domains.forEach(domain => {
-                // Utiliser le même style que les enseignants pour les titres de domaine
-                startY += 5;
-                doc.setFontSize(14);
-                doc.setFont("times", "bold");
-                doc.text(domain.name, 25, startY);
-                startY += 7;
-
-                domain.subjects.forEach(subject => {
-                    if (subject.competences.length === 0) return;
-                    
-                    // Titre de la matière comme les enseignants
-                    autoTable(doc, {
-                        ...getPdfTableStyles(doc),
-                        head: [[subject.name]],
-                        startY: startY,
-                        margin: { left: 25, right: 25 },
-                        theme: "plain",
-                        styles: { fontStyle: 'bold', fontSize: 11, halign: 'left' }
-                    });
-
-                    startY = doc.lastAutoTable?.finalY || startY;
-                    
-                    // Données des compétences pour cette matière
-                    const tableColumns = ["Compétence", "Note", "Statut"];
-                    const tableRows = subject.competences.map(competence => {
-                        const note = studentNotes[competence.id];
-                        let noteDisplay = '-';
-                        let statut = 'Non évalué';
-                        
-                        if (typeof note === 'number') {
-                            noteDisplay = `${note}%`;
-                            if (note >= 75) statut = 'Excellent';
-                            else if (note >= 50) statut = 'En progrès';
-                            else statut = 'À améliorer';
-                        } else if (note === 'absent') {
-                            noteDisplay = 'Absent';
-                            statut = 'Absent';
-                        } else if (note === 'non-evalue') {
-                            noteDisplay = '-';
-                            statut = 'En attente';
-                        }
-                        
-                        return [competence.label, noteDisplay, statut];
-                    });
-
-                    // Utiliser exactement le même style que les enseignants
-                    autoTable(doc, {
-                        ...getPdfTableStyles(doc),
-                        head: [tableColumns],
-                        body: tableRows,
-                        startY: startY,
-                        margin: { left: 25, right: 25 }
-                    });
-                    
-                    startY = (doc.lastAutoTable?.finalY || startY) + 10;
-                    
-                    // Même logique de pagination que les enseignants
-                    if (startY > 250) {
-                        doc.addPage();
-                        startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
-                    }
-                });
-            });
-
-            // Page de résumé final
-            doc.addPage();
-            const summaryStartY = addPdfHeader(doc, user.classLabel || 'Non définie', `Résumé Général - ${user.name}`);
-            
-            const totalNotesNumeriques = Object.values(studentNotes)
-                .filter(note => typeof note === 'number') as number[];
-            
-            if (totalNotesNumeriques.length > 0) {
-                const moyenneGenerale = totalNotesNumeriques.reduce((sum, note) => sum + note, 0) / totalNotesNumeriques.length;
-                const meilleureNote = Math.max(...totalNotesNumeriques);
-                const plusBasseNote = Math.min(...totalNotesNumeriques);
-                const competencesReussies = totalNotesNumeriques.filter(note => note >= 50).length;
-                
-                doc.setFontSize(12);
-                doc.setFont("times", "bold");
-                doc.text("Statistiques Générales", 25, summaryStartY + 20);
-                
-                doc.setFont("times", "normal");
-                doc.text(`Moyenne générale d'intégration : ${moyenneGenerale.toFixed(1)}%`, 25, summaryStartY + 35);
-                doc.text(`Meilleure performance : ${meilleureNote}%`, 25, summaryStartY + 45);
-                doc.text(`Performance la plus faible : ${plusBasseNote}%`, 25, summaryStartY + 55);
-                doc.text(`Total des compétences évaluées : ${totalNotesNumeriques.length}`, 25, summaryStartY + 65);
-                doc.text(`Compétences maîtrisées : ${competencesReussies}`, 25, summaryStartY + 75);
-            }
-
-            doc.save(`Bulletin_Integration_Complet_${user.name.replace(/\s+/g, '_')}_${currentMonth}.pdf`);
-        } catch (error) {
-            console.error("Erreur lors de la génération du PDF complet :", error);
-            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
-        }
-    };
+    if (role === 'eleve' && user) {
+        return <StudentIntegrationCards studentId={user.id} />;
+    }
 
     return (
-        <div className="bg-white rounded-lg shadow-sm">
+        <div className="bg-white rounded-lg shadow-sm mt-6">
             <div className="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 {domains.map(domain => (
                 <button
                         key={domain.id}
-                        onClick={() => {
-                            setActiveDomainId(domain.id);
-                            // Sélectionner automatiquement la première matière du domaine
-                            if (domain.subjects.length > 0) {
-                                setActiveSubjectId(domain.subjects[0].id);
-                            }
-                            setCurrentPage(1);
-                        }}
-                        className={`px-4 py-3 text-sm font-medium focus:outline-none transition-colors duration-150 ${
-                            activeDomainId === domain.id
-                                ? 'border-orange-500 text-orange-600 border-b-2'
-                                : 'text-gray-500 hover:text-orange-500 border-b-2 border-transparent'
-                        }`}
+                        onClick={() => setActiveDomainId(domain.id)}
+                        className={`px-4 py-3 text-sm font-medium focus:outline-none transition-colors duration-150 ${activeDomainId === domain.id ? 'border-orange-500 text-orange-600 border-b-2' : 'text-gray-500 hover:text-orange-500 border-b-2 border-transparent'}`}
                     >
                         {domain.name.toUpperCase()}
                 </button>
@@ -731,39 +519,25 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
             </div>
             <div className="p-4 md:p-6">
             <Toolbar
-                {...(role === 'enseignant' ? {
-                    searchTerm: searchTerm,
-                    onSearchChange: setSearchTerm,
-                    searchPlaceholder: 'Rechercher par nom...',
-                    showPagination: true,
-                    currentPage: currentPage,
-                    totalItems: filteredNotes.length,
-                    itemsPerPage: ITEMS_PER_PAGE,
-                    onPageChange: setCurrentPage
-                } : {
-                    searchTerm: '',
-                    onSearchChange: () => {},
-                    showPagination: false
-                })}
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    searchPlaceholder="Rechercher par nom..."
+                    showPagination={true}
+                    currentPage={currentPage}
+                    totalItems={filteredNotes.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    onPageChange={setCurrentPage}
                 centerSlot={
-                    <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap gap-2 items-center">
                         {subjectsForActiveDomain.map(subject => (
-                            <button
-                                key={subject.id}
-                                onClick={() => setActiveSubjectId(subject.id)}
-                                className={`px-4 py-1.5 text-sm rounded-full font-medium focus:outline-none transition-colors ${
-                                    activeSubjectId === subject.id
-                                        ? 'bg-sky-700 text-white shadow-md'
-                                        : 'bg-gray-100 text-gray-700 border hover:bg-gray-200'
-                                }`}
-                            >
+                                <button key={subject.id} onClick={() => setActiveSubjectId(subject.id)}
+                                    className={`px-4 py-1.5 text-sm rounded-full font-medium focus:outline-none transition-colors ${activeSubjectId === subject.id ? 'bg-sky-700 text-white shadow-md' : 'bg-gray-100 text-gray-700 border hover:bg-gray-200'}`}>
                                 {subject.name}
                             </button>
                         ))}
                     </div>
                 }
                 rightActions={
-                    role === 'enseignant' ? (
                         <Menu as="div" className="relative">
                             <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 <MoreHorizontal className="w-5 h-5" />
@@ -819,53 +593,15 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                                 </div>
                             </MenuItems>
                         </Menu>
-                    ) : role === 'eleve' ? (
-                        <Menu as="div" className="relative">
-                            <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
-                                <ArrowDownToLine className="w-5 h-5" />
-                            </MenuButton>
-                            <MenuItems anchor="bottom end" className="w-64 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                                <div className="px-1 py-1">
-                                    <MenuItem>
-                                        {({ active }) => (
-                                            <button onClick={handleStudentExportPdf} className={`${active ? 'bg-slate-50' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <FileText className="w-5 h-5 mr-2 text-slate-600" /> Mon Bulletin d'Intégration
-                                            </button>
-                                        )}
-                                    </MenuItem>
-                                    <MenuItem>
-                                        {({ active }) => (
-                                            <button onClick={handleStudentExportAllPdf} className={`${active ? 'bg-slate-50' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <FileText className="w-5 h-5 mr-2 text-slate-600" /> Bulletin Complet d'Intégration
-                                            </button>
-                                        )}
-                                    </MenuItem>
-                                </div>
-                            </MenuItems>
-                        </Menu>
-                    ) : null
-                }
-            />
-            
-            {/* Affichage conditionnel : cartes pour les élèves, tableau pour les enseignants */}
-            {role === 'eleve' && activeSubject && notes.length > 0 ? (
-                <StudentIntegrationCards
-                    competences={activeSubject.competences}
-                    notes={notes[0]?.notes || {}}
-                    subjectName={activeSubject.name}
-                    monthName={currentMonth}
+                    }
                 />
-            ) : role === 'enseignant' ? (
+                
                 <NotesTable 
+                    noteColumns={noteColumns}
                     data={notesTableData} 
-                    noteColumns={noteColumns} 
-                    onNoteUpdate={handleNoteUpdate}
+                    onUpdateNote={handleNoteUpdate}
+                    isEditable={true}
                 />
-            ) : (
-                <div className="text-center py-8">
-                    <p className="text-gray-500">Aucune donnée disponible pour cette sélection.</p>
-                </div>
-            )}
             </div>
         </div>
     );

@@ -1,7 +1,7 @@
-import { Bell, Menu, X, User as UserIcon, LogOut } from "lucide-react";
+import { Bell, Menu, X, User as UserIcon, LogOut, Calendar } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useEvents } from "../events/EventContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { User } from "../../layouts/DashboardLayout";
 import Navbar from "./Navbar";
 import { Role } from "../../config/navigation";
@@ -39,7 +39,6 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
   const { t } = useTranslation();
   const { events } = useEvents();
   const { logout } = useAuth();
-  const navigate = useNavigate();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -84,7 +83,7 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
   }, [isSidebarOpen]);
 
   return (
-    <header className="bg-white p-3 flex justify-between items-center border-b relative">
+    <header className="bg-white p-3 flex justify-between items-center border-b relative shadow-sm">
       {/* Section Gauche: Hamburger (mobile/tablette) ou Logo (PC) */}
       <div className="flex items-center gap-3">
         {/* Bouton Hamburger pour mobile et tablette, disparaît sur PC */}
@@ -115,9 +114,16 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
         <Navbar role={role} />
       </div>
 
-      {/* Section Droite: Notifications, Profil Utilisateur */}
+      {/* Section Droite: Notifications, Emploi du temps, Profil Utilisateur */}
       <div className="flex items-center gap-4">
         <LanguageSwitcher />
+        <Link 
+          to="/emploi-du-temps" 
+          className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+          title={t('schedule')}
+        >
+          <Calendar className="h-6 w-6 text-gray-700" />
+        </Link>
         <Link to="/messages" className="relative p-2 rounded-full hover:bg-gray-100">
           <Bell className="h-6 w-6 text-gray-700" />
           {events.length > 0 && (

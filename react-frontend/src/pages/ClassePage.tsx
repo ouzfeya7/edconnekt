@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import StudentList from '../components/classe/StudentLists';
 import StudentProfileSection from '../components/eleve/StudentProfileSection';
 import ClassHeader from '../components/classe/ClassHeader';
@@ -15,7 +15,7 @@ import { useFilters } from '../contexts/FilterContext'; // Importer useFilters
 const ClassePage = () => {
   const { t, i18n } = useTranslation();
   const { events } = useEvents();
-  const { studentCount } = useStudents();
+  const { students, studentCount } = useStudents();
   const { 
     currentClasse, 
     setCurrentClasse, 
@@ -27,6 +27,16 @@ const ClassePage = () => {
   dayjs.locale(i18n.language);
 
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+
+  // Effet pour synchroniser le profil de l'élève avec les mises à jour du contexte
+  useEffect(() => {
+    if (selectedStudent) {
+      const updatedStudent = students.find(s => s.id === selectedStudent.id);
+      if (updatedStudent && updatedStudent !== selectedStudent) {
+        setSelectedStudent(updatedStudent);
+      }
+    }
+  }, [students, selectedStudent]);
 
   const mockData = {
     className: "4ème B",

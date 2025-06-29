@@ -31,7 +31,7 @@ import MesCours from "./pages/enseignants/MesCoursPage";
 import PdiSeancePage from "./pages/PdiSeancePage";
 import PdiDetailPage from "./pages/PdiDetailPage";
 import RessourceDetailPage from "./pages/RessourceDetailPage";
-import AddResourcePage from "./pages/AddResourcePage";
+
 import ArchivesPage from "./pages/ArchivesPage";
 import { JSX } from "react/jsx-runtime";
 import { ResourceProvider } from "./contexts/ResourceContext";
@@ -44,6 +44,7 @@ import RemediationDetailPage from './pages/RemediationDetailPage';
 import DevoirsPage from './pages/eleves/DevoirsPage';
 import EleveDevoirDetailPage from './pages/eleves/DevoirDetailPage';
 import CreateEventPage from './pages/CreateEventPage';
+import EmploiDuTemps from './pages/EmploiDuTemps';
 
 // Définition des types de rôles pour la clarté
 type Role =
@@ -67,8 +68,8 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/agenda/edit/:eventId", element: <CreateEventPage /> },
     { path: "/messages", element: <MessageEnseignant /> },
     { path: "/ressources", element: <Ressource /> },
-    { path: "/ressources/ajouter", element: <AddResourcePage /> },
     { path: "/ressources/archives", element: <ArchivesPage /> },
+    { path: "/emploi-du-temps", element: <EmploiDuTemps /> },
     { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
     { path: "/pdi", element: <PdiSeancePage /> },
     { path: "/pdi/:facilitatorId", element: <PdiDetailPage /> },
@@ -98,6 +99,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/devoirs/:devoirId", element: <EleveDevoirDetailPage /> },
     { path: "/calendar", element: <Agenda /> },
     { path: "/agenda", element: <Agenda /> },
+    { path: "/emploi-du-temps", element: <EmploiDuTemps /> },
     { path: "/agenda/create", element: <CreateEventPage /> },
     { path: "/agenda/edit/:eventId", element: <CreateEventPage /> },
     { path: "/messages", element: <MessageEleve /> },

@@ -82,7 +82,7 @@ const DevoirListCard: React.FC<{ assignment: StudentAssignment }> = ({ assignmen
   return (
     <Link 
       to={`/devoirs/${assignment.id}`} 
-      className="bg-white rounded-lg border border-slate-200 p-4 hover:border-slate-300 flex items-center gap-4"
+      className="bg-white rounded-lg border border-rose-200/50 p-4 hover:border-rose-300/70 hover:shadow-md transition-all duration-200 flex items-center gap-4 shadow-sm"
     >
       {/* Icône de matière */}
       <div className="flex-shrink-0">
@@ -157,7 +157,7 @@ const EnhancedDevoirCard: React.FC<{ assignment: StudentAssignment }> = ({ assig
   return (
     <Link 
       to={`/devoirs/${assignment.id}`} 
-      className="bg-white rounded-lg border border-slate-200 hover:border-slate-300 flex flex-col"
+      className="bg-white rounded-lg border border-rose-200/50 hover:border-rose-300/70 hover:shadow-md transition-all duration-200 flex flex-col shadow-sm"
     >
       {/* En-tête avec icône */}
       <div className="p-4 border-b border-slate-100">
@@ -230,28 +230,37 @@ const DevoirsPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen p-4 md:p-6">
-      <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes devoirs</h1>
-      <div className="flex items-center text-sm text-gray-500 mb-6">
-        <span>Classe Cours Préparatoire 1</span>
+    <div className="bg-white min-h-screen p-4 md:p-6">
+      {/* En-tête avec design moderne */}
+      <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-rose-50 to-pink-50 shadow-sm border border-rose-200/50 p-6">
+        {/* Motifs décoratifs */}
+        <div className="absolute top-0 right-0 w-28 h-28 bg-rose-500/8 rounded-full -translate-y-14 translate-x-14"></div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-pink-500/6 rounded-full translate-y-10 -translate-x-10"></div>
+        
+        <div className="relative">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes devoirs</h1>
+          <div className="flex items-center text-sm text-rose-600 font-medium">
+            <span>Classe Cours Préparatoire 1</span>
+          </div>
+        </div>
       </div>
 
       {/* Statistiques compactes en ligne */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
-          <BookOpen className="w-4 h-4 text-gray-600" />
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-rose-200/50 shadow-sm">
+          <BookOpen className="w-4 h-4 text-rose-600" />
           <span className="text-sm font-medium text-gray-800">{stats.total} devoirs</span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-amber-200/50 shadow-sm">
           <Clock className="w-4 h-4 text-amber-600" />
           <span className="text-sm font-medium text-amber-800">{stats.pending} en attente</span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-green-200/50 shadow-sm">
           <CheckCircle className="w-4 h-4 text-green-600" />
           <span className="text-sm font-medium text-green-800">{stats.completed} terminés</span>
         </div>
         {stats.overdue > 0 && (
-          <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+          <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-red-200/50 shadow-sm">
             <Clock className="w-4 h-4 text-red-600" />
             <span className="text-sm font-medium text-red-800">{stats.overdue} en retard</span>
           </div>
@@ -268,7 +277,7 @@ const DevoirsPage: React.FC = () => {
             placeholder="Rechercher un devoir, matière ou description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-transparent bg-white"
+            className="w-full pl-10 pr-4 py-2 border border-rose-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-300 bg-white shadow-sm"
           />
         </div>
         
@@ -285,15 +294,15 @@ const DevoirsPage: React.FC = () => {
               onClick={() => setSelectedStatus(option.key)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 whitespace-nowrap ${
                 selectedStatus === option.key
-                  ? 'bg-white text-gray-700 shadow-md border-2 border-orange-500'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                  ? 'bg-white text-gray-700 shadow-md border-2 border-rose-500'
+                  : 'bg-white text-gray-700 hover:bg-rose-50 border border-rose-200/50'
               }`}
             >
-              <Filter className={`w-3 h-3 ${selectedStatus === option.key ? 'text-orange-500' : 'text-gray-500'}`} />
+              <Filter className={`w-3 h-3 ${selectedStatus === option.key ? 'text-rose-500' : 'text-gray-500'}`} />
               {option.label}
               <span className={`px-2 py-0.5 rounded-full text-xs ${
                 selectedStatus === option.key 
-                  ? 'bg-orange-100 text-orange-700' 
+                  ? 'bg-rose-100 text-rose-700' 
                   : 'bg-gray-100 text-gray-600'
               }`}>
                 {option.count}
@@ -308,8 +317,8 @@ const DevoirsPage: React.FC = () => {
             onClick={() => setViewMode('grid')}
             className={`p-2 rounded-l-lg transition-colors ${
               viewMode === 'grid'
-                ? 'bg-white text-orange-500 border-2 border-orange-500'
-                : 'text-gray-500 hover:bg-gray-50'
+                ? 'bg-rose-50 text-rose-600 border-2 border-rose-500'
+                : 'text-gray-500 hover:bg-rose-50'
             }`}
             title="Vue grille"
           >
@@ -319,8 +328,8 @@ const DevoirsPage: React.FC = () => {
             onClick={() => setViewMode('list')}
             className={`p-2 rounded-r-lg transition-colors ${
               viewMode === 'list'
-                ? 'bg-white text-orange-500 border-2 border-orange-500'
-                : 'text-gray-500 hover:bg-gray-50'
+                ? 'bg-rose-50 text-rose-600 border-2 border-rose-500'
+                : 'text-gray-500 hover:bg-rose-50'
             }`}
             title="Vue liste"
           >
@@ -329,11 +338,17 @@ const DevoirsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Liste des devoirs */}
-      {filteredAssignments.length === 0 ? (
+              {/* Liste des devoirs */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-rose-50/30 to-pink-50/20 rounded-xl p-6 border border-rose-200/30">
+        {/* Motifs décoratifs subtils */}
+        <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 rounded-full -translate-y-12 translate-x-12"></div>
+        <div className="absolute bottom-0 left-0 w-16 h-16 bg-pink-500/4 rounded-full translate-y-8 -translate-x-8"></div>
+        
+        <div className="relative">
+          {filteredAssignments.length === 0 ? (
         <div className="text-center py-12">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <BookOpen className="w-8 h-8 text-gray-400" />
+          <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <BookOpen className="w-8 h-8 text-rose-400" />
           </div>
           <h3 className="text-lg font-medium text-gray-800 mb-2">Aucun devoir trouvé</h3>
           <p className="text-gray-600">
@@ -357,9 +372,11 @@ const DevoirsPage: React.FC = () => {
                 <DevoirListCard key={assignment.id} assignment={assignment} />
               ))}
             </div>
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
+        </div>
+      </div>
     </div>
   );
 };

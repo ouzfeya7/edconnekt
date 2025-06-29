@@ -4,15 +4,25 @@ import { studentNotesByClass } from '../lib/notes-data'; // Importer les donnée
 
 export type StudentStatus = 'Présent' | 'Retard' | 'Absent';
 
-// L'interface Student pour le contexte (structure simple)
+// Interface Student complète pour le contexte
 export interface Student {
   id: string;
   firstName: string;
   lastName: string;
-  avatar: string;
+  avatar: string; // Gardé pour la liste
+  imageUrl: string; // Pour le profil détaillé
   classId: string;
   status: StudentStatus;
   comment: string;
+  // --- Informations détaillées pour le profil ---
+  ref: string;
+  gender: 'Masculin' | 'Féminin';
+  birthDate: string;
+  email: string;
+  address: string;
+  department: string;
+  admissionDate: string;
+  // ---
   remediation?: {
     required: boolean;
     subject: string;
@@ -26,9 +36,17 @@ const allStudents: Omit<Student, 'comment'>[] = Object.entries(studentNotesByCla
     firstName: student.firstName,
     lastName: student.lastName,
     avatar: student.studentAvatar,
+    imageUrl: student.studentAvatar, // Utiliser le même pour l'instant
     classId: classId,
-    // Statut par défaut
     status: index % 10 === 5 ? "Retard" : index % 10 === 7 ? "Absent" : "Présent",
+    // --- Données complètes pour le profil ---
+    ref: `REF-${student.studentId.slice(0, 5)}`,
+    gender: index % 2 === 0 ? 'Féminin' : 'Masculin',
+    birthDate: '01/01/2010', // Date fictive
+    email: `${student.firstName.toLowerCase()}@school.com`,
+    address: `${index + 1} Rue de l'école, Dakar`,
+    department: 'Niveau 4',
+    admissionDate: '01/09/2022', // Date fictive
   }))
 );
 

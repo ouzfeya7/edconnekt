@@ -81,7 +81,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
         {showPagination && (
           <>
             <div className="text-sm text-gray-600 whitespace-nowrap">
-              <span>Page {pageDisplay}</span>
+              <span>Élèves {startItem}-{endItem} sur {totalItems}</span>
             </div>
             <button 
               onClick={() => handlePageChangeInternal(currentPage - 1)}

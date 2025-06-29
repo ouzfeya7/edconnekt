@@ -34,7 +34,7 @@ const StudentList: React.FC<StudentListProps> = ({ onStudentClick }) => {
     const nameMatch = fullName.includes(searchTerm.toLowerCase());
     const statusMatch = statusFilter === 'all' || student.status === statusFilter;
     return nameMatch && statusMatch;
-  });
+  }).sort((a, b) => a.lastName.localeCompare(b.lastName));
 
   // Reset to first page whenever filters change
   useEffect(() => {
@@ -87,7 +87,9 @@ const StudentList: React.FC<StudentListProps> = ({ onStudentClick }) => {
           <thead>
             <tr className="text-gray-500 text-xs uppercase tracking-wide border-b">
               <th className="py-3 px-4 text-left">#</th>
-              <th className="py-3 px-4 text-left">{t('name')}</th>
+              <th className="py-3 px-4 text-left">{t('photo', 'Photo')}</th>
+              <th className="py-3 px-4 text-left">{t('last_name', 'Nom')}</th>
+              <th className="py-3 px-4 text-left">{t('first_name', 'Prénom')}</th>
               <th className="py-3 px-4 text-left">{t('status_header')}</th>
               <th className="py-3 px-4 text-left">{t('comment_header', 'Commentaire')}</th>
             </tr>
@@ -96,27 +98,25 @@ const StudentList: React.FC<StudentListProps> = ({ onStudentClick }) => {
             {paginatedStudents.map((student, idx) => (
               <tr
                 key={student.id}
-                className={`border-b hover:bg-gray-50 transition ${
-                  idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                }`}
+                className="border-b hover:bg-gray-100 transition cursor-pointer"
+                onClick={() => onStudentClick?.(student)}
               >
                 <td className="py-3 px-4 text-gray-700">
                   {(currentPage - 1) * studentsPerPage + idx + 1}
                 </td>
-                <td 
-                  className="py-3 px-4 flex items-center gap-2 cursor-pointer hover:bg-gray-100 rounded-md transition-colors"
-                  onClick={() => onStudentClick?.(student)}
-                >
+                <td className="py-3 px-4">
                   <img
                     src={student.avatar}
-                    alt="avatar"
+                    alt={`Avatar de ${student.firstName}`}
                     className="w-8 h-8 rounded-full object-cover"
                   />
-                  <span className="font-medium text-gray-800">{student.firstName} {student.lastName}</span>
                 </td>
+                <td className="py-3 px-4 font-medium text-gray-800">{student.lastName}</td>
+                <td className="py-3 px-4 font-medium text-gray-800">{student.firstName}</td>
                 <td className="py-3 px-4">
                   <select
                     value={student.status}
+                    onClick={(e) => e.stopPropagation()}
                     onChange={(e) => updateStudentStatus(student.id, e.target.value as StudentStatus)}
                     className={`px-2 py-1 rounded-full text-xs font-semibold border-none focus:ring-2 focus:ring-offset-2 ${
                       statusStyle[student.status]
@@ -133,7 +133,13 @@ const StudentList: React.FC<StudentListProps> = ({ onStudentClick }) => {
                   <input
                     type="text"
                     value={student.comment}
+                    onClick={(e) => e.stopPropagation()}
                     onChange={(e) => updateStudentComment(student.id, e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.currentTarget.blur();
+                      }
+                    }}
                     className="w-full px-2 py-1 border border-transparent rounded-md bg-transparent hover:border-gray-300 focus:outline-none focus:ring-1 focus:ring-orange-400"
                     placeholder="Ajouter un commentaire..."
                   />

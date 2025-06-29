@@ -51,23 +51,32 @@ const MesCoursPage: React.FC = () => {
   ];
 
   return (
-    <div className="bg-gray-100 min-h-screen p-4 md:p-6">
-      <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes cours</h1>
-      <div className="flex items-center text-sm text-gray-500 mb-6">
-        <span>Classe {user?.classLabel || currentClasse}</span>
+    <div className="bg-white min-h-screen p-4 md:p-6">
+      {/* En-tête avec design moderne */}
+      <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 shadow-sm border border-orange-200/50 p-6">
+        {/* Motifs décoratifs */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/8 rounded-full -translate-y-16 translate-x-16"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-amber-500/6 rounded-full translate-y-12 -translate-x-12"></div>
+        
+        <div className="relative">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes cours</h1>
+          <div className="flex items-center text-sm text-orange-600 font-medium">
+            <span>Classe {user?.classLabel || currentClasse}</span>
+          </div>
+        </div>
       </div>
 
       {/* Statistiques compactes en ligne */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-orange-200/50 shadow-sm">
           <BookOpen className="w-4 h-4 text-orange-500" />
           <span className="text-sm font-medium text-gray-700">{stats.total} cours</span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-orange-200/50 shadow-sm">
           <Clock className="w-4 h-4 text-orange-500" />
           <span className="text-sm font-medium text-gray-700">{stats.active} en cours</span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-green-200/50 shadow-sm">
           <CheckCircle className="w-4 h-4 text-green-600" />
           <span className="text-sm font-medium text-green-800">{stats.completed} terminés</span>
         </div>
@@ -83,7 +92,7 @@ const MesCoursPage: React.FC = () => {
             placeholder="Rechercher un cours, enseignant ou thème..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-transparent bg-white"
+            className="w-full pl-10 pr-4 py-2 border border-orange-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 bg-white shadow-sm"
           />
         </div>
         
@@ -96,7 +105,7 @@ const MesCoursPage: React.FC = () => {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 whitespace-nowrap ${
                 selectedFilter === option.key
                   ? 'bg-white text-gray-700 shadow-md border-2 border-orange-500'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                  : 'bg-white text-gray-700 hover:bg-orange-50 border border-orange-200/50'
               }`}
             >
               <Filter className={`w-3 h-3 ${selectedFilter === option.key ? 'text-orange-500' : 'text-gray-500'}`} />
@@ -118,8 +127,8 @@ const MesCoursPage: React.FC = () => {
             onClick={() => setViewMode('grid')}
             className={`p-2 rounded-l-lg transition-colors ${
               viewMode === 'grid'
-                ? 'bg-white text-orange-500 border-2 border-orange-500'
-                : 'text-gray-500 hover:bg-gray-50'
+                ? 'bg-orange-50 text-orange-600 border-2 border-orange-500'
+                : 'text-gray-500 hover:bg-orange-50'
             }`}
             title="Vue grille"
           >
@@ -129,8 +138,8 @@ const MesCoursPage: React.FC = () => {
             onClick={() => setViewMode('list')}
             className={`p-2 rounded-r-lg transition-colors ${
               viewMode === 'list'
-                ? 'bg-white text-orange-500 border-2 border-orange-500'
-                : 'text-gray-500 hover:bg-gray-50'
+                ? 'bg-orange-50 text-orange-600 border-2 border-orange-500'
+                : 'text-gray-500 hover:bg-orange-50'
             }`}
             title="Vue liste"
           >
@@ -140,9 +149,15 @@ const MesCoursPage: React.FC = () => {
       </div>
 
       {/* Affichage des cours selon le mode de vue */}
-      {filteredCourses.length > 0 ? (
-        viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="relative overflow-hidden bg-gradient-to-br from-orange-50/30 to-amber-50/20 rounded-xl p-6 border border-orange-200/30">
+        {/* Motifs décoratifs subtils */}
+        <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full -translate-y-12 translate-x-12"></div>
+        <div className="absolute bottom-0 left-0 w-16 h-16 bg-amber-500/4 rounded-full translate-y-8 -translate-x-8"></div>
+        
+        <div className="relative">
+          {filteredCourses.length > 0 ? (
+            viewMode === 'grid' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredCourses.map((course) => (
               <DashboardCourseCard
                 key={course.id}
@@ -162,7 +177,7 @@ const MesCoursPage: React.FC = () => {
         ) : (
           <div className="space-y-3">
             {filteredCourses.map((course) => (
-              <div key={course.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow hover:shadow-md transition-shadow">
+              <div key={course.id} className="bg-white border border-orange-200/50 rounded-lg p-4 shadow-sm hover:shadow-md hover:border-orange-300/70 transition-all duration-200">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
                     <div className="flex-1">
@@ -218,6 +233,8 @@ const MesCoursPage: React.FC = () => {
           </p>
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 };
