@@ -266,7 +266,40 @@ export interface RemediationStudent {
   name: string;
   avatar: string;
   status: 'present' | 'absent' | 'late';
+  initialGrade?: number;
+  remediationGrade?: number;
+  competenceAcquired?: boolean;
+  parentNotified?: boolean;
 }
+
+export interface RemediationResource {
+  id: string;
+  title: string;
+  type: 'fiche_cours' | 'exercice' | 'support_audio' | 'support_video' | 'jeu_educatif';
+  url: string;
+  description?: string;
+}
+
+export interface RemediationMethod {
+  id: string;
+  name: string;
+  description: string;
+  duration: number; // en minutes
+  type: 'individuel' | 'groupe' | 'pair';
+}
+
+export interface RemediationHistory {
+  sessionId: string;
+  date: string;
+  method: RemediationMethod;
+  resources: RemediationResource[];
+  results: {
+    studentsImproved: number;
+    averageImprovement: number;
+    competencesAcquired: number;
+  };
+}
+
 export interface RemediationSession {
   id: string;
   classId: string;
@@ -279,7 +312,83 @@ export interface RemediationSession {
   status: 'completed' | 'upcoming' | 'in_progress';
   skillToAcquire: string;
   students: RemediationStudent[];
+  // Nouvelles propriétés
+  method?: RemediationMethod;
+  resources?: RemediationResource[];
+  duration: number;
+  location: string;
+  objective: string;
+  parentReport?: {
+    sent: boolean;
+    sentDate?: string;
+    content?: string;
+  };
+  history?: RemediationHistory[];
+  pdiIntegration: {
+    weeklyReportGenerated: boolean;
+    alertsGenerated: string[];
+    competenceTracking: {
+      initial: number;
+      target: number;
+      current: number;
+    };
+  };
 }
+
+export const mockRemediationMethods: RemediationMethod[] = [
+  {
+    id: 'method1',
+    name: 'Approche phonétique intensive',
+    description: 'Travail spécifique sur les sons complexes avec support visuel et auditif',
+    duration: 30,
+    type: 'groupe'
+  },
+  {
+    id: 'method2',
+    name: 'Manipulation d\'objets mathématiques',
+    description: 'Utilisation de matériel concret pour la compréhension des concepts',
+    duration: 45,
+    type: 'individuel'
+  },
+  {
+    id: 'method3',
+    name: 'Jeu de rôle pédagogique',
+    description: 'Mise en situation pour ancrer les apprentissages',
+    duration: 25,
+    type: 'pair'
+  }
+];
+
+export const mockRemediationResources: RemediationResource[] = [
+  {
+    id: 'res1',
+    title: 'Fiche sons complexes (ou, on, an)',
+    type: 'fiche_cours',
+    url: '/resources/fiche-sons-complexes.pdf',
+    description: 'Support pédagogique avec exercices progressifs'
+  },
+  {
+    id: 'res2',
+    title: 'Exercices d\'addition sans retenue',
+    type: 'exercice',
+    url: '/resources/exercices-addition.pdf',
+    description: 'Série d\'exercices adaptés au niveau CP'
+  },
+  {
+    id: 'res3',
+    title: 'Audio - Prononciation des sons',
+    type: 'support_audio',
+    url: '/resources/audio-sons.mp3',
+    description: 'Fichier audio pour la correction phonétique'
+  },
+  {
+    id: 'res4',
+    title: 'Jeu éducatif - Les maths en s\'amusant',
+    type: 'jeu_educatif',
+    url: '/resources/jeu-maths.html',
+    description: 'Jeu interactif pour la numération'
+  }
+];
 
 export const mockRemediations: RemediationSession[] = [
   {
@@ -293,12 +402,42 @@ export const mockRemediations: RemediationSession[] = [
     studentCount: 5,
     status: 'completed',
     skillToAcquire: "Identifier les sons complexes (ou, on, an).",
+    duration: 45,
+    location: 'Salle de remédiation A',
+    objective: 'Permettre aux élèves de maîtriser la lecture des sons complexes pour améliorer leur fluidité de lecture',
+    method: mockRemediationMethods[0],
+    resources: [mockRemediationResources[0], mockRemediationResources[2]],
+    parentReport: {
+      sent: true,
+      sentDate: dayjs().subtract(4, 'day').toISOString(),
+      content: 'Votre enfant a participé à une session de remédiation en lecture. Des progrès notables ont été observés.'
+    },
+    pdiIntegration: {
+      weeklyReportGenerated: true,
+      alertsGenerated: ['Amélioration significative constatée', 'Suivi à maintenir'],
+      competenceTracking: {
+        initial: 45,
+        target: 75,
+        current: 68
+      }
+    },
+    history: [{
+      sessionId: 'rem1-prev',
+      date: dayjs().subtract(15, 'day').toISOString(),
+      method: mockRemediationMethods[0],
+      resources: [mockRemediationResources[0]],
+      results: {
+        studentsImproved: 3,
+        averageImprovement: 15,
+        competencesAcquired: 2
+      }
+    }],
     students: [
-      { id: '1', name: 'Aminata Sow', avatar: 'https://i.pravatar.cc/150?img=1', status: 'present' },
-      { id: '2', name: 'Babacar Diop', avatar: 'https://i.pravatar.cc/150?img=2', status: 'present' },
-      { id: '3', name: 'Coumba Ndiaye', avatar: 'https://i.pravatar.cc/150?img=3', status: 'absent' },
-      { id: '4', name: 'Daouda Faye', avatar: 'https://i.pravatar.cc/150?img=4', status: 'present' },
-      { id: '5', name: 'Fatou Gueye', avatar: 'https://i.pravatar.cc/150?img=5', status: 'late' },
+      { id: '1', name: 'Aminata Sow', avatar: 'https://i.pravatar.cc/150?img=1', status: 'present', initialGrade: 45, remediationGrade: 72, competenceAcquired: true, parentNotified: true },
+      { id: '2', name: 'Babacar Diop', avatar: 'https://i.pravatar.cc/150?img=2', status: 'present', initialGrade: 38, remediationGrade: 65, competenceAcquired: true, parentNotified: true },
+      { id: '3', name: 'Coumba Ndiaye', avatar: 'https://i.pravatar.cc/150?img=3', status: 'absent', initialGrade: 42, remediationGrade: undefined, competenceAcquired: false, parentNotified: false },
+      { id: '4', name: 'Daouda Faye', avatar: 'https://i.pravatar.cc/150?img=4', status: 'present', initialGrade: 35, remediationGrade: 58, competenceAcquired: false, parentNotified: true },
+      { id: '5', name: 'Fatou Gueye', avatar: 'https://i.pravatar.cc/150?img=5', status: 'late', initialGrade: 40, remediationGrade: 70, competenceAcquired: true, parentNotified: true },
     ]
   },
   {
@@ -312,10 +451,73 @@ export const mockRemediations: RemediationSession[] = [
     studentCount: 3,
     status: 'upcoming',
     skillToAcquire: "Additionner des nombres à deux chiffres sans retenue.",
+    duration: 45,
+    location: 'Salle de mathématiques',
+    objective: 'Consolider les bases de l\'addition pour les élèves en difficulté',
+    method: mockRemediationMethods[1],
+    resources: [mockRemediationResources[1], mockRemediationResources[3]],
+    parentReport: {
+      sent: false
+    },
+    pdiIntegration: {
+      weeklyReportGenerated: false,
+      alertsGenerated: ['Session planifiée', 'Matériel préparé'],
+      competenceTracking: {
+        initial: 35,
+        target: 70,
+        current: 35
+      }
+    },
     students: [
-      { id: '6', name: 'Ibrahima Fall', avatar: 'https://i.pravatar.cc/150?img=6', status: 'present' },
-      { id: '7', name: 'Khady Cisse', avatar: 'https://i.pravatar.cc/150?img=7', status: 'present' },
-      { id: '8', name: 'Lamine Thiam', avatar: 'https://i.pravatar.cc/150?img=8', status: 'present' },
+      { id: '6', name: 'Ibrahima Fall', avatar: 'https://i.pravatar.cc/150?img=6', status: 'present', initialGrade: 35, parentNotified: false },
+      { id: '7', name: 'Khady Cisse', avatar: 'https://i.pravatar.cc/150?img=7', status: 'present', initialGrade: 32, parentNotified: false },
+      { id: '8', name: 'Lamine Thiam', avatar: 'https://i.pravatar.cc/150?img=8', status: 'present', initialGrade: 38, parentNotified: false },
+    ]
+  },
+  {
+    id: 'rem2b',
+    classId: 'cp1',
+    title: 'Atelier d\'écriture créative',
+    subject: 'Français',
+    theme: 'Production écrite',
+    date: dayjs().toISOString(),
+    teacher: 'Mme Sagna',
+    studentCount: 4,
+    status: 'in_progress',
+    skillToAcquire: "Rédiger une phrase simple en respectant l'ordre des mots.",
+    duration: 40,
+    location: 'Salle de remédiation B',
+    objective: 'Améliorer la construction de phrases et l\'expression écrite des élèves en difficulté',
+    method: mockRemediationMethods[2],
+    resources: [mockRemediationResources[0]],
+    parentReport: {
+      sent: false
+    },
+    pdiIntegration: {
+      weeklyReportGenerated: false,
+      alertsGenerated: ['Session en cours', 'Élèves concentrés', 'Progression notée'],
+      competenceTracking: {
+        initial: 40,
+        target: 70,
+        current: 52
+      }
+    },
+    history: [{
+      sessionId: 'rem2b-prev',
+      date: dayjs().subtract(7, 'day').toISOString(),
+      method: mockRemediationMethods[2],
+      resources: [mockRemediationResources[0]],
+      results: {
+        studentsImproved: 2,
+        averageImprovement: 8,
+        competencesAcquired: 1
+      }
+    }],
+    students: [
+      { id: '13', name: 'Aïda Ndiaye', avatar: 'https://i.pravatar.cc/150?img=13', status: 'present', initialGrade: 38, remediationGrade: undefined, competenceAcquired: false, parentNotified: false },
+      { id: '14', name: 'Moussa Sarr', avatar: 'https://i.pravatar.cc/150?img=14', status: 'present', initialGrade: 42, remediationGrade: undefined, competenceAcquired: false, parentNotified: false },
+      { id: '15', name: 'Binta Kane', avatar: 'https://i.pravatar.cc/150?img=15', status: 'present', initialGrade: 35, remediationGrade: undefined, competenceAcquired: false, parentNotified: false },
+      { id: '16', name: 'Omar Diagne', avatar: 'https://i.pravatar.cc/150?img=16', status: 'late', initialGrade: 45, remediationGrade: undefined, competenceAcquired: false, parentNotified: false },
     ]
   },
   {
@@ -329,11 +531,28 @@ export const mockRemediations: RemediationSession[] = [
     studentCount: 4,
     status: 'in_progress',
     skillToAcquire: "Conjuguer les verbes du 1er groupe au présent de l'indicatif.",
+    duration: 40,
+    location: 'Salle B',
+    objective: 'Maîtriser la conjugaison des verbes du premier groupe',
+    method: mockRemediationMethods[2],
+    resources: [],
+    parentReport: {
+      sent: false
+    },
+    pdiIntegration: {
+      weeklyReportGenerated: false,
+      alertsGenerated: ['Session en cours'],
+      competenceTracking: {
+        initial: 40,
+        target: 75,
+        current: 55
+      }
+    },
     students: [
-      { id: '9', name: 'Mamadou Ba', avatar: 'https://i.pravatar.cc/150?img=9', status: 'present' },
-      { id: '10', name: 'Ndeye Seck', avatar: 'https://i.pravatar.cc/150?img=10', status: 'present' },
-      { id: '11', name: 'Ousmane Camara', avatar: 'https://i.pravatar.cc/150?img=11', status: 'present' },
-      { id: '12', name: 'Penda Diallo', avatar: 'https://i.pravatar.cc/150?img=12', status: 'absent' },
+      { id: '9', name: 'Mamadou Ba', avatar: 'https://i.pravatar.cc/150?img=9', status: 'present', initialGrade: 42, parentNotified: false },
+      { id: '10', name: 'Ndeye Seck', avatar: 'https://i.pravatar.cc/150?img=10', status: 'present', initialGrade: 38, parentNotified: false },
+      { id: '11', name: 'Ousmane Camara', avatar: 'https://i.pravatar.cc/150?img=11', status: 'present', initialGrade: 45, parentNotified: false },
+      { id: '12', name: 'Penda Diallo', avatar: 'https://i.pravatar.cc/150?img=12', status: 'absent', initialGrade: 35, parentNotified: false },
     ]
   },
 ];
@@ -479,7 +698,7 @@ export const mockFacilitators: Facilitator[] = [
   },
   {
     id: '2',
-    name: 'Philomène SAGNE',
+    name: 'Philomène SAGNA',
     role: 'Facilitatrice français',
     avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/63.jpg',
     classes: ['4eme B', '4eme B'],

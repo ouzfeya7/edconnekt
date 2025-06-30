@@ -20,6 +20,75 @@ const schoolInfo = {
     academicYear: "2023-2024"
 };
 
+// Créneaux horaires de 30 minutes
+const timeSlots = [
+    { time: '08:00', label: '08:00 - 08:30' },
+    { time: '08:30', label: '08:30 - 09:00' },
+    { time: '09:00', label: '09:00 - 09:30' },
+    { time: '09:30', label: '09:30 - 10:00' },
+    { time: '10:00', label: '10:00 - 10:30' },
+    { time: '10:30', label: '10:30 - 11:00' },
+    { time: '11:00', label: '11:00 - 11:30' },
+    { time: '11:30', label: '11:30 - 12:00' },
+    { time: '12:00', label: '12:00 - 12:30' },
+    { time: '12:30', label: '12:30 - 13:00' }
+];
+
+const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
+
+// Cours avec position et durée en créneaux (chaque créneau = 30 min)
+const coursesData = {
+    Lundi: [
+        { startSlot: 0, duration: 2, time: '08:00 - 09:00', title: 'Morning briefing\nMorning Assembly', color: 'bg-blue-100 border-l-blue-500' },
+        { startSlot: 2, duration: 2, time: '09:00 - 10:00', title: 'English language', color: 'bg-orange-100 border-l-orange-500' },
+        { startSlot: 4, duration: 1, time: '10:00 - 10:30', title: 'Vocabulary', color: 'bg-purple-100 border-l-purple-500' },
+        // Pause de 10:30 à 11:00 (slot 5)
+        { startSlot: 6, duration: 2, time: '11:00 - 12:00', title: 'HUM/ islamic stadice', color: 'bg-green-100 border-l-green-500' },
+        { startSlot: 8, duration: 1, time: '12:00 - 12:30', title: 'Conversation', color: 'bg-orange-100 border-l-orange-500' },
+        { startSlot: 9, duration: 1, time: '12:30 - 13:00', title: 'Wellness', color: 'bg-orange-100 border-l-orange-500' }
+    ],
+    Mardi: [
+        { startSlot: 0, duration: 2, time: '08:00 - 09:00', title: 'Morning briefing\nMorning Assembly', color: 'bg-blue-100 border-l-blue-500' },
+        { startSlot: 2, duration: 1, time: '09:00 - 09:30', title: 'EPSA Musique / éducation environnementale', color: 'bg-red-100 border-l-red-500' },
+        { startSlot: 3, duration: 1, time: '09:30 - 10:00', title: 'LC Communication orale', color: 'bg-purple-100 border-l-purple-500' },
+        { startSlot: 4, duration: 1, time: '10:00 - 10:30', title: 'LC Lecture CGP', color: 'bg-purple-100 border-l-purple-500' },
+        // Pause de 10:30 à 11:00
+        { startSlot: 6, duration: 1, time: '11:00 - 11:30', title: 'HUM/ islamic stadice', color: 'bg-green-100 border-l-green-500' },
+        { startSlot: 7, duration: 1, time: '11:30 - 12:00', title: 'Lunch / LC acquisition globale', color: 'bg-yellow-100 border-l-yellow-500' },
+        { startSlot: 8, duration: 1, time: '12:00 - 12:30', title: 'LC Production d\'écrits', color: 'bg-purple-100 border-l-purple-500' },
+        { startSlot: 9, duration: 1, time: '12:30 - 13:00', title: 'STEM Activités numériques', color: 'bg-red-100 border-l-red-500' }
+    ],
+    Mercredi: [
+        { startSlot: 0, duration: 2, time: '08:00 - 09:00', title: 'Morning briefing\nMorning Assembly', color: 'bg-blue-100 border-l-blue-500' },
+        { startSlot: 2, duration: 1, time: '09:00 - 09:30', title: 'EPSA EPS', color: 'bg-red-100 border-l-red-500' },
+        { startSlot: 3, duration: 1, time: '09:30 - 10:00', title: 'Phonics', color: 'bg-purple-100 border-l-purple-500' },
+        { startSlot: 4, duration: 1, time: '10:00 - 10:30', title: 'Grammar', color: 'bg-blue-100 border-l-blue-500' },
+        // Pause de 10:30 à 11:00
+        { startSlot: 6, duration: 2, time: '11:00 - 12:00', title: 'HUM/ islamic stadice', color: 'bg-green-100 border-l-green-500' },
+        { startSlot: 8, duration: 2, time: '12:00 - 13:00', title: 'STEM', color: 'bg-red-100 border-l-red-500' }
+    ],
+    Jeudi: [
+        { startSlot: 0, duration: 2, time: '08:00 - 09:00', title: 'Morning briefing\nMorning Assembly', color: 'bg-blue-100 border-l-blue-500' },
+        { startSlot: 2, duration: 1, time: '09:00 - 09:30', title: 'LC Lecture fluidité', color: 'bg-purple-100 border-l-purple-500' },
+        { startSlot: 3, duration: 1, time: '09:30 - 10:00', title: 'LC Communication orale', color: 'bg-purple-100 border-l-purple-500' },
+        { startSlot: 4, duration: 1, time: '10:00 - 10:30', title: 'STEM/ Activité géométrie', color: 'bg-red-100 border-l-red-500' },
+        // Pause de 10:30 à 11:00
+        { startSlot: 6, duration: 1, time: '11:00 - 11:30', title: 'HUM/ islamic stadice', color: 'bg-green-100 border-l-green-500' },
+        { startSlot: 7, duration: 1, time: '11:30 - 12:00', title: 'HUM/ Géographie', color: 'bg-yellow-100 border-l-yellow-500' },
+        { startSlot: 8, duration: 1, time: '12:00 - 12:30', title: 'LC Lecture compréhension', color: 'bg-purple-100 border-l-purple-500' },
+        { startSlot: 9, duration: 1, time: '12:30 - 13:00', title: 'STEM Activité de mesure', color: 'bg-red-100 border-l-red-500' }
+    ],
+    Vendredi: [
+        { startSlot: 0, duration: 2, time: '08:00 - 09:00', title: 'Morning briefing\nMorning Assembly', color: 'bg-blue-100 border-l-blue-500' },
+        { startSlot: 2, duration: 2, time: '09:00 - 10:00', title: 'English fluency', color: 'bg-orange-100 border-l-orange-500' },
+        { startSlot: 4, duration: 1, time: '10:00 - 10:30', title: 'Activités communautaires / arts scéniques', color: 'bg-red-100 border-l-red-500' },
+        // Pause de 10:30 à 11:00
+        { startSlot: 6, duration: 2, time: '11:00 - 12:00', title: 'HUM/ islamic stadice', color: 'bg-green-100 border-l-green-500' },
+        { startSlot: 8, duration: 1, time: '12:00 - 12:30', title: 'storytelling', color: 'bg-orange-100 border-l-orange-500' },
+        { startSlot: 9, duration: 1, time: '12:30 - 13:00', title: 'Wellness', color: 'bg-orange-100 border-l-orange-500' }
+    ]
+};
+
 const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
     // Logo
     doc.addImage(schoolLogo, 'PNG', 25, 15, 30, 30);
@@ -53,67 +122,6 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
     return 80; // Return the start Y position for the content
 };
 
-// Données d'exemple pour l'emploi du temps YKA CP2
-const scheduleData = [
-    {
-        time: "08:15 - 08:45",
-        monday: "Morning briefing\nMorning Assembly",
-        tuesday: "Morning briefing\nMorning Assembly", 
-        wednesday: "Morning briefing\nMorning Assembly",
-        thursday: "Morning briefing\nMorning Assembly",
-        friday: "Morning briefing\nMorning Assembly",
-        color: "bg-blue-100"
-    },
-    {
-        time: "08:45 - 10:00",
-        monday: "English language",
-        tuesday: "EPSA Musique / éducation environnementale",
-        wednesday: "EPSA EPS",
-        thursday: "LC Lecture fluidité",
-        friday: "English fluency",
-        color: "bg-orange-100"
-    },
-    {
-        time: "10:00 - 10:30",
-        monday: "Vocabulary",
-        tuesday: "LC Communication orale\n\nLC Lecture CGP",
-        wednesday: "Phonics\n\nGrammar",
-        thursday: "LC Communication orale\n\nSTEM/ Activité géométrie",
-        friday: "Activités communautaires / arts scéniques",
-        color: "bg-purple-100"
-    },
-    {
-        time: "10:30 - 11:00",
-        monday: "",
-        tuesday: "",
-        wednesday: "",
-        thursday: "",
-        friday: "",
-        color: "bg-gray-100",
-        isPause: true
-    },
-    {
-        time: "11:00 - 12:00",
-        monday: "HUM/ islamic stadice",
-        tuesday: "HUM/ islamic stadice",
-        wednesday: "HUM/ islamic stadice",
-        thursday: "HUM/ islamic stadice",
-        friday: "HUM/ islamic stadice",
-        color: "bg-green-100"
-    },
-    {
-        time: "12:00 - 13:00",
-        monday: "Conversation\n\nWellness",
-        tuesday: "Lunch / LC acquisition globale\n\nLC Production d'écrits\n\nSTEM Activités numériques",
-        wednesday: "STEM",
-        thursday: "HUM/ Géographie\n\nLC Lecture compréhension\n\nSTEM Activité de mesure",
-        friday: "storytelling\n\nWellness\n\nSongs / poems",
-        color: "bg-yellow-100"
-    }
-];
-
-const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
-
 const EmploiDuTemps: React.FC = () => {
     const { user } = useUser();
     const [selectedWeek] = useState("Semaine du 13 - 17 Janvier 2025");
@@ -127,20 +135,47 @@ const EmploiDuTemps: React.FC = () => {
             const title = `EMPLOI DU TEMPS YKA ${currentClasse.toUpperCase()}`;
             const startY = addPdfHeader(doc, currentClasse, title);
 
-            // Préparer les données pour le tableau PDF
+
+
+            // Créer la structure de données pour le PDF de manière simplifiée
             const tableColumns = ["Horaires", ...days];
-            const tableRows = scheduleData.map(slot => {
-                if (slot.isPause) {
-                    return [slot.time, "PAUSE", "PAUSE", "PAUSE", "PAUSE", "PAUSE"];
-                }
-                return [
-                    slot.time,
-                    slot.monday || "-",
-                    slot.tuesday || "-", 
-                    slot.wednesday || "-",
-                    slot.thursday || "-",
-                    slot.friday || "-"
-                ];
+            
+            // Créer directement les lignes du tableau avec les cours
+            const tableRows: string[][] = [];
+            
+            // Pour chaque créneau horaire
+            timeSlots.slice(0, 10).forEach((slot, slotIndex) => {
+                const row = [slot.label];
+                
+                // Pour chaque jour
+                days.forEach(day => {
+                    const dayKey = day as keyof typeof coursesData;
+                    const daySchedule = coursesData[dayKey];
+                    
+                    // Trouver le cours qui commence à ce slot
+                    const courseAtSlot = daySchedule.find(course => course.startSlot === slotIndex);
+                    
+                    if (courseAtSlot) {
+                        // Si un cours commence à ce slot, l'afficher
+                        row.push(`${courseAtSlot.title.replace('\n', ' ')} (${courseAtSlot.time})`);
+                    } else {
+                        // Vérifier si ce slot fait partie d'un cours qui a commencé avant
+                        const ongoingCourse = daySchedule.find(course => 
+                            course.startSlot < slotIndex && 
+                            course.startSlot + course.duration > slotIndex
+                        );
+                        
+                        if (ongoingCourse) {
+                            // Slot fait partie d'un cours en cours, cellule vide pour le PDF
+                            row.push('');
+                        } else {
+                            // Pas de cours à ce slot
+                            row.push('-');
+                        }
+                    }
+                });
+                
+                tableRows.push(row);
             });
 
             autoTable(doc, {
@@ -150,65 +185,32 @@ const EmploiDuTemps: React.FC = () => {
                 theme: 'grid',
                 styles: {
                     font: 'times',
-                    fontSize: 9,
+                    fontSize: 8,
                     cellPadding: 3,
                     lineColor: [0, 0, 0],
                     lineWidth: 0.1,
+                    textColor: [30, 58, 138], // #1E3A8A
                 },
                 headStyles: {
-                    fillColor: [230, 230, 230], // Gris clair
+                    fillColor: [230, 230, 230],
                     textColor: [0, 0, 0],
                     fontStyle: 'bold',
-                    fontSize: 10,
+                    fontSize: 9,
                 },
                 columnStyles: {
-                    0: { cellWidth: 25, fontStyle: 'bold', halign: 'left' }, // Horaires
-                    1: { cellWidth: 45, halign: 'center' }, // Lundi
-                    2: { cellWidth: 45, halign: 'center' }, // Mardi
-                    3: { cellWidth: 45, halign: 'center' }, // Mercredi
-                    4: { cellWidth: 45, halign: 'center' }, // Jeudi
-                    5: { cellWidth: 45, halign: 'center' }, // Vendredi
-                },
-                didDrawCell: (data) => {
-                    // Colorer et styliser la ligne PAUSE
-                    if (data.section === 'body' && data.row.index === 3) { // Index de la pause
-                        doc.setFillColor(240, 240, 240);
-                        doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
-                        
-                        // Redessiner les bordures de la cellule
-                        doc.setDrawColor(0, 0, 0);
-                        doc.setLineWidth(0.1);
-                        doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
-                        
-                        // Réécrire le texte PAUSE en gras et centré (sauf pour la colonne horaires)
-                        if (data.column.index > 0 && data.cell.text[0] === 'PAUSE') {
-                            doc.setTextColor(0, 0, 0);
-                            doc.setFont('times', 'bold');
-                            doc.text('PAUSE', data.cell.x + data.cell.width / 2, data.cell.y + data.cell.height / 2 + 2, { 
-                                align: 'center' 
-                            });
-                        }
-                        // Pour la colonne horaires, afficher l'horaire normalement
-                        else if (data.column.index === 0) {
-                            doc.setTextColor(0, 0, 0);
-                            doc.setFont('times', 'bold');
-                            doc.text(data.cell.text[0], data.cell.x + 3, data.cell.y + data.cell.height / 2 + 2);
-                        }
-                    }
-                },
-                didDrawPage: () => {
-                    // S'assurer que le texte PAUSE est visible et centré
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFont('times', 'bold');
+                    0: { cellWidth: 25, fontStyle: 'bold', halign: 'left', fillColor: [248, 250, 252] },
+                    1: { cellWidth: 45, halign: 'center' },
+                    2: { cellWidth: 45, halign: 'center' },
+                    3: { cellWidth: 45, halign: 'center' },
+                    4: { cellWidth: 45, halign: 'center' },
+                    5: { cellWidth: 45, halign: 'center' },
                 }
             });
 
-            // Ajouter une note en bas
             const finalY = (doc as jsPDFWithAutoTable).lastAutoTable?.finalY || startY + 100;
             doc.setFontSize(8);
             doc.setFont("times", 'italic');
             doc.text(`Document généré le ${currentDate}`, 25, finalY + 15);
-            doc.text("EPSA = Éducation Physique Sportive et Artistique | LC = Langues et Communication | HUM = Humanités | STEM = Sciences et Mathématiques", 25, finalY + 25);
 
             doc.save(`Emploi_du_Temps_${currentClasse}_${currentDate.replace(/\//g, '-')}.pdf`);
         } catch (error) {
@@ -218,13 +220,11 @@ const EmploiDuTemps: React.FC = () => {
 
     return (
         <div className="bg-white min-h-screen p-4 md:p-6">
-            {/* En-tête du planning avec design moderne */}
+            {/* En-tête du planning */}
             <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-blue-50 shadow-sm border border-slate-200">
-                {/* Effet de fond avec motifs décoratifs */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/8"></div>
                 <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/15 rounded-full -translate-y-32 translate-x-32"></div>
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/12 rounded-full translate-y-24 -translate-x-24"></div>
-                <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-indigo-500/8 rounded-full -translate-x-16 -translate-y-16"></div>
                 
                 <div className="relative p-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -252,209 +252,82 @@ const EmploiDuTemps: React.FC = () => {
                 </div>
             </div>
 
-            {/* Emploi du temps avec design amélioré */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-cyan-50 border border-emerald-200/50 rounded-xl shadow-sm">
-                {/* Motifs décoratifs pour la section emploi du temps */}
-                <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/6 rounded-full -translate-y-20 translate-x-20"></div>
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-cyan-500/8 rounded-full translate-y-16 -translate-x-16"></div>
-                <div className="absolute top-1/3 left-1/3 w-24 h-24 bg-teal-500/5 rounded-full"></div>
-                
-                <div className="relative p-6">
-                    <div className="bg-white/60 backdrop-blur-sm rounded-xl border border-white/40 shadow-sm overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                {/* En-tête avec dégradé moderne */}
-                                <thead>
-                                    <tr className="bg-gradient-to-r from-emerald-100 to-cyan-100 text-slate-800 border-b-2 border-slate-300">
-                                        <th className="p-4 text-left font-semibold border-r-2 border-slate-300">
-                                            Horaires
-                                        </th>
-                                        {days.map(day => (
-                                            <th key={day} className="p-4 text-center font-semibold border-r-2 border-slate-300 last:border-r-0">
-                                                {day}
-                                            </th>
-                                        ))}
-                                    </tr>
-                                </thead>
+            {/* Grille de l'emploi du temps avec style moderne */}
+            <div className="bg-white from-slate-50 to-white rounded-xl p-6 shadow-lg border border-slate-200">
+                {/* En-tête avec les jours */}
+                <div className="grid grid-cols-6 gap-4 mb-6">
+                    <div></div> {/* Colonne vide pour les horaires */}
+                    {days.map(day => (
+                        <div key={day} className="text-center">
+                            <h3 className="text-slate-700 font-semibold text-lg">{day}</h3>
+                        </div>
+                    ))}
+                </div>
 
-                                {/* Corps du tableau avec couleurs modernes */}
-                                <tbody>
-                                    {scheduleData.map((slot, index) => (
-                                        <tr key={index} className={`border-b-2 border-slate-300 ${
-                                            slot.isPause 
-                                                ? 'bg-gradient-to-r from-slate-100/80 to-slate-50/80' 
-                                                : 'hover:bg-gradient-to-r hover:from-white/90 hover:to-blue-50/30 transition-all duration-200'
-                                        }`}>
-                                            {/* Horaires avec style amélioré */}
-                                            <td className="p-4 font-semibold text-slate-800 border-r-2 border-slate-300 bg-gradient-to-r from-slate-50 to-white">
-                                                {slot.time}
-                                            </td>
+                {/* Grille avec horaires et cours */}
+                <div className="relative">
+                    {/* Grille de base */}
+                    <div className="grid grid-cols-6 gap-2">
+                        {/* Colonne des horaires */}
+                        <div className="space-y-0">
+                            {timeSlots.map((slot) => (
+                                <div key={slot.time} className="flex items-start justify-center relative pt-1" style={{ height: '72px' }}>
+                                    <span className="bg-slate-200 text-slate-700 px-3 py-1 rounded text-sm font-medium border border-slate-300" style={{ fontFamily: 'Montserrat' }}>
+                                        {slot.label}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Colonnes des jours */}
+                        {days.map(day => (
+                            <div key={day} className="relative" style={{ height: `${timeSlots.length * 72}px` }}>
+                                {/* Grille de positionnement absolu pour chaque cours */}
+                                {coursesData[day as keyof typeof coursesData].map((course, index) => {
+                                    const topPosition = course.startSlot * 72 + (course.startSlot > 0 ? 4 : 0); // +4px d'offset sauf pour le premier
+                                    const height = course.duration * 72 - 8; // Hauteur uniforme pour même durée
                                     
-                                            {/* Lundi */}
-                                            <td className={`p-4 border-r-2 border-slate-300 ${
-                                                slot.isPause 
-                                                    ? 'text-center font-semibold text-slate-600' 
-                                                    : 'text-slate-700'
-                                            }`}>
-                                                {slot.isPause ? (
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                                                        <span>PAUSE</span>
-                                                        <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="text-sm">
-                                                        {slot.monday.split('\n').map((line, i) => (
-                                                            <div key={i} className={`${i > 0 ? 'mt-2 pt-2 border-t border-slate-200/30' : ''} font-medium`}>
-                                                                {line}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            
-                                            {/* Mardi */}
-                                            <td className={`p-4 border-r-2 border-slate-300 ${
-                                                slot.isPause 
-                                                    ? 'text-center font-semibold text-slate-600' 
-                                                    : 'text-slate-700'
-                                            }`}>
-                                                {slot.isPause ? (
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                                                        <span>PAUSE</span>
-                                                        <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="text-sm">
-                                                        {slot.tuesday.split('\n').map((line, i) => (
-                                                            <div key={i} className={`${i > 0 ? 'mt-2 pt-2 border-t border-slate-200/30' : ''} font-medium`}>
-                                                                {line}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            
-                                            {/* Mercredi */}
-                                            <td className={`p-4 border-r-2 border-slate-300 ${
-                                                slot.isPause 
-                                                    ? 'text-center font-semibold text-slate-600' 
-                                                    : 'text-slate-700'
-                                            }`}>
-                                                {slot.isPause ? (
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                                                        <span>PAUSE</span>
-                                                        <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="text-sm">
-                                                        {slot.wednesday.split('\n').map((line, i) => (
-                                                            <div key={i} className={`${i > 0 ? 'mt-2 pt-2 border-t border-slate-200/30' : ''} font-medium`}>
-                                                                {line}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            
-                                            {/* Jeudi */}
-                                            <td className={`p-4 border-r-2 border-slate-300 ${
-                                                slot.isPause 
-                                                    ? 'text-center font-semibold text-slate-600' 
-                                                    : 'text-slate-700'
-                                            }`}>
-                                                {slot.isPause ? (
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                                                        <span>PAUSE</span>
-                                                        <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="text-sm">
-                                                        {slot.thursday.split('\n').map((line, i) => (
-                                                            <div key={i} className={`${i > 0 ? 'mt-2 pt-2 border-t border-slate-200/30' : ''} font-medium`}>
-                                                                {line}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            
-                                            {/* Vendredi */}
-                                            <td className={`p-4 ${
-                                                slot.isPause 
-                                                    ? 'text-center font-semibold text-slate-600' 
-                                                    : 'text-slate-700'
-                                            }`}>
-                                                {slot.isPause ? (
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                                                        <span>PAUSE</span>
-                                                        <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="text-sm">
-                                                        {slot.friday.split('\n').map((line, i) => (
-                                                            <div key={i} className={`${i > 0 ? 'mt-2 pt-2 border-t border-slate-200/30' : ''} font-medium`}>
-                                                                {line}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    {/* Légende avec design moderne */}
-                    <div className="relative mt-6 p-6 bg-white/60 backdrop-blur-sm rounded-xl border border-white/40 shadow-sm">
-                        <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full -translate-y-10 translate-x-10"></div>
-                        <div className="absolute bottom-0 left-0 w-16 h-16 bg-cyan-500/6 rounded-full translate-y-8 -translate-x-8"></div>
-                        
-                        <div className="relative">
-                            <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                                <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                                Légende des abréviations
-                                <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200/50 rounded-lg shadow-sm">
-                                    <div className="w-3 h-3 bg-orange-400 rounded-full"></div>
-                                    <div className="text-sm">
-                                        <strong className="text-slate-800">EPSA :</strong>
-                                        <span className="text-slate-600 ml-1">Éducation Physique Sportive et Artistique</span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg shadow-sm">
-                                    <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                                    <div className="text-sm">
-                                        <strong className="text-slate-800">LC :</strong>
-                                        <span className="text-slate-600 ml-1">Langues et Communication</span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200/50 rounded-lg shadow-sm">
-                                    <div className="w-3 h-3 bg-emerald-400 rounded-full"></div>
-                                    <div className="text-sm">
-                                        <strong className="text-slate-800">HUM :</strong>
-                                        <span className="text-slate-600 ml-1">Humanités</span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-200/50 rounded-lg shadow-sm">
-                                    <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-                                    <div className="text-sm">
-                                        <strong className="text-slate-800">STEM :</strong>
-                                        <span className="text-slate-600 ml-1">Sciences et Mathématiques</span>
-                                    </div>
-                                </div>
+                                    return (
+                                        <div
+                                            key={index}
+                                            className={`absolute left-0 right-0 p-2 rounded-lg border-l-4 shadow-sm ${course.color} flex flex-col justify-start overflow-hidden`}
+                                            style={{
+                                                top: `${topPosition}px`,
+                                                height: `${height}px`,
+                                                minHeight: '56px'
+                                            }}
+                                        >
+                                            <div className="text-xs font-medium opacity-75 mb-1 break-words" style={{ color: '#1E3A8A', fontFamily: 'Montserrat' }}>
+                                                {course.time}
+                                            </div>
+                                            <div className="text-sm font-semibold leading-tight break-words hyphens-auto" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', color: '#1E3A8A', fontFamily: 'Montserrat' }}>
+                                                {course.title.split('\n').map((line, i) => (
+                                                    <div key={i} className="break-words" style={{ color: '#1E3A8A', fontFamily: 'Montserrat' }}>{line}</div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        </div>
+                        ))}
+                    </div>
+                    
+                    {/* Barre de PAUSE qui s'étend sur toutes les colonnes */}
+                    <div
+                        className="absolute bg-white border border-slate-300 border-l-4 border-l-slate-400 rounded-lg flex items-center justify-center shadow-sm"
+                        style={{
+                            top: '360px', // Position du slot 5 (10:30) avec 72px par slot
+                            left: 'calc(16.6667% + 0rem)', // Début après la colonne des horaires
+                            right: '0rem', // Marge droite pour aligner avec les cartes
+                            height: '64px', // -8px pour le gap comme les autres cartes (72-8=64)
+                            zIndex: 10
+                        }}
+                    >
+                        <span className="font-bold text-lg tracking-wider" style={{ color: '#1E3A8A', fontFamily: 'Montserrat' }}>PAUSE</span>
                     </div>
                 </div>
+
+
             </div>
         </div>
     );

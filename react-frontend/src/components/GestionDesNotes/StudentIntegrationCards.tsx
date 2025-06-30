@@ -1,5 +1,4 @@
 import React from 'react';
-import { getGradingStatus } from '../../lib/notes-data';
 import { Calendar, TrendingUp, Clock, Award, Target } from 'lucide-react';
 
 interface IntegrationCardProps {
@@ -18,33 +17,31 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
   monthName = "Décembre",
   evaluationType = "Évaluation d'intégration"
 }) => {
-  const status = getGradingStatus(note);
-  
-  // Déterminer le style de bordure basé sur la note (fond blanc)
+  // Déterminer le style de la carte
   const getCardStyle = () => {
-    if (note === 'absent' || note === 'non-evalue') 
-      return 'bg-white border-gray-300 border-2';
+    if (note === 'absent') return 'bg-gray-50 border-gray-200 border';
+    if (note === 'non-evalue') return 'bg-blue-50 border-blue-200 border';
     if (typeof note === 'number') {
-      if (note >= 75) return 'bg-white border-green-300 border-2';
-      if (note >= 50) return 'bg-white border-orange-300 border-2';
-      return 'bg-white border-red-300 border-2';
+      if (note >= 75) return 'bg-green-50 border-green-200 border';
+      if (note >= 50) return 'bg-orange-50 border-orange-200 border';
+      return 'bg-red-50 border-red-200 border';
     }
-    return 'bg-white border-gray-300 border-2';
+    return 'bg-gray-50 border-gray-200 border';
   };
 
-  // Déterminer l'icône de statut avec couleur appropriée
+  // Déterminer l'icône de statut
   const getStatusIcon = () => {
     if (note === 'absent') return <Clock className="w-5 h-5 text-gray-500" />;
-    if (note === 'non-evalue') return <Calendar className="w-5 h-5 text-gray-500" />;
+    if (note === 'non-evalue') return <Clock className="w-5 h-5 text-blue-500" />;
     if (typeof note === 'number') {
       if (note >= 75) return <Award className="w-5 h-5 text-green-600" />;
-      if (note >= 50) return <Target className="w-5 h-5 text-orange-600" />;
-      return <TrendingUp className="w-5 h-5 text-red-600" />;
+      if (note >= 50) return <TrendingUp className="w-5 h-5 text-orange-600" />;
+      return <Target className="w-5 h-5 text-red-600" />;
     }
-    return <Calendar className="w-5 h-5 text-gray-500" />;
+    return <Clock className="w-5 h-5 text-gray-500" />;
   };
 
-  // Formater le texte d'affichage de la note
+  // Déterminer le texte d'affichage
   const getDisplayText = () => {
     if (note === 'absent') return 'Absent';
     if (note === 'non-evalue') return 'Non évalué';
@@ -76,7 +73,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
   };
 
   return (
-    <div className={`rounded-xl p-5 transition-all duration-300 hover:shadow-lg hover:scale-105 ${getCardStyle()}`}>
+    <div className={`rounded-xl p-5 transition-all duration-200 hover:shadow-md hover:scale-102 ${getCardStyle()}`}>
       {/* En-tête de la carte */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
@@ -168,7 +165,8 @@ const StudentIntegrationCards: React.FC<StudentIntegrationCardsProps> = ({
   subjectName,
   monthName 
 }) => {
-  if (competences.length === 0) {
+  // Vérifier si competences existe et est un array
+  if (!competences || !Array.isArray(competences) || competences.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="mx-auto w-16 h-16 mb-4 text-gray-300">
@@ -180,7 +178,7 @@ const StudentIntegrationCards: React.FC<StudentIntegrationCardsProps> = ({
     );
   }
 
-  // Calculer les statistiques pour l'en-tête
+  // Calculer les statistiques pour la matière active
   const totalCompetences = competences.length;
   const notesNumeriques = competences
     .map(c => notes[c.id])
@@ -194,8 +192,8 @@ const StudentIntegrationCards: React.FC<StudentIntegrationCardsProps> = ({
   const competencesReussies = notesNumeriques.filter(note => note >= 50).length;
 
   return (
-    <div className="space-y-8">
-      {/* En-tête avec statistiques */}
+    <div className="space-y-6">
+      {/* En-tête avec statistiques pour la matière active */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -205,7 +203,7 @@ const StudentIntegrationCards: React.FC<StudentIntegrationCardsProps> = ({
             </p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold text-orange-600">
               {moyenne > 0 ? `${moyenne.toFixed(1)}%` : '-'}
             </div>
             <div className="text-xs text-gray-500">Moyenne</div>
@@ -213,22 +211,22 @@ const StudentIntegrationCards: React.FC<StudentIntegrationCardsProps> = ({
         </div>
         
         <div className="grid grid-cols-3 gap-4 text-center">
-          <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
             <div className="text-lg font-semibold text-gray-900">{totalCompetences}</div>
             <div className="text-xs text-gray-500">Compétences</div>
           </div>
-          <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
-            <div className="text-lg font-semibold text-blue-600">{competencesEvaluees}</div>
+          <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
+            <div className="text-lg font-semibold text-orange-600">{competencesEvaluees}</div>
             <div className="text-xs text-gray-500">Évaluées</div>
           </div>
-          <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
             <div className="text-lg font-semibold text-green-600">{competencesReussies}</div>
             <div className="text-xs text-gray-500">Réussies</div>
           </div>
         </div>
       </div>
 
-      {/* Grille de cartes */}
+      {/* Grille de cartes des compétences */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {competences.map((competence) => (
           <IntegrationCard

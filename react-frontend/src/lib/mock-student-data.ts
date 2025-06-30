@@ -47,13 +47,13 @@ export interface EnrichedCourse {
   status: 'active' | 'completed' | 'upcoming';
   nextLessonDate: string;
   classId: string;
-  domain: string; // Ajout du domaine pour cohérence avec évaluations
-  competences: string[]; // Compétences spécifiques travaillées
+  domain: string;
+  competences: string[];
   onViewDetails: () => void;
-  title: string; // Titre spécifique de la leçon
-  time: string; // Horaire du cours
-  presentCount: number; // Nombre d'élèves présents
-  remediationCount: number; // Nombre d'élèves en remédiation
+  title: string;
+  time: string;
+  presentCount: number;
+  remediationCount: number;
 }
 
 // Données enrichies des cours basées sur la structure des évaluations CP1
@@ -93,8 +93,8 @@ export const getEnrichedCourses = (navigate: (path: string) => void): EnrichedCo
       onViewDetails: () => navigate('/mes-cours/francais-cp1'),
       title: "Les mots de la famille",
       time: "8H30 - 9H30",
-      presentCount: 23,
-      remediationCount: 3
+      presentCount: 0,
+      remediationCount: 0,
     },
     {
       id: "anglais-cp1",
@@ -112,8 +112,8 @@ export const getEnrichedCourses = (navigate: (path: string) => void): EnrichedCo
       onViewDetails: () => navigate('/mes-cours/anglais-cp1'),
       title: "Family members",
       time: "9H30 - 10H30",
-      presentCount: 21,
-      remediationCount: 5
+      presentCount: 0,
+      remediationCount: 0,
     },
     {
       id: "maths-cp1",
@@ -131,8 +131,8 @@ export const getEnrichedCourses = (navigate: (path: string) => void): EnrichedCo
       onViewDetails: () => navigate('/mes-cours/maths-cp1'),
       title: "Résoudre une équation du second degrés",
       time: "8H30 - 10H30",
-      presentCount: 1,
-      remediationCount: 1
+      presentCount: 0,
+      remediationCount: 0,
     },
     {
       id: "histoire-cp1",
@@ -150,8 +150,8 @@ export const getEnrichedCourses = (navigate: (path: string) => void): EnrichedCo
       onViewDetails: () => navigate('/mes-cours/histoire-cp1'),
       title: "Les grandes civilisations",
       time: "10H30 - 11H30",
-      presentCount: 24,
-      remediationCount: 2
+      presentCount: 0,
+      remediationCount: 0,
     },
     {
       id: "geographie-cp1",
@@ -169,8 +169,8 @@ export const getEnrichedCourses = (navigate: (path: string) => void): EnrichedCo
       onViewDetails: () => navigate('/mes-cours/geographie-cp1'),
       title: "La carte de mon quartier",
       time: "14H00 - 15H00",
-      presentCount: 22,
-      remediationCount: 4
+      presentCount: 0,
+      remediationCount: 0,
     },
     {
       id: "etudes-islamiques-cp1",
@@ -188,8 +188,8 @@ export const getEnrichedCourses = (navigate: (path: string) => void): EnrichedCo
       onViewDetails: () => navigate('/mes-cours/etudes-islamiques-cp1'),
       title: "Les piliers de l'Islam",
       time: "15H00 - 16H00",
-      presentCount: 25,
-      remediationCount: 1
+      presentCount: 0,
+      remediationCount: 0,
     },
     {
       id: "quran-cp1",
@@ -207,8 +207,8 @@ export const getEnrichedCourses = (navigate: (path: string) => void): EnrichedCo
       onViewDetails: () => navigate('/mes-cours/quran-cp1'),
       title: "Sourate Al-Fatiha",
       time: "16H00 - 17H00",
-      presentCount: 26,
-      remediationCount: 0
+      presentCount: 0,
+      remediationCount: 0,
     },
     {
       id: "vivre-ensemble-cp1",
@@ -226,8 +226,8 @@ export const getEnrichedCourses = (navigate: (path: string) => void): EnrichedCo
       onViewDetails: () => navigate('/mes-cours/vivre-ensemble-cp1'),
       title: "Respecter les différences",
       time: "11H30 - 12H30",
-      presentCount: 23,
-      remediationCount: 3
+      presentCount: 0,
+      remediationCount: 0,
     },
     {
       id: "arts-plastiques-cp1",
@@ -245,13 +245,13 @@ export const getEnrichedCourses = (navigate: (path: string) => void): EnrichedCo
       onViewDetails: () => navigate('/mes-cours/arts-plastiques-cp1'),
       title: "Peinture à l'aquarelle",
       time: "13H00 - 14H00",
-      presentCount: 26,
-      remediationCount: 0
+      presentCount: 0,
+      remediationCount: 0,
     },
     {
       id: "eps-cp1",
       subject: "EPS",
-      teacher: "M. Touré",
+      teacher: "Coach Diop",
       theme: "Développement moteur",
       progress: 88,
       totalLessons: 12,
@@ -262,12 +262,25 @@ export const getEnrichedCourses = (navigate: (path: string) => void): EnrichedCo
       domain: "Créativité & Sport",
       competences: ["EPS Compétences"],
       onViewDetails: () => navigate('/mes-cours/eps-cp1'),
-      title: "Course et saut",
-      time: "17H00 - 18H00",
-      presentCount: 20,
-      remediationCount: 6
-    }
-  ];
+      title: "Parcours d'agilité",
+      time: "14H00 - 15H00",
+      presentCount: 0,
+      remediationCount: 0,
+    },
+  ].map(course => ({
+    ...course,
+    teacher: course.teacher || "N/A",
+    theme: course.theme || "N/A",
+    progress: course.progress || 0,
+    totalLessons: course.totalLessons || 10,
+    completedLessons: course.completedLessons || 0,
+    status: course.status || "upcoming",
+    nextLessonDate: course.nextLessonDate || "N/A",
+    classId: course.classId || "cp1",
+    domain: course.domain || "N/A",
+    competences: course.competences || [],
+    onViewDetails: course.onViewDetails || (() => {}),
+  }));
 };
 
 // Interface pour les devoirs synchronisée avec les évaluations

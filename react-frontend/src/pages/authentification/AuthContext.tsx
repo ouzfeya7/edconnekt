@@ -15,7 +15,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const MOCK_AUTH = false;
+const MOCK_AUTH = true;
 
 const transformRoles = (keycloakRoles: string[]): string[] => {
   const appRoles: string[] = [];
@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         emailVerified: true,
       };
       setUser(mockUser);
-      setRoles(['eleve']);
+      setRoles(['enseignant']);
       setIsAuthenticated(true);
       setLoading(false);
       return;

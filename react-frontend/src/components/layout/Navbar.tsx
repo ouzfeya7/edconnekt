@@ -44,7 +44,7 @@ const Navbar = ({ role }: NavbarProps) => {
               key={item.titleKey}
               to={item.to}
               className={`
-                flex items-center gap-2 px-2 py-3 h-full
+                flex items-center gap-1.5 px-1.5 py-3 h-full
                 text-sm
                 border-b-2
                 whitespace-nowrap

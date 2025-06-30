@@ -1,6 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { getGradingStatus } from '../../lib/notes-data';
-import { Calendar, TrendingUp, Clock } from 'lucide-react';
+import React from 'react';
+import { Calendar, TrendingUp, Clock, Award, Target } from 'lucide-react';
 
 interface CompetenceCardProps {
   competence: {
@@ -8,37 +7,39 @@ interface CompetenceCardProps {
     label: string;
   };
   note: number | 'absent' | 'non-evalue';
-  weekNumber?: number;
-  evaluationDate?: string;
+  evaluationType?: string;
 }
 
 const CompetenceCard: React.FC<CompetenceCardProps> = ({ 
   competence, 
   note, 
-  weekNumber = 1,
-  evaluationDate = "12/05/2025" 
+  evaluationType = "Évaluation continue"
 }) => {
-  const status = getGradingStatus(note);
-  
-  // Déterminer la couleur de bordure basée sur la note (fond blanc)
-  const getBackgroundColor = () => {
-    if (note === 'absent' || note === 'non-evalue') return 'bg-white border-gray-200';
+  // Déterminer le style de la carte
+  const getCardStyle = () => {
+    if (note === 'absent') return 'bg-gray-50 border-gray-200 border';
+    if (note === 'non-evalue') return 'bg-blue-50 border-blue-200 border';
     if (typeof note === 'number') {
-      if (note >= 75) return 'bg-white border-green-200';
-      if (note >= 50) return 'bg-white border-orange-200';
-      return 'bg-white border-red-200';
+      if (note >= 75) return 'bg-green-50 border-green-200 border';
+      if (note >= 50) return 'bg-orange-50 border-orange-200 border';
+      return 'bg-red-50 border-red-200 border';
     }
-    return 'bg-white border-gray-200';
+    return 'bg-gray-50 border-gray-200 border';
   };
 
   // Déterminer l'icône de statut
   const getStatusIcon = () => {
-    if (note === 'absent') return <Clock className="w-4 h-4 text-gray-500" />;
-    if (note === 'non-evalue') return <Calendar className="w-4 h-4 text-gray-500" />;
-    return <TrendingUp className="w-4 h-4 text-green-600" />;
+    if (note === 'absent') return <Clock className="w-5 h-5 text-gray-500" />;
+    if (note === 'non-evalue') return <Clock className="w-5 h-5 text-blue-500" />;
+    if (typeof note === 'number') {
+      if (note >= 75) return <Award className="w-5 h-5 text-green-600" />;
+      if (note >= 50) return <TrendingUp className="w-5 h-5 text-orange-600" />;
+      return <Target className="w-5 h-5 text-red-600" />;
+    }
+    return <Clock className="w-5 h-5 text-gray-500" />;
   };
 
-  // Formater le texte d'affichage de la note
+  // Déterminer le texte d'affichage
   const getDisplayText = () => {
     if (note === 'absent') return 'Absent';
     if (note === 'non-evalue') return 'Non évalué';
@@ -46,64 +47,98 @@ const CompetenceCard: React.FC<CompetenceCardProps> = ({
     return '-';
   };
 
-  // Déterminer le libellé du statut
+  // Déterminer le libellé du statut avec emoji
   const getStatusLabel = () => {
-    if (note === 'absent') return 'Absent';
-    if (note === 'non-evalue') return 'En attente';
+    if (note === 'absent') return '⏰ Absent';
+    if (note === 'non-evalue') return '⏳ En attente';
     if (typeof note === 'number') {
-      if (note >= 75) return 'Excellent';
-      if (note >= 50) return 'En progrès';
-      return 'À améliorer';
+      if (note >= 75) return '🎉 Excellent';
+      if (note >= 50) return '📈 En progrès';
+      return '💪 À renforcer';
     }
-    return 'Non évalué';
+    return '❓ Non évalué';
+  };
+
+  // Déterminer la couleur du texte principal
+  const getTextColor = () => {
+    if (note === 'absent' || note === 'non-evalue') return 'text-gray-600';
+    if (typeof note === 'number') {
+      if (note >= 75) return 'text-green-700';
+      if (note >= 50) return 'text-orange-700';
+      return 'text-red-700';
+    }
+    return 'text-gray-600';
   };
 
   return (
-    <div className={`rounded-lg border-2 p-4 transition-all duration-200 hover:shadow-md ${getBackgroundColor()}`}>
+    <div className={`rounded-xl p-5 transition-all duration-200 hover:shadow-md hover:scale-102 ${getCardStyle()}`}>
       {/* En-tête de la carte */}
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="font-medium text-gray-900 text-sm leading-tight">
+          <div className="flex items-center space-x-2 mb-2">
+            {getStatusIcon()}
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              {evaluationType}
+            </span>
+          </div>
+          <h3 className="font-semibold text-gray-900 text-sm leading-tight mb-1">
             {competence.label}
           </h3>
-          <p className="text-xs text-gray-500 mt-1">
-            Semaine {weekNumber} • {evaluationDate}
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          {getStatusIcon()}
         </div>
       </div>
 
-      {/* Score et statut */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className={`text-2xl font-bold ${status.color}`}>
+      {/* Section principale de la note */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-4">
+          <div className={`text-3xl font-bold ${getTextColor()}`}>
             {getDisplayText()}
           </div>
-          <div className="text-xs">
-            <span className="text-gray-500">Évaluation</span>
-            <div className={`font-medium ${status.color}`}>
+          <div className="text-sm">
+            <div className="text-gray-500 text-xs mb-1">Résultat</div>
+            <div className={`font-semibold ${getTextColor()}`}>
               {getStatusLabel()}
             </div>
           </div>
         </div>
-        
-        {/* Indicateur de score visuel */}
+      </div>
+
+      {/* Barre de progression et détails */}
+      <div className="space-y-3">
         {typeof note === 'number' && (
-          <div className="flex items-center space-x-1">
-            <span className="text-xs text-gray-500">Score</span>
-            <div className="w-12 h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs text-gray-600">
+              <span>Performance</span>
+              <span>{note}%</span>
+            </div>
+            <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className={`h-full transition-all duration-300 ${
-                  note >= 75 ? 'bg-green-500' : 
-                  note >= 50 ? 'bg-orange-500' : 'bg-red-500'
+                className={`h-full transition-all duration-500 ${
+                  note >= 75 ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 
+                  note >= 50 ? 'bg-gradient-to-r from-orange-500 to-amber-500' : 
+                  'bg-gradient-to-r from-red-500 to-rose-500'
                 }`}
                 style={{ width: `${Math.min(note, 100)}%` }}
               />
             </div>
           </div>
         )}
+        
+        {/* Badge de niveau */}
+        <div className="flex justify-end">
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+            typeof note === 'number' ? 
+              note >= 75 ? 'bg-green-100 text-green-800' :
+              note >= 50 ? 'bg-orange-100 text-orange-800' :
+              'bg-red-100 text-red-800'
+            : 'bg-gray-100 text-gray-600'
+          }`}>
+            {typeof note === 'number' ? 
+              note >= 75 ? 'Acquis' :
+              note >= 50 ? 'En cours' :
+              'À revoir'
+            : note === 'absent' ? 'Absent' : 'En attente'}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -118,128 +153,82 @@ interface StudentCompetenceCardsProps {
   subjectName: string;
 }
 
-type FilterStatus = 'tous' | 'excellent' | 'en-progres' | 'a-ameliorer' | 'absent' | 'non-evalue';
-
 const StudentCompetenceCards: React.FC<StudentCompetenceCardsProps> = ({ 
   competences, 
   notes, 
   subjectName 
 }) => {
-  const [selectedFilter, setSelectedFilter] = useState<FilterStatus>('tous');
-
-  // Fonction pour déterminer le statut d'une note
-  const getStatusFromNote = (note: number | 'absent' | 'non-evalue'): FilterStatus => {
-    if (note === 'absent') return 'absent';
-    if (note === 'non-evalue') return 'non-evalue';
-    if (typeof note === 'number') {
-      if (note >= 75) return 'excellent';
-      if (note >= 50) return 'en-progres';
-      return 'a-ameliorer';
-    }
-    return 'non-evalue';
-  };
-
-  // Filtrer les compétences selon le statut sélectionné
-  const filteredCompetences = useMemo(() => {
-    if (selectedFilter === 'tous') return competences;
-    
-    return competences.filter(competence => {
-      const note = notes[competence.id];
-      const status = getStatusFromNote(note);
-      return status === selectedFilter;
-    });
-  }, [competences, notes, selectedFilter]);
-
-  // Calculer les statistiques pour les filtres
-  const stats = useMemo(() => {
-    const statusCounts = {
-      tous: competences.length,
-      excellent: 0,
-      'en-progres': 0,
-      'a-ameliorer': 0,
-      absent: 0,
-      'non-evalue': 0
-    };
-
-    competences.forEach(competence => {
-      const note = notes[competence.id];
-      const status = getStatusFromNote(note);
-      statusCounts[status]++;
-    });
-
-    return statusCounts;
-  }, [competences, notes]);
-
-  if (competences.length === 0) {
+  // Vérifier si competences existe et est un array
+  if (!competences || !Array.isArray(competences) || competences.length === 0) {
     return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">Aucune compétence disponible pour cette matière.</p>
+      <div className="text-center py-12">
+        <div className="mx-auto w-16 h-16 mb-4 text-gray-300">
+          <Calendar className="w-full h-full" />
+        </div>
+        <p className="text-gray-500 text-lg">Aucune compétence continue disponible</p>
+        <p className="text-gray-400 text-sm mt-1">pour cette matière.</p>
       </div>
     );
   }
 
-  const filterOptions = [
-    { key: 'tous' as FilterStatus, label: 'Tous', color: 'text-gray-600 bg-gray-100 border-gray-200' },
-    { key: 'excellent' as FilterStatus, label: 'Excellent', color: 'text-green-600 bg-green-50 border-green-200' },
-    { key: 'en-progres' as FilterStatus, label: 'En progrès', color: 'text-orange-600 bg-orange-50 border-orange-200' },
-    { key: 'a-ameliorer' as FilterStatus, label: 'À améliorer', color: 'text-red-600 bg-red-50 border-red-200' },
-    { key: 'absent' as FilterStatus, label: 'Absent', color: 'text-gray-500 bg-gray-50 border-gray-200' },
-    { key: 'non-evalue' as FilterStatus, label: 'Non évalué', color: 'text-gray-500 bg-gray-50 border-gray-200' }
-  ];
+  // Calculer les statistiques pour la matière active
+  const totalCompetences = competences.length;
+  const notesNumeriques = competences
+    .map(c => notes[c.id])
+    .filter(note => typeof note === 'number') as number[];
+  
+  const moyenne = notesNumeriques.length > 0 
+    ? notesNumeriques.reduce((sum, note) => sum + note, 0) / notesNumeriques.length 
+    : 0;
+
+  const competencesEvaluees = notesNumeriques.length;
+  const competencesAcquises = notesNumeriques.filter(note => note >= 50).length;
 
   return (
     <div className="space-y-6">
-      {/* En-tête avec titre et filtres */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">{subjectName}</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            {stats.tous} compétence{stats.tous > 1 ? 's' : ''} évaluée{stats.tous > 1 ? 's' : ''}
-          </p>
+      {/* En-tête avec statistiques pour la matière active */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">{subjectName}</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Évaluations continues • Fin de cours
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-sky-600">
+              {moyenne > 0 ? `${moyenne.toFixed(1)}%` : '-'}
+            </div>
+            <div className="text-xs text-gray-500">Moyenne</div>
+          </div>
         </div>
         
-        {/* Filtres par statut */}
-        <div className="flex items-center gap-2">
-          {filterOptions.map(option => {
-            const count = stats[option.key];
-            if (count === 0 && option.key !== 'tous') return null;
-            
-            const isActive = selectedFilter === option.key;
-            
-            return (
-              <button
-                key={option.key}
-                onClick={() => setSelectedFilter(option.key)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${
-                  isActive 
-                    ? option.color + ' shadow-sm'
-                    : 'text-gray-500 bg-white border-gray-200 hover:bg-gray-50'
-                }`}
-              >
-                {option.label} ({count})
-              </button>
-            );
-          })}
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+            <div className="text-lg font-semibold text-gray-900">{totalCompetences}</div>
+            <div className="text-xs text-gray-500">Compétences</div>
+          </div>
+          <div className="bg-sky-50 rounded-lg p-3 border border-sky-200">
+            <div className="text-lg font-semibold text-sky-600">{competencesEvaluees}</div>
+            <div className="text-xs text-gray-500">Évaluées</div>
+          </div>
+          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+            <div className="text-lg font-semibold text-green-600">{competencesAcquises}</div>
+            <div className="text-xs text-gray-500">Acquises</div>
+          </div>
         </div>
       </div>
 
-      {/* Grille de cartes filtrées */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredCompetences.length === 0 ? (
-          <div className="col-span-full text-center py-8">
-            <p className="text-gray-500">Aucune compétence trouvée pour ce filtre.</p>
-          </div>
-        ) : (
-          filteredCompetences.map((competence, index) => (
-            <CompetenceCard
-              key={competence.id}
-              competence={competence}
-              note={notes[competence.id]}
-              weekNumber={competences.indexOf(competence) + 1}
-              evaluationDate="12/05/2025"
-            />
-          ))
-        )}
+      {/* Grille de cartes des compétences */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {competences.map((competence) => (
+          <CompetenceCard
+            key={competence.id}
+            competence={competence}
+            note={notes[competence.id]}
+            evaluationType="Continue"
+          />
+        ))}
       </div>
     </div>
   );

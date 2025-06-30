@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable, { Table } from 'jspdf-autotable';
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { Menu, Transition } from '@headlessui/react';
 import NotesTable, { NoteColumn } from './NotesTable';
 import StudentTrimestrielleCards from './StudentTrimestrielleCards';
 import Toolbar from '../ui/Toolbar';
@@ -50,13 +50,11 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
     // Title
     doc.setFontSize(16);
     doc.setFont("times", 'bold');
-    // @ts-expect-error: La surcharge de type de jspdf pour les options d'alignement est incorrecte.
     doc.text(title, doc.internal.pageSize.getWidth() / 2, 55, { align: 'center' });
     
     // Class Subtitle
     doc.setFontSize(12);
     doc.setFont("times", 'normal');
-    // @ts-expect-error: La surcharge de type de jspdf pour les options d'alignement est incorrecte.
     doc.text(`Classe: ${classe.toUpperCase()}`, doc.internal.pageSize.getWidth() / 2, 62, { align: 'center' });
 
     // Header Line
@@ -83,20 +81,29 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
+    // Helper function to extract trimester number from string (e.g., "Trimestre 1" -> 1)
+    const extractTrimesterNumber = (trimestre: string): number => {
+        const match = trimestre.match(/\d+/);
+        return match ? parseInt(match[0], 10) : 1;
+    };
+
   useEffect(() => {
         const classDomains = getSubjectsForClass(currentClasse);
         setDomains(classDomains);
 
-        const allNotes = getNotesForClass(currentClasse, students);
-        const averagedNotes = calculateTrimesterAverages(allNotes, currentTrimestre);
+        const classNotes = getNotesForClass(currentClasse, students);
         
         if (role === 'eleve' && user) {
+            // Utiliser les données fictives avec moyennes pour l'élève connecté
             const mockNotes = getCurrentStudentNotes(currentClasse);
-            const averagedMockNotes = calculateTrimesterAverages(mockNotes, currentTrimestre);
+            const trimesterNumber = extractTrimesterNumber(currentTrimestre);
+            const averagedMockNotes = calculateTrimesterAverages(mockNotes, trimesterNumber);
             setNotes(averagedMockNotes);
+            // Désactiver la recherche pour l'élève
         setSearchTerm('');
       } else {
-            setNotes(averagedNotes);
+            // Pour les enseignants, utiliser des notes vides à remplir manuellement
+            setNotes(classNotes);
         }
 
         if (classDomains.length > 0) {
@@ -104,10 +111,27 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
             setActiveDomainId(firstDomain.id);
             if (firstDomain.subjects.length > 0) {
                 setActiveSubjectId(firstDomain.subjects[0].id);
+            } else {
+                setActiveSubjectId('');
             }
+        } else {
+            setActiveDomainId('');
+            setActiveSubjectId('');
         }
         setCurrentPage(1);
     }, [currentClasse, students, role, user, currentTrimestre]);
+
+    const handleNoteUpdate = (studentId: string, competenceId: string, newValue: number) => {
+        setNotes(currentNotes =>
+            currentNotes.map(note => {
+                if (note.studentId === studentId) {
+                    const newNotes = { ...note.notes, [competenceId]: newValue };
+                    return { ...note, notes: newNotes };
+                }
+                return note;
+            })
+        );
+    };
     
     const activeDomain = useMemo(() => domains.find(d => d.id === activeDomainId), [domains, activeDomainId]);
     const subjectsForActiveDomain = useMemo(() => activeDomain?.subjects || [], [activeDomain]);
@@ -122,16 +146,36 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
     const activeSubject = useMemo(() => subjectsForActiveDomain.find(s => s.id === activeSubjectId), [subjectsForActiveDomain, activeSubjectId]);
 
     const noteColumns: NoteColumn[] = useMemo(() => {
-        const studentColumn: NoteColumn = { key: 'lastName', label: 'Nom', render: (_, item) => (<div className="text-sm font-medium text-gray-900">{item.lastName}</div>) };
-        const firstNameColumn: NoteColumn = { key: 'firstName', label: 'Prénom', render: (firstName) => <div className="text-sm font-medium text-gray-900">{firstName}</div> };
+        const studentColumn: NoteColumn = {
+            key: 'lastName',
+            label: 'Nom',
+            render: (_, item) => (
+                <div className="text-sm font-medium text-gray-900">{item.lastName}</div>
+            )
+        };
+        
+        const firstNameColumn: NoteColumn = {
+            key: 'firstName',
+            label: 'Prénom',
+            render: (firstName) => <div className="text-sm font-medium text-gray-900">{firstName}</div>
+        };
+
         const competenceColumns: NoteColumn[] = activeSubject?.competences.map(c => ({
             key: c.id,
             label: c.label,
             render: (value) => {
+                if (value === null || value === undefined) return <span className="text-gray-400">-</span>;
                 const status = getGradingStatus(value);
-                return <span className={`font-semibold ${status.color}`}>{typeof value === 'number' ? `${Math.round(value)}%` : status.text}</span>;
+                const isNumeric = typeof value === 'number';
+                
+                return (
+                    <span className={`font-semibold ${status.color}`}>
+                        {status.text}{isNumeric ? '%' : ''}
+                    </span>
+                );
             }
         })) || [];
+
         return [studentColumn, firstNameColumn, ...competenceColumns];
     }, [activeSubject]);
 
@@ -164,6 +208,10 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                 const noteValue = note.notes[c.id];
                 if (typeof noteValue === 'number') {
                     studentData[c.label] = `${Math.round(noteValue)}%`;
+                } else if (noteValue === 'absent') {
+                    studentData[c.label] = 'Absent';
+                } else if (noteValue === 'non-evalue') {
+                    studentData[c.label] = '-';
                 } else {
                     studentData[c.label] = '-';
                 }
@@ -198,7 +246,9 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                 note.firstName,
                 ...activeSubject.competences.map(c => {
                     const noteValue = note.notes[c.id];
-                    return typeof noteValue === 'number' ? `${Math.round(noteValue)}%` : '-';
+                    if (typeof noteValue === 'number') return `${Math.round(noteValue)}%`;
+                    if (noteValue === 'absent') return 'Absent';
+                    return '-';
                 })
         ]);
 
@@ -228,7 +278,15 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                     const studentData: { [key: string]: string | number } = { 'Nom': note.lastName, 'Prénom': note.firstName };
                     subject.competences.forEach(c => {
                         const noteValue = note.notes[c.id];
-                        studentData[c.label] = typeof noteValue === 'number' ? `${Math.round(noteValue)}%` : '-';
+                        if (typeof noteValue === 'number') {
+                            studentData[c.label] = `${Math.round(noteValue)}%`;
+                        } else if (noteValue === 'absent') {
+                            studentData[c.label] = 'Absent';
+                        } else if (noteValue === 'non-evalue') {
+                            studentData[c.label] = '-';
+                        } else {
+                            studentData[c.label] = '-';
+                        }
                     });
                     return studentData;
                 });
@@ -272,7 +330,9 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                         note.firstName,
                         ...subject.competences.map(c => {
                             const noteValue = note.notes[c.id];
-                            return typeof noteValue === 'number' ? `${Math.round(noteValue)}%` : '-';
+                            if (typeof noteValue === 'number') return `${Math.round(noteValue)}%`;
+                            if (noteValue === 'absent') return 'Absent';
+                            return '-';
                         })
                     ]);
         autoTable(doc, {
@@ -297,39 +357,259 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
         } catch (error) { console.error("Erreur PDF:", error); }
     };
 
-    if (role === 'eleve' && user) {
-  return (
-            <StudentTrimestrielleCards 
-                studentName={user.name || ''}
-                classLabel={user.classLabel || ''}
-              currentTrimestre={currentTrimestre}
-            />
-        );
-    }
+    // === FONCTIONS D'EXPORT PDF POUR LES ÉLÈVES ===
+    
+    const handleStudentExportPdf = () => {
+        if (!activeSubject || !user) {
+            console.error("Export PDF annulé : matière ou utilisateur non disponible.");
+            return;
+        }
+
+        try {
+            const doc = new jsPDF() as jsPDFWithAutoTable;
+            const title = `Bulletin Trimestriel - ${activeSubject.name} (${currentTrimestre})`;
+            const startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
+            
+            // Récupérer les notes de l'élève pour cette matière
+            const studentNotes = activeSubject.competences.reduce((acc, c) => {
+                const note = paginatedNotes.find(n => n.studentId === user.name || n.studentId === user.classId)?.notes[c.id];
+                acc[c.id] = note !== undefined ? note : 'non-evalue';
+                return acc;
+            }, {} as { [key: string]: number | 'absent' | 'non-evalue' });
+            
+            // Créer les données du tableau avec la même structure que les enseignants
+            const tableColumns = ["Compétence", "Moyenne", "Statut"];
+            const tableRows = activeSubject.competences.map(competence => {
+                const note = studentNotes[competence.id];
+                let noteDisplay = '-';
+                let statut = 'Non évalué';
+                
+                if (typeof note === 'number') {
+                    noteDisplay = `${Math.round(note)}%`;
+                    if (note >= 75) statut = 'Excellent';
+                    else if (note >= 50) statut = 'En progrès';
+                    else statut = 'À améliorer';
+                } else if (note === 'absent') {
+                    noteDisplay = 'Absent';
+                    statut = 'Absent';
+                } else if (note === 'non-evalue') {
+                    noteDisplay = '-';
+                    statut = 'En attente';
+                }
+                
+                return [competence.label, noteDisplay, statut];
+            });
+
+            // Utiliser exactement le même style que les enseignants
+            autoTable(doc, {
+                ...getPdfTableStyles(doc),
+                head: [tableColumns],
+                body: tableRows,
+                startY: startY,
+                margin: { left: 25, right: 25 }
+            });
+
+            // Ajouter des informations supplémentaires spécifiques à l'élève
+            const finalY = doc.lastAutoTable?.finalY || startY + 50;
+            const notesNumeriques = activeSubject.competences
+                .map(c => studentNotes[c.id])
+                .filter(note => typeof note === 'number') as number[];
+            
+            if (notesNumeriques.length > 0) {
+                const moyenne = notesNumeriques.reduce((sum, note) => sum + note, 0) / notesNumeriques.length;
+                const meilleureNote = Math.max(...notesNumeriques);
+                const competencesReussies = notesNumeriques.filter(note => note >= 50).length;
+                
+                // Utiliser la même police que dans l'en-tête
+                doc.setFontSize(12);
+                doc.setFont("times", "bold");
+                doc.text("Résumé des performances trimestrielles", 25, finalY + 20);
+                
+                doc.setFont("times", "normal");
+                doc.text(`Élève : ${user.name}`, 25, finalY + 35);
+                doc.text(`Trimestre : ${currentTrimestre}`, 25, finalY + 45);
+                doc.text(`Moyenne de la matière : ${moyenne.toFixed(1)}%`, 25, finalY + 55);
+                doc.text(`Meilleure note : ${meilleureNote}%`, 25, finalY + 65);
+                doc.text(`Compétences évaluées : ${notesNumeriques.length}/${activeSubject.competences.length}`, 25, finalY + 75);
+                doc.text(`Compétences validées : ${competencesReussies}/${activeSubject.competences.length}`, 25, finalY + 85);
+            }
+
+            doc.save(`Bulletin_Trimestriel_${user.name.replace(/\s+/g, '_')}_${activeSubject.name.replace(/\s+/g, '_')}_T${extractTrimesterNumber(currentTrimestre)}.pdf`);
+        } catch (error) {
+            console.error("Erreur lors de la génération du PDF :", error);
+            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+        }
+    };
+
+    const handleStudentExportAllPdf = () => {
+        if (!user) {
+            console.error("Export PDF annulé : utilisateur non disponible.");
+            return;
+        }
+
+        try {
+            const doc = new jsPDF() as jsPDFWithAutoTable;
+            const title = `Bulletin Trimestriel Complet - ${user.name} (${currentTrimestre})`;
+            let startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
+            
+            // Récupérer toutes les notes de l'élève
+            const allStudentNotes: { [key: string]: number | 'absent' | 'non-evalue' } = {};
+            domains.forEach(domain => {
+                domain.subjects.forEach(subject => {
+                    subject.competences.forEach(competence => {
+                        const note = paginatedNotes.find(n => n.studentId === user.name || n.studentId === user.classId)?.notes[competence.id];
+                        allStudentNotes[competence.id] = note !== undefined ? note : 'non-evalue';
+                    });
+                });
+            });
+            
+            domains.forEach(domain => {
+                // Utiliser le même style que les enseignants pour les titres de domaine
+                startY += 5;
+                doc.setFontSize(14);
+                doc.setFont("times", "bold");
+                doc.text(domain.name, 25, startY);
+                startY += 7;
+
+                domain.subjects.forEach(subject => {
+                    if (subject.competences.length === 0) return;
+                    
+                    // Titre de la matière comme les enseignants
+                    autoTable(doc, {
+                        ...getPdfTableStyles(doc),
+                        head: [[subject.name]],
+                        startY: startY,
+                        margin: { left: 25, right: 25 },
+                        theme: "plain",
+                        styles: { fontStyle: 'bold', fontSize: 11, halign: 'left' }
+                    });
+
+                    startY = doc.lastAutoTable?.finalY || startY;
+                    
+                    // Données des compétences pour cette matière
+                    const tableColumns = ["Compétence", "Moyenne", "Statut"];
+                    const tableRows = subject.competences.map(competence => {
+                        const note = allStudentNotes[competence.id];
+                        let noteDisplay = '-';
+                        let statut = 'Non évalué';
+                        
+                        if (typeof note === 'number') {
+                            noteDisplay = `${Math.round(note)}%`;
+                            if (note >= 75) statut = 'Excellent';
+                            else if (note >= 50) statut = 'En progrès';
+                            else statut = 'À améliorer';
+                        } else if (note === 'absent') {
+                            noteDisplay = 'Absent';
+                            statut = 'Absent';
+                        } else if (note === 'non-evalue') {
+                            noteDisplay = '-';
+                            statut = 'En attente';
+                        }
+                        
+                        return [competence.label, noteDisplay, statut];
+                    });
+
+                    // Utiliser exactement le même style que les enseignants
+                    autoTable(doc, {
+                        ...getPdfTableStyles(doc),
+                        head: [tableColumns],
+                        body: tableRows,
+                        startY: startY,
+                        margin: { left: 25, right: 25 }
+                    });
+                    
+                    startY = (doc.lastAutoTable?.finalY || startY) + 10;
+                    
+                    // Même logique de pagination que les enseignants
+                    if (startY > 250) {
+                        doc.addPage();
+                        startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
+                    }
+                });
+                
+                startY += 5; // Espace entre les domaines
+            });
+
+            // Page de résumé final
+            if (Object.keys(allStudentNotes).length > 0) {
+                doc.addPage();
+                const summaryStartY = addPdfHeader(doc, user.classLabel || 'Non définie', `Résumé Trimestriel - ${user.name}`);
+                
+                const totalNotesNumeriques = Object.values(allStudentNotes)
+                    .filter(note => typeof note === 'number') as number[];
+                
+                if (totalNotesNumeriques.length > 0) {
+                    const moyenneGenerale = totalNotesNumeriques.reduce((sum, note) => sum + note, 0) / totalNotesNumeriques.length;
+                    const meilleureNote = Math.max(...totalNotesNumeriques);
+                    const plusBasseNote = Math.min(...totalNotesNumeriques);
+                    const competencesValidees = totalNotesNumeriques.filter(note => note >= 50).length;
+                    
+                    doc.setFontSize(12);
+                    doc.setFont("times", "bold");
+                    doc.text(`Statistiques Générales - ${currentTrimestre}`, 25, summaryStartY + 20);
+                    
+                    doc.setFont("times", "normal");
+                    doc.text(`Moyenne générale : ${moyenneGenerale.toFixed(1)}%`, 25, summaryStartY + 35);
+                    doc.text(`Meilleure moyenne : ${meilleureNote}%`, 25, summaryStartY + 45);
+                    doc.text(`Moyenne la plus basse : ${plusBasseNote}%`, 25, summaryStartY + 55);
+                    doc.text(`Total des compétences évaluées : ${totalNotesNumeriques.length}`, 25, summaryStartY + 65);
+                    doc.text(`Compétences validées : ${competencesValidees}`, 25, summaryStartY + 75);
+                }
+            }
+
+            doc.save(`Bulletin_Trimestriel_Complet_${user.name.replace(/\s+/g, '_')}_T${extractTrimesterNumber(currentTrimestre)}.pdf`);
+        } catch (error) {
+            console.error("Erreur lors de la génération du PDF complet :", error);
+            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+        }
+    };
 
     return (
         <div className="bg-white rounded-lg shadow-sm mt-6">
             <div className="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 {domains.map(domain => (
-                    <button key={domain.id} onClick={() => setActiveDomainId(domain.id)} className={`px-4 py-3 text-sm font-medium focus:outline-none transition-colors duration-150 ${activeDomainId === domain.id ? 'border-orange-500 text-orange-600 border-b-2' : 'text-gray-500 hover:text-orange-500 border-b-2 border-transparent'}`}>
+                    <button
+                        key={domain.id}
+                        onClick={() => {
+                            setActiveDomainId(domain.id);
+                            if (domain.subjects.length > 0) {
+                                setActiveSubjectId(domain.subjects[0].id);
+                            }
+                            setCurrentPage(1);
+                        }}
+                        className={`px-4 py-3 text-sm font-medium focus:outline-none transition-colors duration-150 ${
+                            activeDomainId === domain.id
+                                ? 'border-orange-500 text-orange-600 border-b-2'
+                                : 'text-gray-500 hover:text-orange-500 border-b-2 border-transparent'
+                        }`}
+                    >
                         {domain.name.toUpperCase()}
                     </button>
                 ))}
             </div>
             <div className="p-4 md:p-6">
       <Toolbar
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        searchPlaceholder="Rechercher par nom..."
-        showPagination={true}
-        currentPage={currentPage}
-                    totalItems={filteredNotes.length}
-        itemsPerPage={ITEMS_PER_PAGE}
-        onPageChange={setCurrentPage}
+                    {...(role === 'enseignant' ? {
+                        searchTerm: searchTerm,
+                        onSearchChange: setSearchTerm,
+                        searchPlaceholder: "Rechercher par nom...",
+                        showPagination: true,
+                        currentPage: currentPage,
+                        totalItems: filteredNotes.length,
+                        itemsPerPage: ITEMS_PER_PAGE,
+                        onPageChange: setCurrentPage
+                    } : {
+                        searchTerm: '',
+                        onSearchChange: () => {},
+                        showPagination: false
+                    })}
                     centerSlot={
                         <div className="flex flex-wrap gap-2 items-center">
                             {subjectsForActiveDomain.map(subject => (
-                                <button key={subject.id} onClick={() => setActiveSubjectId(subject.id)}
+                                <button key={subject.id} onClick={() => {
+                                    setActiveSubjectId(subject.id);
+                                    setCurrentPage(1);
+                                }}
                                     className={`px-4 py-1.5 text-sm rounded-full font-medium focus:outline-none transition-colors ${activeSubjectId === subject.id ? 'bg-sky-700 text-white shadow-md' : 'bg-gray-100 text-gray-700 border hover:bg-gray-200'}`}>
                                     {subject.name}
                                 </button>
@@ -337,50 +617,161 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                         </div>
                     }
               rightActions={
-                <Menu as="div" className="relative">
-                            <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500">
-                    <MoreHorizontal className="w-5 h-5" />
-                  </MenuButton>
-                            <MenuItems anchor="bottom end" className="w-56 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10">
-                    <div className="px-1 py-1">
-                      <MenuItem>
-                        {({ active }) => (
-                          <button onClick={handleExportExcel} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Excel (Matière)
+                        role === 'enseignant' ? (
+                <div className="flex items-center space-x-2">
+                    <Menu as="div" className="relative">
+                        <Menu.Button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <MoreHorizontal size={20} />
+                        </Menu.Button>
+                        <Transition
+                            as={React.Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                        >
+                            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <div className="py-1">
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={handleExportExcel}
+                                                className={`${
+                                                    active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                            >
+                                                <FileSpreadsheet size={16} className="mr-2" />
+                                                Exporter en Excel
                                             </button>
                                         )}
-                                    </MenuItem>
-                                    <MenuItem>
+                                    </Menu.Item>
+                                    <Menu.Item>
                                         {({ active }) => (
-                                            <button onClick={handleExportAllExcel} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <Library className="w-5 h-5 mr-2" /> Exporter Excel (Tout)
-                          </button>
-                        )}
-                      </MenuItem>
-                      <MenuItem>
-                        {({ active }) => (
-                          <button onClick={handleExportPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <FileText className="w-5 h-5 mr-2" /> Exporter PDF (Matière)
+                                            <button
+                                                onClick={handleExportPdf}
+                                                className={`${
+                                                    active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                            >
+                                                <FileText size={16} className="mr-2" />
+                                                Exporter en PDF
                                             </button>
                                         )}
-                                    </MenuItem>
-                                    <MenuItem>
+                                    </Menu.Item>
+                                    <Menu.Item>
                                         {({ active }) => (
-                                            <button onClick={handleExportAllPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <ArrowDownToLine className="w-5 h-5 mr-2" /> Exporter PDF (Tout)
-                          </button>
-                        )}
-                      </MenuItem>
+                                            <button
+                                                onClick={handleExportAllExcel}
+                                                className={`${
+                                                    active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                            >
+                                                <Library size={16} className="mr-2" />
+                                                Tout Exporter (Excel)
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={handleExportAllPdf}
+                                                className={`${
+                                                    active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                            >
+                                                <Library size={16} className="mr-2" />
+                                                Tout Exporter (PDF)
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                </div>
+                            </Menu.Items>
+                        </Transition>
+                    </Menu>
+                </div>
+                        ) : role === 'eleve' ? (
+                            <div className="p-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{user?.name} {user?.lastName}</h3>
+                                    <Menu as="div" className="relative">
+                                        <Menu.Button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                                            <MoreHorizontal size={20} />
+                                        </Menu.Button>
+                                        <Transition
+                                            as={React.Fragment}
+                                            enter="transition ease-out duration-100"
+                                            enterFrom="transform opacity-0 scale-95"
+                                            enterTo="transform opacity-100 scale-100"
+                                            leave="transition ease-in duration-75"
+                                            leaveFrom="transform opacity-100 scale-100"
+                                            leaveTo="transform opacity-0 scale-95"
+                                        >
+                                            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                <div className="py-1">
+                                                    <Menu.Item>
+                                                        {({ active }) => (
+                                                            <button
+                                                                onClick={() => handleStudentExportPdf()}
+                                                                className={`${
+                                                                    active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                                            >
+                                                                <FileText size={16} className="mr-2" />
+                                                                Télécharger mon bulletin
+                                                            </button>
+                                                        )}
+                                                    </Menu.Item>
+                                                    <Menu.Item>
+                                                        {({ active }) => (
+                                                            <button
+                                                                onClick={() => handleStudentExportAllPdf()}
+                                                                className={`${
+                                                                    active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                                            >
+                                                                <ArrowDownToLine size={16} className="mr-2" />
+                                                                Télécharger mon bulletin complet
+                                                            </button>
+                                                        )}
+                                                    </Menu.Item>
+                                                </div>
+                                            </Menu.Items>
+                                        </Transition>
+                                    </Menu>
+                                </div>
+                            </div>
+                        ) : null
+                    }
+                />
+                
+                {/* Affichage conditionnel : cartes pour les élèves, tableau pour les enseignants */}
+                {role === 'eleve' && activeSubject && user ? (
+                    <div className="border border-gray-200 rounded-lg p-4">
+                        <StudentTrimestrielleCards
+                            competences={activeSubject.competences}
+                            notes={activeSubject.competences.reduce((acc, c) => {
+                                const note = paginatedNotes.find(n => n.studentId === user.name || n.studentId === user.classId)?.notes[c.id];
+                                acc[c.id] = note !== undefined ? note : 'non-evalue';
+                                return acc;
+                            }, {} as { [key: string]: number | 'absent' | 'non-evalue' })}
+                            subjectName={activeSubject.name}
+                            trimestre={`T${extractTrimesterNumber(currentTrimestre)}`}
+                        />
                     </div>
-                  </MenuItems>
-                </Menu>
-              }
-            />
+                ) : role === 'enseignant' ? (
       <NotesTable 
                     noteColumns={noteColumns}
         data={notesTableData} 
-                    isEditable={false} // Les moyennes trimestrielles ne sont pas éditables
+                        onUpdateNote={handleNoteUpdate}
+                        isEditable={true} // Les enseignants peuvent saisir les moyennes trimestrielles
       />
+                ) : (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">Aucune donnée disponible pour cette sélection.</p>
+                    </div>
+                )}
       </div>
     </div>
   );

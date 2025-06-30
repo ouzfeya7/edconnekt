@@ -25,7 +25,7 @@ import Agenda from "./pages/Agenda";
 import Ressource from "./pages/RessourcesPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import MesCoursPage from "./pages/eleves/MesCoursPage";
-import DetailCoursPage from "./pages/eleves/DetailCoursPage";
+import CourseDetailPage from "./pages/CourseDetailPage";
 import DetailLeconPage from "./pages/eleves/DetailLeconPage";
 import MesCours from "./pages/enseignants/MesCoursPage";
 import PdiSeancePage from "./pages/PdiSeancePage";
@@ -75,7 +75,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/pdi/:facilitatorId", element: <PdiDetailPage /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "/mes-cours", element: <MesCours /> },
-    { path: "/mes-cours/:courseId", element: <DetailCoursPage /> },
+    { path: "/mes-cours/:courseId", element: <CourseDetailPage /> },
     { path: "/lecons/:lessonId", element: <DetailLeconPage /> },
     { path: "/classes/:classId", element: <Classe /> },
     { path: "/gestion-notes", element: <GestionNotesPage /> },
@@ -106,7 +106,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/evaluations/notes", element: <GNote /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "/mes-cours", element: <MesCoursPage /> },
-    { path: "/mes-cours/:courseId", element: <DetailCoursPage /> },
+    { path: "/mes-cours/:courseId", element: <CourseDetailPage /> },
     { path: "/lecons/:lessonId", element: <DetailLeconPage /> },
     { path: "*", element: <NotFound /> },
   ],

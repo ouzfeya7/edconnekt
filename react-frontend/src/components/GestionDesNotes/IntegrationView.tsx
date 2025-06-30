@@ -11,7 +11,7 @@ import { useStudents } from '../../contexts/StudentContext';
 import { getSubjectsForClass, getNotesForClass, getGradingStatus } from '../../lib/notes-data';
 import type { StudentNote, Domain } from '../../lib/notes-data';
 import { getCurrentStudentNotes } from '../../lib/mock-student-notes';
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { Menu, Transition } from '@headlessui/react';
 import { MoreHorizontal, FileSpreadsheet, FileText, Library, ArrowDownToLine } from 'lucide-react';
 import { CellHookData, UserOptions } from 'jspdf-autotable';
 import schoolLogo from '../../assets/logo-yka-1.png';
@@ -116,6 +116,13 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
     const [activeSubjectId, setActiveSubjectId] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    
+    // Date formatée pour les exports
+    const formattedCurrentDate = new Date().toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
 
     useEffect(() => {
         const classDomains = getSubjectsForClass(currentClasse);
@@ -496,112 +503,363 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
         ...note.notes
     })), [paginatedNotes]);
 
+    // === FONCTIONS D'EXPORT PDF POUR LES ÉLÈVES ===
+    
+    const handleStudentExportPdf = (studentId: string) => {
+        if (!activeSubject) {
+            console.error("Export PDF annulé : aucune matière active.");
+            return;
+        }
+
+        const studentNote = notes.find(n => n.studentId === studentId);
+        if (!studentNote) {
+            console.error("Notes de l'élève non trouvées.");
+            return;
+        }
+
+        const doc = new jsPDF() as jsPDFWithAutoTable;
+        const startY = addPdfHeader(doc, currentClasse, `Bulletin d'Intégration - ${activeSubject.name}`);
+
+        const tableBody = activeSubject.competences.map(c => {
+            const noteValue = studentNote.notes[c.id];
+            let displayValue: string;
+            if (typeof noteValue === 'number') {
+                displayValue = `${noteValue}%`;
+            } else if (noteValue === 'absent') {
+                displayValue = 'Absent';
+            } else if (noteValue === 'non-evalue') {
+                displayValue = '-';
+            } else {
+                displayValue = 'Non évalué';
+            }
+            return [c.label, displayValue];
+        });
+
+        autoTable(doc, {
+            startY: startY,
+            head: [['Compétence', 'Score']],
+            body: tableBody,
+            ...getPdfTableStyles(doc),
+            didDrawPage: (data) => {
+                // Footer
+                const pageCount = doc.internal.pages.length;
+                doc.setFontSize(8);
+                doc.text(`Généré le ${formattedCurrentDate}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
+                doc.text(`Page ${data.pageNumber} sur ${pageCount-1}`, doc.internal.pageSize.width - data.settings.margin.right, doc.internal.pageSize.height - 10, { align: 'right' });
+            }
+        });
+
+        doc.save(`Bulletin_Integration_${studentNote.lastName}_${studentNote.firstName}_${activeSubject.name}.pdf`);
+    };
+
+    const handleStudentExportAllPdf = (studentId: string) => {
+        const studentNote = notes.find(n => n.studentId === studentId);
+        if (!studentNote) {
+            console.error("Notes de l'élève non trouvées.");
+            return;
+        }
+
+        const doc = new jsPDF() as jsPDFWithAutoTable;
+        let startY = addPdfHeader(doc, currentClasse, `Bulletin d'Intégration Complet`);
+
+        doc.setFontSize(14);
+        doc.setFont("times", 'bold');
+        doc.text(`${studentNote.firstName} ${studentNote.lastName}`, doc.internal.pageSize.getWidth() / 2, startY - 5, { align: 'center' });
+        startY += 5;
+
+        domains.forEach(domain => {
+            if(doc.internal.pageSize.height - startY < 50) {
+                doc.addPage();
+                startY = addPdfHeader(doc, currentClasse, `Bulletin d'Intégration Complet`);
+            }
+            doc.setFontSize(12);
+            doc.setFont("times", 'bold');
+            autoTable(doc, {
+                startY: startY,
+                html: `<h2 style="font-size: 12pt; font-weight: bold;">${domain.name}</h2>`,
+                didParseCell: function (data) {
+                    if (data.cell.text && data.cell.text[0].includes('<h2>')) {
+                       data.cell.styles.fontStyle = 'bold';
+                       data.cell.styles.fontSize = 12;
+                    }
+                }
+            });
+            
+            startY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 2 : startY;
+
+            domain.subjects.forEach(subject => {
+                 const tableBody = subject.competences.map(c => {
+                    const noteValue = studentNote.notes[c.id];
+                    let displayValue: string;
+                    if (typeof noteValue === 'number') {
+                        displayValue = `${noteValue}%`;
+                    } else if (noteValue === 'absent') {
+                        displayValue = 'Absent';
+                    } else if (noteValue === 'non-evalue') {
+                        displayValue = '-';
+                    } else {
+                        displayValue = 'Non évalué';
+                    }
+                    return [c.label, displayValue];
+                });
+
+                if (doc.internal.pageSize.height - startY < (tableBody.length * 10) + 20) {
+                    doc.addPage();
+                    startY = addPdfHeader(doc, currentClasse, `Bulletin d'Intégration Complet`);
+                }
+
+                autoTable(doc, {
+                    startY: startY,
+                    head: [[subject.name, 'Score']],
+                    body: tableBody,
+                    ...getPdfTableStyles(doc),
+                    didDrawPage: (data) => {
+                        // Footer
+                        const pageCount = doc.internal.pages.length;
+                        doc.setFontSize(8);
+                        doc.text(`Généré le ${formattedCurrentDate}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
+                        doc.text(`Page ${data.pageNumber} sur ${pageCount-1}`, doc.internal.pageSize.width - data.settings.margin.right, doc.internal.pageSize.height - 10, { align: 'right' });
+                    }
+                });
+                startY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 5 : startY;
+            });
+        });
+        
+        doc.save(`Bulletin_Integration_Complet_${studentNote.lastName}_${studentNote.firstName}.pdf`);
+    };
+
     const getDomains = () => {
         return domains;
-    }
-
-    if (role === 'eleve' && user) {
-        return <StudentIntegrationCards studentId={user.id} />;
     }
 
     return (
         <div className="bg-white rounded-lg shadow-sm mt-6">
             <div className="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 {domains.map(domain => (
-                <button
+                    <button
                         key={domain.id}
-                        onClick={() => setActiveDomainId(domain.id)}
-                        className={`px-4 py-3 text-sm font-medium focus:outline-none transition-colors duration-150 ${activeDomainId === domain.id ? 'border-orange-500 text-orange-600 border-b-2' : 'text-gray-500 hover:text-orange-500 border-b-2 border-transparent'}`}
+                        onClick={() => {
+                            setActiveDomainId(domain.id);
+                            if (domain.subjects.length > 0) {
+                                setActiveSubjectId(domain.subjects[0].id);
+                            }
+                            setCurrentPage(1);
+                        }}
+                        className={`px-4 py-3 text-sm font-medium focus:outline-none transition-colors duration-150 ${
+                            activeDomainId === domain.id
+                                ? 'border-orange-500 text-orange-600 border-b-2'
+                                : 'text-gray-500 hover:text-orange-500 border-b-2 border-transparent'
+                        }`}
                     >
                         {domain.name.toUpperCase()}
-                </button>
-            ))}
+                    </button>
+                ))}
             </div>
             <div className="p-4 md:p-6">
             <Toolbar
-                    searchTerm={searchTerm}
-                    onSearchChange={setSearchTerm}
-                    searchPlaceholder="Rechercher par nom..."
-                    showPagination={true}
-                    currentPage={currentPage}
-                    totalItems={filteredNotes.length}
-                    itemsPerPage={ITEMS_PER_PAGE}
-                    onPageChange={setCurrentPage}
+                {...(role === 'enseignant' ? {
+                    searchTerm: searchTerm,
+                    onSearchChange: setSearchTerm,
+                    searchPlaceholder: "Rechercher par nom...",
+                    showPagination: true,
+                    currentPage: currentPage,
+                    totalItems: filteredNotes.length,
+                    itemsPerPage: ITEMS_PER_PAGE,
+                    onPageChange: setCurrentPage
+                } : {
+                    searchTerm: '',
+                    onSearchChange: () => {},
+                    showPagination: false
+                })}
                 centerSlot={
-                        <div className="flex flex-wrap gap-2 items-center">
+                    <div className="flex flex-wrap gap-2 items-center">
                         {subjectsForActiveDomain.map(subject => (
-                                <button key={subject.id} onClick={() => setActiveSubjectId(subject.id)}
-                                    className={`px-4 py-1.5 text-sm rounded-full font-medium focus:outline-none transition-colors ${activeSubjectId === subject.id ? 'bg-sky-700 text-white shadow-md' : 'bg-gray-100 text-gray-700 border hover:bg-gray-200'}`}>
+                            <button key={subject.id} onClick={() => {
+                                setActiveSubjectId(subject.id);
+                                setCurrentPage(1);
+                            }}
+                                className={`px-4 py-1.5 text-sm rounded-full font-medium focus:outline-none transition-colors ${activeSubjectId === subject.id ? 'bg-sky-700 text-white shadow-md' : 'bg-gray-100 text-gray-700 border hover:bg-gray-200'}`}>
                                 {subject.name}
                             </button>
                         ))}
                     </div>
                 }
                 rightActions={
-                        <Menu as="div" className="relative">
-                            <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                <MoreHorizontal className="w-5 h-5" />
-                            </MenuButton>
-                            <MenuItems anchor="bottom end" className="w-56 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                                <div className="px-1 py-1">
-                                    <MenuItem>
-                                        {({ active }) => (
-                                            <button onClick={handleExport} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Excel (Matière)
-                                            </button>
-                                        )}
-                                    </MenuItem>
-                                    <MenuItem>
-                                        {({ active }) => (
-                                            <button onClick={handleExportAll} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <Library className="w-5 h-5 mr-2" /> Exporter Excel (Tout)
-                                            </button>
-                                        )}
-                                    </MenuItem>
-                                </div>
-                                <div className="px-1 py-1">
-                                    <MenuItem>
-                                        {({ active }) => (
-                                            <button onClick={handleExportPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <FileText className="w-5 h-5 mr-2" /> Exporter PDF (Matière)
-                                            </button>
-                                        )}
-                                    </MenuItem>
-                                    <MenuItem>
-                                        {({ active }) => (
-                                            <button onClick={handleExportAllPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <ArrowDownToLine className="w-5 h-5 mr-2" /> Exporter PDF (Tout)
-                                            </button>
-                                        )}
-                                    </MenuItem>
-                                </div>
-                                <div className="px-1 py-1">
-                                    <MenuItem>
-                                        {({ active }) => (
-                                            <button onClick={handleExportByDomainXlsx} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Domaines (XLSX)
-                                            </button>
-                                        )}
-                                    </MenuItem>
-                                    <MenuItem>
-                                        {({ active }) => (
-                                            <button onClick={handleExportByDomainPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <FileText className="w-5 h-5 mr-2" /> Exporter Domaines (PDF)
-                                            </button>
-                                        )}
-                                    </MenuItem>
-                                </div>
-                            </MenuItems>
-                        </Menu>
-                    }
+                    role === 'enseignant' ? (
+                        <div className="flex items-center space-x-2">
+                            <Menu as="div" className="relative">
+                                <Menu.Button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <MoreHorizontal size={20} />
+                                </Menu.Button>
+                                <Transition
+                                    as={React.Fragment}
+                                    enter="transition ease-out duration-100"
+                                    enterFrom="transform opacity-0 scale-95"
+                                    enterTo="transform opacity-100 scale-100"
+                                    leave="transition ease-in duration-75"
+                                    leaveFrom="transform opacity-100 scale-100"
+                                    leaveTo="transform opacity-0 scale-95"
+                                >
+                                    <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                        <div className="py-1">
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        onClick={handleExport}
+                                                        className={`${
+                                                            active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                                    >
+                                                        <FileSpreadsheet size={16} className="mr-2" />
+                                                        Exporter en Excel (Matière)
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        onClick={handleExportAll}
+                                                        className={`${
+                                                            active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                                    >
+                                                        <FileSpreadsheet size={16} className="mr-2" />
+                                                        Exporter en Excel (Tout)
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        onClick={handleExportPdf}
+                                                        className={`${
+                                                            active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                                    >
+                                                        <FileText size={16} className="mr-2" />
+                                                        Exporter en PDF (Matière)
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        onClick={handleExportAllPdf}
+                                                        className={`${
+                                                            active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                                    >
+                                                        <FileText size={16} className="mr-2" />
+                                                        Exporter en PDF (Tout)
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        onClick={handleExportByDomainXlsx}
+                                                        className={`${
+                                                            active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                                    >
+                                                        <Library size={16} className="mr-2" />
+                                                        Exporter par Domaine (Excel)
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        onClick={handleExportByDomainPdf}
+                                                        className={`${
+                                                            active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                                    >
+                                                        <Library size={16} className="mr-2" />
+                                                        Exporter par Domaine (PDF)
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                        </div>
+                                    </Menu.Items>
+                                </Transition>
+                            </Menu>
+                        </div>
+                    ) : role === 'eleve' ? (
+                        <div className="flex items-center">
+                            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{note.firstName} {note.lastName}</h3>
+                            <Menu as="div" className="relative ml-auto">
+                                <Menu.Button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                                    <MoreHorizontal size={20} />
+                                </Menu.Button>
+                                <Transition
+                                    as={React.Fragment}
+                                    enter="transition ease-out duration-100"
+                                    enterFrom="transform opacity-0 scale-95"
+                                    enterTo="transform opacity-100 scale-100"
+                                    leave="transition ease-in duration-75"
+                                    leaveFrom="transform opacity-100 scale-100"
+                                    leaveTo="transform opacity-0 scale-95"
+                                >
+                                    <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                        <div className="py-1">
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        onClick={() => handleStudentExportPdf(note.studentId)}
+                                                        className={`${
+                                                            active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                                    >
+                                                        <FileText size={16} className="mr-2" />
+                                                        Télécharger le bulletin
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        onClick={() => handleStudentExportAllPdf(note.studentId)}
+                                                        className={`${
+                                                            active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
+                                                    >
+                                                        <ArrowDownToLine size={16} className="mr-2" />
+                                                        Télécharger tous les bulletins
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                        </div>
+                                    </Menu.Items>
+                                </Transition>
+                            </Menu>
+                        </div>
+                    ) : null
+                }
                 />
                 
-                <NotesTable 
-                    noteColumns={noteColumns}
-                    data={notesTableData} 
-                    onUpdateNote={handleNoteUpdate}
-                    isEditable={true}
-                />
+                {/* Affichage conditionnel : cartes pour les élèves, tableau pour les enseignants */}
+                {role === 'eleve' && activeSubject && notes.length > 0 ? (
+                    <div className="border border-gray-200 rounded-lg p-4">
+                        <StudentIntegrationCards
+                            competences={activeSubject.competences}
+                            notes={notes[0]?.notes || {}}
+                            subjectName={activeSubject.name}
+                            monthName={currentMonth}
+                        />
+                    </div>
+                ) : role === 'enseignant' ? (
+                    <NotesTable 
+                        noteColumns={noteColumns}
+                        data={notesTableData} 
+                        onUpdateNote={handleNoteUpdate}
+                        isEditable={true}
+                    />
+                ) : (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">Aucune donnée disponible pour cette sélection.</p>
+                    </div>
+                )}
             </div>
         </div>
     );

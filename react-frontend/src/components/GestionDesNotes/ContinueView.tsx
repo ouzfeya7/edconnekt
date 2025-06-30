@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable, { Table } from 'jspdf-autotable';
 import JSZip from 'jszip';
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { Menu } from '@headlessui/react';
 import NotesTable, { NoteColumn } from './NotesTable';
 import StudentCompetenceCards from './StudentCompetenceCards';
 import Toolbar from '../ui/Toolbar';
@@ -739,79 +739,79 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                 rightActions={
                     role === 'enseignant' ? (
                         <Menu as="div" className="relative">
-                            <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <Menu.Button className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 <MoreHorizontal className="w-5 h-5" />
-                            </MenuButton>
-                            <MenuItems anchor="bottom end" className="w-56 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                            </Menu.Button>
+                            <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none z-10">
                                 <div className="px-1 py-1">
-                                    <MenuItem>
-                                        {({ active }) => (
+                                    <Menu.Item>
+                                        {({ active }: { active: boolean }) => (
                                             <button onClick={handleExport} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
                                                 <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Excel (Matière)
                                             </button>
                                         )}
-                                    </MenuItem>
-                                    <MenuItem>
-                                        {({ active }) => (
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }: { active: boolean }) => (
                                             <button onClick={handleExportAll} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
                                                 <Library className="w-5 h-5 mr-2" /> Exporter Excel (Tout)
                                             </button>
                                         )}
-                                    </MenuItem>
-                                    <MenuItem>
-                                        {({ active }) => (
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }: { active: boolean }) => (
                                             <button onClick={handleExportPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
                                                 <FileText className="w-5 h-5 mr-2" /> Exporter PDF (Matière)
                                             </button>
                                         )}
-                                    </MenuItem>
-                                    <MenuItem>
-                                        {({ active }) => (
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }: { active: boolean }) => (
                                             <button onClick={handleExportAllPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
                                                 <ArrowDownToLine className="w-5 h-5 mr-2" /> Exporter PDF (Tout)
                                             </button>
                                         )}
-                                    </MenuItem>
-                                    <MenuItem>
-                                        {({ active }) => (
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }: { active: boolean }) => (
                                             <button onClick={handleExportByDomainXlsx} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
                                                 <FileSpreadsheet className="w-5 h-5 mr-2" /> Exporter Domaines (XLSX)
                                             </button>
                                         )}
-                                    </MenuItem>
-                                    <MenuItem>
-                                        {({ active }) => (
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }: { active: boolean }) => (
                                             <button onClick={handleExportByDomainPdf} className={`${active ? 'bg-gray-100' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
                                                 <FileText className="w-5 h-5 mr-2" /> Exporter Domaines (PDF)
                                             </button>
                                         )}
-                                    </MenuItem>
+                                    </Menu.Item>
                                 </div>
-                            </MenuItems>
+                            </Menu.Items>
                         </Menu>
                     ) : role === 'eleve' ? (
                         <Menu as="div" className="relative">
-                            <MenuButton className="inline-flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
+                            <Menu.Button className="inline-flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
                                 <ArrowDownToLine className="w-5 h-5" />
-                            </MenuButton>
-                            <MenuItems anchor="bottom end" className="w-64 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                            </Menu.Button>
+                            <Menu.Items className="absolute right-0 mt-2 w-64 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none z-10">
                                 <div className="px-1 py-1">
-                                    <MenuItem>
-                                        {({ active }) => (
+                                    <Menu.Item>
+                                        {({ active }: { active: boolean }) => (
                                             <button onClick={handleStudentExportPdf} className={`${active ? 'bg-slate-50' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
                                                 <FileText className="w-5 h-5 mr-2 text-slate-600" /> Mon Bulletin (Matière actuelle)
                                             </button>
                                         )}
-                                    </MenuItem>
-                                    <MenuItem>
-                                        {({ active }) => (
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }: { active: boolean }) => (
                                             <button onClick={handleStudentExportAllPdf} className={`${active ? 'bg-slate-50' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
                                                 <FileText className="w-5 h-5 mr-2 text-slate-600" /> Mon Bulletin Complet
                                             </button>
                                         )}
-                                    </MenuItem>
+                                    </Menu.Item>
                                 </div>
-                            </MenuItems>
+                            </Menu.Items>
                         </Menu>
                     ) : null
                 }

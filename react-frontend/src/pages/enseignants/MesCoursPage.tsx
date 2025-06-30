@@ -10,7 +10,8 @@ import TrimestreCard from '../../components/Header/TrimestreCard';
 import StatsCard from '../../components/Header/StatsCard';
 import RemediationCard from '../../components/course/RemediationCard';
 import AddFicheModal, { NewFicheData } from '../../components/course/AddFicheModal';
-import { mockWeeklySkills, WeeklySkill, mockRemediations, RemediationSession } from '../../lib/mock-data';
+import { mockRemediations, RemediationSession } from '../../lib/mock-data';
+import { getEnrichedCourses, EnrichedCourse } from '../../lib/mock-student-data';
 import { useStudents } from '../../contexts/StudentContext';
 import { useFilters } from '../../contexts/FilterContext';
 import { useNavigate } from 'react-router-dom';
@@ -32,32 +33,53 @@ const MesCours = () => {
   } = useFilters();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [skills, setSkills] = useState<WeeklySkill[]>([]);
+  const [courses, setCourses] = useState<EnrichedCourse[]>([]);
   const [remediations, setRemediations] = useState<RemediationSession[]>([]);
 
   useEffect(() => {
-    const skillsForClass = mockWeeklySkills.filter(skill => skill.classId === currentClasse);
-    setSkills(skillsForClass);
+    const totalStudents = studentCount?.total || 20;
+
+    const enrichedCourses = getEnrichedCourses(navigate).map(course => {
+      const presentCount = Math.floor(totalStudents * (0.85 + Math.random() * 0.15));
+      const remediationCount = totalStudents - presentCount;
+
+      if (course.status === 'completed') {
+        return { ...course, presentCount: totalStudents, remediationCount: 0 };
+      }
+      return { ...course, presentCount, remediationCount };
+    });
+
+    const coursesForClass = enrichedCourses.filter(course => course.classId === currentClasse);
+    setCourses(coursesForClass);
 
     const remediationsForClass = mockRemediations.filter(rem => rem.classId === currentClasse);
     setRemediations(remediationsForClass);
-  }, [currentClasse]);
+  }, [currentClasse, navigate, studentCount]);
 
   const handleAddFiche = (data: NewFicheData) => {
     const teacherName = user ? `${user.firstName} ${user.lastName}` : t('unknown_teacher', 'Enseignant non identifié');
+    const courseId = `course-${Date.now()}`;
     
-    const newSkill: WeeklySkill = {
-      id: `skill-${Date.now()}`,
-      classId: currentClasse,
-        title: data.title,
-        subject: data.subject,
+    const newCourse: EnrichedCourse = {
+      id: courseId,
+      subject: data.subject,
       teacher: teacherName,
-      teacherImage: "https://via.placeholder.com/40x40",
-        time: data.time,
+      theme: "Nouveau cours",
+      title: data.title,
+      time: data.time,
+      progress: 0,
+      totalLessons: 10,
+      completedLessons: 0,
+      status: "upcoming" as const,
+      nextLessonDate: "À planifier",
+      classId: currentClasse,
+      domain: "Langues et Communication", // Domaine par défaut
+      competences: [],
       presentCount: 0,
-      absentCount: 0,
+      remediationCount: 0,
+      onViewDetails: () => navigate(`/mes-cours/${courseId}`)
     };
-    setSkills(prevSkills => [newSkill, ...prevSkills]);
+    setCourses(prevCourses => [newCourse, ...prevCourses]);
     setIsModalOpen(false);
   };
 
@@ -103,37 +125,21 @@ const MesCours = () => {
           <button className="text-blue-600 font-semibold hover:underline text-sm">{t('view_more')}</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {skills.map((skill, index) => {
-          // Génère des heures et des durées de cours réalistes (20-45 min)
-          const timeSlots = [
-            { start: "8:00", end: "8:45" },   // 45 min
-            { start: "9:00", end: "9:30" },   // 30 min
-            { start: "10:15", end: "10:35" }, // 20 min
-            { start: "11:00", end: "11:45" }, // 45 min
-            { start: "14:00", end: "14:25" }, // 25 min
-          ];
-          const currentTimeSlot = timeSlots[index % timeSlots.length];
-
-          // Calcule les présences/absences en fonction de l'effectif total
-          const totalStudents = studentCount?.total || 25; // Fallback
-          // Pattern d'absences pour rendre les données plus réalistes
-          const absencePattern = [2, 1, 3, 0, 4, 1];
-          let absentCount = absencePattern[index % absencePattern.length];
-          if (absentCount > totalStudents) {
-            absentCount = totalStudents;
-          }
-          const presentCount = totalStudents - absentCount;
+        {courses.map((course) => {
+          const [startTime, endTime] = course.time.split(' - ').length === 2 
+            ? course.time.split(' - ')
+            : [course.time, course.time];
 
           return (
             <CourseCard
-              key={skill.id}
-              title={skill.title}
-              subject={skill.subject}
-              startTime={currentTimeSlot.start}
-              endTime={currentTimeSlot.end}
-              presentCount={presentCount}
-              absentCount={absentCount}
-              onClick={() => navigate(`/mes-cours/${skill.id}`)}
+              key={course.id}
+              title={course.title}
+              subject={course.subject}
+              startTime={startTime}
+              endTime={endTime}
+              presentCount={course.presentCount}
+              absentCount={course.remediationCount}
+              onClick={() => navigate(`/mes-cours/${course.id}`)}
             />
           );
         })}
