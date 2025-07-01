@@ -18,6 +18,7 @@ interface ToolbarProps {
   onPageChange?: (page: number) => void;
   // Pour les actions supplémentaires à droite de la pagination
   rightActions?: React.ReactNode;
+  containerClassName?: string;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
@@ -30,7 +31,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
   totalItems = 0,
   itemsPerPage = 10,
   onPageChange,
-  rightActions
+  rightActions,
+  containerClassName = ''
 }) => {
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +58,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   const pageDisplay = totalItems > 0 ? `${startItem}-${formattedEndItem}` : '0-0';
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-center gap-3 my-4 px-1">
+    <div className={`flex flex-col sm:flex-row justify-between items-center gap-3 my-4 px-1 ${containerClassName}`}>
       {/* Section Gauche: Recherche */}
       {(searchTerm !== undefined && onSearchChange) && (
         <div className="relative w-full sm:w-auto sm:flex-grow sm:max-w-xs">

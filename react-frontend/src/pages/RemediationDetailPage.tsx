@@ -113,6 +113,7 @@ const RemediationDetailPage = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'method' | 'resources' | 'history' | 'pdi'>('overview');
   const [showParentReport, setShowParentReport] = useState(false);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
+  const [editingCell, setEditingCell] = useState<string | null>(null);
 
   if (!remediation) {
     return (
@@ -135,7 +136,47 @@ const RemediationDetailPage = () => {
     );
   };
 
-    const handleExportReport = () => {
+  const handleGradeChange = (studentId: string, rawValue: string) => {
+    const trimmedValue = rawValue.trim();
+    setEditingCell(null); // Toujours quitter le mode d'édition
+
+    if (trimmedValue === '') {
+      // Si le champ est vide, la note est considérée comme non renseignée
+      setStudents(currentStudents =>
+        currentStudents.map(student =>
+          student.id === studentId
+            ? { ...student, remediationGrade: null, competenceAcquired: false }
+            : student
+        )
+      );
+      return;
+    }
+
+    const newGrade = parseInt(trimmedValue, 10);
+
+    if (isNaN(newGrade)) {
+      // Si la valeur n'est pas un nombre, ne rien changer
+      return;
+    }
+
+    // C'est un nombre valide, on le limite entre 0 et 100
+    const finalGrade = Math.max(0, Math.min(100, newGrade));
+
+    setStudents(currentStudents =>
+      currentStudents.map(student => {
+        if (student.id === studentId) {
+          return {
+            ...student,
+            remediationGrade: finalGrade,
+            competenceAcquired: finalGrade >= 70,
+          };
+        }
+        return student;
+      })
+    );
+  };
+
+  const handleExportReport = () => {
     if (!remediation) return;
 
     try {
@@ -225,7 +266,7 @@ const RemediationDetailPage = () => {
         ['Élèves présents', `${studentsPresent}/${remediation.studentCount} (${Math.round((studentsPresent / remediation.studentCount) * 100)}%)`],
         ['Compétences acquises', `${competencesAcquired} élèves (${Math.round((competencesAcquired / studentsPresent) * 100)}%)`],
         ['Amélioration moyenne', `+${Math.round(averageImprovement)} points`],
-        ['Progression PDI', `${remediation.pdiIntegration.competenceTracking.current}%`]
+        ['Score Moyen Session', `${remediation.pdiIntegration.competenceTracking.current}%`]
       ];
 
       autoTable(doc, {
@@ -298,12 +339,18 @@ const RemediationDetailPage = () => {
   const currentStatusInfo = statusInfo[remediation.status];
 
   // Calculs des statistiques
-  const studentsPresent = students.filter(s => s.status === 'present').length;
+  const studentsPresent = students.filter(s => s.status !== 'absent').length;
   const competencesAcquired = students.filter(s => s.competenceAcquired).length;
   const averageImprovement = students
     .filter(s => s.remediationGrade && s.initialGrade)
     .reduce((acc, s) => acc + (s.remediationGrade! - s.initialGrade!), 0) / 
     students.filter(s => s.remediationGrade && s.initialGrade).length || 0;
+    
+  // Calcul du Score Moyen des élèves présents
+  const averagePdiProgression = students
+    .filter(s => s.status === 'present' && s.remediationGrade)
+    .reduce((acc, s) => acc + s.remediationGrade!, 0) /
+    (students.filter(s => s.status === 'present' && s.remediationGrade).length || 1);
 
   const renderTabContent = () => {
     switch(activeTab) {
@@ -355,7 +402,9 @@ const RemediationDetailPage = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-slate-600">Élèves présents</p>
-                    <p className="text-2xl font-bold text-green-700">{studentsPresent}/{remediation.studentCount}</p>
+                    <p className="text-2xl font-bold text-green-700">
+                      {remediation.status === 'upcoming' ? '-' : `${studentsPresent}/${remediation.studentCount}`}
+                    </p>
                   </div>
                   <Users className="w-8 h-8 text-green-600" />
                 </div>
@@ -364,7 +413,9 @@ const RemediationDetailPage = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-slate-600">Compétences acquises</p>
-                    <p className="text-2xl font-bold text-orange-700">{competencesAcquired}</p>
+                    <p className="text-2xl font-bold text-orange-700">
+                      {remediation.status === 'upcoming' ? '-' : competencesAcquired}
+                    </p>
                   </div>
                   <CheckCircle className="w-8 h-8 text-orange-600" />
                 </div>
@@ -373,7 +424,9 @@ const RemediationDetailPage = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-slate-600">Amélioration moyenne</p>
-                    <p className="text-2xl font-bold text-slate-800">+{Math.round(averageImprovement)}</p>
+                    <p className="text-2xl font-bold text-slate-800">
+                      {remediation.status === 'upcoming' ? '-' : `+${Math.round(averageImprovement)}`}
+                    </p>
                   </div>
                   <TrendingUp className="w-8 h-8 text-slate-600" />
                 </div>
@@ -381,8 +434,10 @@ const RemediationDetailPage = () => {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-slate-600">Progression PDI</p>
-                    <p className="text-2xl font-bold text-orange-700">{remediation.pdiIntegration.competenceTracking.current}%</p>
+                    <p className="text-sm font-medium text-slate-600">Score Moyen Session</p>
+                    <p className="text-2xl font-bold text-orange-700">
+                      {remediation.status === 'upcoming' ? '-' : `${Math.round(averagePdiProgression)}%`}
+                    </p>
                   </div>
                   <BarChart3 className="w-8 h-8 text-orange-600" />
                 </div>
@@ -423,11 +478,16 @@ const RemediationDetailPage = () => {
                           <select
                             value={student.status}
                             onChange={(e) => handleStatusChange(student.id, e.target.value as 'present' | 'absent' | 'late')}
-                            className={`border-none text-center cursor-pointer px-3 py-1 text-xs font-semibold rounded-full ${
+                            disabled={remediation.status !== 'in_progress'}
+                            className={`border-none text-center px-3 py-1 text-xs font-semibold rounded-full ${
                               student.status === 'present' ? 'bg-green-100 text-green-800' :
                               student.status === 'absent' ? 'bg-red-100 text-red-800' :
                               'bg-amber-100 text-amber-800'
-                            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500`}
+                            } ${
+                              remediation.status !== 'in_progress'
+                                ? 'cursor-not-allowed opacity-70'
+                                : 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500'
+                            }`}
                           >
                             <option value="present">{t('present')}</option>
                             <option value="absent">{t('absent')}</option>
@@ -435,25 +495,52 @@ const RemediationDetailPage = () => {
                           </select>
                         </td>
                         <td className="p-4 text-center">
-                          <span className="text-slate-700">{student.initialGrade || '-'}</span>
+                          <span className="text-slate-700">{remediation.status === 'upcoming' ? '-' : (student.initialGrade ?? '-')}</span>
+                        </td>
+                        <td 
+                          className={`p-4 text-center ${remediation.status === 'in_progress' ? 'cursor-pointer' : ''}`}
+                          onDoubleClick={() => remediation.status === 'in_progress' && setEditingCell(student.id)}
+                        >
+                          {remediation.status === 'upcoming' ? '-' : (
+                            editingCell === student.id ? (
+                              <input
+                                type="number"
+                                defaultValue={student.remediationGrade ?? ''}
+                                className="w-16 text-center border rounded-md py-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                autoFocus
+                                onBlur={(e) => handleGradeChange(student.id, e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    handleGradeChange(student.id, e.currentTarget.value);
+                                  } else if (e.key === 'Escape') {
+                                    setEditingCell(null);
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <span className="text-slate-700">{student.remediationGrade ?? '-'}</span>
+                            )
+                          )}
                         </td>
                         <td className="p-4 text-center">
-                          <span className="text-slate-700">{student.remediationGrade || '-'}</span>
+                          {remediation.status === 'upcoming' ? '-' : (
+                            typeof student.initialGrade === 'number' && typeof student.remediationGrade === 'number' ? (
+                              <span className={`font-bold ${
+                                student.remediationGrade > student.initialGrade ? 'text-green-600' : 
+                                student.remediationGrade < student.initialGrade ? 'text-red-600' : 'text-slate-600'
+                              }`}>
+                                {student.remediationGrade > student.initialGrade ? '+' : ''}{student.remediationGrade - student.initialGrade}
+                              </span>
+                            ) : '-'
+                          )}
                         </td>
                         <td className="p-4 text-center">
-                          {student.initialGrade && student.remediationGrade ? (
-                            <span className={`font-bold ${
-                              student.remediationGrade > student.initialGrade ? 'text-green-600' : 'text-red-600'
-                            }`}>
-                              {student.remediationGrade > student.initialGrade ? '+' : ''}{student.remediationGrade - student.initialGrade}
-                            </span>
-                          ) : '-'}
-                        </td>
-                        <td className="p-4 text-center">
-                          {student.competenceAcquired ? (
-                            <CheckCircle className="w-5 h-5 text-green-600 mx-auto" />
-                          ) : (
-                            <AlertCircle className="w-5 h-5 text-red-600 mx-auto" />
+                          {remediation.status === 'upcoming' ? '-' : (
+                            student.competenceAcquired ? (
+                              <CheckCircle className="w-5 h-5 text-green-600 mx-auto" />
+                            ) : (
+                              <AlertCircle className="w-5 h-5 text-red-600 mx-auto" />
+                            )
                           )}
                         </td>
                         <td className="p-4 text-center">
@@ -524,7 +611,7 @@ const RemediationDetailPage = () => {
                 icon={<PlusCircle className="w-4 h-4" />}
                 label="Ajouter une ressource"
                 onClick={() => {}}
-                className="bg-orange-600 text-white hover:bg-orange-700"
+                className="hover:bg-orange-50"
               />
             </div>
             

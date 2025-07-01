@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Clock, User, TrendingUp, Calendar, CheckCircle, Plus, FileText, Trash2 } from 'lucide-react';
+import { 
+  ArrowLeft, BookOpen, Clock, User, TrendingUp, Calendar, CheckCircle, Plus, FileText, Trash2,
+  Calculator, FlaskConical, Landmark, Globe, Languages, Palette, Footprints, BookMarked, HeartHandshake, Book 
+} from 'lucide-react';
 import { getEnrichedCourses } from '../lib/mock-student-data';
 import { useUser } from '../layouts/DashboardLayout';
 import AddSupportModal, { NewSupportData } from '../components/course/AddSupportModal';
@@ -99,18 +102,51 @@ const CourseDetailPage: React.FC = () => {
   }
 
   const getSubjectIcon = (subject: string) => {
-    const icons: { [key: string]: string } = {
-      'Mathématiques': '📐',
-      'Français': '📚',
-      'Sciences': '🔬',
-      'Histoire': '📜',
-      'Géographie': '🌍',
-      'Anglais': '🇬🇧',
-      'Art': '🎨',
-      'Sport': '⚽',
-      'Musique': '🎵'
-    };
-    return icons[subject] || '📖';
+    const subjectLower = subject.toLowerCase();
+    
+    let IconComponent: React.ElementType = Book;
+    let colorClasses = 'bg-slate-100 text-slate-600';
+
+    if (subjectLower.includes('math')) {
+        IconComponent = Calculator;
+        colorClasses = 'bg-blue-100 text-blue-600';
+    } else if (subjectLower.includes('français') || subjectLower.includes('francais')) {
+        IconComponent = BookOpen;
+        colorClasses = 'bg-red-100 text-red-600';
+    } else if (subjectLower.includes('science')) {
+        IconComponent = FlaskConical;
+        colorClasses = 'bg-green-100 text-green-600';
+    } else if (subjectLower.includes('histoire')) {
+        IconComponent = Landmark;
+        colorClasses = 'bg-amber-100 text-amber-700';
+    } else if (subjectLower.includes('géographie') || subjectLower.includes('geographie')) {
+        IconComponent = Globe;
+        colorClasses = 'bg-cyan-100 text-cyan-600';
+    } else if (subjectLower.includes('anglais') || subjectLower.includes('english')) {
+        IconComponent = Languages;
+        colorClasses = 'bg-indigo-100 text-indigo-600';
+    } else if (subjectLower.includes('art')) {
+        IconComponent = Palette;
+        colorClasses = 'bg-purple-100 text-purple-600';
+    } else if (subjectLower.includes('sport') || subjectLower.includes('motricité')) {
+        IconComponent = Footprints;
+        colorClasses = 'bg-orange-100 text-orange-600';
+    } else if (subjectLower.includes('islamique')) {
+        IconComponent = BookMarked;
+        colorClasses = 'bg-emerald-100 text-emerald-700';
+    } else if (subjectLower.includes('quran')) {
+        IconComponent = BookMarked;
+        colorClasses = 'bg-emerald-100 text-emerald-700';
+    } else if (subjectLower.includes('vivre ensemble')) {
+        IconComponent = HeartHandshake;
+        colorClasses = 'bg-pink-100 text-pink-600';
+    }
+
+    return (
+        <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${colorClasses}`}>
+            <IconComponent className="w-5 h-5" />
+        </div>
+    );
   };
 
   const getStatusBadge = (status: string) => {
@@ -182,7 +218,7 @@ const CourseDetailPage: React.FC = () => {
           
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{getSubjectIcon(courseData.subject)}</span>
+              {getSubjectIcon(courseData.subject)}
               <div>
                 <h1 className="text-xl font-bold text-slate-800">{courseData.title}</h1>
                 <p className="text-slate-600 text-sm">{courseData.subject} • {courseData.theme}</p>

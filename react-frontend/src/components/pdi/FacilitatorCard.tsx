@@ -36,6 +36,8 @@ const FacilitatorCard: React.FC<FacilitatorCardProps> = ({ facilitator }) => {
     navigate(`/pdi/${facilitator.id}`);
   };
 
+  const uniqueClasses = [...new Set(facilitator.classes)];
+
   return (
     <div className="flex h-full flex-col items-center rounded-2xl bg-white p-6 text-center shadow">
       <div className="mb-4 h-24 w-24 flex-shrink-0 overflow-hidden rounded-full border-4 border-orange-400">
@@ -44,7 +46,7 @@ const FacilitatorCard: React.FC<FacilitatorCardProps> = ({ facilitator }) => {
       <h3 className="text-base font-bold text-gray-800">{facilitator.name}</h3>
       <p className="mb-4 text-sm text-gray-500">{facilitator.role}</p>
       <div className="mb-6 flex flex-wrap justify-center gap-2">
-        {facilitator.classes.map((className, index) => (
+        {uniqueClasses.map((className, index) => (
           <ClassTag 
             key={index} 
             className={className} 
