@@ -19,6 +19,7 @@ interface MessageContainerProps {
 
 interface ReplyToMessageDetails {
   sender: string;
+  senderEmail?: string;
   subject?: string;
   originalContent?: string;
 }
@@ -28,6 +29,7 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ userRole }) => {
   const [showComposer, setShowComposer] = useState(false);
   const [messages, setMessages] = useState<Message[]>(getMessagesForRole(userRole));
   const [sentMessagesState, setSentMessagesState] = useState<Message[]>(getSentMessages());
+  const [archivedMessages, setArchivedMessages] = useState<Message[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [replyToMessageDetails, setReplyToMessageDetails] = useState<ReplyToMessageDetails | null>(null);
 
@@ -56,12 +58,80 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ userRole }) => {
     );
   };
 
+  const handleArchiveMessage = (messageId: string) => {
+    // Déplacer le message vers les archives
+    if (selectedCategory === 'sent') {
+      setSentMessagesState(prev => {
+        const messageToArchive = prev.find(msg => msg.id === messageId);
+        if (messageToArchive) {
+          setArchivedMessages(prevArchived => [...prevArchived, messageToArchive]);
+        }
+        return prev.filter(msg => msg.id !== messageId);
+      });
+    } else {
+      setMessages(prev => {
+        const messageToArchive = prev.find(msg => msg.id === messageId);
+        if (messageToArchive) {
+          setArchivedMessages(prevArchived => [...prevArchived, messageToArchive]);
+        }
+        return prev.filter(msg => msg.id !== messageId);
+      });
+    }
+  };
+
+  const handleDeleteMessage = (messageId: string) => {
+    // Supprimer définitivement le message
+    if (selectedCategory === 'sent') {
+      setSentMessagesState(prev => prev.filter(msg => msg.id !== messageId));
+    } else {
+      setMessages(prev => prev.filter(msg => msg.id !== messageId));
+    }
+  };
+
   const handleDeleteSelected = () => {
     if (selectedCategory === 'sent') {
         setSentMessagesState(prev => prev.filter(msg => !msg.isSelected));
     } else {
         setMessages(prev => prev.filter(msg => !msg.isSelected));
     }
+  };
+
+  const handleArchiveSelected = () => {
+    if (selectedCategory === 'sent') {
+      setSentMessagesState(prev => {
+        const messagesToArchive = prev.filter(msg => msg.isSelected);
+        setArchivedMessages(prevArchived => [...prevArchived, ...messagesToArchive]);
+        return prev.filter(msg => !msg.isSelected);
+      });
+    } else {
+      setMessages(prev => {
+        const messagesToArchive = prev.filter(msg => msg.isSelected);
+        setArchivedMessages(prevArchived => [...prevArchived, ...messagesToArchive]);
+        return prev.filter(msg => !msg.isSelected);
+      });
+    }
+  };
+
+  const handleRefresh = () => {
+    // Recharger les messages en fonction du rôle
+    setMessages(getMessagesForRole(userRole));
+    setSentMessagesState(getSentMessages());
+  };
+
+  // Fonction pour restaurer un message depuis les archives
+  const handleRestoreFromArchive = (messageId: string) => {
+    setArchivedMessages(prev => {
+      const messageToRestore = prev.find(msg => msg.id === messageId);
+      if (messageToRestore) {
+        // Restaurer le message dans sa liste d'origine
+        if (messageToRestore.category === 'Envoyé') {
+          setSentMessagesState(prevSent => [...prevSent, messageToRestore]);
+        } else {
+          setMessages(prevMessages => [...prevMessages, messageToRestore]);
+        }
+      }
+      return prev.filter(msg => msg.id !== messageId);
+    });
   };
 
   const handleNewMessage = () => {
@@ -90,8 +160,8 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ userRole }) => {
     setSelectedMessage(null);
   };
 
-  const handleReply = (sender: string, subject?: string, originalContent?: string) => {
-    setReplyToMessageDetails({ sender, subject, originalContent });
+  const handleReply = (sender: string, senderEmail?: string, subject?: string, originalContent?: string) => {
+    setReplyToMessageDetails({ sender, senderEmail, subject, originalContent });
     setShowComposer(true);
     setSelectedMessage(null);
   };
@@ -124,6 +194,8 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ userRole }) => {
         return sentMessagesState;
       case 'important':
         return [...messages, ...sentMessagesState];
+      case 'archives':
+        return archivedMessages;
       default:
         return messages;
     }
@@ -145,6 +217,7 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ userRole }) => {
             onNewMessage={handleNewMessage}
             messages={messages}
             sentMessages={sentMessagesState}
+            archivedMessages={archivedMessages}
             userRole={userRole}
           />
         </div>
@@ -180,6 +253,7 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ userRole }) => {
             onNewMessage={handleNewMessage}
             messages={messages}
             sentMessages={sentMessagesState}
+            archivedMessages={archivedMessages}
             userRole={userRole}
           />
         </div>
@@ -190,6 +264,11 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ userRole }) => {
             message={selectedMessage} 
             onClose={handleCloseMessageDetail} 
             onReply={handleReply}
+            onToggleStar={handleToggleStar}
+            onArchive={handleArchiveMessage}
+            onDelete={handleDeleteMessage}
+            onRestore={handleRestoreFromArchive}
+            isFromArchives={selectedCategory === 'archives'}
             userRole={userRole}
           />
         </div>
@@ -210,6 +289,7 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ userRole }) => {
           onNewMessage={handleNewMessage}
           messages={messages}
           sentMessages={sentMessagesState}
+          archivedMessages={archivedMessages}
           userRole={userRole}
         />
       </div>
@@ -223,6 +303,8 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ userRole }) => {
           onToggleStar={handleToggleStar}
           onDeleteSelected={handleDeleteSelected}
           onSelectMessage={handleSelectMessage}
+          onArchiveSelected={handleArchiveSelected}
+          onRefresh={handleRefresh}
         />
       </div>
     </div>

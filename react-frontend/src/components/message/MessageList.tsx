@@ -2,10 +2,12 @@
 
 import React, { useState } from 'react';
 import { Star, Search, ChevronLeft, ChevronRight, Trash2, Clock, AlertCircle, Paperclip, RefreshCw, Archive, MoreVertical } from 'lucide-react';
+import { useNotification } from '../ui/NotificationManager';
 
 interface Message {
   id: string;
   sender: string;
+  senderEmail?: string;
   content: string;
   category: string;
   time: string;
@@ -14,6 +16,7 @@ interface Message {
   subject?: string;
   fullContent?: string;
   recipient?: string;
+  recipientEmail?: string;
   avatarUrl?: string;
   isRead?: boolean;
   priority?: 'low' | 'normal' | 'high';
@@ -27,6 +30,8 @@ interface MessageListProps {
   onToggleStar: (messageId: string) => void;
   onDeleteSelected: () => void;
   onSelectMessage: (message: Message) => void;
+  onArchiveSelected?: () => void;
+  onRefresh?: () => void;
 }
 
 const MessageList: React.FC<MessageListProps> = ({
@@ -36,10 +41,13 @@ const MessageList: React.FC<MessageListProps> = ({
   onToggleStar,
   onDeleteSelected,
   onSelectMessage,
+  onArchiveSelected,
+  onRefresh,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const messagesPerPage = 25;
+  const { showSuccess, showInfo } = useNotification();
 
   // Filtrer les messages par catégorie et recherche
   const filteredMessages = initialMessages.filter(message => {
@@ -75,6 +83,9 @@ const MessageList: React.FC<MessageListProps> = ({
         break;
       case 'draft':
         matchesCategory = message.category === 'Brouillon';
+        break;
+      case 'archives':
+        matchesCategory = true; // Tous les messages dans les archives sont affichés
         break;
       default:
         break;
@@ -133,6 +144,7 @@ const MessageList: React.FC<MessageListProps> = ({
       case 'inbox': return 'Boîte de réception';
       case 'sent': return 'Messages envoyés';
       case 'important': return 'Messages importants';
+      case 'archives': return 'Archives';
       case 'draft': return 'Brouillons';
       case 'teachers': return 'Professeurs';
       case 'students': return 'Élèves';
@@ -140,6 +152,36 @@ const MessageList: React.FC<MessageListProps> = ({
       case 'facilitators': return 'Facilitateurs';
       case 'admin': return 'Administration';
       default: return 'Messages';
+    }
+  };
+
+  // Fonction pour actualiser les messages
+  const handleRefresh = () => {
+    if (onRefresh) {
+      onRefresh();
+      showSuccess('Messages actualisés !');
+    } else {
+      // Animation de rotation pour indiquer le rafraîchissement
+      const refreshBtn = document.querySelector('.refresh-btn');
+      if (refreshBtn) {
+        refreshBtn.classList.add('animate-spin');
+        setTimeout(() => {
+          refreshBtn.classList.remove('animate-spin');
+        }, 1000);
+      }
+      showSuccess('Messages actualisés !');
+    }
+  };
+
+  // Fonction pour archiver les messages sélectionnés
+  const handleArchiveSelected = () => {
+    if (selectedCount > 0) {
+      if (onArchiveSelected) {
+        onArchiveSelected();
+        showSuccess(`${selectedCount} message${selectedCount > 1 ? 's' : ''} archivé${selectedCount > 1 ? 's' : ''} !`);
+      } else {
+        showSuccess(`${selectedCount} message${selectedCount > 1 ? 's' : ''} archivé${selectedCount > 1 ? 's' : ''} !`);
+      }
     }
   };
 
@@ -173,10 +215,18 @@ const MessageList: React.FC<MessageListProps> = ({
                 onChange={handleSelectAll}
                 className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
               />
-              <button className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+              <button 
+                onClick={handleRefresh}
+                className="p-2 hover:bg-gray-200 rounded-full transition-colors refresh-btn"
+                title="Actualiser"
+              >
                 <RefreshCw size={16} className="text-gray-600" />
               </button>
-              <button className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+              <button 
+                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                title="Plus d'options"
+                onClick={() => showInfo('Menu d\'options en cours de développement')}
+              >
                 <MoreVertical size={16} className="text-gray-600" />
               </button>
             </div>
@@ -190,7 +240,11 @@ const MessageList: React.FC<MessageListProps> = ({
                 >
                   <Trash2 size={16} className="text-gray-600" />
                 </button>
-                <button className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                <button 
+                  onClick={handleArchiveSelected}
+                  className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                  title="Archiver"
+                >
                   <Archive size={16} className="text-gray-600" />
                 </button>
                 <span className="text-sm text-gray-600">

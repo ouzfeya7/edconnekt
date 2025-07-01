@@ -1,11 +1,14 @@
 // src/components/message/MessageDetailView.tsx
-import React, { useState } from 'react';
-import { ArrowLeft, Star, Reply, ReplyAll, Forward, Trash2, Archive, MoreVertical, Paperclip, Download, Printer, Clock, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Star, Reply, ReplyAll, Forward, Trash2, Archive, MoreVertical, Paperclip, Download, Printer, Clock, AlertCircle, ArchiveRestore, Copy, Mail } from 'lucide-react';
 import { UserRole } from '../../lib/mock-message-data';
+import { useNotification } from '../ui/NotificationManager';
+import ConfirmModal from '../ui/ConfirmModal';
 
 interface Message {
   id: string;
   sender: string;
+  senderEmail?: string;
   content: string;
   category: string;
   time: string;
@@ -14,6 +17,7 @@ interface Message {
   subject?: string;
   fullContent?: string;
   recipient?: string;
+  recipientEmail?: string;
   avatarUrl?: string;
   isRead?: boolean;
   priority?: 'low' | 'normal' | 'high';
@@ -23,18 +27,49 @@ interface Message {
 interface MessageDetailViewProps {
   message: Message;
   onClose: () => void;
-  onReply: (sender: string, subject?: string, originalContent?: string) => void;
+  onReply: (sender: string, senderEmail?: string, subject?: string, originalContent?: string) => void;
   userRole: UserRole;
+  onToggleStar?: (messageId: string) => void;
+  onArchive?: (messageId: string) => void;
+  onDelete?: (messageId: string) => void;
+  onRestore?: (messageId: string) => void;
+  isFromArchives?: boolean;
 }
 
 const MessageDetailView: React.FC<MessageDetailViewProps> = ({ 
   message, 
   onClose, 
   onReply,
-  userRole 
+  userRole,
+  onToggleStar,
+  onArchive,
+  onDelete,
+  onRestore,
+  isFromArchives = false
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [avatarError, setAvatarError] = useState(false);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const moreOptionsRef = useRef<HTMLDivElement>(null);
+  const { showSuccess, showError, showInfo } = useNotification();
+
+  // Fermer le menu "Plus d'options" quand on clique en dehors
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (moreOptionsRef.current && !moreOptionsRef.current.contains(event.target as Node)) {
+        setShowMoreOptions(false);
+      }
+    };
+
+    if (showMoreOptions) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMoreOptions]);
   
   // Utiliser un avatar par défaut plus fiable
   const getAvatarSrc = () => {
@@ -48,6 +83,187 @@ const MessageDetailView: React.FC<MessageDetailViewProps> = ({
 
   const handleAvatarError = () => {
     setAvatarError(true);
+  };
+
+  // Fonction pour transférer le message
+  const handleForward = () => {
+    const forwardSubject = message.subject?.startsWith('Fwd: ') 
+      ? message.subject 
+      : `Fwd: ${message.subject || 'Sans objet'}`;
+    
+    const forwardContent = `
+---------- Message transféré ----------
+De : ${message.sender} <${message.senderEmail || message.sender.toLowerCase().replace(' ', '.') + '@edconnekt.com'}>
+Date : ${message.time}
+Objet : ${message.subject || 'Sans objet'}
+
+${message.fullContent || message.content}
+`;
+    
+    onReply('', '', forwardSubject, forwardContent);
+  };
+
+  // Fonction pour archiver le message
+  const handleArchive = () => {
+    if (onArchive) {
+      onArchive(message.id);
+      showSuccess('Message archivé avec succès');
+      onClose();
+    } else {
+      showInfo('Fonctionnalité d\'archivage en cours de développement');
+    }
+  };
+
+  // Fonction pour restaurer le message depuis les archives
+  const handleRestore = () => {
+    if (onRestore) {
+      onRestore(message.id);
+      showSuccess('Message restauré dans la boîte de réception');
+      onClose();
+    } else {
+      showInfo('Fonctionnalité de restauration en cours de développement');
+    }
+  };
+
+  // Fonction pour supprimer le message
+  const handleDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    if (onDelete) {
+      onDelete(message.id);
+      showSuccess('Message supprimé avec succès');
+      onClose();
+    } else {
+      showInfo('Fonctionnalité de suppression en cours de développement');
+    }
+    setShowDeleteConfirm(false);
+  };
+
+  // Fonction pour imprimer le message
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Imprimer - ${message.subject || 'Sans objet'}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 40px; }
+              .header { border-bottom: 2px solid #ccc; padding-bottom: 20px; margin-bottom: 20px; }
+              .from { font-weight: bold; margin-bottom: 10px; }
+              .subject { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+              .date { color: #666; margin-bottom: 20px; }
+              .content { line-height: 1.6; }
+              .attachments { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ccc; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="subject">${message.subject || 'Sans objet'}</div>
+              <div class="from">De : ${message.sender}</div>
+              <div class="date">Date : ${message.time}</div>
+            </div>
+            <div class="content">
+              ${(message.fullContent || message.content).replace(/\n/g, '<br>')}
+            </div>
+            ${message.attachments && message.attachments.length > 0 ? `
+              <div class="attachments">
+                <strong>Pièces jointes :</strong>
+                <ul>
+                  ${message.attachments.map(att => `<li>${att}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  // Fonction pour basculer l'étoile
+  const handleToggleStar = () => {
+    if (onToggleStar) {
+      onToggleStar(message.id);
+    }
+  };
+
+  // Fonction pour télécharger une pièce jointe
+  const handleDownloadAttachment = (attachmentName: string) => {
+    // Simuler le téléchargement d'une pièce jointe
+    const link = document.createElement('a');
+    // En production, ceci serait l'URL réelle du fichier
+    link.href = `#download-${attachmentName}`;
+    link.download = attachmentName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showSuccess(`Téléchargement de "${attachmentName}" commencé !`);
+  };
+
+  // Menu des options supplémentaires
+  const renderMoreOptionsMenu = () => {
+    if (!showMoreOptions) return null;
+
+    return (
+      <div className="absolute right-0 top-10 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48">
+        <div className="py-2">
+          <button 
+            onClick={() => {
+              handlePrint();
+              setShowMoreOptions(false);
+            }}
+            className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+          >
+            <Printer size={16} />
+            Imprimer
+          </button>
+          <button 
+            onClick={() => {
+              navigator.clipboard.writeText(message.fullContent || message.content);
+              setShowMoreOptions(false);
+              showSuccess('Contenu copié dans le presse-papiers');
+            }}
+            className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+          >
+            <Copy size={16} />
+            Copier le contenu
+          </button>
+          <button 
+            onClick={() => {
+              // Pour un message envoyé, on veut contacter le destinataire
+              // Pour un message reçu, on veut contacter l'expéditeur
+              const isReceivedMessage = message.category !== 'Envoyé';
+              const targetEmail = isReceivedMessage 
+                ? (message.senderEmail || message.sender.toLowerCase().replace(' ', '.') + '@edconnekt.com')
+                : (message.recipientEmail || message.recipient || 'destinataire@exemple.com');
+              
+              const mailtoLink = `mailto:${targetEmail}?subject=Re: ${message.subject}&body=${encodeURIComponent('Message original:\n' + (message.fullContent || message.content))}`;
+              window.open(mailtoLink);
+              setShowMoreOptions(false);
+            }}
+            className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+          >
+            <Mail size={16} />
+            Ouvrir avec client email
+          </button>
+          <div className="border-t border-gray-200 my-2"></div>
+          <button 
+            onClick={() => {
+              handleDelete();
+              setShowMoreOptions(false);
+            }}
+            className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 flex items-center gap-2"
+          >
+            <Trash2 size={16} />
+            Supprimer
+          </button>
+        </div>
+      </div>
+    );
   };
 
   const getPriorityBadge = () => {
@@ -126,13 +342,17 @@ const MessageDetailView: React.FC<MessageDetailViewProps> = ({
             
             {/* Boutons d'action principaux */}
             <button 
-              onClick={() => onReply(message.sender, message.subject, message.fullContent || message.content)}
+              onClick={() => onReply(message.sender, message.senderEmail, message.subject, message.fullContent || message.content)}
               className="text-orange-600 hover:text-orange-700 px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1"
             >
               <Reply size={16} />
               Répondre
             </button>
-            <button className="text-gray-600 hover:text-gray-700 px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1">
+            <button 
+              onClick={handleForward}
+              className="text-gray-600 hover:text-gray-700 px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1"
+              title="Transférer"
+            >
               <Forward size={16} />
               Transférer
             </button>
@@ -140,18 +360,47 @@ const MessageDetailView: React.FC<MessageDetailViewProps> = ({
             <div className="w-px h-6 bg-gray-300"></div>
             
             {/* Autres actions */}
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <Archive size={18} className="text-gray-600" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            {isFromArchives ? (
+              <button 
+                onClick={handleRestore}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                title="Restaurer dans la boîte de réception"
+              >
+                <ArchiveRestore size={18} className="text-gray-600" />
+              </button>
+            ) : (
+              <button 
+                onClick={handleArchive}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                title="Archiver"
+              >
+                <Archive size={18} className="text-gray-600" />
+              </button>
+            )}
+            <button 
+              onClick={handleDelete}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              title="Supprimer"
+            >
               <Trash2 size={18} className="text-gray-600" />
             </button>
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            <button 
+              onClick={handlePrint}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              title="Imprimer"
+            >
               <Printer size={18} className="text-gray-600" />
             </button>
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <MoreVertical size={18} className="text-gray-600" />
-            </button>
+            <div className="relative" ref={moreOptionsRef}>
+              <button 
+                onClick={() => setShowMoreOptions(!showMoreOptions)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                title="Plus d'options"
+              >
+                <MoreVertical size={18} className="text-gray-600" />
+              </button>
+              {renderMoreOptionsMenu()}
+            </div>
           </div>
         </div>
 
@@ -169,7 +418,7 @@ const MessageDetailView: React.FC<MessageDetailViewProps> = ({
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-gray-900">{message.sender}</span>
                   <span className="text-sm text-gray-500">
-                    &lt;{message.sender.toLowerCase().replace(' ', '.')}@edconnekt.com&gt;
+                    &lt;{message.senderEmail || message.sender.toLowerCase().replace(' ', '.') + '@edconnekt.com'}&gt;
                   </span>
                 </div>
                 <div className="text-sm text-gray-500">
@@ -178,7 +427,11 @@ const MessageDetailView: React.FC<MessageDetailViewProps> = ({
               </div>
             </div>
 
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            <button 
+              onClick={handleToggleStar}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              title={message.isStarred ? "Retirer l'étoile" : "Marquer comme important"}
+            >
               <Star 
                 size={18} 
                 className={message.isStarred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}
@@ -209,7 +462,11 @@ const MessageDetailView: React.FC<MessageDetailViewProps> = ({
                       </div>
                       <span className="text-sm text-gray-700 truncate">{attachment}</span>
                     </div>
-                    <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+                    <button 
+                      onClick={() => handleDownloadAttachment(attachment)}
+                      className="p-1 hover:bg-gray-100 rounded transition-colors"
+                      title="Télécharger"
+                    >
                       <Download size={14} className="text-gray-500" />
                     </button>
                   </div>
@@ -228,6 +485,18 @@ const MessageDetailView: React.FC<MessageDetailViewProps> = ({
           </div>
         </div>
       </div>
+      
+      {/* Modal de confirmation pour la suppression */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Supprimer le message"
+        message="Êtes-vous sûr de vouloir supprimer ce message ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        confirmVariant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 };

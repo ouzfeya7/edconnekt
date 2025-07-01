@@ -1,7 +1,7 @@
 // components/MessageSidebar.tsx
 
 import React from "react";
-import { Inbox, GraduationCap, Users, UserCog, Building2, Star, FileEdit, Send, Mail, Edit3 } from "lucide-react";
+import { Inbox, GraduationCap, Users, UserCog, Building2, Star, FileEdit, Send, Mail, Edit3, Archive } from "lucide-react";
 import { UserRole, getCategoriesForRole } from '../../lib/mock-message-data';
 
 interface Message {
@@ -22,6 +22,7 @@ interface MessageSidebarProps {
   onNewMessage: () => void;
   messages: Message[];
   sentMessages: Message[];
+  archivedMessages: Message[];
   userRole: UserRole;
 }
 
@@ -31,6 +32,7 @@ const MessageSidebar: React.FC<MessageSidebarProps> = ({
   onNewMessage,
   messages,
   sentMessages,
+  archivedMessages,
   userRole
 }) => {
   
@@ -55,6 +57,8 @@ const MessageSidebar: React.FC<MessageSidebarProps> = ({
         const starredInInbox = messages.filter(msg => msg.isStarred).length;
         const starredInSent = sentMessages.filter(msg => msg.isStarred).length;
         return starredInInbox + starredInSent;
+      case 'archives':
+        return archivedMessages.length;
       case 'draft':
         return messages.filter(msg => msg.category === 'Brouillon').length;
       default:
@@ -79,6 +83,8 @@ const MessageSidebar: React.FC<MessageSidebarProps> = ({
         return messages.filter(msg => msg.category === 'Administration' && !msg.isRead).length;
       case 'important':
         return messages.filter(msg => msg.isStarred && !msg.isRead).length;
+      case 'archives':
+        return archivedMessages.filter(msg => !msg.isRead).length;
       default:
         return 0;
     }
@@ -94,6 +100,7 @@ const MessageSidebar: React.FC<MessageSidebarProps> = ({
       case 'UserCog': return <UserCog {...iconProps} />;
       case 'Building2': return <Building2 {...iconProps} />;
       case 'Star': return <Star {...iconProps} />;
+      case 'Archive': return <Archive {...iconProps} />;
       case 'FileEdit': return <FileEdit {...iconProps} />;
       default: return <Mail {...iconProps} />;
     }
