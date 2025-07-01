@@ -3,6 +3,7 @@
 export interface Message {
   id: string;
   sender: string;
+  senderEmail?: string;
   content: string;
   category: string;
   time: string;
@@ -11,6 +12,7 @@ export interface Message {
   subject?: string;
   fullContent?: string;
   recipient?: string;
+  recipientEmail?: string;
   avatarUrl?: string;
   isRead?: boolean;
   priority?: 'low' | 'normal' | 'high';
@@ -24,6 +26,7 @@ export const getStudentMessages = (): Message[] => [
   {
     id: '1',
     sender: 'M. Diallo - Mathématiques',
+    senderEmail: 'm.diallo@edconnekt.com',
     subject: 'Devoir de mathématiques - Équations du second degré',
     content: 'Devoir de mathématiques pour lundi prochain sur les équations du second degré',
     fullContent: `Bonjour,
@@ -51,6 +54,7 @@ M. Diallo`,
   {
     id: '2',
     sender: 'Mme Sow - Français',
+    senderEmail: 'mme.sow@edconnekt.com',
     subject: 'Résultats du contrôle de français',
     content: 'Notes du contrôle de français disponibles dans votre espace élève',
     fullContent: `Chère classe,
@@ -77,6 +81,7 @@ Mme Sow`,
   {
     id: '3',
     sender: 'Administration - Scolarité',
+    senderEmail: 'scolarite@edconnekt.com',
     subject: 'Réunion parents-professeurs - 15 mars',
     content: 'Rappel : Réunion parents-professeurs le 15 mars à 18h00',
     fullContent: `Chers élèves,
@@ -545,6 +550,11 @@ export const getCategoriesForRole = (role: UserRole) => {
       id: 'important', 
       name: 'Messages importants',
       icon: 'Star'
+    },
+    { 
+      id: 'archives', 
+      name: 'Archives',
+      icon: 'Archive'
     },
     { 
       id: 'draft', 

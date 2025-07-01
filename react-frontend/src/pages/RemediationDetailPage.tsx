@@ -7,9 +7,75 @@ import {
   TrendingUp, AlertCircle, History, Settings, Bell, PlusCircle, 
   Play, Gamepad2, BookOpenCheck, MessageSquare, ChevronDown, ChevronRight
 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable, { Table, UserOptions } from 'jspdf-autotable';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { ActionCard } from '../components/ui/ActionCard';
+import { useFilters } from '../contexts/FilterContext';
+import schoolLogo from '../assets/logo-yka-1.png';
+
+interface jsPDFWithAutoTable extends jsPDF {
+  lastAutoTable?: Table;
+}
+
+const schoolInfo = {
+  name: "Yenne Kids' Academy",
+  address: "Kel, Rte de Toubab Dialaw, Yenne BP 20000, Dakar, Senegal",
+  phone1: "+221 77 701 52 52",
+  phone2: "+221 33 871 27 82",
+  email: "hello@yennekidsacademy.com",
+  website: "www.yennekidsacademy.com",
+  academicYear: "2023-2024"
+};
+
+const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
+  // Logo
+  doc.addImage(schoolLogo, 'PNG', 25, 15, 30, 30);
+
+  // School Info
+  doc.setFontSize(14);
+  doc.setFont("times", 'bold');
+  doc.text(schoolInfo.name, 65, 22);
+  
+  doc.setFontSize(8);
+  doc.setFont("times", 'normal');
+  doc.text(schoolInfo.address, 65, 28);
+  doc.text(`Tél: ${schoolInfo.phone1} / ${schoolInfo.phone2}`, 65, 32);
+  doc.text(`Email: ${schoolInfo.email} | Site: ${schoolInfo.website}`, 65, 36);
+  doc.text(`Année Scolaire: ${schoolInfo.academicYear}`, 65, 40);
+
+  // Title
+  doc.setFontSize(16);
+  doc.setFont("times", 'bold');
+  doc.text(title, doc.internal.pageSize.getWidth() / 2, 55, { align: 'center' });
+  
+  // Class Subtitle
+  doc.setFontSize(12);
+  doc.setFont("times", 'normal');
+  doc.text(`Classe: ${classe.toUpperCase()}`, doc.internal.pageSize.getWidth() / 2, 62, { align: 'center' });
+
+  // Header Line
+  doc.setDrawColor(0);
+  doc.line(25, 70, doc.internal.pageSize.getWidth() - 25, 70);
+  
+  return 80; // Return the start Y position for the content
+};
+
+const getPdfTableStyles = (): Partial<UserOptions> => ({
+  theme: 'grid' as const,
+  headStyles: {
+    fillColor: [230, 230, 230] as [number, number, number],
+    textColor: [0, 0, 0] as [number, number, number],
+    fontStyle: 'bold' as const,
+    lineColor: [0, 0, 0] as [number, number, number],
+    lineWidth: 0.1,
+  },
+  styles: {
+    lineColor: [0, 0, 0] as [number, number, number],
+    lineWidth: 0.1,
+  },
+});
 
 const statusInfo = {
   upcoming: { 
@@ -39,6 +105,7 @@ const resourceTypeIcons = {
 
 const RemediationDetailPage = () => {
   const { t } = useTranslation();
+  const { currentClasse } = useFilters();
   const { remediationId } = useParams<{ remediationId: string }>();
   const remediation = mockRemediations.find(r => r.id === remediationId);
 
@@ -66,6 +133,166 @@ const RemediationDetailPage = () => {
         student.id === studentId ? { ...student, status: newStatus } : student
       )
     );
+  };
+
+    const handleExportReport = () => {
+    if (!remediation) return;
+
+    try {
+      const doc = new jsPDF() as jsPDFWithAutoTable;
+      const title = `Rapport de Remédiation - ${remediation.subject}`;
+      let startY = addPdfHeader(doc, currentClasse, title);
+      const baseStyles = getPdfTableStyles();
+
+      // Section 1: Informations générales
+      doc.setFontSize(14);
+      doc.setFont("times", 'bold');
+      doc.text('INFORMATIONS GÉNÉRALES', 25, startY);
+      startY += 10;
+
+      const generalInfo = [
+        ['Session', remediation.title],
+        ['Date', dayjs(remediation.date).format('DD/MM/YYYY')],
+        ['Matière', remediation.subject],
+        ['Enseignant', remediation.teacher],
+        ['Durée', `${remediation.duration} minutes`],
+        ['Lieu', remediation.location],
+        ['Objectif', remediation.objective],
+        ['Compétence visée', remediation.skillToAcquire]
+      ];
+
+      autoTable(doc, {
+        ...baseStyles,
+        body: generalInfo,
+        startY: startY,
+        margin: { left: 25, right: 25 },
+        columnStyles: {
+          0: { cellWidth: 50, fontStyle: 'bold' },
+          1: { cellWidth: 120 }
+        }
+      });
+
+      startY = (doc.lastAutoTable?.finalY || startY) + 15;
+
+      // Section 2: Résultats des élèves
+      doc.setFontSize(14);
+      doc.setFont("times", 'bold');
+      doc.text('RÉSULTATS DES ÉLÈVES', 25, startY);
+      startY += 7;
+
+      const studentHeaders = ['Nom', 'Présence', 'Note initiale', 'Note remédiation', 'Progression', 'Compétence'];
+      const studentRows = students.map(student => [
+        student.name,
+        student.status === 'present' ? 'Présent' : student.status === 'absent' ? 'Absent' : 'Retard',
+        student.initialGrade?.toString() || '-',
+        student.remediationGrade?.toString() || '-',
+        student.initialGrade && student.remediationGrade ? 
+          ((student.remediationGrade > student.initialGrade ? '+' : '') + (student.remediationGrade - student.initialGrade).toString()) : '-',
+        student.competenceAcquired ? 'Acquise' : 'Non acquise'
+      ]);
+
+             autoTable(doc, {
+         ...baseStyles,
+         head: [studentHeaders],
+         body: studentRows,
+         startY: startY,
+         margin: { left: 25, right: 25 },
+         styles: { 
+           lineColor: [0, 0, 0] as [number, number, number],
+           lineWidth: 0.1,
+           fontSize: 9, 
+           cellPadding: 3 
+         },
+         columnStyles: {
+           0: { cellWidth: 35 }, // Nom
+           1: { cellWidth: 25 }, // Présence
+           2: { cellWidth: 25 }, // Note initiale
+           3: { cellWidth: 30 }, // Note remédiation
+           4: { cellWidth: 25 }, // Progression
+           5: { cellWidth: 30 }  // Compétence
+         }
+       });
+
+      startY = (doc.lastAutoTable?.finalY || startY) + 15;
+
+      // Section 3: Statistiques globales
+      doc.setFontSize(14);
+      doc.setFont("times", 'bold');
+      doc.text('STATISTIQUES GLOBALES', 25, startY);
+      startY += 7;
+
+      const stats = [
+        ['Élèves présents', `${studentsPresent}/${remediation.studentCount} (${Math.round((studentsPresent / remediation.studentCount) * 100)}%)`],
+        ['Compétences acquises', `${competencesAcquired} élèves (${Math.round((competencesAcquired / studentsPresent) * 100)}%)`],
+        ['Amélioration moyenne', `+${Math.round(averageImprovement)} points`],
+        ['Progression PDI', `${remediation.pdiIntegration.competenceTracking.current}%`]
+      ];
+
+      autoTable(doc, {
+        ...baseStyles,
+        body: stats,
+        startY: startY,
+        margin: { left: 25, right: 25 },
+        columnStyles: {
+          0: { cellWidth: 60, fontStyle: 'bold' },
+          1: { cellWidth: 110 }
+        }
+      });
+
+      startY = (doc.lastAutoTable?.finalY || startY) + 15;
+
+      // Section 4: Suivi PDI
+      doc.setFontSize(14);
+      doc.setFont("times", 'bold');
+      doc.text('SUIVI PDI', 25, startY);
+      startY += 7;
+
+      const pdiData = [
+        ['Niveau initial', `${remediation.pdiIntegration.competenceTracking.initial}%`, 'Point de départ'],
+        ['Niveau actuel', `${remediation.pdiIntegration.competenceTracking.current}%`, 'Après remédiation'],
+        ['Objectif visé', `${remediation.pdiIntegration.competenceTracking.target}%`, 'Cible à atteindre']
+      ];
+
+      autoTable(doc, {
+        ...baseStyles,
+        head: [['Indicateur', 'Valeur', 'Description']],
+        body: pdiData,
+        startY: startY,
+        margin: { left: 25, right: 25 }
+      });
+
+      startY = (doc.lastAutoTable?.finalY || startY) + 15;
+
+      // Section 5: Alertes (si existantes)
+      if (remediation.pdiIntegration.alertsGenerated.length > 0) {
+        doc.setFontSize(14);
+        doc.setFont("times", 'bold');
+        doc.text('ALERTES GÉNÉRÉES', 25, startY);
+        startY += 7;
+
+        const alertData = remediation.pdiIntegration.alertsGenerated.map(alert => [alert]);
+
+        autoTable(doc, {
+          ...baseStyles,
+          body: alertData,
+          startY: startY,
+          margin: { left: 25, right: 25 }
+        });
+
+        startY = (doc.lastAutoTable?.finalY || startY) + 10;
+      }
+
+      // Pied de page
+      doc.setFontSize(10);
+      doc.setFont("times", 'normal');
+      doc.text(`Rapport généré le ${dayjs().format('DD/MM/YYYY à HH:mm')}`, 25, doc.internal.pageSize.height - 20);
+      doc.text('EdConnekt - Système de remédiation', doc.internal.pageSize.width - 25, doc.internal.pageSize.height - 20, { align: 'right' });
+
+      doc.save(`Rapport_Remediation_${remediation.title.replace(/\s+/g, '_')}_${dayjs(remediation.date).format('YYYY-MM-DD')}.pdf`);
+    } catch (error) {
+      console.error("Erreur lors de la génération du PDF :", error);
+      alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+    }
   };
 
   const currentStatusInfo = statusInfo[remediation.status];
@@ -508,7 +735,6 @@ const RemediationDetailPage = () => {
                   icon={<Download className="w-4 h-4" />}
                   label="Télécharger"
                   onClick={() => {}}
-                  className="bg-orange-600 text-white hover:bg-orange-700"
                 />
               </div>
             </div>
@@ -552,17 +778,11 @@ const RemediationDetailPage = () => {
                 icon={<Send className="w-4 h-4" />}
                 label="Informer les parents"
                 onClick={() => setShowParentReport(true)}
-                className="bg-orange-600 text-white hover:bg-orange-700"
               />
               <ActionCard
                 icon={<Download className="w-4 h-4" />}
                 label="Exporter le rapport"
-                onClick={() => {}}
-              />
-              <ActionCard
-                icon={<BarChart3 className="w-4 h-4" />}
-                label="Voir les statistiques"
-                onClick={() => {}}
+                onClick={handleExportReport}
               />
             </div>
           </div>
@@ -632,13 +852,14 @@ const RemediationDetailPage = () => {
                     label="Envoyer"
                     onClick={() => setShowParentReport(false)}
                     icon={<Send className="w-4 h-4" />}
-                    className="bg-orange-600 text-white hover:bg-orange-700"
                   />
                 </div>
               </div>
             </div>
           </div>
         )}
+
+
       </div>
     </div>
   );
