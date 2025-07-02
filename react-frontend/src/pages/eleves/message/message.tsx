@@ -14,7 +14,7 @@ const Message = () => {
 
   return (
     <NotificationProvider>
-      <MessageContainer userRole={userRole} />
+    <MessageContainer userRole={userRole} />
     </NotificationProvider>
   );
 };

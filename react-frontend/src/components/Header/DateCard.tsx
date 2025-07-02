@@ -50,7 +50,7 @@ const DateCard: React.FC<DateCardProps> = ({ value, onChange, disabled = false }
           {dayjs(value).format('D MMMM YYYY')}
         </span>
         {/* L'icône du calendrier */}
-        <Calendar className="h-5 w-5 text-gray-500 ml-auto" />
+        <Calendar className="h-5 w-5 text-gray-500 ml-auto cursor-pointer" />
       </div>
     </div>
   );

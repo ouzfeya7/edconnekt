@@ -374,8 +374,8 @@ ${message.fullContent || message.content}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 title="Archiver"
               >
-                <Archive size={18} className="text-gray-600" />
-              </button>
+              <Archive size={18} className="text-gray-600" />
+            </button>
             )}
             <button 
               onClick={handleDelete}
@@ -397,8 +397,8 @@ ${message.fullContent || message.content}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 title="Plus d'options"
               >
-                <MoreVertical size={18} className="text-gray-600" />
-              </button>
+              <MoreVertical size={18} className="text-gray-600" />
+            </button>
               {renderMoreOptionsMenu()}
             </div>
           </div>

@@ -23,7 +23,7 @@ const ClassNameCard: React.FC<ClassNameCardProps> = ({ className, onClassChange,
     return (
     <>
       <div 
-        className={`bg-white p-4 rounded-lg shadow-sm flex flex-col justify-between h-full ${isEditable ? 'cursor-pointer' : ''}`}
+        className={`bg-white p-4 rounded-lg shadow-sm flex flex-col justify-between h-full border border-gray-200 ${isEditable ? 'cursor-pointer' : ''}`}
         onClick={() => isEditable && setIsModalOpen(true)}
       >
         <div>

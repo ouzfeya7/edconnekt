@@ -267,7 +267,7 @@ export interface RemediationStudent {
   avatar: string;
   status: 'present' | 'absent' | 'late';
   initialGrade?: number;
-  remediationGrade?: number;
+  remediationGrade?: number | null;
   competenceAcquired?: boolean;
   parentNotified?: boolean;
 }
@@ -693,7 +693,7 @@ export const mockFacilitators: Facilitator[] = [
     name: 'Marie SENGHOR',
     role: 'Facilitatrice français',
     avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/60.jpg',
-    classes: ['PRESK 1', 'PRESK 2', 'CI A', 'CP B'],
+    classes: ['PRESK 1', 'PRESK 2', 'CP1', 'CP2'],
     stats: { avg: 73, acquired: 90, notAcquired: 10, remediation: 2 },
   },
   {
@@ -701,7 +701,7 @@ export const mockFacilitators: Facilitator[] = [
     name: 'Philomène SAGNA',
     role: 'Facilitatrice français',
     avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/63.jpg',
-    classes: ['4eme B', '4eme B'],
+    classes: ['PRESK 1', 'PRESK 2', 'CP1', 'CE1', 'CE2'],
     stats: { avg: 80, acquired: 85, notAcquired: 15, remediation: 1 },
   },
   {
@@ -709,7 +709,7 @@ export const mockFacilitators: Facilitator[] = [
     name: 'Djiby DIOUF',
     role: "Facilitateur d'anglais",
     avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/74.jpg',
-    classes: ['4eme B', '4eme B'],
+    classes: ['PRESK 1', 'PRESK 2', 'CP1', 'CE1', 'CE2'],
     stats: { avg: 70, acquired: 75, notAcquired: 25, remediation: 4 },
   },
   {
@@ -717,7 +717,7 @@ export const mockFacilitators: Facilitator[] = [
     name: 'Mohamed M. DIENE',
     role: 'Facilitateur de coran',
     avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/70.jpg',
-    classes: ['4eme B', '4eme B'],
+    classes: ['PRESK 2', 'CP1', 'CE1', 'CE2', 'CM2'],
     stats: { avg: 90, acquired: 95, notAcquired: 5, remediation: 0 },
   },
   {
@@ -725,7 +725,7 @@ export const mockFacilitators: Facilitator[] = [
     name: 'El Hadji M. SAMB',
     role: 'Facilitateur de coran',
     avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/65.jpg',
-    classes: ['4eme B', '4eme B'],
+    classes: ['CP1', 'CE1', 'CE2', 'CM2'],
     stats: { avg: 88, acquired: 90, notAcquired: 10, remediation: 1 },
   },
   {
@@ -733,7 +733,7 @@ export const mockFacilitators: Facilitator[] = [
     name: 'Modou DIOUF',
     role: 'Facilitateur Français',
     avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/55.jpg',
-    classes: ['4eme B', '4eme B'],
+    classes: ['CP2', 'CE1', 'CE2', 'CM2'],
     stats: { avg: 78, acquired: 80, notAcquired: 20, remediation: 3 },
   },
 ];

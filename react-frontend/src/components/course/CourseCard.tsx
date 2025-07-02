@@ -1,5 +1,8 @@
 import React from 'react';
-import { Clock, User, Users, UserCheck } from 'lucide-react';
+import { 
+  Clock, User, Users, UserCheck, BookOpen, Calculator, FlaskConical, 
+  Landmark, Globe, Languages, Palette, Footprints, BookMarked, HeartHandshake, Book 
+} from 'lucide-react';
 import { useAuth } from '../../pages/authentification/useAuth';
 
 interface CourseCardProps {
@@ -27,15 +30,50 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
   const getSubjectIcon = (subject: string) => {
     const subjectLower = subject.toLowerCase();
-    if (subjectLower.includes('math')) return '🔢';
-    if (subjectLower.includes('français') || subjectLower.includes('francais')) return '📚';
-    if (subjectLower.includes('science')) return '🔬';
-    if (subjectLower.includes('histoire')) return '🏛️';
-    if (subjectLower.includes('géographie') || subjectLower.includes('geographie')) return '🌍';
-    if (subjectLower.includes('anglais') || subjectLower.includes('english')) return '🇬🇧';
-    if (subjectLower.includes('art')) return '🎨';
-    if (subjectLower.includes('sport') || subjectLower.includes('motricité')) return '⚽';
-    return '📖';
+    
+    let IconComponent: React.ElementType = Book;
+    let colorClasses = 'bg-slate-100 text-slate-600';
+
+    if (subjectLower.includes('math')) {
+        IconComponent = Calculator;
+        colorClasses = 'bg-blue-100 text-blue-600';
+    } else if (subjectLower.includes('français') || subjectLower.includes('francais')) {
+        IconComponent = BookOpen;
+        colorClasses = 'bg-red-100 text-red-600';
+    } else if (subjectLower.includes('science')) {
+        IconComponent = FlaskConical;
+        colorClasses = 'bg-green-100 text-green-600';
+    } else if (subjectLower.includes('histoire')) {
+        IconComponent = Landmark;
+        colorClasses = 'bg-amber-100 text-amber-700';
+    } else if (subjectLower.includes('géographie') || subjectLower.includes('geographie')) {
+        IconComponent = Globe;
+        colorClasses = 'bg-cyan-100 text-cyan-600';
+    } else if (subjectLower.includes('anglais') || subjectLower.includes('english')) {
+        IconComponent = Languages;
+        colorClasses = 'bg-indigo-100 text-indigo-600';
+    } else if (subjectLower.includes('art')) {
+        IconComponent = Palette;
+        colorClasses = 'bg-purple-100 text-purple-600';
+    } else if (subjectLower.includes('sport') || subjectLower.includes('motricité')) {
+        IconComponent = Footprints;
+        colorClasses = 'bg-orange-100 text-orange-600';
+    } else if (subjectLower.includes('islamique')) {
+        IconComponent = BookMarked;
+        colorClasses = 'bg-emerald-100 text-emerald-700';
+    } else if (subjectLower.includes('quran')) {
+        IconComponent = BookMarked;
+        colorClasses = 'bg-emerald-100 text-emerald-700';
+    } else if (subjectLower.includes('vivre ensemble')) {
+        IconComponent = HeartHandshake;
+        colorClasses = 'bg-pink-100 text-pink-600';
+    }
+
+    return (
+        <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${colorClasses}`}>
+            <IconComponent className="w-5 h-5" />
+        </div>
+    );
   };
 
   // Construire le nom complet de l'enseignant
@@ -46,15 +84,15 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
   return (
     <article 
-      className="relative overflow-hidden bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group hover:-translate-y-1"
+      className="relative overflow-hidden bg-white border border-gray-200 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group hover:border-orange-300"
       onClick={handleClick}
     >
       {/* En-tête du cours */}
       <div className="mb-4">
         <div className="flex items-center gap-3 mb-2">
-          <div className="text-2xl">{getSubjectIcon(subject)}</div>
+          {getSubjectIcon(subject)}
           <div className="flex-1">
-            <h3 className="text-lg font-bold text-gray-800 leading-tight">
+            <h3 className="text-lg font-bold text-gray-800 leading-tight group-hover:text-orange-600 transition-colors">
               {title}
             </h3>
             <p className="text-sm text-gray-600">{subject}</p>
