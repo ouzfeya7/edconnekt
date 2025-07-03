@@ -32,7 +32,7 @@ const schoolInfo = {
     academicYear: "2023-2024"
 };
 
-const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
+const addPdfHeader = (doc: jsPDF, classe: string, title: string, studentName?: string) => {
     // Logo
     doc.addImage(schoolLogo, 'PNG', 25, 15, 30, 30);
 
@@ -48,21 +48,38 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
     doc.text(`Email: ${schoolInfo.email} | Site: ${schoolInfo.website}`, 65, 36);
     doc.text(`Année Scolaire: ${schoolInfo.academicYear}`, 65, 40);
 
-    // Title
+    // Student Info (right-aligned)
+    if (studentName) {
+        const rightMargin = doc.internal.pageSize.getWidth() - 25;
+        doc.setFontSize(10);
+        doc.setFont("times", 'bold');
+        doc.text(studentName, rightMargin, 28, { align: 'right' });
+        
+        doc.setFontSize(9);
+        doc.setFont("times", 'normal');
+        doc.text(`Classe: ${classe.toUpperCase()}`, rightMargin, 36, { align: 'right' });
+    }
+
+    // Main Title
+    let currentY = 55;
     doc.setFontSize(16);
     doc.setFont("times", 'bold');
-    doc.text(title, doc.internal.pageSize.getWidth() / 2, 55, { align: 'center' });
-    
-    // Class Subtitle
-    doc.setFontSize(12);
-    doc.setFont("times", 'normal');
-    doc.text(`Classe: ${classe.toUpperCase()}`, doc.internal.pageSize.getWidth() / 2, 62, { align: 'center' });
+    doc.text(title, doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+    currentY += 7;
+
+    // Class subtitle (only if no student name)
+    if (!studentName) {
+        doc.setFontSize(12);
+        doc.setFont("times", 'normal');
+        doc.text(`Classe: ${classe.toUpperCase()}`, doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+        currentY += 7;
+    }
 
     // Header Line
     doc.setDrawColor(0);
-    doc.line(25, 70, doc.internal.pageSize.getWidth() - 25, 70);
+    doc.line(25, currentY, doc.internal.pageSize.getWidth() - 25, currentY);
     
-    return 80; // Return the start Y position for the content
+    return currentY + 10;
 };
 
 interface ContinueViewProps {
@@ -284,7 +301,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         try {
             const doc = new jsPDF({ orientation: 'landscape' }) as jsPDFWithAutoTable;
             const title = `Rapport de Notes Continues - ${activeSubject.name}`;
-            const startY = addPdfHeader(doc, currentClasse, title);
+            const startY = addPdfHeader(doc, currentClasse, title, user.name);
             const baseStyles = getPdfTableStyles(doc);
 
             const tableColumns = ["Nom", "Prénom", ...activeSubject.competences.map(c => c.label)];
@@ -321,12 +338,12 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         try {
             const doc = new jsPDF({ orientation: 'landscape' }) as jsPDFWithAutoTable;
             const title = `Rapport Complet des Notes Continues`;
-            let startY = addPdfHeader(doc, currentClasse, title);
+            let startY = addPdfHeader(doc, currentClasse, title, user.name);
             const baseStyles = getPdfTableStyles(doc);
 
             domains.forEach(domain => {
                 startY += 5;
-                if (startY > 180) { doc.addPage(); startY = addPdfHeader(doc, currentClasse, title); }
+                if (startY > 180) { doc.addPage(); startY = addPdfHeader(doc, currentClasse, title, user.name); }
                 doc.setFontSize(14);
                 doc.text(domain.name, 25, startY);
                 startY += 7;
@@ -361,7 +378,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                     startY = (doc.lastAutoTable?.finalY ?? startY) + 10;
                     if (startY > 180) { 
                         doc.addPage(); 
-                        startY = addPdfHeader(doc, currentClasse, title); 
+                        startY = addPdfHeader(doc, currentClasse, title, user.name); 
                     }
                 });
             });
@@ -435,7 +452,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         for (const domain of domains) {
             const doc = new jsPDF() as jsPDFWithAutoTable;
             const title = `Rapport - ${domain.name} (${formattedCurrentDate})`;
-            let startY = addPdfHeader(doc, currentClasse, title);
+            let startY = addPdfHeader(doc, currentClasse, title, user.name);
 
             for (const subject of domain.subjects) {
                  if (subject.competences.length === 0) continue;
@@ -475,7 +492,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                 
                 if (startY > 250) { 
                     doc.addPage();
-                    startY = addPdfHeader(doc, currentClasse, title);
+                    startY = addPdfHeader(doc, currentClasse, title, user.name);
                 }
             }
             const pdfBlob = doc.output('blob');
@@ -494,198 +511,172 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
     // === FONCTIONS D'EXPORT PDF POUR LES ÉLÈVES ===
     
     const handleStudentExportPdf = () => {
-        if (!activeSubject || !user) {
-            console.error("Export PDF annulé : matière ou utilisateur non disponible.");
-            return;
-        }
-
-        try {
-            const doc = new jsPDF() as jsPDFWithAutoTable;
-            const title = `Bulletin de Notes - ${activeSubject.name} (${formattedCurrentDate})`;
-            const startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
+        if (!activeSubject || !user || !notes[0]) return;
+        
+        const doc = new jsPDF() as jsPDFWithAutoTable;
+        const title = `Bulletin de Notes - ${activeSubject.name}`;
+        let startY = addPdfHeader(doc, currentClasse, title, user.name);
+        
+        const tableBody = activeSubject.competences.map(c => {
+            const noteValue = notes[0].notes[c.id];
+            let displayValue: string = '-';
+            let statut = 'Non évalué';
             
-            // Récupérer les notes de l'élève pour cette matière
-            const studentNotes = notes.length > 0 ? notes[0].notes : {};
-            
-            // Créer les données du tableau avec la même structure que les enseignants
-            const tableColumns = ["Compétence", "Note", "Statut"];
-            const tableRows = activeSubject.competences.map(competence => {
-                const note = studentNotes[competence.id];
-                let noteDisplay = '-';
-                let statut = 'Non évalué';
-                
-                if (typeof note === 'number') {
-                    noteDisplay = `${note}%`;
-                    if (note >= 75) statut = 'Excellent';
-                    else if (note >= 50) statut = 'En progrès';
-                    else statut = 'À améliorer';
-                } else if (note === 'absent') {
-                    noteDisplay = 'Absent';
-                    statut = 'Absent';
-                } else if (note === 'non-evalue') {
-                    noteDisplay = '-';
-                    statut = 'En attente';
-                }
-                
-                return [competence.label, noteDisplay, statut];
-            });
-
-            // Utiliser exactement le même style que les enseignants
-            autoTable(doc, {
-                ...getPdfTableStyles(doc),
-                head: [tableColumns],
-                body: tableRows,
-                startY: startY,
-                margin: { left: 25, right: 25 }
-            });
-
-            // Ajouter des informations supplémentaires spécifiques à l'élève
-            const finalY = doc.lastAutoTable?.finalY || startY + 50;
-            const notesNumeriques = activeSubject.competences
-                .map(c => studentNotes[c.id])
-                .filter(note => typeof note === 'number') as number[];
-            
-            if (notesNumeriques.length > 0) {
-                const moyenne = notesNumeriques.reduce((sum, note) => sum + note, 0) / notesNumeriques.length;
-                const meilleureNote = Math.max(...notesNumeriques);
-                const competencesReussies = notesNumeriques.filter(note => note >= 50).length;
-                
-                // Utiliser la même police que dans l'en-tête
-                doc.setFontSize(12);
-                doc.setFont("times", "bold");
-                doc.text("Résumé des performances", 25, finalY + 20);
-                
-                doc.setFont("times", "normal");
-                doc.text(`Élève : ${user.name}`, 25, finalY + 35);
-                doc.text(`Moyenne de la matière : ${moyenne.toFixed(1)}%`, 25, finalY + 45);
-                doc.text(`Meilleure note : ${meilleureNote}%`, 25, finalY + 55);
-                doc.text(`Compétences évaluées : ${notesNumeriques.length}/${activeSubject.competences.length}`, 25, finalY + 65);
-                doc.text(`Compétences réussies : ${competencesReussies}/${activeSubject.competences.length}`, 25, finalY + 75);
+            if (typeof noteValue === 'number') {
+                displayValue = `${noteValue}%`;
+                if (noteValue >= 75) statut = 'Excellent';
+                else if (noteValue >= 50) statut = 'En progrès';
+                else statut = 'À améliorer';
+            } else if (noteValue === 'absent') {
+                displayValue = 'Absent';
+                statut = 'Absent';
+            } else if (noteValue === 'non-evalue') {
+                displayValue = '-';
+                statut = 'En attente';
             }
+            
+            return [c.label, displayValue, statut];
+        });
 
-            doc.save(`Bulletin_${user.name.replace(/\s+/g, '_')}_${activeSubject.name.replace(/\s+/g, '_')}_${formattedCurrentDate}.pdf`);
-        } catch (error) {
-            console.error("Erreur lors de la génération du PDF :", error);
-            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+        autoTable(doc, {
+            ...getPdfTableStyles(doc),
+            head: [["Compétence", "Note", "Statut"]],
+            body: tableBody,
+            startY: startY,
+            margin: { left: 25, right: 25 }
+        });
+
+        // Ajouter des informations supplémentaires spécifiques à l'élève
+        const finalY = doc.lastAutoTable?.finalY || startY + 50;
+        const notesNumeriques = activeSubject.competences
+            .map(c => notes[0].notes[c.id])
+            .filter(note => typeof note === 'number') as number[];
+        
+        if (notesNumeriques.length > 0) {
+            const moyenne = notesNumeriques.reduce((sum, note) => sum + note, 0) / notesNumeriques.length;
+            const meilleureNote = Math.max(...notesNumeriques);
+            const competencesReussies = notesNumeriques.filter(note => note >= 50).length;
+            
+            // Utiliser la même police que dans l'en-tête
+            doc.setFontSize(12);
+            doc.setFont("times", "bold");
+            doc.text("Résumé des performances", 25, finalY + 20);
+            
+            doc.setFont("times", "normal");
+            doc.text(`Élève : ${user.name}`, 25, finalY + 35);
+            doc.text(`Moyenne de la matière : ${moyenne.toFixed(1)}%`, 25, finalY + 45);
+            doc.text(`Meilleure note : ${meilleureNote}%`, 25, finalY + 55);
+            doc.text(`Compétences évaluées : ${notesNumeriques.length}/${activeSubject.competences.length}`, 25, finalY + 65);
+            doc.text(`Compétences réussies : ${competencesReussies}/${activeSubject.competences.length}`, 25, finalY + 75);
         }
+
+        doc.save(`Bulletin_Continue_${user.name.replace(/\s+/g, '_')}_${activeSubject.name}.pdf`);
     };
 
     const handleStudentExportAllPdf = () => {
-        if (!user) {
-            console.error("Export PDF annulé : utilisateur non disponible.");
-            return;
-        }
+        if (!user || !notes[0]) return;
+        
+        const doc = new jsPDF() as jsPDFWithAutoTable;
+        let startY = addPdfHeader(doc, currentClasse, `Bulletin Complet`, user.name);
+        
+        domains.forEach(domain => {
+            if (doc.internal.pageSize.height - startY < 50) {
+                doc.addPage();
+                startY = 25; // Reset to top margin instead of adding header
+            }
+            startY += 5;
+            doc.setFontSize(14);
+            doc.setFont("times", "bold");
+            doc.text(domain.name, 25, startY);
+            startY += 7;
 
-        try {
-            const doc = new jsPDF() as jsPDFWithAutoTable;
-            const title = `Bulletin Complet - ${user.name} (${formattedCurrentDate})`;
-            let startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
-            
-            const studentNotes = notes.length > 0 ? notes[0].notes : {};
-            
-            domains.forEach(domain => {
-                // Utiliser le même style que les enseignants pour les titres de domaine
-                startY += 5;
-                doc.setFontSize(14);
-                doc.setFont("times", "bold");
-                doc.text(domain.name, 25, startY);
-                startY += 7;
+            domain.subjects.forEach(subject => {
+                if (subject.competences.length === 0) return;
+                
+                autoTable(doc, {
+                    ...getPdfTableStyles(doc),
+                    head: [[subject.name]],
+                    startY: startY,
+                    margin: { left: 25, right: 25 },
+                    theme: "plain",
+                    styles: { fontStyle: 'bold', fontSize: 11, halign: 'left' }
+                });
 
-                domain.subjects.forEach(subject => {
-                    if (subject.competences.length === 0) return;
+                startY = doc.lastAutoTable?.finalY || startY;
+                
+                const tableColumns = ["Compétence", "Note", "Statut"];
+                const tableRows = subject.competences.map(c => {
+                    const note = notes[0].notes[c.id];
+                    let displayValue = '-';
+                    let statut = 'Non évalué';
                     
-                    // Titre de la matière comme les enseignants
-                    autoTable(doc, {
-                        ...getPdfTableStyles(doc),
-                        head: [[subject.name]],
-                        startY: startY,
-                        margin: { left: 25, right: 25 },
-                        theme: "plain",
-                        styles: { fontStyle: 'bold', fontSize: 11, halign: 'left' }
-                    });
-
-                    startY = doc.lastAutoTable?.finalY || startY;
-                    
-                    // Données des compétences pour cette matière
-                    const tableColumns = ["Compétence", "Note", "Statut"];
-                    const tableRows = subject.competences.map(competence => {
-                        const note = studentNotes[competence.id];
-                        let noteDisplay = '-';
-                        let statut = 'Non évalué';
-                        
-                        if (typeof note === 'number') {
-                            noteDisplay = `${note}%`;
-                            if (note >= 75) statut = 'Excellent';
-                            else if (note >= 50) statut = 'En progrès';
-                            else statut = 'À améliorer';
-                        } else if (note === 'absent') {
-                            noteDisplay = 'Absent';
-                            statut = 'Absent';
-                        } else if (note === 'non-evalue') {
-                            noteDisplay = '-';
-                            statut = 'En attente';
-                        }
-                        
-                        return [competence.label, noteDisplay, statut];
-                    });
-
-                    // Utiliser exactement le même style que les enseignants
-                    autoTable(doc, {
-                        ...getPdfTableStyles(doc),
-                        head: [tableColumns],
-                        body: tableRows,
-                        startY: startY,
-                        margin: { left: 25, right: 25 }
-                    });
-                    
-                    startY = (doc.lastAutoTable?.finalY || startY) + 10;
-                    
-                    // Même logique de pagination que les enseignants
-                    if (startY > 250) {
-                        doc.addPage();
-                        startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
+                    if (typeof note === 'number') {
+                        displayValue = `${note}%`;
+                        if (note >= 75) statut = 'Excellent';
+                        else if (note >= 50) statut = 'En progrès';
+                        else statut = 'À améliorer';
+                    } else if (note === 'absent') {
+                        displayValue = 'Absent';
+                        statut = 'Absent';
+                    } else if (note === 'non-evalue') {
+                        displayValue = '-';
+                        statut = 'En attente';
                     }
+                    
+                    return [c.label, displayValue, statut];
+                });
+
+                autoTable(doc, {
+                    ...getPdfTableStyles(doc),
+                    head: [tableColumns],
+                    body: tableRows,
+                    startY: startY,
+                    margin: { left: 25, right: 25 }
                 });
                 
-                startY += 5; // Espace entre les domaines
-            });
-
-            // Page de résumé final
-            if (Object.keys(studentNotes).length > 0) {
-                doc.addPage();
-                const summaryStartY = addPdfHeader(doc, user.classLabel || 'Non définie', `Résumé Général - ${user.name}`);
+                startY = (doc.lastAutoTable?.finalY || startY) + 10;
                 
-                const totalNotesNumeriques = Object.values(studentNotes)
-                    .filter(note => typeof note === 'number') as number[];
-                
-                if (totalNotesNumeriques.length > 0) {
-                    const moyenneGenerale = totalNotesNumeriques.reduce((sum, note) => sum + note, 0) / totalNotesNumeriques.length;
-                    const meilleureNote = Math.max(...totalNotesNumeriques);
-                    const plusBasseNote = Math.min(...totalNotesNumeriques);
-                    const competencesReussies = totalNotesNumeriques.filter(note => note >= 50).length;
-                    
-                    doc.setFontSize(12);
-                    doc.setFont("times", "bold");
-                    doc.text("Statistiques Générales", 25, summaryStartY + 20);
-                    
-                    doc.setFont("times", "normal");
-                    doc.text(`Moyenne générale : ${moyenneGenerale.toFixed(1)}%`, 25, summaryStartY + 35);
-                    doc.text(`Meilleure note : ${meilleureNote}%`, 25, summaryStartY + 45);
-                    doc.text(`Note la plus basse : ${plusBasseNote}%`, 25, summaryStartY + 55);
-                    doc.text(`Total des compétences évaluées : ${totalNotesNumeriques.length}`, 25, summaryStartY + 65);
-                    doc.text(`Compétences réussies : ${competencesReussies}`, 25, summaryStartY + 75);
+                if (startY > 250) {
+                    doc.addPage();
+                    startY = 25; // Reset to top margin instead of adding header
                 }
-            }
+            });
+            
+            startY += 5;
+        });
 
-            doc.save(`Bulletin_Complet_${user.name.replace(/\s+/g, '_')}_${formattedCurrentDate}.pdf`);
-        } catch (error) {
-            console.error("Erreur lors de la génération du PDF complet :", error);
-            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+        // Page de résumé final
+        if (Object.keys(notes[0].notes).length > 0) {
+            doc.addPage();
+            const summaryStartY = addPdfHeader(doc, currentClasse, `Résumé Général - ${user.name}`, user.name);
+            
+            const totalNotesNumeriques = Object.values(notes[0].notes)
+                .filter(note => typeof note === 'number') as number[];
+            
+            if (totalNotesNumeriques.length > 0) {
+                const moyenneGenerale = totalNotesNumeriques.reduce((sum, note) => sum + note, 0) / totalNotesNumeriques.length;
+                const meilleureNote = Math.max(...totalNotesNumeriques);
+                const plusBasseNote = Math.min(...totalNotesNumeriques);
+                const competencesReussies = totalNotesNumeriques.filter(note => note >= 50).length;
+                
+                doc.setFontSize(12);
+                doc.setFont("times", "bold");
+                doc.text("Statistiques Générales", 25, summaryStartY + 20);
+                
+                doc.setFont("times", "normal");
+                doc.text(`Moyenne générale : ${moyenneGenerale.toFixed(1)}%`, 25, summaryStartY + 35);
+                doc.text(`Meilleure note : ${meilleureNote}%`, 25, summaryStartY + 45);
+                doc.text(`Note la plus basse : ${plusBasseNote}%`, 25, summaryStartY + 55);
+                doc.text(`Total des compétences évaluées : ${totalNotesNumeriques.length}`, 25, summaryStartY + 65);
+                doc.text(`Compétences réussies : ${competencesReussies}`, 25, summaryStartY + 75);
+            }
         }
+
+        doc.save(`Bulletin_Continue_Complet_${user.name.replace(/\s+/g, '_')}.pdf`);
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm mt-6">
+        <div className="bg-white rounded-lg shadow-sm mt-6 border border-gray-200">
             <div className="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 {domains.map(domain => (
                     <button
@@ -794,19 +785,33 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                             <Menu.Button className="inline-flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
                                 <ArrowDownToLine className="w-5 h-5" />
                             </Menu.Button>
-                            <Menu.Items className="absolute right-0 mt-2 w-64 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none z-10">
+                            <Menu.Items className="absolute right-0 mt-2 w-72 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                                 <div className="px-1 py-1">
                                     <Menu.Item>
-                                        {({ active }: { active: boolean }) => (
-                                            <button onClick={handleStudentExportPdf} className={`${active ? 'bg-slate-50' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <FileText className="w-5 h-5 mr-2 text-slate-600" /> Mon Bulletin (Matière actuelle)
+                                        {({ active }) => (
+                                            <button
+                                                onClick={handleStudentExportPdf}
+                                                className={`${
+                                                    active ? 'bg-gray-100' : ''
+                                                } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
+                                            >
+                                                <FileText className="w-5 h-5 mr-3 text-gray-500" />
+                                                Mon Bulletin (Matière actuelle)
                                             </button>
                                         )}
                                     </Menu.Item>
+                                </div>
+                                <div className="px-1 py-1">
                                     <Menu.Item>
-                                        {({ active }: { active: boolean }) => (
-                                            <button onClick={handleStudentExportAllPdf} className={`${active ? 'bg-slate-50' : ''} group flex rounded-md items-center w-full px-2 py-2 text-sm text-gray-700`}>
-                                                <FileText className="w-5 h-5 mr-2 text-slate-600" /> Mon Bulletin Complet
+                                        {({ active }) => (
+                                            <button
+                                                onClick={handleStudentExportAllPdf}
+                                                className={`${
+                                                    active ? 'bg-gray-100' : ''
+                                                } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
+                                            >
+                                                <FileText className="w-5 h-5 mr-3 text-gray-500" />
+                                                Mon Bulletin Complet
                                             </button>
                                         )}
                                     </Menu.Item>

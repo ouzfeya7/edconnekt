@@ -31,7 +31,7 @@ const schoolInfo = {
     academicYear: "2023-2024"
 };
 
-const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
+const addPdfHeader = (doc: jsPDF, classe: string, title: string, studentName?: string) => {
     // Logo
     doc.addImage(schoolLogo, 'PNG', 25, 15, 30, 30);
 
@@ -47,21 +47,38 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
     doc.text(`Email: ${schoolInfo.email} | Site: ${schoolInfo.website}`, 65, 36);
     doc.text(`Année Scolaire: ${schoolInfo.academicYear}`, 65, 40);
 
-    // Title
+    // Student Info (right-aligned)
+    if (studentName) {
+        const rightMargin = doc.internal.pageSize.getWidth() - 25;
+        doc.setFontSize(10);
+        doc.setFont("times", 'bold');
+        doc.text(studentName, rightMargin, 28, { align: 'right' });
+        
+        doc.setFontSize(9);
+        doc.setFont("times", 'normal');
+        doc.text(`Classe: ${classe.toUpperCase()}`, rightMargin, 36, { align: 'right' });
+    }
+
+    // Main Title
+    let currentY = 55;
     doc.setFontSize(16);
     doc.setFont("times", 'bold');
-    doc.text(title, doc.internal.pageSize.getWidth() / 2, 55, { align: 'center' });
-    
-    // Class Subtitle
-    doc.setFontSize(12);
-    doc.setFont("times", 'normal');
-    doc.text(`Classe: ${classe.toUpperCase()}`, doc.internal.pageSize.getWidth() / 2, 62, { align: 'center' });
+    doc.text(title, doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+    currentY += 7;
+
+    // Class subtitle (only if no student name)
+    if (!studentName) {
+        doc.setFontSize(12);
+        doc.setFont("times", 'normal');
+        doc.text(`Classe: ${classe.toUpperCase()}`, doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+        currentY += 7;
+    }
 
     // Header Line
     doc.setDrawColor(0);
-    doc.line(25, 70, doc.internal.pageSize.getWidth() - 25, 70);
+    doc.line(25, currentY, doc.internal.pageSize.getWidth() - 25, currentY);
     
-    return 80;
+    return currentY + 10;
 };
 
 interface TrimestrielleViewProps {
@@ -237,7 +254,7 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
     try {
             const doc = new jsPDF({ orientation: 'landscape' }) as jsPDFWithAutoTable;
             const title = `Rapport ${currentTrimestre} - ${activeSubject.name}`;
-        const startY = addPdfHeader(doc, currentClasse, title);
+        const startY = addPdfHeader(doc, currentClasse, title, user.name);
         const baseStyles = getPdfTableStyles(doc);
         
             const tableColumns = ["Nom", "Prénom", ...activeSubject.competences.map(c => c.label)];
@@ -306,14 +323,14 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
         try {
             const doc = new jsPDF({ orientation: 'landscape' }) as jsPDFWithAutoTable;
             const title = `Rapport Complet ${currentTrimestre}`;
-            let startY = addPdfHeader(doc, currentClasse, title);
+            let startY = addPdfHeader(doc, currentClasse, title, user.name);
             const baseStyles = getPdfTableStyles(doc);
 
             domains.forEach(domain => {
                 startY += 5;
                 if (startY > 250) { 
                     doc.addPage(); 
-                    startY = addPdfHeader(doc, currentClasse, title); 
+                    startY = addPdfHeader(doc, currentClasse, title, user.name); 
                 }
                 doc.setFontSize(14);
                 doc.text(domain.name, 25, startY);
@@ -349,7 +366,7 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                     startY = (doc.lastAutoTable?.finalY ?? startY) + 10;
                     if (startY > 180) { // Ajustement pour le format paysage
                         doc.addPage(); 
-                        startY = addPdfHeader(doc, currentClasse, title); 
+                        startY = addPdfHeader(doc, currentClasse, title, user.name); 
                     }
                 });
             });
@@ -360,212 +377,177 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
     // === FONCTIONS D'EXPORT PDF POUR LES ÉLÈVES ===
     
     const handleStudentExportPdf = () => {
-        if (!activeSubject || !user) {
-            console.error("Export PDF annulé : matière ou utilisateur non disponible.");
+        if (!activeSubject || !user || !notes[0]) {
+            console.error("Matière active ou notes de l'élève non trouvées.");
             return;
         }
 
-        try {
-            const doc = new jsPDF() as jsPDFWithAutoTable;
-            const title = `Bulletin Trimestriel - ${activeSubject.name} (${currentTrimestre})`;
-            const startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
-            
-            // Récupérer les notes de l'élève pour cette matière
-            const studentNotes = activeSubject.competences.reduce((acc, c) => {
-                const note = paginatedNotes.find(n => n.studentId === user.name || n.studentId === user.classId)?.notes[c.id];
-                acc[c.id] = note !== undefined ? note : 'non-evalue';
-                return acc;
-            }, {} as { [key: string]: number | 'absent' | 'non-evalue' });
-            
-            // Créer les données du tableau avec la même structure que les enseignants
-            const tableColumns = ["Compétence", "Moyenne", "Statut"];
-            const tableRows = activeSubject.competences.map(competence => {
-                const note = studentNotes[competence.id];
-                let noteDisplay = '-';
-                let statut = 'Non évalué';
-                
-                if (typeof note === 'number') {
-                    noteDisplay = `${Math.round(note)}%`;
-                    if (note >= 75) statut = 'Excellent';
-                    else if (note >= 50) statut = 'En progrès';
-                    else statut = 'À améliorer';
-                } else if (note === 'absent') {
-                    noteDisplay = 'Absent';
-                    statut = 'Absent';
-                } else if (note === 'non-evalue') {
-                    noteDisplay = '-';
-                    statut = 'En attente';
-                }
-                
-                return [competence.label, noteDisplay, statut];
-            });
+        const doc = new jsPDF() as jsPDFWithAutoTable;
+        const title = `Bulletin Trimestriel - ${activeSubject.name}`;
+        let startY = addPdfHeader(doc, currentClasse, title, user.name);
 
-            // Utiliser exactement le même style que les enseignants
-            autoTable(doc, {
-                ...getPdfTableStyles(doc),
-                head: [tableColumns],
-                body: tableRows,
-                startY: startY,
-                margin: { left: 25, right: 25 }
-            });
-
-            // Ajouter des informations supplémentaires spécifiques à l'élève
-            const finalY = doc.lastAutoTable?.finalY || startY + 50;
-            const notesNumeriques = activeSubject.competences
-                .map(c => studentNotes[c.id])
-                .filter(note => typeof note === 'number') as number[];
+        const tableBody = activeSubject.competences.map(c => {
+            const noteValue = notes[0].notes[c.id];
+            let displayValue: string = '-';
+            let statut = 'Non évalué';
             
-            if (notesNumeriques.length > 0) {
-                const moyenne = notesNumeriques.reduce((sum, note) => sum + note, 0) / notesNumeriques.length;
-                const meilleureNote = Math.max(...notesNumeriques);
-                const competencesReussies = notesNumeriques.filter(note => note >= 50).length;
-                
-                // Utiliser la même police que dans l'en-tête
-                doc.setFontSize(12);
-                doc.setFont("times", "bold");
-                doc.text("Résumé des performances trimestrielles", 25, finalY + 20);
-                
-                doc.setFont("times", "normal");
-                doc.text(`Élève : ${user.name}`, 25, finalY + 35);
-                doc.text(`Trimestre : ${currentTrimestre}`, 25, finalY + 45);
-                doc.text(`Moyenne de la matière : ${moyenne.toFixed(1)}%`, 25, finalY + 55);
-                doc.text(`Meilleure note : ${meilleureNote}%`, 25, finalY + 65);
-                doc.text(`Compétences évaluées : ${notesNumeriques.length}/${activeSubject.competences.length}`, 25, finalY + 75);
-                doc.text(`Compétences validées : ${competencesReussies}/${activeSubject.competences.length}`, 25, finalY + 85);
+            if (typeof noteValue === 'number') {
+                displayValue = `${Math.round(noteValue)}%`;
+                if (noteValue >= 75) statut = 'Excellent';
+                else if (noteValue >= 50) statut = 'En progrès';
+                else statut = 'À améliorer';
+            } else if (noteValue === 'absent') {
+                displayValue = 'Absent';
+                statut = 'Absent';
+            } else if (noteValue === 'non-evalue') {
+                displayValue = '-';
+                statut = 'En attente';
             }
+            
+            return [c.label, displayValue, statut];
+        });
 
-            doc.save(`Bulletin_Trimestriel_${user.name.replace(/\s+/g, '_')}_${activeSubject.name.replace(/\s+/g, '_')}_T${extractTrimesterNumber(currentTrimestre)}.pdf`);
-        } catch (error) {
-            console.error("Erreur lors de la génération du PDF :", error);
-            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+        autoTable(doc, {
+            ...getPdfTableStyles(doc),
+            head: [["Compétence", "Moyenne", "Statut"]],
+            body: tableBody,
+            startY: startY,
+            margin: { left: 25, right: 25 }
+        });
+
+        // Ajouter des informations supplémentaires spécifiques à l'élève
+        const finalY = doc.lastAutoTable?.finalY || startY + 50;
+        const notesNumeriques = activeSubject.competences
+            .map(c => notes[0].notes[c.id])
+            .filter(note => typeof note === 'number') as number[];
+        
+        if (notesNumeriques.length > 0) {
+            const moyenne = notesNumeriques.reduce((sum, note) => sum + note, 0) / notesNumeriques.length;
+            const meilleureNote = Math.max(...notesNumeriques);
+            const competencesReussies = notesNumeriques.filter(note => note >= 50).length;
+            
+            doc.setFontSize(12);
+            doc.setFont("times", "bold");
+            doc.text("Résumé des performances", 25, finalY + 20);
+            
+            doc.setFont("times", "normal");
+            doc.text(`Élève : ${user.name}`, 25, finalY + 35);
+            doc.text(`Trimestre : ${currentTrimestre}`, 25, finalY + 45);
+            doc.text(`Moyenne de la matière : ${moyenne.toFixed(1)}%`, 25, finalY + 55);
+            doc.text(`Meilleure note : ${meilleureNote}%`, 25, finalY + 65);
+            doc.text(`Compétences évaluées : ${notesNumeriques.length}/${activeSubject.competences.length}`, 25, finalY + 75);
+            doc.text(`Compétences réussies : ${competencesReussies}/${activeSubject.competences.length}`, 25, finalY + 85);
         }
+
+        doc.save(`Bulletin_${currentTrimestre}_${user.name.replace(/\s+/g, '_')}_${activeSubject.name}.pdf`);
     };
 
     const handleStudentExportAllPdf = () => {
-        if (!user) {
-            console.error("Export PDF annulé : utilisateur non disponible.");
+        if (!user || !notes[0]) {
+            console.error("Notes de l'élève non trouvées.");
             return;
         }
 
-        try {
-            const doc = new jsPDF() as jsPDFWithAutoTable;
-            const title = `Bulletin Trimestriel Complet - ${user.name} (${currentTrimestre})`;
-            let startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
-            
-            // Récupérer toutes les notes de l'élève
-            const allStudentNotes: { [key: string]: number | 'absent' | 'non-evalue' } = {};
-            domains.forEach(domain => {
-                domain.subjects.forEach(subject => {
-                    subject.competences.forEach(competence => {
-                        const note = paginatedNotes.find(n => n.studentId === user.name || n.studentId === user.classId)?.notes[competence.id];
-                        allStudentNotes[competence.id] = note !== undefined ? note : 'non-evalue';
-                    });
-                });
-            });
-            
-            domains.forEach(domain => {
-                // Utiliser le même style que les enseignants pour les titres de domaine
-                startY += 5;
-                doc.setFontSize(14);
-                doc.setFont("times", "bold");
-                doc.text(domain.name, 25, startY);
-                startY += 7;
+        const doc = new jsPDF() as jsPDFWithAutoTable;
+        let startY = addPdfHeader(doc, currentClasse, `Bulletin Trimestriel Complet`, user.name);
 
-                domain.subjects.forEach(subject => {
-                    if (subject.competences.length === 0) return;
-                    
-                    // Titre de la matière comme les enseignants
-                    autoTable(doc, {
-                        ...getPdfTableStyles(doc),
-                        head: [[subject.name]],
-                        startY: startY,
-                        margin: { left: 25, right: 25 },
-                        theme: "plain",
-                        styles: { fontStyle: 'bold', fontSize: 11, halign: 'left' }
-                    });
-
-                    startY = doc.lastAutoTable?.finalY || startY;
-                    
-                    // Données des compétences pour cette matière
-                    const tableColumns = ["Compétence", "Moyenne", "Statut"];
-                    const tableRows = subject.competences.map(competence => {
-                        const note = allStudentNotes[competence.id];
-                        let noteDisplay = '-';
-                        let statut = 'Non évalué';
-                        
-                        if (typeof note === 'number') {
-                            noteDisplay = `${Math.round(note)}%`;
-                            if (note >= 75) statut = 'Excellent';
-                            else if (note >= 50) statut = 'En progrès';
-                            else statut = 'À améliorer';
-                        } else if (note === 'absent') {
-                            noteDisplay = 'Absent';
-                            statut = 'Absent';
-                        } else if (note === 'non-evalue') {
-                            noteDisplay = '-';
-                            statut = 'En attente';
-                        }
-                        
-                        return [competence.label, noteDisplay, statut];
-                    });
-
-                    // Utiliser exactement le même style que les enseignants
-                    autoTable(doc, {
-                        ...getPdfTableStyles(doc),
-                        head: [tableColumns],
-                        body: tableRows,
-                        startY: startY,
-                        margin: { left: 25, right: 25 }
-                    });
-                    
-                    startY = (doc.lastAutoTable?.finalY || startY) + 10;
-                    
-                    // Même logique de pagination que les enseignants
-                    if (startY > 250) {
-                        doc.addPage();
-                        startY = addPdfHeader(doc, user.classLabel || 'Non définie', title);
-                    }
-                });
-                
-                startY += 5; // Espace entre les domaines
-            });
-
-            // Page de résumé final
-            if (Object.keys(allStudentNotes).length > 0) {
+        domains.forEach(domain => {
+            if (doc.internal.pageSize.height - startY < 50) {
                 doc.addPage();
-                const summaryStartY = addPdfHeader(doc, user.classLabel || 'Non définie', `Résumé Trimestriel - ${user.name}`);
-                
-                const totalNotesNumeriques = Object.values(allStudentNotes)
-                    .filter(note => typeof note === 'number') as number[];
-                
-                if (totalNotesNumeriques.length > 0) {
-                    const moyenneGenerale = totalNotesNumeriques.reduce((sum, note) => sum + note, 0) / totalNotesNumeriques.length;
-                    const meilleureNote = Math.max(...totalNotesNumeriques);
-                    const plusBasseNote = Math.min(...totalNotesNumeriques);
-                    const competencesValidees = totalNotesNumeriques.filter(note => note >= 50).length;
-                    
-                    doc.setFontSize(12);
-                    doc.setFont("times", "bold");
-                    doc.text(`Statistiques Générales - ${currentTrimestre}`, 25, summaryStartY + 20);
-                    
-                    doc.setFont("times", "normal");
-                    doc.text(`Moyenne générale : ${moyenneGenerale.toFixed(1)}%`, 25, summaryStartY + 35);
-                    doc.text(`Meilleure moyenne : ${meilleureNote}%`, 25, summaryStartY + 45);
-                    doc.text(`Moyenne la plus basse : ${plusBasseNote}%`, 25, summaryStartY + 55);
-                    doc.text(`Total des compétences évaluées : ${totalNotesNumeriques.length}`, 25, summaryStartY + 65);
-                    doc.text(`Compétences validées : ${competencesValidees}`, 25, summaryStartY + 75);
-                }
+                startY = 25; // Reset to top margin
             }
+            doc.setFontSize(14);
+            doc.setFont("times", "bold");
+            doc.text(domain.name, 25, startY);
+            startY += 7;
 
-            doc.save(`Bulletin_Trimestriel_Complet_${user.name.replace(/\s+/g, '_')}_T${extractTrimesterNumber(currentTrimestre)}.pdf`);
-        } catch (error) {
-            console.error("Erreur lors de la génération du PDF complet :", error);
-            alert("Une erreur est survenue lors de la création du PDF. Veuillez consulter la console pour plus de détails.");
+            domain.subjects.forEach(subject => {
+                if (subject.competences.length === 0) return;
+                
+                autoTable(doc, {
+                    ...getPdfTableStyles(doc),
+                    head: [[subject.name]],
+                    startY: startY,
+                    margin: { left: 25, right: 25 },
+                    theme: "plain",
+                    styles: { fontStyle: 'bold', fontSize: 11, halign: 'left' }
+                });
+
+                startY = doc.lastAutoTable?.finalY || startY;
+                
+                const tableColumns = ["Compétence", "Moyenne", "Statut"];
+                const tableRows = subject.competences.map(competence => {
+                    const note = notes[0].notes[competence.id];
+                    let noteDisplay = '-';
+                    let statut = 'Non évalué';
+                    
+                    if (typeof note === 'number') {
+                        noteDisplay = `${Math.round(note)}%`;
+                        if (note >= 75) statut = 'Excellent';
+                        else if (note >= 50) statut = 'En progrès';
+                        else statut = 'À améliorer';
+                    } else if (note === 'absent') {
+                        noteDisplay = 'Absent';
+                        statut = 'Absent';
+                    } else if (note === 'non-evalue') {
+                        noteDisplay = '-';
+                        statut = 'En attente';
+                    }
+                    
+                    return [competence.label, noteDisplay, statut];
+                });
+
+                autoTable(doc, {
+                    ...getPdfTableStyles(doc),
+                    head: [tableColumns],
+                    body: tableRows,
+                    startY: startY,
+                    margin: { left: 25, right: 25 }
+                });
+                
+                startY = (doc.lastAutoTable?.finalY || startY) + 10;
+                
+                if (startY > 250) {
+                    doc.addPage();
+                    startY = 25; // Reset to top margin
+                }
+            });
+            
+            startY += 5;
+        });
+
+        // Page de résumé final
+        if (Object.keys(notes[0].notes).length > 0) {
+            doc.addPage();
+            const summaryStartY = addPdfHeader(doc, currentClasse, `Résumé Trimestriel - ${user.name}`, user.name);
+            
+            const totalNotesNumeriques = Object.values(notes[0].notes)
+                .filter(note => typeof note === 'number') as number[];
+            
+            if (totalNotesNumeriques.length > 0) {
+                const moyenneGenerale = totalNotesNumeriques.reduce((sum, note) => sum + note, 0) / totalNotesNumeriques.length;
+                const meilleureNote = Math.max(...totalNotesNumeriques);
+                const plusBasseNote = Math.min(...totalNotesNumeriques);
+                const competencesReussies = totalNotesNumeriques.filter(note => note >= 50).length;
+                
+                doc.setFontSize(12);
+                doc.setFont("times", "bold");
+                doc.text("Statistiques Générales", 25, summaryStartY + 20);
+                
+                doc.setFont("times", "normal");
+                doc.text(`Moyenne générale : ${moyenneGenerale.toFixed(1)}%`, 25, summaryStartY + 35);
+                doc.text(`Meilleure note : ${meilleureNote}%`, 25, summaryStartY + 45);
+                doc.text(`Note la plus basse : ${plusBasseNote}%`, 25, summaryStartY + 55);
+                doc.text(`Total des compétences évaluées : ${totalNotesNumeriques.length}`, 25, summaryStartY + 65);
+                doc.text(`Compétences réussies : ${competencesReussies}`, 25, summaryStartY + 75);
+            }
         }
+
+        doc.save(`Bulletin_Complet_${currentTrimestre}_${user.name.replace(/\s+/g, '_')}.pdf`);
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm mt-6">
+        <div className="bg-white rounded-lg shadow-sm mt-6 border border-gray-200">
             <div className="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 {domains.map(domain => (
                     <button
@@ -617,7 +599,7 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                         </div>
                     }
               rightActions={
-                        role === 'enseignant' ? (
+                    role === 'enseignant' ? (
                 <div className="flex items-center space-x-2">
                     <Menu as="div" className="relative">
                         <Menu.Button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -691,60 +673,49 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                         </Transition>
                     </Menu>
                 </div>
-                        ) : role === 'eleve' ? (
-                            <div className="p-4">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{user?.name} {user?.lastName}</h3>
-                                    <Menu as="div" className="relative">
-                                        <Menu.Button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
-                                            <MoreHorizontal size={20} />
-                                        </Menu.Button>
-                                        <Transition
-                                            as={React.Fragment}
-                                            enter="transition ease-out duration-100"
-                                            enterFrom="transform opacity-0 scale-95"
-                                            enterTo="transform opacity-100 scale-100"
-                                            leave="transition ease-in duration-75"
-                                            leaveFrom="transform opacity-100 scale-100"
-                                            leaveTo="transform opacity-0 scale-95"
-                                        >
-                                            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                                <div className="py-1">
-                                                    <Menu.Item>
-                                                        {({ active }) => (
-                                                            <button
-                                                                onClick={() => handleStudentExportPdf()}
-                                                                className={`${
-                                                                    active ? 'bg-gray-100 dark:bg-gray-700' : ''
-                                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
-                                                            >
-                                                                <FileText size={16} className="mr-2" />
-                                                                Télécharger mon bulletin
-                                                            </button>
-                                                        )}
-                                                    </Menu.Item>
-                                                    <Menu.Item>
-                                                        {({ active }) => (
-                                                            <button
-                                                                onClick={() => handleStudentExportAllPdf()}
-                                                                className={`${
-                                                                    active ? 'bg-gray-100 dark:bg-gray-700' : ''
-                                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
-                                                            >
-                                                                <ArrowDownToLine size={16} className="mr-2" />
-                                                                Télécharger mon bulletin complet
-                                                            </button>
-                                                        )}
-                                                    </Menu.Item>
-                                                </div>
-                                            </Menu.Items>
-                                        </Transition>
-                                    </Menu>
-                                </div>
-                            </div>
-                        ) : null
-                    }
-                />
+                    ) : (role === 'eleve' && notes.length > 0) ? (
+                        <div className="flex items-center justify-end w-full">
+                            <Menu as="div" className="relative">
+                                <Menu.Button className="p-2 rounded-full bg-white border border-gray-300 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                                    <ArrowDownToLine className="h-5 w-5" />
+                                </Menu.Button>
+                                <Menu.Items className="absolute right-0 mt-2 w-72 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                    <div className="px-1 py-1">
+                                        <Menu.Item>
+                                            {({ active }) => (
+                                                <button
+                                                    onClick={handleStudentExportPdf}
+                                                    className={`${
+                                                        active ? 'bg-gray-100' : ''
+                                                    } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
+                                                >
+                                                    <FileText className="w-5 h-5 mr-3 text-gray-500" />
+                                                    Mon Bulletin (Matière actuelle)
+                                                </button>
+                                            )}
+                                        </Menu.Item>
+                                    </div>
+                                    <div className="px-1 py-1">
+                                        <Menu.Item>
+                                            {({ active }) => (
+                                                <button
+                                                    onClick={handleStudentExportAllPdf}
+                                                    className={`${
+                                                        active ? 'bg-gray-100' : ''
+                                                    } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
+                                                >
+                                                    <FileText className="w-5 h-5 mr-3 text-gray-500" />
+                                                    Mon Bulletin Complet
+                                                </button>
+                                            )}
+                                        </Menu.Item>
+                                    </div>
+                                </Menu.Items>
+                            </Menu>
+                        </div>
+                    ) : null
+                }
+            />
                 
                 {/* Affichage conditionnel : cartes pour les élèves, tableau pour les enseignants */}
                 {role === 'eleve' && activeSubject && user ? (

@@ -2,10 +2,10 @@
 const PeriodSelector = () => {
   return (
     <>
-      <div className="flex gap-9 items-center self-stretch px-5 py-5 my-auto text-cyan-900 bg-gray-50 rounded-lg">
+      <div className="flex gap-9 items-center self-stretch px-5 py-5 my-auto text-cyan-900 bg-gray-50 rounded-lg border border-gray-200">
         <div className="self-stretch my-auto w-[108px]">
           <h3 className="self-stretch w-full text-sm font-medium leading-none whitespace-nowrap">
-            Trimeste
+            Trimestre
           </h3>
           <p className="mt-3 text-xl font-semibold leading-snug">Trimestre 1</p>
         </div>

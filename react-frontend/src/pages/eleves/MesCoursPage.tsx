@@ -55,14 +55,12 @@ const MesCoursPage: React.FC = () => {
       {/* En-tête avec design moderne */}
       <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 shadow-sm border border-orange-200/50 p-6">
         {/* Motifs décoratifs */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/8 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-amber-500/6 rounded-full translate-y-12 -translate-x-12"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/15 rounded-full -translate-y-16 translate-x-16"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-amber-500/15 rounded-full translate-y-12 -translate-x-12"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-orange-500/5 rounded-full"></div>
         
         <div className="relative">
           <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes cours</h1>
-          <div className="flex items-center text-sm text-orange-600 font-medium">
-            <span>Classe {user?.classLabel || currentClasse}</span>
-          </div>
         </div>
       </div>
 

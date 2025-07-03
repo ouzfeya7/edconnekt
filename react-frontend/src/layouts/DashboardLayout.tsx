@@ -9,6 +9,7 @@ import { FilterProvider } from "../contexts/FilterContext";
 
 // Définir une structure pour les données de l'utilisateur
 export interface User {
+  id: string; // ID unique de l'utilisateur (de Keycloak)
   name: string;
   role: Role;
   email: string;
@@ -67,6 +68,7 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
       const fallbackAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(initials)}&backgroundColor=184867`;
 
       setUser({
+        id: authUser.sub, // Stocker l'ID de Keycloak
         name: fullName || authUser.username || 'Utilisateur',
         role: role,
         email: userEmail,

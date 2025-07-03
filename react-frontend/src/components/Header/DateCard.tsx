@@ -46,7 +46,7 @@ const DateCard: React.FC<DateCardProps> = ({ value, onChange, disabled = false }
           disabled={disabled}
         />
         {/* Le texte affiché est contrôlé manuellement */}
-        <span className="text-gray-900 font-medium">
+        <span className="text-gray-900 font-medium text-xl">
           {dayjs(value).format('D MMMM YYYY')}
         </span>
         {/* L'icône du calendrier */}

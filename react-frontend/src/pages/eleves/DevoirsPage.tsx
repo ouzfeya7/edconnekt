@@ -234,14 +234,12 @@ const DevoirsPage: React.FC = () => {
       {/* En-tête avec design moderne */}
       <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-rose-50 to-pink-50 shadow-sm border border-rose-200/50 p-6">
         {/* Motifs décoratifs */}
-        <div className="absolute top-0 right-0 w-28 h-28 bg-rose-500/8 rounded-full -translate-y-14 translate-x-14"></div>
-        <div className="absolute bottom-0 left-0 w-20 h-20 bg-pink-500/6 rounded-full translate-y-10 -translate-x-10"></div>
+        <div className="absolute top-0 right-0 w-28 h-28 bg-rose-500/15 rounded-full -translate-y-14 translate-x-14"></div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-pink-500/15 rounded-full translate-y-10 -translate-x-10"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-rose-500/5 rounded-full"></div>
         
         <div className="relative">
           <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes devoirs</h1>
-          <div className="flex items-center text-sm text-rose-600 font-medium">
-            <span>Classe Cours Préparatoire 1</span>
-          </div>
         </div>
       </div>
 
