@@ -102,7 +102,7 @@ const RemediationCard: React.FC<RemediationCardProps> = ({
           <>
             <div className="flex items-center">
               <Users className="w-4 h-4 mr-2 text-gray-400" />
-              <span>{t('students_concerned', { count: displayStudentCount })}</span>
+              <span>{t('students_concerned', { count: displayStudentCount || 0 })}</span>
             </div>
             <div className="flex items-center">
               <Calendar className="w-4 h-4 mr-2 text-gray-400" />

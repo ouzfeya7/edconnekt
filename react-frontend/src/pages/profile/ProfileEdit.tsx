@@ -15,7 +15,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ currentUser, onCancel, onSave
     email: currentUser.email || '',
     phone: currentUser.phone || '',
     birthDate: currentUser.birthDate || '',
-    gender: currentUser.gender || 'Homme',
+    gender: currentUser.gender || 'Male' as 'Male' | 'Female' | 'Other',
     imageUrl: currentUser.imageUrl || '',
   });
 

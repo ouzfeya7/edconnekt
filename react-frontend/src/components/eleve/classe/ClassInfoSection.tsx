@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ClassData } from "./Types";
+import { ClassData } from "./types";
 
 interface ClassInfoSectionProps {
   currentDate: Date;

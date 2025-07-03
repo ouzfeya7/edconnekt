@@ -62,7 +62,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
     if (editorRef.current) {
       // S'assurer que l'éditeur a le focus avant d'exécuter la commande
       editorRef.current.focus();
-      document.execCommand(command, false, value);
+      document.execCommand(command, false, String(value));
       // Mettre à jour le contenu après le formatage
       setContent(editorRef.current.innerHTML);
       // Mettre à jour les états de formatage
@@ -183,10 +183,10 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
       return;
     }
 
-    const currentUser = userRole === 'student' ? 'Élève' : 
-                       userRole === 'teacher' ? 'Professeur' : 
+    const currentUser = userRole === 'eleve' ? 'Élève' : 
+                       userRole === 'enseignant' ? 'Professeur' : 
                        userRole === 'parent' ? 'Parent' : 
-                       userRole === 'facilitator' ? 'Facilitateur' : 'Administration';
+                       userRole === 'admin' ? 'Administration' : 'Utilisateur';
     
     // Générer un email pour l'utilisateur actuel basé sur son rôle
     const currentUserEmail = `${currentUser.toLowerCase().replace(' ', '.')}@edconnekt.com`;

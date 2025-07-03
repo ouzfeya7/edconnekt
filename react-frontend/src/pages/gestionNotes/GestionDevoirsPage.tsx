@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 
 type DevoirStatus = 'À venir' | 'En cours' | 'Terminé' | 'Brouillon';
 
-interface Devoir {
+export interface Devoir {
   id: string;
   title: string;
   subject: string;

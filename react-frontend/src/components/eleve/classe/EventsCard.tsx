@@ -1,4 +1,4 @@
-import { Event } from "./Types";
+import { Event } from "./types";
 
 interface EventsCardProps {
   events: Event[];

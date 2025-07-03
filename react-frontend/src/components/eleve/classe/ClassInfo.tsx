@@ -1,4 +1,4 @@
-import { ClassData } from "./Types";
+import { ClassData } from "./types";
 
 interface ClassInfoCardProps {
   classData: ClassData;
