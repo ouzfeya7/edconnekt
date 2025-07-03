@@ -27,13 +27,13 @@ const EvaluationTypeCard: React.FC<EvaluationTypeCardProps> = ({ value, onChange
   return (
     <>
       <div 
-        className="bg-white p-4 rounded-lg shadow-sm flex flex-col items-start cursor-pointer w-full h-full"
+        className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-full flex flex-col justify-center cursor-pointer"
         onClick={() => setIsModalOpen(true)}
       >
-        <span className="block text-sm text-gray-500 font-medium">{t('evaluation_type', 'Évaluation')}</span>
-        <div className="flex items-center justify-between w-full mt-2">
-          <span className="text-lg text-gray-900 font-medium">{displayValue}</span>
-          <ChevronDown className="h-4 w-4 text-gray-400" />
+        <label className="block text-sm text-gray-500 font-medium">{t('evaluation_type', 'Évaluation')}</label>
+        <div className="relative mt-2 flex items-center w-full">
+          <span className="text-xl text-gray-800">{displayValue}</span>
+          <ChevronDown className="h-5 w-5 text-gray-400 ml-auto" />
         </div>
       </div>
       <EvaluationTypeModal

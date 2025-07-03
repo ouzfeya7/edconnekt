@@ -37,7 +37,7 @@ const schoolInfo = {
     academicYear: "2023-2024"
 };
 
-const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
+const addPdfHeader = (doc: jsPDF, classe: string, title: string, studentName?: string) => {
     // Logo
     doc.addImage(schoolLogo, 'PNG', 25, 15, 30, 30);
 
@@ -53,21 +53,38 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
     doc.text(`Email: ${schoolInfo.email} | Site: ${schoolInfo.website}`, 65, 36);
     doc.text(`Année Scolaire: ${schoolInfo.academicYear}`, 65, 40);
 
-    // Title
+    // Student Info (right-aligned)
+    if (studentName) {
+        const rightMargin = doc.internal.pageSize.getWidth() - 25;
+        doc.setFontSize(10);
+        doc.setFont("times", 'bold');
+        doc.text(studentName, rightMargin, 28, { align: 'right' });
+        
+        doc.setFontSize(9);
+        doc.setFont("times", 'normal');
+        doc.text(`Classe: ${classe.toUpperCase()}`, rightMargin, 36, { align: 'right' });
+    }
+
+    // Main Title
+    let currentY = 55;
     doc.setFontSize(16);
     doc.setFont("times", 'bold');
-    doc.text(title, doc.internal.pageSize.getWidth() / 2, 55, { align: 'center' });
-    
-    // Class Subtitle
-    doc.setFontSize(12);
-    doc.setFont("times", 'normal');
-    doc.text(`Classe: ${classe.toUpperCase()}`, doc.internal.pageSize.getWidth() / 2, 62, { align: 'center' });
+    doc.text(title, doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+    currentY += 7;
+
+    // Class subtitle (only if no student name)
+    if (!studentName) {
+        doc.setFontSize(12);
+        doc.setFont("times", 'normal');
+        doc.text(`Classe: ${classe.toUpperCase()}`, doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+        currentY += 7;
+    }
 
     // Header Line
     doc.setDrawColor(0);
-    doc.line(25, 70, doc.internal.pageSize.getWidth() - 25, 70);
+    doc.line(25, currentY, doc.internal.pageSize.getWidth() - 25, currentY);
     
-    return 80; // Return the start Y position for the content
+    return currentY + 10;
 };
 
 const getPdfTableStyles = (doc: jsPDF): Partial<UserOptions> => ({
@@ -251,7 +268,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
         try {
             const doc = new jsPDF({ orientation: 'landscape' }) as jsPDFWithAutoTable;
             const title = `Rapport d'évaluation - ${activeSubject.name} (${currentMonth})`;
-            const startY = addPdfHeader(doc, currentClasse, title);
+            const startY = addPdfHeader(doc, currentClasse, title, user.name);
             const baseStyles = getPdfTableStyles(doc);
             
             const tableColumns = ["Nom", "Prénom", ...activeSubject.competences.map(c => c.label)];
@@ -288,12 +305,12 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
         try {
             const doc = new jsPDF({ orientation: 'landscape' }) as jsPDFWithAutoTable;
             const title = `Rapport Complet d'Évaluation d'Intégration (${currentMonth})`;
-            let startY = addPdfHeader(doc, currentClasse, title);
+            let startY = addPdfHeader(doc, currentClasse, title, user.name);
             const baseStyles = getPdfTableStyles(doc);
 
             domains.forEach(domain => {
                 startY += 5;
-                if (startY > 180) { doc.addPage(); startY = addPdfHeader(doc, currentClasse, title); }
+                if (startY > 180) { doc.addPage(); startY = addPdfHeader(doc, currentClasse, title, user.name); }
                 doc.setFontSize(14);
                 doc.text(domain.name, 25, startY);
                 startY += 7;
@@ -328,7 +345,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                     startY = (doc.lastAutoTable?.finalY ?? startY) + 10;
                     if (startY > 180) { 
                         doc.addPage();
-                        startY = addPdfHeader(doc, currentClasse, title);
+                        startY = addPdfHeader(doc, currentClasse, title, user.name);
                     }
                 });
             });
@@ -346,7 +363,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
         for (const domain of domains) {
             const doc = new jsPDF() as jsPDFWithAutoTable;
             const title = `Rapport - ${domain.name} (${currentMonth})`;
-            let startY = addPdfHeader(doc, currentClasse, title);
+            let startY = addPdfHeader(doc, currentClasse, title, user.name);
 
             for (const subject of domain.subjects) {
                 if (subject.competences.length === 0) continue;
@@ -386,7 +403,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                 
                 if (startY > 250) { 
                     doc.addPage();
-                    startY = addPdfHeader(doc, currentClasse, title);
+                    startY = addPdfHeader(doc, currentClasse, title, user.name);
                 }
             }
             const pdfBlob = doc.output('blob');
@@ -505,39 +522,40 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
 
     // === FONCTIONS D'EXPORT PDF POUR LES ÉLÈVES ===
     
-    const handleStudentExportPdf = (studentId: string) => {
-        if (!activeSubject) {
-            console.error("Export PDF annulé : aucune matière active.");
-            return;
-        }
-
-        const studentNote = notes.find(n => n.studentId === studentId);
-        if (!studentNote) {
-            console.error("Notes de l'élève non trouvées.");
+    const handleStudentExportPdf = () => {
+        if (!activeSubject || !user || !notes[0]) {
+            console.error("Export PDF annulé : informations manquantes.");
             return;
         }
 
         const doc = new jsPDF() as jsPDFWithAutoTable;
-        const startY = addPdfHeader(doc, currentClasse, `Bulletin d'Intégration - ${activeSubject.name}`);
+        const title = `Bulletin d'Intégration - ${activeSubject.name}`;
+        let startY = addPdfHeader(doc, currentClasse, title, user.name);
 
         const tableBody = activeSubject.competences.map(c => {
-            const noteValue = studentNote.notes[c.id];
-            let displayValue: string;
+            const noteValue = notes[0].notes[c.id];
+            let displayValue: string = '-';
+            let statut = 'Non évalué';
+            
             if (typeof noteValue === 'number') {
                 displayValue = `${noteValue}%`;
+                if (noteValue >= 75) statut = 'Excellent';
+                else if (noteValue >= 50) statut = 'En progrès';
+                else statut = 'À améliorer';
             } else if (noteValue === 'absent') {
                 displayValue = 'Absent';
+                statut = 'Absent';
             } else if (noteValue === 'non-evalue') {
                 displayValue = '-';
-            } else {
-                displayValue = 'Non évalué';
+                statut = 'En attente';
             }
-            return [c.label, displayValue];
+            
+            return [c.label, displayValue, statut];
         });
 
         autoTable(doc, {
             startY: startY,
-            head: [['Compétence', 'Score']],
+            head: [['Compétence', 'Score', 'Statut']],
             body: tableBody,
             ...getPdfTableStyles(doc),
             didDrawPage: (data) => {
@@ -549,68 +567,58 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
             }
         });
 
-        doc.save(`Bulletin_Integration_${studentNote.lastName}_${studentNote.firstName}_${activeSubject.name}.pdf`);
+        doc.save(`Bulletin_Integration_${user.name.replace(/\s+/g, '_')}_${activeSubject.name}.pdf`);
     };
 
-    const handleStudentExportAllPdf = (studentId: string) => {
-        const studentNote = notes.find(n => n.studentId === studentId);
-        if (!studentNote) {
+    const handleStudentExportAllPdf = () => {
+        if (!user || !notes[0]) {
             console.error("Notes de l'élève non trouvées.");
             return;
         }
-
+        
         const doc = new jsPDF() as jsPDFWithAutoTable;
-        let startY = addPdfHeader(doc, currentClasse, `Bulletin d'Intégration Complet`);
-
-        doc.setFontSize(14);
-        doc.setFont("times", 'bold');
-        doc.text(`${studentNote.firstName} ${studentNote.lastName}`, doc.internal.pageSize.getWidth() / 2, startY - 5, { align: 'center' });
-        startY += 5;
+        let startY = addPdfHeader(doc, currentClasse, `Bulletin d'Intégration Complet`, user.name);
 
         domains.forEach(domain => {
             if(doc.internal.pageSize.height - startY < 50) {
                 doc.addPage();
-                startY = addPdfHeader(doc, currentClasse, `Bulletin d'Intégration Complet`);
+                startY = 25; // Reset to top margin
             }
             doc.setFontSize(12);
             doc.setFont("times", 'bold');
-            autoTable(doc, {
-                startY: startY,
-                html: `<h2 style="font-size: 12pt; font-weight: bold;">${domain.name}</h2>`,
-                didParseCell: function (data) {
-                    if (data.cell.text && data.cell.text[0].includes('<h2>')) {
-                       data.cell.styles.fontStyle = 'bold';
-                       data.cell.styles.fontSize = 12;
-                    }
-                }
-            });
+            doc.text(domain.name, 25, startY);
+            startY += 7;
             
-            startY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 2 : startY;
-
             domain.subjects.forEach(subject => {
                  const tableBody = subject.competences.map(c => {
-                    const noteValue = studentNote.notes[c.id];
-                    let displayValue: string;
+                    const noteValue = notes[0].notes[c.id];
+                    let displayValue: string = '-';
+                    let statut = 'Non évalué';
+                    
                     if (typeof noteValue === 'number') {
                         displayValue = `${noteValue}%`;
+                        if (noteValue >= 75) statut = 'Excellent';
+                        else if (noteValue >= 50) statut = 'En progrès';
+                        else statut = 'À améliorer';
                     } else if (noteValue === 'absent') {
                         displayValue = 'Absent';
+                        statut = 'Absent';
                     } else if (noteValue === 'non-evalue') {
                         displayValue = '-';
-                    } else {
-                        displayValue = 'Non évalué';
+                        statut = 'En attente';
                     }
-                    return [c.label, displayValue];
+                    
+                    return [c.label, displayValue, statut];
                 });
 
                 if (doc.internal.pageSize.height - startY < (tableBody.length * 10) + 20) {
                     doc.addPage();
-                    startY = addPdfHeader(doc, currentClasse, `Bulletin d'Intégration Complet`);
+                    startY = 25; // Reset to top margin
                 }
 
                 autoTable(doc, {
                     startY: startY,
-                    head: [[subject.name, 'Score']],
+                    head: [[subject.name, 'Score', 'Statut']],
                     body: tableBody,
                     ...getPdfTableStyles(doc),
                     didDrawPage: (data) => {
@@ -621,11 +629,11 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                         doc.text(`Page ${data.pageNumber} sur ${pageCount-1}`, doc.internal.pageSize.width - data.settings.margin.right, doc.internal.pageSize.height - 10, { align: 'right' });
                     }
                 });
-                startY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 5 : startY;
+                startY = doc.lastAutoTable && typeof doc.lastAutoTable.finalY === 'number' ? doc.lastAutoTable.finalY + 5 : startY;
             });
         });
         
-        doc.save(`Bulletin_Integration_Complet_${studentNote.lastName}_${studentNote.firstName}.pdf`);
+        doc.save(`Bulletin_Integration_Complet_${user.name.replace(/\s+/g, '_')}.pdf`);
     };
 
     const getDomains = () => {
@@ -633,7 +641,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
     }
 
     return (
-        <div className="bg-white rounded-lg shadow-sm mt-6">
+        <div className="bg-white rounded-lg shadow-sm mt-6 border border-gray-200">
             <div className="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 {domains.map(domain => (
                     <button
@@ -785,53 +793,44 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                                 </Transition>
                             </Menu>
                         </div>
-                    ) : role === 'eleve' ? (
-                        <div className="flex items-center">
-                            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{note.firstName} {note.lastName}</h3>
-                            <Menu as="div" className="relative ml-auto">
-                                <Menu.Button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
-                                    <MoreHorizontal size={20} />
+                    ) : (role === 'eleve' && notes.length > 0) ? (
+                        <div className="flex items-center justify-end w-full">
+                            <Menu as="div" className="relative">
+                                <Menu.Button className="p-2 rounded-full bg-white border border-gray-300 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                                    <ArrowDownToLine className="h-5 w-5" />
                                 </Menu.Button>
-                                <Transition
-                                    as={React.Fragment}
-                                    enter="transition ease-out duration-100"
-                                    enterFrom="transform opacity-0 scale-95"
-                                    enterTo="transform opacity-100 scale-100"
-                                    leave="transition ease-in duration-75"
-                                    leaveFrom="transform opacity-100 scale-100"
-                                    leaveTo="transform opacity-0 scale-95"
-                                >
-                                    <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                        <div className="py-1">
-                                            <Menu.Item>
-                                                {({ active }) => (
-                                                    <button
-                                                        onClick={() => handleStudentExportPdf(note.studentId)}
-                                                        className={`${
-                                                            active ? 'bg-gray-100 dark:bg-gray-700' : ''
-                                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
-                                                    >
-                                                        <FileText size={16} className="mr-2" />
-                                                        Télécharger le bulletin
-                                                    </button>
-                                                )}
-                                            </Menu.Item>
-                                            <Menu.Item>
-                                                {({ active }) => (
-                                                    <button
-                                                        onClick={() => handleStudentExportAllPdf(note.studentId)}
-                                                        className={`${
-                                                            active ? 'bg-gray-100 dark:bg-gray-700' : ''
-                                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900 dark:text-gray-200`}
-                                                    >
-                                                        <ArrowDownToLine size={16} className="mr-2" />
-                                                        Télécharger tous les bulletins
-                                                    </button>
-                                                )}
-                                            </Menu.Item>
-                                        </div>
-                                    </Menu.Items>
-                                </Transition>
+                                <Menu.Items className="absolute right-0 mt-2 w-72 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                    <div className="px-1 py-1">
+                                        <Menu.Item>
+                                            {({ active }) => (
+                                                <button
+                                                    onClick={handleStudentExportPdf}
+                                                    className={`${
+                                                        active ? 'bg-gray-100' : ''
+                                                    } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
+                                                >
+                                                    <FileText className="w-5 h-5 mr-3 text-gray-500" />
+                                                    Mon Bulletin (Matière actuelle)
+                                                </button>
+                                            )}
+                                        </Menu.Item>
+                                    </div>
+                                    <div className="px-1 py-1">
+                                        <Menu.Item>
+                                            {({ active }) => (
+                                                <button
+                                                    onClick={handleStudentExportAllPdf}
+                                                    className={`${
+                                                        active ? 'bg-gray-100' : ''
+                                                    } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
+                                                >
+                                                    <FileText className="w-5 h-5 mr-3 text-gray-500" />
+                                                    Mon Bulletin Complet
+                                                </button>
+                                            )}
+                                        </Menu.Item>
+                                    </div>
+                                </Menu.Items>
                             </Menu>
                         </div>
                     ) : null

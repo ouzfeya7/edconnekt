@@ -15,7 +15,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ currentUser, onCancel, onSave
     email: currentUser.email || '',
     phone: currentUser.phone || '',
     birthDate: currentUser.birthDate || '',
-    gender: currentUser.gender || 'Male',
+    gender: currentUser.gender || 'Homme',
     imageUrl: currentUser.imageUrl || '',
   });
 
@@ -87,7 +87,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ currentUser, onCancel, onSave
               <select id="gender" name="gender" value={formData.gender} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#184867]/50">
                 <option value="Male">Homme</option>
                 <option value="Female">Femme</option>
-                <option value="Other">Autre</option>
               </select>
             </div>
           </div>
