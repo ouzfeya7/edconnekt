@@ -1,5 +1,5 @@
 import { useUser } from '../../layouts/DashboardLayout';
-import { Student } from '../../contexts/StudentContext';
+import { Student, StudentStatus } from '../../contexts/StudentContext';
 import { useTranslation } from 'react-i18next';
 
 const StudentDetailPage = () => {
@@ -12,20 +12,24 @@ const StudentDetailPage = () => {
 
   // Adapter l'objet `user` du layout à l'objet `student` attendu par les composants
   const student: Student = {
-    id: 1, // L'ID n'est pas dans le contexte, à voir comment le gérer
-    name: user.name,
+    id: user.id, // Utiliser l'ID string du user
+    firstName: user.name.split(' ')[0] || user.name,
+    lastName: user.name.split(' ').slice(1).join(' ') || '',
+    avatar: user.imageUrl || '',
     imageUrl: user.imageUrl || '',
+    classId: user.classId || 'CP1',
+    status: 'Présent' as StudentStatus, // Utiliser le type correct
+    comment: '-',
     ref: 'STU12340', // Donnée non disponible, valeur par défaut
-    gender: user.gender || t('unspecified', 'Non spécifié'),
+    gender: (user.gender === 'Male' ? 'Masculin' : user.gender === 'Female' ? 'Féminin' : 'Masculin') as 'Masculin' | 'Féminin',
     birthDate: user.birthDate || t('dob_unavailable', 'Date de naissance non disponible'),
     email: user.email,
     address: user.address,
     department: user.classLabel || t('class_unavailable', 'Classe non disponible'),
-    class: user.classId || 'CP1', // Utiliser la classe de l'utilisateur
     admissionDate: user.entryDate || t('date_unavailable', 'Date non disponible'),
-    status: t('present'), // Statut non disponible, valeur par défaut
-    competence: "Lecture anglais",
   };
+
+  const studentDisplayName = `${student.firstName} ${student.lastName}`.trim();
 
   return (
     <div className="p-6 space-y-6 bg-gray-100 min-h-screen">
@@ -41,7 +45,7 @@ const StudentDetailPage = () => {
             </div>
             <div>
               <p className="font-semibold text-gray-700">{t('class', 'Classe')}</p>
-              <p className="text-gray-500">{student.class}</p>
+              <p className="text-gray-500">{student.classId}</p>
             </div>
             <div>
               <p className="font-semibold text-gray-700">{t('present', 'Présent')}</p>
@@ -133,8 +137,8 @@ const StudentDetailPage = () => {
             <button className="self-start text-sm flex items-center text-gray-600 hover:text-gray-800 mb-4">
               &lt; {t('back', 'Retour')}
             </button>
-            <img src={student.imageUrl} alt={student.name} className="w-24 h-24 rounded-full object-cover mb-4" />
-            <h2 className="text-xl font-bold text-gray-800">{student.name}</h2>
+            <img src={student.imageUrl} alt={studentDisplayName} className="w-24 h-24 rounded-full object-cover mb-4" />
+            <h2 className="text-xl font-bold text-gray-800">{studentDisplayName}</h2>
           </div>
           <div className="space-y-4 text-sm">
             <div>
@@ -143,7 +147,7 @@ const StudentDetailPage = () => {
             </div>
             <div>
               <p className="font-semibold text-gray-500 uppercase text-xs">{t('sex', 'SEXE')}</p>
-              <p className="text-gray-800">{student.gender === 'F' ? t('female', 'Féminin') : t('male', 'Masculin')}</p>
+              <p className="text-gray-800">{student.gender === 'Féminin' ? t('female', 'Féminin') : t('male', 'Masculin')}</p>
             </div>
             <div>
               <p className="font-semibold text-gray-500 uppercase text-xs">{t('date_of_birth', 'DATE DE NAISSANCE')}</p>

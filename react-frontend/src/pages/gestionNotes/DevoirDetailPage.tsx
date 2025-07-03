@@ -91,8 +91,8 @@ const DevoirDetailPage: React.FC = () => {
                 <tr key={student.id} className="bg-white border-b last:border-b-0 hover:bg-gray-50">
                   <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <img className="h-9 w-9 rounded-full object-cover" src={student.avatar} alt={student.name} />
-                      <span>{student.name}</span>
+                      <img className="h-9 w-9 rounded-full object-cover" src={student.avatar} alt={`${student.firstName} ${student.lastName}`} />
+                      <span>{`${student.firstName} ${student.lastName}`}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">{student.submissionDate || '-'}</td>

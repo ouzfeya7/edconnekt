@@ -3,28 +3,12 @@ import ClassHeader from './ClassHeader';
 import ClassFilters from './ClassFilters';
 import ClassDetailsCard from './ClassDetailsCard';
 import StudentList from './StudentLists';
+import { Student } from '../../contexts/StudentContext';
 
 interface FilterState {
   trimestre: string;
   type: string;
   status: string;
-}
-
-interface Student {
-  id: number;
-  name: string;
-  competence: string;
-  date: string;
-  status: 'Présent' | 'Retard' | 'Absent';
-  imageUrl?: string;
-  ref?: string;
-  gender?: string;
-  birthDate?: string;
-  email?: string;
-  address?: string;
-  department?: string;
-  class?: string;
-  admissionDate?: string;
 }
 
 interface ClasseDetailSectionProps {
@@ -79,7 +63,7 @@ const ClasseDetailSection: React.FC<ClasseDetailSectionProps> = ({
       <ClassHeader 
         currentClasse={className}
         studentStats={studentCount}
-        currentDate="Aujourd'hui"
+        currentDate={new Date()}
         onDateChange={() => {}}
         onClasseChange={() => {}}
         // currentTrimestre="Trimestre Actuel"

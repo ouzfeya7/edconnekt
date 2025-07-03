@@ -39,6 +39,7 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
     if (authUser) {
       // Interface étendue pour les attributs Keycloak
       interface ExtendedKeycloakProfile {
+        sub?: string;
         attributes?: {
           picture?: string[];
           avatar?: string[];
@@ -68,7 +69,7 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
       const fallbackAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(initials)}&backgroundColor=184867`;
 
       setUser({
-        id: authUser.sub, // Stocker l'ID de Keycloak
+        id: extendedAuthUser.sub || authUser.username || 'unknown', // Utiliser sub depuis l'interface étendue
         name: fullName || authUser.username || 'Utilisateur',
         role: role,
         email: userEmail,

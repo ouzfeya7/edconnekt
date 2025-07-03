@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Eye, EyeOff, Pencil } from "lucide-react";
-import { Student } from "./Types";
+import { Student } from "./types";
 
 interface StudentTableProps {
   students: Student[];

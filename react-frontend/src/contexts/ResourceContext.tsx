@@ -37,10 +37,10 @@ interface ResourceContextType {
 
 // --- Données Mock Initiales ---
 const getInitialResources = (t: (key: string) => string): Resource[] => [
-    { id: 1, title: "Découverte du monde C.I. - Les éditions didactikos", subject: t('history', 'Histoire'), description: "Cours sur l'histoire du monde.", imageUrl: "https://marketplace.canva.com/EAFaU-oW3B8/1/0/1131w/canva-green-and-white-modern-illustrative-science-book-cover-nFct_o6aTNE.jpg", isArchived: false },
-    { id: 2, title: "Aujourd'hui au Sénégal: Bocar, Dakar", subject: t('geography', 'Géographie'), description: "Étude des cartes et des paysages.", imageUrl: "https://i.pinimg.com/736x/2f/50/99/2f5099335527a206a4b27c6999a38914.jpg", isArchived: false },
-    { id: 3, title: "Découverte du monde sénégal cm2 3e étape elève", subject: t('french', 'Français'), description: "Apprentissage de la langue française.", imageUrl: "https://static.fnac-static.com/multimedia/Images/FR/NR/e0/75/74/7632352/1507-1/tsp20230222123543/Decouverte-du-monde-Grande-section.jpg", isArchived: false },
-    { id: 4, title: "Les bases de l'algèbre", subject: t('mathematics', 'Mathématique'), description: "Algèbre, géométrie et analyse.", imageUrl: "https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?q=80&w=2070&auto=format&fit=crop", isArchived: true },
+    { id: 1, title: "Découverte du monde C.I. - Les éditions didactikos", subject: t('history'), description: "Cours sur l'histoire du monde.", imageUrl: "https://marketplace.canva.com/EAFaU-oW3B8/1/0/1131w/canva-green-and-white-modern-illustrative-science-book-cover-nFct_o6aTNE.jpg", isArchived: false },
+    { id: 2, title: "Aujourd'hui au Sénégal: Bocar, Dakar", subject: t('geography'), description: "Étude des cartes et des paysages.", imageUrl: "https://i.pinimg.com/736x/2f/50/99/2f5099335527a206a4b27c6999a38914.jpg", isArchived: false },
+    { id: 3, title: "Découverte du monde sénégal cm2 3e étape elève", subject: t('french'), description: "Apprentissage de la langue française.", imageUrl: "https://static.fnac-static.com/multimedia/Images/FR/NR/e0/75/74/7632352/1507-1/tsp20230222123543/Decouverte-du-monde-Grande-section.jpg", isArchived: false },
+    { id: 4, title: "Les bases de l'algèbre", subject: t('mathematics'), description: "Algèbre, géométrie et analyse.", imageUrl: "https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?q=80&w=2070&auto=format&fit=crop", isArchived: true },
 ];
 
 const initialFiles: FilesByResource = {
@@ -58,7 +58,6 @@ const initialFiles: FilesByResource = {
         { id: 403, name: "Lien vers Khan Academy", type: 'Lien', size: 'N/A', uploadDate: '25 Sept. 2023', url: '#' },
     ],
 };
-
 
 // --- Création du Contexte ---
 const ResourceContext = createContext<ResourceContextType | undefined>(undefined);
