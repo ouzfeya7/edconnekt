@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         const authenticated = await keycloak.init({
           onLoad: 'login-required',
-          redirectUri: 'http://localhost:8000/login',
+          redirectUri: 'http://app.uat1-engy-partners.com:8000/login',
           pkceMethod: 'S256',
           responseMode: 'fragment',
           scope: 'openid profile email roles',
@@ -121,7 +121,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     if (!MOCK_AUTH) {
-      keycloak.logout({ redirectUri: 'http://localhost:8000' });
+      keycloak.logout({ redirectUri: 'http://app.uat1-engy-partners.com:8000' });
     } else {
       setIsAuthenticated(false);
       setUser(null);

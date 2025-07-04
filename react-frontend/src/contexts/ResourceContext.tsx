@@ -67,7 +67,7 @@ export const ResourceProvider: React.FC<{ children: ReactNode }> = ({ children }
     const { t } = useTranslation();
     const [resources, setResources] = useState<Resource[]>(() => getInitialResources(t));
     const [files, setFiles] = useState<FilesByResource>(initialFiles);
-
+    
     React.useEffect(() => {
         setResources(getInitialResources(t));
     }, [t]);
