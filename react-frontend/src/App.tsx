@@ -35,6 +35,8 @@ import RessourceDetailPage from "./pages/RessourceDetailPage";
 import ArchivesPage from "./pages/ArchivesPage";
 import { JSX } from "react/jsx-runtime";
 import { ResourceProvider } from "./contexts/ResourceContext";
+import { EventProvider } from './contexts/EventContext'; // Importer le provider
+import { NotificationProvider } from './contexts/NotificationContext'; // Importer le nouveau provider
 import GestionNotesPage from './pages/gestionNotes/GestionNotesPage';
 import GestionDevoirsPage from './pages/gestionNotes/GestionDevoirsPage';
 import EnseignantDevoirDetailPage from './pages/gestionNotes/DevoirDetailPage';
@@ -46,6 +48,7 @@ import EleveDevoirDetailPage from './pages/eleves/DevoirDetailPage';
 import CreateEventPage from './pages/CreateEventPage';
 import EmploiDuTemps from './pages/EmploiDuTemps';
 import ParentDashboard from "./pages/parents/ParentDashboard";
+
 
 // Définition des types de rôles pour la clarté
 type Role =
@@ -113,8 +116,16 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   ],
   parent: [
     { path: "/", element: <ParentDashboard /> },
-    { path: "*", element: <NotFound /> },
+    { path: "/calendar", element: <Agenda /> },
+    { path: "/agenda", element: <Agenda /> },
+    { path: "/agenda/create", element: <CreateEventPage /> },
+    { path: "/agenda/edit/:eventId", element: <CreateEventPage /> },
+    { path: "/emploi-du-temps", element: <EmploiDuTemps /> },
+    { path: "/messages", element: <MessageEleve /> },
     { path: "/profile", element: <ProfilePage /> },
+    { path: "/mes-notes", element: <MesNotesPage /> },
+    { path: "/notifications", element: <MessageEnseignant /> },
+    { path: "*", element: <NotFound /> },
   ],
   administrateur: [
     { path: "/", element: <Accueil /> },
@@ -194,7 +205,11 @@ const App = () => {
   return (
     <Router>
       <ResourceProvider>
-        <AppContent />
+        <EventProvider>
+          <NotificationProvider>
+            <AppContent />
+          </NotificationProvider>
+        </EventProvider>
       </ResourceProvider>
     </Router>
   );

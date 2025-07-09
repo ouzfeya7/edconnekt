@@ -9,6 +9,12 @@ import DateCard from '../../components/Header/DateCard';
 import AttendanceStatusCard from '../../components/parents/AttendanceStatusCard';
 import ProgressionChart from '../../components/charts/ProgressionChart';
 import CompetenceSelectorModal from '../../components/parents/CompetenceSelectorModal';
+import RecentEvaluations from '../../components/parents/RecentEvaluations';
+import TrimesterAverages from '../../components/parents/TrimesterAverages';
+import UpcomingEvents from '../../components/parents/UpcomingEvents';
+import Notifications from '../../components/parents/Notifications';
+import { useEvents } from '../../contexts/EventContext'; // Importer le hook des événements
+import dayjs from 'dayjs';
 
 // Données de progression fictives par type d'évaluation
 const evaluationProgressData: { 
@@ -81,6 +87,13 @@ const ParentDashboard = () => {
     setIsCompetenceModalOpen(false);
   };
 
+  const { events } = useEvents(); // Récupérer les événements du contexte
+
+  // Filtrer les événements pour n'afficher que ceux d'aujourd'hui
+  const todayEvents = events.filter(event => 
+    dayjs(event.start as string).isSame(dayjs(), 'day')
+  );
+
   return (
     <div className="p-4 md:p-6 space-y-6">
       <CourseDetailHeader title={t('theme_title', 'Thème : Vivre ensemble et respecter les règles de l\'école')} />
@@ -99,35 +112,57 @@ const ParentDashboard = () => {
         <AttendanceStatusCard status={childStatus} />
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-gray-800">{t('progression', 'Progression')}</h3>
-          <div className="flex items-center space-x-2">
-            <button 
-              onClick={() => setIsCompetenceModalOpen(true)}
-              className="flex items-center space-x-2 border border-gray-300 rounded-md px-3 py-1 text-sm hover:bg-gray-50"
-            >
-              <span>
-                {selectedCompetence ? selectedCompetence.label : t('all_competences', 'Toutes les compétences')}
-              </span>
-              <ChevronDown className="h-4 w-4 text-gray-500" />
-            </button>
-            {!selectedCompetence && (
-              <select 
-                  className="border border-gray-300 rounded-md px-3 py-1 text-sm"
-                  value={evaluationType}
-                  onChange={(e) => setEvaluationType(e.target.value)}
+      {/* Nouvelle section principale avec grille */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Section de la progression (2/3 de la largeur) */}
+        <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-gray-800">{t('progression', 'Progression')}</h3>
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => setIsCompetenceModalOpen(true)}
+                className="flex items-center space-x-2 border border-gray-300 rounded-md px-3 py-1 text-sm hover:bg-gray-50"
               >
-                  <option value="continue">{t('continue', 'Continue')}</option>
-                  <option value="integration">{t('integration', 'Intégration')}</option>
-                  <option value="trimestrielle">{t('trimestrielle', 'Trimestrielle')}</option>
-              </select>
-            )}
+                <span>
+                  {selectedCompetence ? selectedCompetence.label : t('all_competences', 'Toutes les compétences')}
+                </span>
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              </button>
+              {!selectedCompetence && (
+                <select 
+                    className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+                    value={evaluationType}
+                    onChange={(e) => setEvaluationType(e.target.value)}
+                >
+                    <option value="continue">{t('continue', 'Continue')}</option>
+                    <option value="integration">{t('integration', 'Intégration')}</option>
+                    <option value="trimestrielle">{t('trimestrielle', 'Trimestrielle')}</option>
+                </select>
+              )}
+            </div>
+          </div>
+          <div style={{ height: '300px' }}>
+            <ProgressionChart data={chartData} />
           </div>
         </div>
-        <div style={{ height: '300px' }}>
-          <ProgressionChart data={chartData} />
+
+        {/* Section des évaluations récentes */}
+        <div className="lg:col-span-1">
+            <RecentEvaluations />
         </div>
+      </div>
+      
+      {/* Nouvelle rangée pour les notifications, moyennes et évènements */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+              <Notifications />
+          </div>
+          <div className="lg:col-span-1">
+              <TrimesterAverages />
+          </div>
+          <div className="lg:col-span-1">
+              <UpcomingEvents events={todayEvents} />
+          </div>
       </div>
 
       <CompetenceSelectorModal
