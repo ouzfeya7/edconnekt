@@ -50,7 +50,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
     ],
     parent: [
       { titleKey: "home", to: "/", icon: <FaHome /> },
-      { titleKey: "Note", to: "/note", icon: <FaFileAlt /> },
+      { titleKey: "Notes", to: "/mes-notes", icon: <FaFileAlt /> },
       { titleKey: "Rapport", to: "/rapport", icon: <FaFileAlt /> },
       { titleKey: "Ressources", to: "/ressources", icon: <FaBook /> },
       { titleKey: "Agenda", to: "/calendar", icon: <FaCalendarAlt /> },
