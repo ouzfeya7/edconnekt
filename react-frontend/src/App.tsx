@@ -45,6 +45,7 @@ import DevoirsPage from './pages/eleves/DevoirsPage';
 import EleveDevoirDetailPage from './pages/eleves/DevoirDetailPage';
 import CreateEventPage from './pages/CreateEventPage';
 import EmploiDuTemps from './pages/EmploiDuTemps';
+import ParentDashboard from "./pages/parents/ParentDashboard";
 
 // Définition des types de rôles pour la clarté
 type Role =
@@ -111,7 +112,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "*", element: <NotFound /> },
   ],
   parent: [
-    { path: "/", element: <Accueil /> },
+    { path: "/", element: <ParentDashboard /> },
     { path: "*", element: <NotFound /> },
     { path: "/profile", element: <ProfilePage /> },
   ],
