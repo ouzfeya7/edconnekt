@@ -25,7 +25,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
     const data = payload[0].payload;
     return (
       <div className="bg-white p-3 shadow-lg rounded-lg border border-gray-200 text-sm">
-        <p className="font-semibold text-gray-700">{`${data.date} : ${data.progression}/20`}</p>
+        <p className="font-semibold text-gray-700">{`${data.date} : ${data.progression}%`}</p>
       </div>
     );
   }
@@ -61,8 +61,8 @@ const ProgressionChart: React.FC<ProgressionChartProps> = ({ data }) => {
           padding={{ left: 30 }}
         />
         <YAxis 
-          domain={[0, 20]} // Echelle de 0 à 20
-          unit="/20"
+          domain={[0, 100]} // Echelle de 0 à 100
+          unit="%"
           tick={{ fontSize: 12, fill: '#6B7280' }} 
           axisLine={false}
         />

@@ -26,7 +26,7 @@ export interface StudentNote {
 }
 
 // Système de notation
-export const getGradingStatus = (note: any) => {
+export const getGradingStatus = (note: number | 'absent' | 'non-evalue') => {
   if (note === 'absent') return { text: 'Abs', color: 'text-gray-500' };
   if (note === 'non-evalue') return { text: '-', color: 'text-gray-500' };
   
@@ -477,6 +477,35 @@ const subjectsByClass: { [classId: string]: Domain[] } = {
   ],
 };
 
+/**
+ * Génère des données de notes pour une classe et une liste d'élèves données.
+ * Les notes sont initialisées comme 'non-evalue'.
+ */
+export const getNotesForClass = (classId: string, students: { id: string, firstName: string, lastName: string, avatar: string }[]): StudentNote[] => {
+  const subjects = subjectsByClass[classId] || [];
+  const allCompetences = subjects.flatMap(d => d.subjects.flatMap(s => s.competences));
+
+  return students.map(student => {
+    const notes: { [competenceId:string]: number | 'absent' | 'non-evalue' } = {};
+    allCompetences.forEach(competence => {
+      // Les notes sont initialisées à 'non-evalue' pour que l'enseignant les remplisse.
+      notes[competence.id] = 'non-evalue';
+    });
+    
+    return {
+      studentId: student.id,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      studentAvatar: student.avatar,
+      notes,
+    };
+  });
+};
+
+export const getSubjectsForClass = (classId: string): Domain[] => {
+    return subjectsByClass[classId] || [];
+}
+
 // DONNÉES DES ÉLÈVES PAR CLASSE
 // Source de vérité pour les élèves. 
 // Pour ajouter un élève, il suffit de l'ajouter à la bonne classe ici.
@@ -526,35 +555,6 @@ const studentDataByClass = {
     { studentId: 'cm2-eleve-1', firstName: 'Rama', lastName: 'Cisse', studentAvatar: 'https://randomuser.me/api/portraits/women/10.jpg' },
     { studentId: 'cm2-eleve-2', firstName: 'Alioune', lastName: 'Tine', studentAvatar: 'https://randomuser.me/api/portraits/men/11.jpg' },
   ]
-};
-
-export const getSubjectsForClass = (classId: string): Domain[] => {
-    return subjectsByClass[classId] || [];
-}
-
-/**
- * Génère des données de notes pour une classe et une liste d'élèves données.
- * Les notes sont initialisées comme 'non-evalue'.
- */
-export const getNotesForClass = (classId: string, students: { id: string, firstName: string, lastName: string, avatar: string }[]): StudentNote[] => {
-  const subjects = subjectsByClass[classId] || [];
-  const allCompetences = subjects.flatMap(d => d.subjects.flatMap(s => s.competences));
-
-  return students.map(student => {
-    const notes: { [competenceId: string]: number | 'absent' | 'non-evalue' } = {};
-    allCompetences.forEach(competence => {
-      // Les notes sont initialisées à 'non-evalue' pour que l'enseignant les remplisse.
-      notes[competence.id] = 'non-evalue';
-    });
-    
-    return {
-      studentId: student.id,
-      firstName: student.firstName,
-      lastName: student.lastName,
-      studentAvatar: student.avatar,
-      notes,
-    };
-  });
 };
 
 /**
