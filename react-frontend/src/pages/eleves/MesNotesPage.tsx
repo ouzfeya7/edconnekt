@@ -3,8 +3,11 @@ import EvaluationHeader from '../../components/Header/EvaluationHeader';
 import ContinueView from '../../components/GestionDesNotes/ContinueView';
 import IntegrationView from '../../components/GestionDesNotes/IntegrationView';
 import TrimestrielleView from '../../components/GestionDesNotes/TrimestrielleView';
-import { useUser } from '../../layouts/DashboardLayout';
+import ChildSelectorCard from '../../components/parents/ChildSelectorCard';
+import ChildAverageCard from '../../components/parents/ChildAverageCard';
+import { useAuth } from '../authentification/useAuth'; // Importer useAuth
 import { useFilters } from '../../contexts/FilterContext';
+import { mockParentData } from '../../lib/mock-parent-data';
 
 // const NotesTrimestrielleView: React.FC = () => {
 // return <div className="p-4 mt-6 bg-white rounded-lg shadow">Vue des notes "Trimestrielle" à implémenter...</div>;
@@ -12,35 +15,44 @@ import { useFilters } from '../../contexts/FilterContext';
 
 const MesNotesPage: React.FC = () => {
   const [evaluationType, setEvaluationType] = useState('Continue');
-  const { user } = useUser();
+  const [selectedChildId, setSelectedChildId] = useState<string>(''); // Gestion de la sélection d'enfant pour les parents
+  const { user, roles } = useAuth(); // Utiliser useAuth pour obtenir user et roles
   const { setCurrentClasse } = useFilters();
 
-  // Initialiser la classe de l'élève lors du chargement initial
+  // Déterminer le rôle principal
+  const isParent = roles.includes('parent');
+
+  // Initialiser la sélection du premier enfant pour les parents
   useEffect(() => {
+    if (isParent && mockParentData.children.length > 0 && !selectedChildId) {
+      setSelectedChildId(mockParentData.children[0].studentId);
+    }
+  }, [isParent, selectedChildId]);
+
+  useEffect(() => {
+    // La logique pour définir la classe reste la même
     if (user?.classId) {
       setCurrentClasse(user.classId);
     } else {
-      // Valeur par défaut si l'utilisateur n'a pas de classe assignée
-      setCurrentClasse("cp1");
+      setCurrentClasse("cp1"); 
     }
   }, [user?.classId, setCurrentClasse]);
-
-
-
-  // Les données de l'élève sont gérées dans les composants enfants
 
   const handleEvaluationTypeChange = (type: string) => {
     setEvaluationType(type);
   };
 
   const renderSelectedView = () => {
+    // Déterminer le rôle en fonction de l'utilisateur connecté
+    const roleForView = isParent ? 'parent' : 'eleve';
+    
     switch (evaluationType) {
       case 'Continue':
-        return <ContinueView role="eleve" />;
+        return <ContinueView role={roleForView} selectedChildId={selectedChildId} />;
       case 'Intégration':
-        return <IntegrationView role="eleve" />;
+        return <IntegrationView role={roleForView} selectedChildId={selectedChildId} />;
       case 'Trimestrielle':
-        return <TrimestrielleView role="eleve" />;
+        return <TrimestrielleView role={roleForView} selectedChildId={selectedChildId} />;
       default:
         return <p>Veuillez sélectionner un type d'évaluation.</p>;
     }
@@ -56,7 +68,9 @@ const MesNotesPage: React.FC = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-500/5 rounded-full"></div>
         
         <div className="relative">
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Mes notes</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">
+            {isParent ? 'Notes' : 'Mes notes'}
+          </h1>
         </div>
       </div>
 
@@ -65,6 +79,22 @@ const MesNotesPage: React.FC = () => {
         onEvaluationTypeChange={handleEvaluationTypeChange}
         isClasseEditable={false} // La classe n'est pas modifiable pour l'élève
       />
+
+      {/* Sélecteur d'enfant et moyenne pour les parents */}
+      {isParent && (
+        <div className="mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ChildSelectorCard
+              children={mockParentData.children}
+              selectedChildId={selectedChildId}
+              onSelectChild={setSelectedChildId}
+            />
+            <ChildAverageCard
+              selectedChild={mockParentData.children.find(child => child.studentId === selectedChildId) || null}
+            />
+          </div>
+        </div>
+      )}
 
       {renderSelectedView()}
     </div>

@@ -51,7 +51,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
     parent: [
       { titleKey: "home", to: "/", icon: <FaHome /> },
       { titleKey: "Notes", to: "/mes-notes", icon: <FaFileAlt /> },
-      { titleKey: "Rapport", to: "/rapport", icon: <FaFileAlt /> },
+      { titleKey: "Rapport", to: "/rapport", icon: <FaChartLine /> }, // Icône différencié
       { titleKey: "Ressources", to: "/ressources", icon: <FaBook /> },
       { titleKey: "Agenda", to: "/calendar", icon: <FaCalendarAlt /> },
       { titleKey: "Message", to: "/messages", icon: <FaEnvelope />, hideInNavbar: true },

@@ -11,6 +11,7 @@ import { useFilters } from '../../contexts/FilterContext';
 import { useStudents } from '../../contexts/StudentContext';
 import { getSubjectsForClass, getNotesForClass, StudentNote, Domain, getGradingStatus, calculateTrimesterAverages } from '../../lib/notes-data';
 import { getCurrentStudentNotes } from '../../lib/mock-student-notes';
+import { mockParentData } from '../../lib/mock-parent-data';
 import { getPdfTableStyles } from './pdfStyles';
 import schoolLogo from '../../assets/logo-yka-1.png';
 import { useUser } from '../../layouts/DashboardLayout';
@@ -82,10 +83,11 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string, studentName?: s
 };
 
 interface TrimestrielleViewProps {
-  role: 'enseignant' | 'eleve';
+  role: 'enseignant' | 'eleve' | 'parent';
+  selectedChildId?: string;
 }
 
-const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
+const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role, selectedChildId }) => {
     const { currentClasse, currentTrimestre } = useFilters();
   const { students } = useStudents();
   const { user } = useUser();
@@ -108,20 +110,25 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
         const classDomains = getSubjectsForClass(currentClasse);
         setDomains(classDomains);
 
-        const classNotes = getNotesForClass(currentClasse, students);
+        let notesToUse: StudentNote[] = [];
         
         if (role === 'eleve' && user) {
             // Utiliser les données fictives avec moyennes pour l'élève connecté
             const mockNotes = getCurrentStudentNotes(currentClasse);
             const trimesterNumber = extractTrimesterNumber(currentTrimestre);
-            const averagedMockNotes = calculateTrimesterAverages(mockNotes, trimesterNumber);
-            setNotes(averagedMockNotes);
-            // Désactiver la recherche pour l'élève
+            notesToUse = calculateTrimesterAverages(mockNotes, trimesterNumber);
+            setSearchTerm('');
+        } else if (role === 'parent') {
+            // Utiliser les données des enfants du parent depuis mock-parent-data
+            const trimesterNumber = extractTrimesterNumber(currentTrimestre);
+            notesToUse = calculateTrimesterAverages(mockParentData.children, trimesterNumber);
         setSearchTerm('');
       } else {
             // Pour les enseignants, utiliser des notes vides à remplir manuellement
-            setNotes(classNotes);
+            notesToUse = getNotesForClass(currentClasse, students);
         }
+        
+        setNotes(notesToUse);
 
         if (classDomains.length > 0) {
             const firstDomain = classDomains[0];
@@ -377,17 +384,28 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
     // === FONCTIONS D'EXPORT PDF POUR LES ÉLÈVES ===
     
     const handleStudentExportPdf = () => {
-        if (!activeSubject || !user || !notes[0]) {
-            console.error("Matière active ou notes de l'élève non trouvées.");
+        if (!activeSubject || !user) {
+            console.error("Matière active ou utilisateur non trouvé.");
+            return;
+        }
+
+        // Pour les parents, utiliser les données de l'enfant sélectionné
+        const studentData = role === 'parent' && selectedChildId 
+            ? notes.find(n => n.studentId === selectedChildId)
+            : notes[0];
+            
+        if (!studentData) {
+            console.error("Notes de l'élève non trouvées.");
             return;
         }
 
         const doc = new jsPDF() as jsPDFWithAutoTable;
         const title = `Bulletin Trimestriel - ${activeSubject.name}`;
-        let startY = addPdfHeader(doc, currentClasse, title, user.name);
+        const studentName = role === 'parent' ? `${studentData.firstName} ${studentData.lastName}` : user.name;
+        let startY = addPdfHeader(doc, currentClasse, title, studentName);
 
         const tableBody = activeSubject.competences.map(c => {
-            const noteValue = notes[0].notes[c.id];
+            const noteValue = studentData.notes[c.id];
             let displayValue: string = '-';
             let statut = 'Non évalué';
             
@@ -418,7 +436,7 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
         // Ajouter des informations supplémentaires spécifiques à l'élève
         const finalY = doc.lastAutoTable?.finalY || startY + 50;
         const notesNumeriques = activeSubject.competences
-            .map(c => notes[0].notes[c.id])
+            .map(c => studentData.notes[c.id])
             .filter(note => typeof note === 'number') as number[];
         
         if (notesNumeriques.length > 0) {
@@ -431,7 +449,7 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
             doc.text("Résumé des performances", 25, finalY + 20);
             
             doc.setFont("times", "normal");
-            doc.text(`Élève : ${user.name}`, 25, finalY + 35);
+            doc.text(`Élève : ${studentName}`, 25, finalY + 35);
             doc.text(`Trimestre : ${currentTrimestre}`, 25, finalY + 45);
             doc.text(`Moyenne de la matière : ${moyenne.toFixed(1)}%`, 25, finalY + 55);
             doc.text(`Meilleure note : ${meilleureNote}%`, 25, finalY + 65);
@@ -439,17 +457,28 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
             doc.text(`Compétences réussies : ${competencesReussies}/${activeSubject.competences.length}`, 25, finalY + 85);
         }
 
-        doc.save(`Bulletin_${currentTrimestre}_${user.name.replace(/\s+/g, '_')}_${activeSubject.name}.pdf`);
+        doc.save(`Bulletin_${currentTrimestre}_${studentName.replace(/\s+/g, '_')}_${activeSubject.name}.pdf`);
     };
 
     const handleStudentExportAllPdf = () => {
-        if (!user || !notes[0]) {
+        if (!user) {
+            console.error("Utilisateur non trouvé.");
+            return;
+        }
+
+        // Pour les parents, utiliser les données de l'enfant sélectionné
+        const studentData = role === 'parent' && selectedChildId 
+            ? notes.find(n => n.studentId === selectedChildId)
+            : notes[0];
+            
+        if (!studentData) {
             console.error("Notes de l'élève non trouvées.");
             return;
         }
 
         const doc = new jsPDF() as jsPDFWithAutoTable;
-        let startY = addPdfHeader(doc, currentClasse, `Bulletin Trimestriel Complet`, user.name);
+        const studentName = role === 'parent' ? `${studentData.firstName} ${studentData.lastName}` : user.name;
+        let startY = addPdfHeader(doc, currentClasse, `Bulletin Trimestriel Complet`, studentName);
 
         domains.forEach(domain => {
             if (doc.internal.pageSize.height - startY < 50) {
@@ -477,7 +506,7 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                 
                 const tableColumns = ["Compétence", "Moyenne", "Statut"];
                 const tableRows = subject.competences.map(competence => {
-                    const note = notes[0].notes[competence.id];
+                    const note = studentData.notes[competence.id];
                     let noteDisplay = '-';
                     let statut = 'Non évalué';
                     
@@ -517,11 +546,11 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
         });
 
         // Page de résumé final
-        if (Object.keys(notes[0].notes).length > 0) {
+        if (Object.keys(studentData.notes).length > 0) {
             doc.addPage();
-            const summaryStartY = addPdfHeader(doc, currentClasse, `Résumé Trimestriel - ${user.name}`, user.name);
+            const summaryStartY = addPdfHeader(doc, currentClasse, `Résumé Trimestriel - ${studentName}`, studentName);
             
-            const totalNotesNumeriques = Object.values(notes[0].notes)
+            const totalNotesNumeriques = Object.values(studentData.notes)
                 .filter(note => typeof note === 'number') as number[];
             
             if (totalNotesNumeriques.length > 0) {
@@ -543,7 +572,7 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
             }
         }
 
-        doc.save(`Bulletin_Complet_${currentTrimestre}_${user.name.replace(/\s+/g, '_')}.pdf`);
+        doc.save(`Bulletin_Complet_${currentTrimestre}_${studentName.replace(/\s+/g, '_')}.pdf`);
     };
 
     return (
@@ -673,7 +702,7 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                         </Transition>
                     </Menu>
                 </div>
-                    ) : (role === 'eleve' && notes.length > 0) ? (
+                    ) : ((role === 'eleve' || (role === 'parent' && selectedChildId)) && notes.length > 0) ? (
                         <div className="flex items-center justify-end w-full">
                             <Menu as="div" className="relative">
                                 <Menu.Button className="p-2 rounded-full bg-white border border-gray-300 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
@@ -690,7 +719,7 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                                                     } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
                                                 >
                                                     <FileText className="w-5 h-5 mr-3 text-gray-500" />
-                                                    Mon Bulletin (Matière actuelle)
+                                                    {role === 'parent' ? 'Bulletin de l\'enfant (Matière actuelle)' : 'Mon Bulletin (Matière actuelle)'}
                                                 </button>
                                             )}
                                         </Menu.Item>
@@ -705,7 +734,7 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                                                     } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
                                                 >
                                                     <FileText className="w-5 h-5 mr-3 text-gray-500" />
-                                                    Mon Bulletin Complet
+                                                    {role === 'parent' ? 'Bulletin Complet de l\'enfant' : 'Mon Bulletin Complet'}
                                                 </button>
                                             )}
                                         </Menu.Item>
@@ -717,26 +746,33 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role }) => {
                 }
             />
                 
-                {/* Affichage conditionnel : cartes pour les élèves, tableau pour les enseignants */}
-                {role === 'eleve' && activeSubject && user ? (
+                {/* Affichage conditionnel : cartes pour les élèves et parents avec enfant sélectionné, tableau pour les autres */}
+                {(role === 'eleve' || (role === 'parent' && selectedChildId)) && activeSubject ? (
                     <div className="border border-gray-200 rounded-lg p-4">
                         <StudentTrimestrielleCards
                             competences={activeSubject.competences}
-                            notes={activeSubject.competences.reduce((acc, c) => {
+                            notes={role === 'eleve' 
+                                ? activeSubject.competences.reduce((acc, c) => {
                                 const note = paginatedNotes.find(n => n.studentId === user.name || n.studentId === user.classId)?.notes[c.id];
                                 acc[c.id] = note !== undefined ? note : 'non-evalue';
                                 return acc;
-                            }, {} as { [key: string]: number | 'absent' | 'non-evalue' })}
+                                }, {} as { [key: string]: number | 'absent' | 'non-evalue' })
+                                : activeSubject.competences.reduce((acc, c) => {
+                                    const note = paginatedNotes.find(n => n.studentId === selectedChildId)?.notes[c.id];
+                                    acc[c.id] = note !== undefined ? note : 'non-evalue';
+                                    return acc;
+                                }, {} as { [key: string]: number | 'absent' | 'non-evalue' })
+                            }
                             subjectName={activeSubject.name}
                             trimestre={`T${extractTrimesterNumber(currentTrimestre)}`}
                         />
                     </div>
-                ) : role === 'enseignant' ? (
+                ) : (role === 'enseignant' || role === 'parent') && activeSubject && notes.length > 0 ? (
       <NotesTable 
                     noteColumns={noteColumns}
         data={notesTableData} 
                         onUpdateNote={handleNoteUpdate}
-                        isEditable={true} // Les enseignants peuvent saisir les moyennes trimestrielles
+                        isEditable={role === 'enseignant'} // Seuls les enseignants peuvent saisir les moyennes trimestrielles
       />
                 ) : (
                     <div className="text-center py-8">

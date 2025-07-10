@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useResources } from "../contexts/ResourceContext";
-import { useUser } from "../layouts/DashboardLayout";
+import { useAuth } from "../pages/authentification/useAuth"; // Utiliser useAuth
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "../components/ui/dialog";
 import AddResourceModal from "../components/ressources/AddResourceModal";
 
@@ -109,9 +109,10 @@ interface Resource {
 interface ResourceListItemProps {
     resource: Resource;
     onArchive: () => void;
+    isParent: boolean; // Ajouter la prop isParent
 }
 
-const ResourceListItem: React.FC<ResourceListItemProps> = ({ resource, onArchive }) => {
+const ResourceListItem: React.FC<ResourceListItemProps> = ({ resource, onArchive, isParent }) => {
   const Icon = getIconForSubject(resource.subject);
   const bgColor = subjectColors[resource.subject] || "bg-gray-400";
   const badgeColor = subjectBadgeColors[resource.subject] || "bg-gray-50 text-gray-700";
@@ -153,40 +154,42 @@ const ResourceListItem: React.FC<ResourceListItemProps> = ({ resource, onArchive
                 </div>
               </div>
               
-              {/* Bouton d'archivage */}
-              <div className="flex-shrink-0">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <button className="p-3 rounded-xl hover:bg-gray-50 text-gray-400 hover:text-orange-500 transition-colors duration-150 group/btn">
-                      <FolderDown className="w-5 h-5 group-hover/btn:scale-[1.05] transition-transform duration-150" />
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle className="text-xl font-bold text-gray-900">Confirmer l'archivage</DialogTitle>
-                      <DialogDescription className="text-gray-600 mt-2">
-                        Voulez-vous vraiment archiver la ressource "{resource.title}" ? Elle ne sera plus visible sur cette page.
-                      </DialogDescription>
-                    </DialogHeader>
-                                           <DialogFooter className="gap-3 mt-6">
-                       <DialogClose asChild>
-                         <button type="button" className="flex-1 bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl hover:bg-gray-200 font-medium transition-colors duration-150">
-                           Annuler
-                         </button>
-                       </DialogClose>
-                       <DialogClose asChild>
-                         <button 
-                           type="button" 
-                           onClick={onArchive} 
-                           className="flex-1 bg-orange-500 text-white px-4 py-2.5 rounded-xl hover:bg-orange-600 font-medium transition-colors duration-150"
-                         >
-                           Archiver
-                         </button>
-                       </DialogClose>
-                     </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
+              {/* Bouton d'archivage conditionnel */}
+              {!isParent && (
+                <div className="flex-shrink-0">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button className="p-3 rounded-xl hover:bg-gray-50 text-gray-400 hover:text-orange-500 transition-colors duration-150 group/btn">
+                        <FolderDown className="w-5 h-5 group-hover/btn:scale-[1.05] transition-transform duration-150" />
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle className="text-xl font-bold text-gray-900">Confirmer l'archivage</DialogTitle>
+                        <DialogDescription className="text-gray-600 mt-2">
+                          Voulez-vous vraiment archiver la ressource "{resource.title}" ? Elle ne sera plus visible sur cette page.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter className="gap-3 mt-6">
+                        <DialogClose asChild>
+                          <button type="button" className="flex-1 bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl hover:bg-gray-200 font-medium transition-colors duration-150">
+                            Annuler
+                          </button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                          <button 
+                            type="button" 
+                            onClick={onArchive} 
+                            className="flex-1 bg-orange-500 text-white px-4 py-2.5 rounded-xl hover:bg-orange-600 font-medium transition-colors duration-150"
+                          >
+                            Archiver
+                          </button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -199,7 +202,8 @@ function RessourcesPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { resources, archiveResource } = useResources();
-    const { user } = useUser(); // Récupération de l'utilisateur connecté
+    const { user, roles } = useAuth(); // Récupération de l'utilisateur et de ses rôles
+    const isParent = roles.includes('parent');
     
     const [activeDomain, setActiveDomain] = useState(domainNames[3]); // Default to SCIENCES HUMAINES
     const [activeSubject, setActiveSubject] = useState<string | null>("Histoire"); // Default to Histoire
@@ -238,20 +242,33 @@ function RessourcesPage() {
     const displayedResources = paginatedResources.map(resource => ({
         ...resource,
         addedDate: new Date().toLocaleDateString('fr-FR'),
-        author: user ? user.name || 'Enseignant' : 'Enseignant'
+        author: resource.author || (user ? user.name || 'Enseignant' : 'Enseignant')
     }));
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen font-sans">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-bold text-gray-900">Ressources</h1>
-        <button 
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center bg-white text-gray-800 font-semibold py-2 px-5 border border-orange-400 rounded-lg shadow-sm hover:bg-orange-50 hover:border-orange-500 transition-all duration-150"
-        >
-            <Plus className="w-5 h-5 mr-2 text-orange-500" />
-            {t('add_resource', 'Ajouter une ressource')}
-        </button>
+        <div className="flex items-center gap-4">
+          {!isParent && (
+            <button 
+                onClick={() => navigate('/ressources/archives')}
+                className="flex items-center bg-white text-gray-800 font-semibold py-2 px-5 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:border-gray-400 transition-all duration-150"
+            >
+              <FolderDown className="w-5 h-5 mr-2" />
+              {t('archives', 'Archives')}
+            </button>
+          )}
+          {!isParent && (
+            <button 
+                onClick={() => setIsAddModalOpen(true)}
+                className="flex items-center bg-white text-gray-800 font-semibold py-2 px-5 border border-orange-400 rounded-lg shadow-sm hover:bg-orange-50 hover:border-orange-500 transition-all duration-150"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              {t('add_resource', 'Ajouter une ressource')}
+            </button>
+          )}
+        </div>
       </div>
       
       <div className="border-b border-gray-200">
@@ -271,13 +288,6 @@ function RessourcesPage() {
                 </button>
               ))}
             </div>
-            <button 
-                onClick={() => navigate('/ressources/archives')}
-                className="pb-3 flex items-center text-sm font-semibold text-gray-600 hover:text-gray-800 focus:outline-none"
-            >
-                <FolderDown className="w-5 h-5 mr-2" />
-                Archives
-            </button>
         </div>
       </div>
 
@@ -331,10 +341,15 @@ function RessourcesPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-6">
         {displayedResources.length > 0 ? (
             displayedResources.map(resource => (
-              <ResourceListItem key={resource.id} resource={resource} onArchive={() => archiveResource(resource.id)} />
+                <ResourceListItem 
+                    key={resource.id} 
+                    resource={resource}
+                    onArchive={() => archiveResource(resource.id)}
+                    isParent={isParent} // Passer la prop
+                />
             ))
         ) : (
             <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
@@ -348,10 +363,12 @@ function RessourcesPage() {
       </div>
 
       {/* Modale d'ajout de ressource */}
-      <AddResourceModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
-      />
+      {!isParent && (
+        <AddResourceModal 
+            isOpen={isAddModalOpen} 
+            onClose={() => setIsAddModalOpen(false)} 
+        />
+      )}
     </div>
   );
 }
