@@ -11,6 +11,7 @@ import { useStudents } from '../../contexts/StudentContext';
 import { getSubjectsForClass, getNotesForClass, getGradingStatus } from '../../lib/notes-data';
 import type { StudentNote, Domain } from '../../lib/notes-data';
 import { getCurrentStudentNotes } from '../../lib/mock-student-notes';
+import { mockParentData } from '../../lib/mock-parent-data';
 import { Menu, Transition } from '@headlessui/react';
 import { MoreHorizontal, FileSpreadsheet, FileText, Library, ArrowDownToLine } from 'lucide-react';
 import { CellHookData, UserOptions } from 'jspdf-autotable';
@@ -24,7 +25,8 @@ interface jsPDFWithAutoTable extends jsPDF {
 const ITEMS_PER_PAGE = 10;
 
 interface IntegrationViewProps {
-  role: 'enseignant' | 'eleve';
+  role: 'enseignant' | 'eleve' | 'parent';
+  selectedChildId?: string;
 }
 
 const schoolInfo = {
@@ -122,7 +124,7 @@ const getPdfTableStyles = (doc: jsPDF): Partial<UserOptions> => ({
     }
 });
 
-const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
+const IntegrationView: React.FC<IntegrationViewProps> = ({ role, selectedChildId }) => {
     const { currentClasse, currentMonth } = useFilters();
     const { students } = useStudents();
     const { user } = useUser();
@@ -144,17 +146,23 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
     useEffect(() => {
         const classDomains = getSubjectsForClass(currentClasse);
         setDomains(classDomains);
-        const classNotes = getNotesForClass(currentClasse, students.map(s => ({ id: s.id, firstName: s.firstName, lastName: s.lastName, avatar: s.avatar })));
+        
+        let notesToUse: StudentNote[] = [];
         
         if (role === 'eleve' && user) {
             // Utiliser les données fictives pour l'élève connecté
-            const mockNotes = getCurrentStudentNotes(currentClasse);
-            setNotes(mockNotes);
-            // Désactiver la recherche pour l'élève
+            notesToUse = getCurrentStudentNotes(currentClasse);
+            setSearchTerm('');
+        } else if (role === 'parent') {
+            // Utiliser les données des enfants du parent depuis mock-parent-data
+            notesToUse = mockParentData.children;
             setSearchTerm('');
         } else {
-            setNotes(classNotes);
+            // Pour les enseignants
+            notesToUse = getNotesForClass(currentClasse, students.map(s => ({ id: s.id, firstName: s.firstName, lastName: s.lastName, avatar: s.avatar })));
         }
+        
+        setNotes(notesToUse);
 
         if (classDomains.length > 0) {
             const firstDomain = classDomains[0];
@@ -523,17 +531,28 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
     // === FONCTIONS D'EXPORT PDF POUR LES ÉLÈVES ===
     
     const handleStudentExportPdf = () => {
-        if (!activeSubject || !user || !notes[0]) {
+        if (!activeSubject || !user) {
             console.error("Export PDF annulé : informations manquantes.");
+            return;
+        }
+
+        // Pour les parents, utiliser les données de l'enfant sélectionné
+        const studentData = role === 'parent' && selectedChildId 
+            ? notes.find(n => n.studentId === selectedChildId)
+            : notes[0];
+            
+        if (!studentData) {
+            console.error("Données étudiant non trouvées.");
             return;
         }
 
         const doc = new jsPDF() as jsPDFWithAutoTable;
         const title = `Bulletin d'Intégration - ${activeSubject.name}`;
-        let startY = addPdfHeader(doc, currentClasse, title, user.name);
+        const studentName = role === 'parent' ? `${studentData.firstName} ${studentData.lastName}` : user.name;
+        const startY = addPdfHeader(doc, currentClasse, title, studentName);
 
         const tableBody = activeSubject.competences.map(c => {
-            const noteValue = notes[0].notes[c.id];
+            const noteValue = studentData.notes[c.id];
             let displayValue: string = '-';
             let statut = 'Non évalué';
             
@@ -567,17 +586,28 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
             }
         });
 
-        doc.save(`Bulletin_Integration_${user.name.replace(/\s+/g, '_')}_${activeSubject.name}.pdf`);
+        doc.save(`Bulletin_Integration_${studentName.replace(/\s+/g, '_')}_${activeSubject.name}.pdf`);
     };
 
     const handleStudentExportAllPdf = () => {
-        if (!user || !notes[0]) {
+        if (!user) {
+            console.error("Utilisateur non trouvé.");
+            return;
+        }
+
+        // Pour les parents, utiliser les données de l'enfant sélectionné
+        const studentData = role === 'parent' && selectedChildId 
+            ? notes.find(n => n.studentId === selectedChildId)
+            : notes[0];
+            
+        if (!studentData) {
             console.error("Notes de l'élève non trouvées.");
             return;
         }
         
         const doc = new jsPDF() as jsPDFWithAutoTable;
-        let startY = addPdfHeader(doc, currentClasse, `Bulletin d'Intégration Complet`, user.name);
+        const studentName = role === 'parent' ? `${studentData.firstName} ${studentData.lastName}` : user.name;
+        let startY = addPdfHeader(doc, currentClasse, `Bulletin d'Intégration Complet`, studentName);
 
         domains.forEach(domain => {
             if(doc.internal.pageSize.height - startY < 50) {
@@ -591,7 +621,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
             
             domain.subjects.forEach(subject => {
                  const tableBody = subject.competences.map(c => {
-                    const noteValue = notes[0].notes[c.id];
+                    const noteValue = studentData.notes[c.id];
                     let displayValue: string = '-';
                     let statut = 'Non évalué';
                     
@@ -633,7 +663,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
             });
         });
         
-        doc.save(`Bulletin_Integration_Complet_${user.name.replace(/\s+/g, '_')}.pdf`);
+        doc.save(`Bulletin_Integration_Complet_${studentName.replace(/\s+/g, '_')}.pdf`);
     };
 
     const getDomains = () => {
@@ -793,7 +823,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                                 </Transition>
                             </Menu>
                         </div>
-                    ) : (role === 'eleve' && notes.length > 0) ? (
+                    ) : ((role === 'eleve' || (role === 'parent' && selectedChildId)) && notes.length > 0) ? (
                         <div className="flex items-center justify-end w-full">
                             <Menu as="div" className="relative">
                                 <Menu.Button className="p-2 rounded-full bg-white border border-gray-300 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
@@ -810,7 +840,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                                                     } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
                                                 >
                                                     <FileText className="w-5 h-5 mr-3 text-gray-500" />
-                                                    Mon Bulletin (Matière actuelle)
+                                                    {role === 'parent' ? 'Bulletin de l\'enfant (Matière actuelle)' : 'Mon Bulletin (Matière actuelle)'}
                                                 </button>
                                             )}
                                         </Menu.Item>
@@ -825,7 +855,7 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                                                     } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
                                                 >
                                                     <FileText className="w-5 h-5 mr-3 text-gray-500" />
-                                                    Mon Bulletin Complet
+                                                    {role === 'parent' ? 'Bulletin Complet de l\'enfant' : 'Mon Bulletin Complet'}
                                                 </button>
                                             )}
                                         </Menu.Item>
@@ -837,22 +867,25 @@ const IntegrationView: React.FC<IntegrationViewProps> = ({ role }) => {
                 }
                 />
                 
-                {/* Affichage conditionnel : cartes pour les élèves, tableau pour les enseignants */}
-                {role === 'eleve' && activeSubject && notes.length > 0 ? (
+                {/* Affichage conditionnel : cartes pour les élèves et parents avec enfant sélectionné, tableau pour les autres */}
+                {(role === 'eleve' || (role === 'parent' && selectedChildId)) && activeSubject && notes.length > 0 ? (
                     <div className="border border-gray-200 rounded-lg p-4">
                         <StudentIntegrationCards
                             competences={activeSubject.competences}
-                            notes={notes[0]?.notes || {}}
+                            notes={role === 'eleve' 
+                                ? notes[0]?.notes || {} 
+                                : notes.find(n => n.studentId === selectedChildId)?.notes || {}
+                            }
                             subjectName={activeSubject.name}
                             monthName={currentMonth}
                         />
                     </div>
-                ) : role === 'enseignant' ? (
+                ) : (role === 'enseignant' || role === 'parent') && activeSubject && notes.length > 0 ? (
                     <NotesTable 
                         noteColumns={noteColumns}
                         data={notesTableData} 
                         onUpdateNote={handleNoteUpdate}
-                        isEditable={true}
+                        isEditable={role === 'enseignant'}
                     />
                 ) : (
                     <div className="text-center py-8">

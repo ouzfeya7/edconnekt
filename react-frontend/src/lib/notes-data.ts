@@ -23,6 +23,15 @@ export interface StudentNote {
   notes: {
     [competenceId: string]: number | 'absent' | 'non-evalue';
   };
+  attendanceStatus?: 'present' | 'late' | 'absent';
+  progression?: {
+      byCompetence?: {
+          [competenceId: string]: { date: string, progression: number }[]
+      };
+      byEvaluationType?: {
+          [evalType: string]: { date: string, progression: number }[]
+      };
+  };
 }
 
 // Système de notation

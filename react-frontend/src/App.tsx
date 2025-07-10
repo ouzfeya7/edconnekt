@@ -48,6 +48,7 @@ import EleveDevoirDetailPage from './pages/eleves/DevoirDetailPage';
 import CreateEventPage from './pages/CreateEventPage';
 import EmploiDuTemps from './pages/EmploiDuTemps';
 import ParentDashboard from "./pages/parents/ParentDashboard";
+import ParentRapportPage from "./pages/parents/ParentRapportPage"; // Importer la nouvelle page
 
 
 // Définition des types de rôles pour la clarté
@@ -116,6 +117,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   ],
   parent: [
     { path: "/", element: <ParentDashboard /> },
+    { path: "/rapport", element: <ParentRapportPage /> },
     { path: "/calendar", element: <Agenda /> },
     { path: "/agenda", element: <Agenda /> },
     { path: "/agenda/create", element: <CreateEventPage /> },
@@ -125,6 +127,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/profile", element: <ProfilePage /> },
     { path: "/mes-notes", element: <MesNotesPage /> },
     { path: "/notifications", element: <MessageEnseignant /> },
+    { path: "/ressources", element: <Ressource /> }, // Ajouter la route des ressources
     { path: "*", element: <NotFound /> },
   ],
   administrateur: [

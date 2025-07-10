@@ -12,6 +12,7 @@ import { useFilters } from '../../contexts/FilterContext';
 import { useStudents } from '../../contexts/StudentContext';
 import { getSubjectsForClass, getNotesForClass, StudentNote, Domain, getGradingStatus } from '../../lib/notes-data';
 import { getCurrentStudentNotes } from '../../lib/mock-student-notes';
+import { mockParentData } from '../../lib/mock-parent-data';
 import { getPdfTableStyles } from './pdfStyles';
 import schoolLogo from '../../assets/logo-yka-1.png';
 import { useUser } from '../../layouts/DashboardLayout';
@@ -83,10 +84,11 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string, studentName?: s
 };
 
 interface ContinueViewProps {
-  role: 'enseignant' | 'eleve';
+  role: 'enseignant' | 'eleve' | 'parent';
+  selectedChildId?: string;
 }
 
-const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
+const ContinueView: React.FC<ContinueViewProps> = ({ role, selectedChildId }) => {
     const { currentClasse, formattedCurrentDate } = useFilters();
     const { students } = useStudents();
     const { user } = useUser();
@@ -103,17 +105,22 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         const classDomains = getSubjectsForClass(currentClasse);
         setDomains(classDomains);
 
-        const classNotes = getNotesForClass(currentClasse, students);
+        let notesToUse: StudentNote[] = [];
         
         if (role === 'eleve' && user) {
             // Utiliser les données fictives pour l'élève connecté
-            const mockNotes = getCurrentStudentNotes(currentClasse);
-            setNotes(mockNotes);
-            // Désactiver la recherche pour l'élève
+            notesToUse = getCurrentStudentNotes(currentClasse);
+            setSearchTerm('');
+        } else if (role === 'parent') {
+            // Utiliser les données des enfants du parent depuis mock-parent-data
+            notesToUse = mockParentData.children;
             setSearchTerm('');
         } else {
-            setNotes(classNotes);
+            // Pour les enseignants
+            notesToUse = getNotesForClass(currentClasse, students);
         }
+        
+        setNotes(notesToUse);
 
         if (classDomains.length > 0) {
             const firstDomain = classDomains[0];
@@ -511,14 +518,22 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
     // === FONCTIONS D'EXPORT PDF POUR LES ÉLÈVES ===
     
     const handleStudentExportPdf = () => {
-        if (!activeSubject || !user || !notes[0]) return;
+        if (!activeSubject || !user) return;
+        
+        // Pour les parents, utiliser les données de l'enfant sélectionné
+        const studentData = role === 'parent' && selectedChildId 
+            ? notes.find(n => n.studentId === selectedChildId)
+            : notes[0];
+            
+        if (!studentData) return;
         
         const doc = new jsPDF() as jsPDFWithAutoTable;
         const title = `Bulletin de Notes - ${activeSubject.name}`;
-        let startY = addPdfHeader(doc, currentClasse, title, user.name);
+        const studentName = role === 'parent' ? `${studentData.firstName} ${studentData.lastName}` : user.name;
+        const startY = addPdfHeader(doc, currentClasse, title, studentName);
         
         const tableBody = activeSubject.competences.map(c => {
-            const noteValue = notes[0].notes[c.id];
+            const noteValue = studentData.notes[c.id];
             let displayValue: string = '-';
             let statut = 'Non évalué';
             
@@ -549,7 +564,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         // Ajouter des informations supplémentaires spécifiques à l'élève
         const finalY = doc.lastAutoTable?.finalY || startY + 50;
         const notesNumeriques = activeSubject.competences
-            .map(c => notes[0].notes[c.id])
+            .map(c => studentData.notes[c.id])
             .filter(note => typeof note === 'number') as number[];
         
         if (notesNumeriques.length > 0) {
@@ -563,21 +578,29 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
             doc.text("Résumé des performances", 25, finalY + 20);
             
             doc.setFont("times", "normal");
-            doc.text(`Élève : ${user.name}`, 25, finalY + 35);
+            doc.text(`Élève : ${studentName}`, 25, finalY + 35);
             doc.text(`Moyenne de la matière : ${moyenne.toFixed(1)}%`, 25, finalY + 45);
             doc.text(`Meilleure note : ${meilleureNote}%`, 25, finalY + 55);
             doc.text(`Compétences évaluées : ${notesNumeriques.length}/${activeSubject.competences.length}`, 25, finalY + 65);
             doc.text(`Compétences réussies : ${competencesReussies}/${activeSubject.competences.length}`, 25, finalY + 75);
         }
 
-        doc.save(`Bulletin_Continue_${user.name.replace(/\s+/g, '_')}_${activeSubject.name}.pdf`);
+        doc.save(`Bulletin_Continue_${studentName.replace(/\s+/g, '_')}_${activeSubject.name}.pdf`);
     };
 
     const handleStudentExportAllPdf = () => {
-        if (!user || !notes[0]) return;
+        if (!user) return;
+        
+        // Pour les parents, utiliser les données de l'enfant sélectionné
+        const studentData = role === 'parent' && selectedChildId 
+            ? notes.find(n => n.studentId === selectedChildId)
+            : notes[0];
+            
+        if (!studentData) return;
         
         const doc = new jsPDF() as jsPDFWithAutoTable;
-        let startY = addPdfHeader(doc, currentClasse, `Bulletin Complet`, user.name);
+        const studentName = role === 'parent' ? `${studentData.firstName} ${studentData.lastName}` : user.name;
+        let startY = addPdfHeader(doc, currentClasse, `Bulletin Complet`, studentName);
         
         domains.forEach(domain => {
             if (doc.internal.pageSize.height - startY < 50) {
@@ -606,7 +629,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                 
                 const tableColumns = ["Compétence", "Note", "Statut"];
                 const tableRows = subject.competences.map(c => {
-                    const note = notes[0].notes[c.id];
+                    const note = studentData.notes[c.id];
                     let displayValue = '-';
                     let statut = 'Non évalué';
                     
@@ -646,11 +669,11 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
         });
 
         // Page de résumé final
-        if (Object.keys(notes[0].notes).length > 0) {
+        if (Object.keys(studentData.notes).length > 0) {
             doc.addPage();
-            const summaryStartY = addPdfHeader(doc, currentClasse, `Résumé Général - ${user.name}`, user.name);
+            const summaryStartY = addPdfHeader(doc, currentClasse, `Résumé Général - ${studentName}`, studentName);
             
-            const totalNotesNumeriques = Object.values(notes[0].notes)
+            const totalNotesNumeriques = Object.values(studentData.notes)
                 .filter(note => typeof note === 'number') as number[];
             
             if (totalNotesNumeriques.length > 0) {
@@ -672,7 +695,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
             }
         }
 
-        doc.save(`Bulletin_Continue_Complet_${user.name.replace(/\s+/g, '_')}.pdf`);
+        doc.save(`Bulletin_Continue_Complet_${studentName.replace(/\s+/g, '_')}.pdf`);
     };
 
     return (
@@ -780,7 +803,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                                 </div>
                             </Menu.Items>
                         </Menu>
-                    ) : role === 'eleve' ? (
+                    ) : (role === 'eleve' || (role === 'parent' && selectedChildId)) ? (
                         <Menu as="div" className="relative">
                             <Menu.Button className="inline-flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
                                 <ArrowDownToLine className="w-5 h-5" />
@@ -796,7 +819,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                                                 } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
                                             >
                                                 <FileText className="w-5 h-5 mr-3 text-gray-500" />
-                                                Mon Bulletin (Matière actuelle)
+                                                {role === 'parent' ? 'Bulletin de l\'enfant (Matière actuelle)' : 'Mon Bulletin (Matière actuelle)'}
                                             </button>
                                         )}
                                     </Menu.Item>
@@ -811,7 +834,7 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                                                 } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700 font-medium`}
                                             >
                                                 <FileText className="w-5 h-5 mr-3 text-gray-500" />
-                                                Mon Bulletin Complet
+                                                {role === 'parent' ? 'Bulletin Complet de l\'enfant' : 'Mon Bulletin Complet'}
                                             </button>
                                         )}
                                     </Menu.Item>
@@ -822,21 +845,24 @@ const ContinueView: React.FC<ContinueViewProps> = ({ role }) => {
                 }
             />
                 
-            {/* Affichage conditionnel : cartes pour les élèves, tableau pour les enseignants */}
-            {role === 'eleve' && activeSubject && notes.length > 0 ? (
+            {/* Affichage conditionnel : cartes pour les élèves et parents avec enfant sélectionné, tableau pour les autres */}
+            {(role === 'eleve' || (role === 'parent' && selectedChildId)) && activeSubject && notes.length > 0 ? (
                 <div className="border border-gray-200 rounded-lg p-4">
                     <StudentCompetenceCards
                         competences={activeSubject.competences}
-                        notes={notes[0]?.notes || {}}
+                        notes={role === 'eleve' 
+                            ? notes[0]?.notes || {} 
+                            : notes.find(n => n.studentId === selectedChildId)?.notes || {}
+                        }
                         subjectName={activeSubject.name}
                     />
                 </div>
-            ) : role === 'enseignant' ? (
+            ) : (role === 'enseignant' || role === 'parent') && activeSubject && notes.length > 0 ? (
                 <NotesTable 
                     noteColumns={noteColumns}
                     data={notesTableData} 
                     onUpdateNote={handleNoteUpdate}
-                    isEditable={true}
+                    isEditable={role === 'enseignant'}
                 />
             ) : (
                 <div className="text-center py-8">
