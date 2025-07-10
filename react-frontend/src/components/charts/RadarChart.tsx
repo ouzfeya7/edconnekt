@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
 interface RadarDataPoint {
   subject: string;
@@ -18,24 +17,24 @@ const RadarChart: React.FC<RadarChartProps> = ({
   size = 300, 
   className = "" 
 }) => {
-  const { t } = useTranslation();
+  const [isAnimated, setIsAnimated] = React.useState(false);
+
+  // Déclencher l'animation après le montage du composant
+  React.useEffect(() => {
+    const timer = setTimeout(() => setIsAnimated(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setIsAnimated(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
   
   // Configuration du graphique
   const center = size / 2;
   const radius = (size * 0.42); // Augmenté de 0.35 à 0.42
   const levels = 5; // Nombre de niveaux concentriques
   
-  // Calculer les points pour chaque niveau
-  const getPolygonPoints = (level: number) => {
-    const points = data.map((_, index) => {
-      const angle = (index * 2 * Math.PI) / data.length - Math.PI / 2;
-      const r = (radius * level) / levels;
-      const x = center + r * Math.cos(angle);
-      const y = center + r * Math.sin(angle);
-      return `${x},${y}`;
-    });
-    return points.join(' ');
-  };
+
 
   // Calculer les points des données
   const getDataPoints = () => {
@@ -158,7 +157,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
           );
         })}
 
-        {/* Zone des données */}
+        {/* Zone des données avec animation */}
         {dataPoints.length > 2 && (
           <polygon
             points={dataPolygon}
@@ -166,10 +165,15 @@ const RadarChart: React.FC<RadarChartProps> = ({
             stroke={chartColor}
             strokeWidth="2"
             filter="url(#shadow)"
+            style={{
+              transform: isAnimated ? 'scale(1)' : 'scale(0)',
+              transformOrigin: `${center}px ${center}px`,
+              transition: 'transform 0.8s ease-out'
+            }}
           />
         )}
 
-        {/* Points de données */}
+        {/* Points de données avec animation échelonnée */}
         {dataPoints.map((point, index) => (
           <g key={index}>
             <circle
@@ -180,6 +184,12 @@ const RadarChart: React.FC<RadarChartProps> = ({
               stroke="white"
               strokeWidth="2"
               className="hover:r-6 transition-all duration-200"
+              style={{
+                opacity: isAnimated ? 1 : 0,
+                transform: isAnimated ? 'scale(1)' : 'scale(0)',
+                transformOrigin: `${point.x}px ${point.y}px`,
+                transition: `all 0.6s ease-out ${index * 0.1}s`
+              }}
             />
             {/* Tooltip au survol */}
             <circle
@@ -195,7 +205,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
         ))}
       </svg>
 
-      {/* Labels des matières */}
+      {/* Labels des matières avec animation */}
       <div className="relative" style={{ width: size, height: size, marginTop: -size }}>
         {labelPositions.map((label, index) => (
           <div
@@ -204,7 +214,10 @@ const RadarChart: React.FC<RadarChartProps> = ({
             style={{ 
               left: label.x, 
               top: label.y,
-              textAlign: label.textAnchor as any
+              textAlign: label.textAnchor === 'start' ? 'left' : label.textAnchor === 'end' ? 'right' : 'center',
+              opacity: isAnimated ? 1 : 0,
+              transform: `translate(-50%, -50%) ${isAnimated ? 'translateY(0)' : 'translateY(10px)'}`,
+              transition: `all 0.6s ease-out ${0.5 + index * 0.1}s`
             }}
           >
             <div className="bg-white px-2 py-1 rounded-lg shadow-sm border border-gray-200 text-xs font-medium text-gray-700">
@@ -222,8 +235,15 @@ const RadarChart: React.FC<RadarChartProps> = ({
         ))}
       </div>
 
-      {/* Légende */}
-      <div className="mt-6 bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+      {/* Légende avec animation */}
+      <div 
+        className="mt-6 bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+        style={{
+          opacity: isAnimated ? 1 : 0,
+          transform: isAnimated ? 'translateY(0)' : 'translateY(20px)',
+          transition: 'all 0.8s ease-out 1s'
+        }}
+      >
         <div className="text-sm font-bold text-gray-900 mb-3">LÉGENDE/LEGEND:</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
           {/* Très Bien Réussi */}

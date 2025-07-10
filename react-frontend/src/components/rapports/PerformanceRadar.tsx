@@ -18,7 +18,6 @@ const PerformanceRadar: React.FC<PerformanceRadarProps> = ({ report }) => {
   }));
 
   // Calculer les statistiques
-  const averageScore = radarData.reduce((sum, item) => sum + item.score, 0) / radarData.length;
   const maxScore = Math.max(...radarData.map(item => item.score));
   const minScore = Math.min(...radarData.map(item => item.score));
   const bestSubject = radarData.find(item => item.score === maxScore);
@@ -33,7 +32,7 @@ const PerformanceRadar: React.FC<PerformanceRadarProps> = ({ report }) => {
     return { label: 'Pas Réussi', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' };
   };
 
-  const performanceLevel = getPerformanceLevel(averageScore);
+  const performanceLevel = getPerformanceLevel(report.overallAverage);
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
@@ -66,14 +65,14 @@ const PerformanceRadar: React.FC<PerformanceRadarProps> = ({ report }) => {
 
           {/* Statistiques et insights */}
           <div className="space-y-4">
-            {/* Moyenne générale */}
+            {/* Moyenne trimestrielle */}
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <div className="text-sm font-medium text-gray-600 mb-1">{t('overall_average', 'Moyenne générale')}</div>
+              <div className="text-sm font-medium text-gray-600 mb-1">{t('trimester_average', 'Moyenne trimestrielle')}</div>
               <div className={`text-2xl font-bold ${performanceLevel.color}`}>
-                {averageScore.toFixed(1)}%
+                {report.overallAverage.toFixed(1)}%
               </div>
               <div className="text-xs text-gray-500 mt-1">
-                {radarData.length} matière{radarData.length > 1 ? 's' : ''} évaluée{radarData.length > 1 ? 's' : ''}
+                Trimestre {report.trimester} • {radarData.length} matière{radarData.length > 1 ? 's' : ''}
               </div>
             </div>
 
@@ -98,7 +97,7 @@ const PerformanceRadar: React.FC<PerformanceRadarProps> = ({ report }) => {
             {/* Écart de performance */}
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
               <div className="text-sm font-medium text-blue-800 mb-1">{t('performance_gap', 'Écart de performance')}</div>
-              <div className="text-lg font-bold text-blue-700">{(maxScore - minScore).toFixed(1)} pts</div>
+              <div className="text-lg font-bold text-blue-700">{(maxScore - minScore).toFixed(1)}%</div>
               <div className="text-xs text-blue-600 mt-1">
                 Entre la meilleure et la moins bonne matière
               </div>
@@ -108,9 +107,9 @@ const PerformanceRadar: React.FC<PerformanceRadarProps> = ({ report }) => {
             <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
               <div className="text-sm font-medium text-purple-800 mb-2">{t('recommendation', 'Recommandation')}</div>
               <div className="text-sm text-purple-700">
-                {averageScore >= 80 
+                {report.overallAverage >= 80 
                   ? "Excellent travail ! Maintenir ce niveau et approfondir les apprentissages." 
-                  : averageScore >= 60 
+                  : report.overallAverage >= 60 
                   ? "Bons résultats. Focus sur les matières à renforcer pour progresser."
                   : "Accompagnement personnalisé recommandé pour consolider les bases."}
               </div>

@@ -48,7 +48,7 @@ const ParentDashboard = () => {
   const todayEvents = events.filter(event => dayjs(event.start as string).isSame(dayjs(), 'day'));
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="bg-white min-h-screen p-4 md:p-6 space-y-6">
       <CourseDetailHeader title={t('theme_title', 'Thème : Vivre ensemble et respecter les règles de l\'école')} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -111,7 +111,7 @@ const ParentDashboard = () => {
               <Notifications />
           </div>
           <div className="lg:col-span-1">
-              <TrimesterAverages />
+              <TrimesterAverages selectedChild={selectedChild} />
           </div>
           <div className="lg:col-span-1">
               <UpcomingEvents events={todayEvents} />
