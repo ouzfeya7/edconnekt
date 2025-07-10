@@ -17,7 +17,7 @@ const MesNotesPage: React.FC = () => {
   const [evaluationType, setEvaluationType] = useState('Continue');
   const [selectedChildId, setSelectedChildId] = useState<string>(''); // Gestion de la sélection d'enfant pour les parents
   const { user, roles } = useAuth(); // Utiliser useAuth pour obtenir user et roles
-  const { setCurrentClasse } = useFilters();
+  const { setCurrentClasse, currentTrimestre } = useFilters();
 
   // Déterminer le rôle principal
   const isParent = roles.includes('parent');
@@ -91,6 +91,8 @@ const MesNotesPage: React.FC = () => {
             />
             <ChildAverageCard
               selectedChild={mockParentData.children.find(child => child.studentId === selectedChildId) || null}
+              evaluationType={evaluationType}
+              currentTrimester={currentTrimestre}
             />
           </div>
         </div>

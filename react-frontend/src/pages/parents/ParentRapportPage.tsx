@@ -51,7 +51,32 @@ const generateChildReport = (child: typeof mockParentData.children[0], trimester
       });
 
       if (subjectNotes.length > 0) {
-        const average = Math.round(subjectNotes.reduce((sum, note) => sum + note, 0) / subjectNotes.length);
+        // Calculer la moyenne de base pour cette matière
+        const baseAverage = Math.round(subjectNotes.reduce((sum, note) => sum + note, 0) / subjectNotes.length);
+        
+        // Ajuster selon le trimestre sélectionné si des données de progression existent
+        let average = baseAverage;
+        if (child.progression?.byEvaluationType?.trimestrielle) {
+          const trimesterData = child.progression.byEvaluationType.trimestrielle.find(
+            t => t.date === `Trim ${trimesterNumber}`
+          );
+          if (trimesterData) {
+            // Calculer un facteur d'ajustement basé sur la progression trimestrielle
+            const globalTrimesterAvg = trimesterData.progression;
+            const globalGeneralAvg = Object.values(child.notes)
+              .filter(note => typeof note === 'number')
+              .reduce((sum, note) => sum + (note as number), 0) / 
+              Object.values(child.notes).filter(note => typeof note === 'number').length;
+            
+            // Ajuster chaque matière proportionnellement à l'évolution globale
+            const adjustmentFactor = globalTrimesterAvg / globalGeneralAvg;
+            average = Math.round(baseAverage * adjustmentFactor);
+            
+            // Ajouter une variation aléatoire légère pour différencier les matières
+            const variation = (Math.random() - 0.5) * 10; // ±5 points
+            average = Math.max(0, Math.min(100, Math.round(average + variation)));
+          }
+        }
         
         // Générer un commentaire basé sur la moyenne
         let teacherComment = '';
@@ -140,6 +165,21 @@ const ParentRapportPage: React.FC = () => {
 
   const studentName = `${selectedChild.firstName} ${selectedChild.lastName}`;
 
+  // Fonction pour calculer la moyenne trimestrielle spécifique
+  const getTrimesterAverage = (): number => {
+    if (!selectedChild?.progression?.byEvaluationType?.trimestrielle) {
+      // Fallback vers la moyenne générale si pas de données trimestrielles
+      return reportData.overallAverage;
+    }
+
+    const trimesterNumber = parseInt(selectedTrimester.split(' ')[1], 10);
+    const trimesterData = selectedChild.progression.byEvaluationType.trimestrielle.find(
+      t => t.date === `Trim ${trimesterNumber}`
+    );
+
+    return trimesterData ? Math.round(trimesterData.progression) : reportData.overallAverage;
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen p-4 md:p-8">
       {/* En-tête avec design moderne */}
@@ -182,16 +222,16 @@ const ParentRapportPage: React.FC = () => {
           onChange={setSelectedTrimester}
         />
         
-        {/* Carte Moyenne générale */}
+        {/* Carte Moyenne trimestrielle */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-          <div className="text-sm font-medium text-gray-600 mb-1">Moyenne générale</div>
+          <div className="text-sm font-medium text-gray-600 mb-1">Moyenne trimestrielle</div>
           <div className={`text-2xl font-bold ${
-            reportData.overallAverage >= 90 ? 'text-green-700' :
-            reportData.overallAverage >= 70 ? 'text-green-500' :
-            reportData.overallAverage >= 50 ? 'text-yellow-500' :
-            reportData.overallAverage >= 30 ? 'text-orange-500' : 'text-red-600'
+            getTrimesterAverage() >= 90 ? 'text-green-700' :
+            getTrimesterAverage() >= 70 ? 'text-green-500' :
+            getTrimesterAverage() >= 50 ? 'text-yellow-500' :
+            getTrimesterAverage() >= 30 ? 'text-orange-500' : 'text-red-600'
           }`}>
-            {reportData.overallAverage}%
+            {getTrimesterAverage()}%
           </div>
         </div>
         
@@ -204,13 +244,13 @@ const ParentRapportPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Synthèse */}
-      <ReportSummary report={reportData} />
-
-      {/* Radar de performance */}
+      {/* Vue d'ensemble des performances - Déplacée en premier */}
       <div className="mb-8">
-        <PerformanceRadar report={reportData} />
+        <PerformanceRadar report={{...reportData, overallAverage: getTrimesterAverage()}} />
       </div>
+
+      {/* Synthèse */}
+      <ReportSummary report={{...reportData, overallAverage: getTrimesterAverage()}} />
 
       {/* Rapports par matière */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
