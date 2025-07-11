@@ -16,7 +16,7 @@ import { mockParentData } from '../../lib/mock-parent-data';
 const MesNotesPage: React.FC = () => {
   const [evaluationType, setEvaluationType] = useState('Continue');
   const [selectedChildId, setSelectedChildId] = useState<string>(''); // Gestion de la sélection d'enfant pour les parents
-  const { user, roles } = useAuth(); // Utiliser useAuth pour obtenir user et roles
+  const { roles } = useAuth(); // Utiliser useAuth pour obtenir les rôles
   const { setCurrentClasse, currentTrimestre } = useFilters();
 
   // Déterminer le rôle principal
@@ -30,13 +30,10 @@ const MesNotesPage: React.FC = () => {
   }, [isParent, selectedChildId]);
 
   useEffect(() => {
-    // La logique pour définir la classe reste la même
-    if (user?.classId) {
-      setCurrentClasse(user.classId);
-    } else {
-      setCurrentClasse("cp1"); 
-    }
-  }, [user?.classId, setCurrentClasse]);
+    // Par défaut, définir la classe à cp1 
+    // TODO: Récupérer la classe de l'élève depuis le backend
+    setCurrentClasse("cp1"); 
+  }, [setCurrentClasse]);
 
   const handleEvaluationTypeChange = (type: string) => {
     setEvaluationType(type);

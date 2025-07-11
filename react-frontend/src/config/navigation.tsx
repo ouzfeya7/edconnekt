@@ -44,6 +44,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
       { titleKey: "my_courses", to: "/mes-cours", icon: <FaChalkboardTeacher /> },
       { titleKey: "Mes Notes", to: "/mes-notes", icon: <FaFileAlt /> },
       { titleKey: "Devoirs", to: "/devoirs", icon: <FaChalkboardTeacher /> },
+      { titleKey: "Ressources", to: "/ressources", icon: <FaBook /> },
       { titleKey: "Agenda", to: "/calendar", icon: <FaCalendarAlt /> },
       { titleKey: "Message", to: "/messages", icon: <FaEnvelope />, hideInNavbar: true },
       { titleKey: "Profile", to: "/profile", icon: <FaUser />, hideInNavbar: true },
