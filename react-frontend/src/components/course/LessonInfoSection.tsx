@@ -24,7 +24,7 @@ const StatDisplay: React.FC<StatItem> = ({ title, value, percentage, progressCol
       <p className="text-sm text-gray-500 mb-2 truncate h-10">{title}</p>
       <div className="flex items-center gap-2">
         {typeof percentage === 'number' ? (
-          <CircularProgress percentage={percentage} colorClass={progressColor} />
+          <CircularProgress percentage={percentage} />
         ) : (
           <span className="text-2xl font-bold text-slate-800">{value}</span>
         )}

@@ -42,7 +42,7 @@ const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events }) => {
             events.map(event => (
               <EventItem 
                 key={event.id}
-                title={event.title}
+                title={event.title || 'Événement sans titre'}
                 time={new Date(event.start as string).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
               />
             ))

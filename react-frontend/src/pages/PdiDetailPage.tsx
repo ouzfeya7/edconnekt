@@ -319,19 +319,19 @@ const PdiDetailPage: React.FC = () => {
           {/* Stat 1: Moyenne de la classe */}
           <div className="bg-gray-50/80 rounded-xl p-4 flex flex-col items-center justify-center border border-gray-200 text-center">
             <p className="text-xs sm:text-sm text-gray-500 mb-2">Moyenne Classe</p>
-            <CircularProgress percentage={facilitator.stats.avg} colorClass="text-green-500" />
+            <CircularProgress percentage={facilitator.stats.avg} />
           </div>
 
           {/* Stat 2: Compétence acquise */}
           <div className="bg-gray-50/80 rounded-xl p-4 flex flex-col items-center justify-center border border-gray-200 text-center">
             <p className="text-xs sm:text-sm text-gray-500 mb-2">Comp. acquise</p>
-            <CircularProgress percentage={facilitator.stats.acquired} colorClass="text-green-500" />
+            <CircularProgress percentage={facilitator.stats.acquired} />
           </div>
 
           {/* Stat 3: Compétence non acquise */}
           <div className="bg-gray-50/80 rounded-xl p-4 flex flex-col items-center justify-center border border-gray-200 text-center">
             <p className="text-xs sm:text-sm text-gray-500 mb-2">Comp. non acquise</p>
-            <CircularProgress percentage={facilitator.stats.notAcquired} colorClass="text-red-500" />
+            <CircularProgress percentage={facilitator.stats.notAcquired} />
           </div>
           
           {/* Stat 4: Élèves à remédier (mise en avant) */}

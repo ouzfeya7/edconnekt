@@ -98,18 +98,19 @@ const getIconForSubject = (subject: string) => {
     }
 };
 
-interface Resource {
+interface DisplayResource {
     id: number;
     title: string;
     subject: string;
     addedDate: string;
     author: string;
+    isArchived: boolean;
 }
 
 interface ResourceListItemProps {
-    resource: Resource;
+    resource: DisplayResource;
     onArchive: () => void;
-    isParent: boolean; // Ajouter la prop isParent
+    isParent: boolean; // Indique si l'utilisateur est en lecture seule (parent/élève)
 }
 
 const ResourceListItem: React.FC<ResourceListItemProps> = ({ resource, onArchive, isParent }) => {
@@ -202,8 +203,11 @@ function RessourcesPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { resources, archiveResource } = useResources();
-    const { user, roles } = useAuth(); // Récupération de l'utilisateur et de ses rôles
-    const isParent = roles.includes('parent');
+    const { roles } = useAuth(); // Récupération des rôles de l'utilisateur
+    
+    // Détection des rôles pour masquer les fonctionnalités appropriées
+    const isReadOnlyUser = roles.includes('parent') || roles.includes('eleve');
+    const canModifyResources = roles.includes('enseignant') || roles.includes('directeur') || roles.includes('administrateur');
     
     const [activeDomain, setActiveDomain] = useState(domainNames[3]); // Default to SCIENCES HUMAINES
     const [activeSubject, setActiveSubject] = useState<string | null>("Histoire"); // Default to Histoire
@@ -239,10 +243,10 @@ function RessourcesPage() {
         currentPage * itemsPerPage
     );
 
-    const displayedResources = paginatedResources.map(resource => ({
+    const displayedResources: DisplayResource[] = paginatedResources.map(resource => ({
         ...resource,
         addedDate: new Date().toLocaleDateString('fr-FR'),
-        author: resource.author || (user ? user.name || 'Enseignant' : 'Enseignant')
+        author: 'Enseignant' // Par défaut, afficher "Enseignant" comme auteur
     }));
 
   return (
@@ -250,7 +254,7 @@ function RessourcesPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-bold text-gray-900">Ressources</h1>
         <div className="flex items-center gap-4">
-          {!isParent && (
+          {canModifyResources && (
             <button 
                 onClick={() => navigate('/ressources/archives')}
                 className="flex items-center bg-white text-gray-800 font-semibold py-2 px-5 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:border-gray-400 transition-all duration-150"
@@ -259,7 +263,7 @@ function RessourcesPage() {
               {t('archives', 'Archives')}
             </button>
           )}
-          {!isParent && (
+          {canModifyResources && (
             <button 
                 onClick={() => setIsAddModalOpen(true)}
                 className="flex items-center bg-white text-gray-800 font-semibold py-2 px-5 border border-orange-400 rounded-lg shadow-sm hover:bg-orange-50 hover:border-orange-500 transition-all duration-150"
@@ -348,7 +352,7 @@ function RessourcesPage() {
                     key={resource.id} 
                     resource={resource}
                     onArchive={() => archiveResource(resource.id)}
-                    isParent={isParent} // Passer la prop
+                    isParent={isReadOnlyUser} // Passer la prop pour les utilisateurs en lecture seule
                 />
             ))
         ) : (
@@ -363,7 +367,7 @@ function RessourcesPage() {
       </div>
 
       {/* Modale d'ajout de ressource */}
-      {!isParent && (
+      {canModifyResources && (
         <AddResourceModal 
             isOpen={isAddModalOpen} 
             onClose={() => setIsAddModalOpen(false)} 

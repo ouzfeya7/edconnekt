@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 import { useResources } from "../contexts/ResourceContext";
-import { useUser } from "../layouts/DashboardLayout";
+import { useAuth } from "./authentification/useAuth";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "../components/ui/dialog";
 
 // Couleurs subtiles spécifiques à chaque matière (matching RessourcesPage)
@@ -100,9 +100,10 @@ interface Resource {
 interface ArchivedResourceListItemProps {
     resource: Resource;
     onUnarchive: () => void;
+    canModify: boolean; // Indique si l'utilisateur peut modifier/restaurer
 }
 
-const ArchivedResourceListItem: React.FC<ArchivedResourceListItemProps> = ({ resource, onUnarchive }) => {
+const ArchivedResourceListItem: React.FC<ArchivedResourceListItemProps> = ({ resource, onUnarchive, canModify }) => {
     const Icon = getIconForSubject(resource.subject);
     const bgColor = subjectColors[resource.subject] || "bg-gray-400";
     const badgeColor = subjectBadgeColors[resource.subject] || "bg-gray-50 text-gray-700";
@@ -147,9 +148,10 @@ const ArchivedResourceListItem: React.FC<ArchivedResourceListItemProps> = ({ res
                                 </div>
                             </div>
                             
-                            {/* Bouton de restauration */}
-                            <div className="flex-shrink-0">
-                                <Dialog>
+                            {/* Bouton de restauration conditionnel */}
+                            {canModify && (
+                                <div className="flex-shrink-0">
+                                    <Dialog>
                                     <DialogTrigger asChild>
                                         <button className="p-3 rounded-xl hover:bg-gray-50 text-gray-400 hover:text-green-500 transition-colors duration-150 group/btn">
                                             <ArchiveRestore className="w-5 h-5 group-hover/btn:scale-[1.05] transition-transform duration-150" />
@@ -181,6 +183,7 @@ const ArchivedResourceListItem: React.FC<ArchivedResourceListItemProps> = ({ res
                                     </DialogContent>
                                 </Dialog>
                             </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -192,7 +195,10 @@ const ArchivedResourceListItem: React.FC<ArchivedResourceListItemProps> = ({ res
 function ArchivesPage() {
     const navigate = useNavigate();
     const { resources, unarchiveResource } = useResources(); 
-    const { user } = useUser(); // Récupération de l'utilisateur connecté
+    const { roles } = useAuth(); // Récupération des rôles de l'utilisateur
+    
+    // Détection des rôles pour masquer les fonctionnalités appropriées
+    const canModifyResources = roles.includes('enseignant') || roles.includes('directeur') || roles.includes('administrateur');
     
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -217,7 +223,7 @@ function ArchivesPage() {
     const displayedResources = paginatedResources.map(resource => ({
         ...resource,
         addedDate: new Date().toLocaleDateString('fr-FR'),
-        author: user ? user.name : 'Enseignant'
+        author: 'Enseignant' // Par défaut, afficher "Enseignant" comme auteur
     }));
 
     return (
@@ -268,7 +274,12 @@ function ArchivesPage() {
             <div className="space-y-6">
                 {displayedResources.length > 0 ? (
                     displayedResources.map(resource => (
-                        <ArchivedResourceListItem key={resource.id} resource={resource} onUnarchive={() => unarchiveResource(resource.id)} />
+                        <ArchivedResourceListItem 
+                            key={resource.id} 
+                            resource={resource} 
+                            onUnarchive={() => unarchiveResource(resource.id)} 
+                            canModify={canModifyResources}
+                        />
                     ))
                 ) : (
                     <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">

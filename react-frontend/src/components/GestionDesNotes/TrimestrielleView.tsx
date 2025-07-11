@@ -189,8 +189,17 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role, selectedChi
             label: c.label,
             render: (value) => {
                 if (value === null || value === undefined) return <span className="text-gray-400">-</span>;
-                const status = getGradingStatus(value);
-                const isNumeric = typeof value === 'number';
+                
+                // Type guard pour s'assurer que value est du bon type
+                const normalizedValue: number | 'absent' | 'non-evalue' = 
+                    typeof value === 'number' ? value :
+                    value === 'absent' ? 'absent' :
+                    value === 'non-evalue' ? 'non-evalue' :
+                    typeof value === 'string' && !isNaN(Number(value)) ? Number(value) :
+                    'non-evalue';
+                
+                const status = getGradingStatus(normalizedValue);
+                const isNumeric = typeof normalizedValue === 'number';
                 
                 return (
                     <span className={`font-semibold ${status.color}`}>
