@@ -34,6 +34,9 @@ const Navbar = ({ role }: NavbarProps) => {
           } else if (item.to === '/devoirs') {
             // Logique pour "Devoirs" - actif pour toutes les pages de devoirs
             isActive = location.pathname.startsWith('/devoirs');
+          } else if (item.to === '/ressources') {
+            // Logique pour "Ressources" - actif pour la page principale et les pages de détails
+            isActive = location.pathname.startsWith('/ressources');
           } else {
             // Logique standard pour les autres routes
             isActive = location.pathname === item.to;

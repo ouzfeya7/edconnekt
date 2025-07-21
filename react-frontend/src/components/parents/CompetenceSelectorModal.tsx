@@ -31,6 +31,13 @@ const CompetenceSelectorModal: React.FC<CompetenceSelectorModalProps> = ({
     }
   };
 
+  const handleReset = () => {
+    setSelectedDomain(null);
+    setSelectedSubject(null);
+    setSelectedCompetence(null);
+    onApply(null); // Réinitialise la sélection côté parent
+  };
+
   const resetSelection = (level: 'domain' | 'subject') => {
     if (level === 'domain') {
         setSelectedSubject(null);
@@ -104,6 +111,9 @@ const CompetenceSelectorModal: React.FC<CompetenceSelectorModalProps> = ({
         <DialogFooter className="pt-4 border-t">
           <button onClick={onClose} className="px-6 py-2 rounded-md bg-gray-200 text-gray-800 font-semibold hover:bg-gray-300">
             {t('cancel')}
+          </button>
+          <button onClick={handleReset} className="px-6 py-2 rounded-md bg-gray-100 text-gray-800 font-semibold hover:bg-gray-200">
+            {t('reset', 'Réinitialiser')}
           </button>
           <button onClick={handleApply} disabled={!selectedCompetence} className="px-6 py-2 rounded-md bg-orange-500 text-white font-semibold hover:bg-orange-600 disabled:bg-gray-300">
             {t('apply')}

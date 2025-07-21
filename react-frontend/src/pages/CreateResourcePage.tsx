@@ -1,24 +1,30 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
+import { useNavigate } from 'react-router-dom';
+import {
     Palette, Music, Bike, Theater, Move,
     Languages,
     Sigma,
     Globe, ScrollText, BookOpenCheck, BookMarked, Home, Users, HeartPulse,
     X
 } from 'lucide-react';
-import { useResources } from '../../contexts/ResourceContext';
-import { useUser } from '../../layouts/DashboardLayout';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '../ui/dialog';
+import { useResources } from '../contexts/ResourceContext';
+import { useUser } from '../layouts/DashboardLayout';
+import { Checkbox } from '../components/ui/checkbox';
 
 // Data for domains and subjects, matching RessourcesPage exactly
 const domainsData: { [key: string]: string[] } = {
-  "CRÉATIVITÉ & SPORT": ["Arts plastiques", "EPS", "Motricité", "Musique", "Théâtre/Drama"],
   "LANGUES ET COMMUNICATION": ["Anglais", "Français"],
-  "STEM": ["Mathématiques"],
   "SCIENCES HUMAINES": ["Études islamiques", "Géographie", "Histoire", "Lecture arabe", "Qran", "Vivre dans son milieu", "Vivre ensemble", "Wellness"],
+  "STEM": ["Mathématiques"],
+  "CREATIVITE ARTISTIQUE / SPORTIVE": ["Arts plastiques", "EPS", "Motricité", "Musique", "Théâtre/Drama"],
 };
-const domainNames = Object.keys(domainsData);
+const domainNames = [
+  "LANGUES ET COMMUNICATION",
+  "SCIENCES HUMAINES",
+  "STEM",
+  "CREATIVITE ARTISTIQUE / SPORTIVE",
+];
 
 // Couleurs subtiles spécifiques à chaque matière (matching RessourcesPage)
 const subjectColors: { [key: string]: string } = {
@@ -99,15 +105,13 @@ interface ResourceFormData {
   title: string;
   subject: string;
   description: string;
+  imageUrl: string;
+  isPaid: boolean;
 }
 
-interface AddResourceModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onClose }) => {
+const CreateResourcePage: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { addResource } = useResources();
   const { user } = useUser();
 
@@ -117,6 +121,8 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onClose }) 
     title: "",
     subject: "",
     description: "",
+    imageUrl: "",
+    isPaid: false,
   };
 
   const [formState, setFormState] = useState(initialFormState);
@@ -135,17 +141,18 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onClose }) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Ajouter une imageUrl par défaut vide pour correspondre à l'interface Resource
-    const resourceData = {
-      ...formState,
-      imageUrl: "", // Image par défaut vide
-    };
-    addResource(resourceData);
     
-    // Reset form and close modal
+    const newResource = {
+      ...formState,
+      author: user?.name || 'Enseignant',
+      addedDate: new Date().toLocaleDateString('fr-FR'),
+    };
+    addResource(newResource);
+    
+    // Reset form and navigate back to resources page
     setFormState(initialFormState);
     setSelectedDomain('');
-    onClose();
+    navigate('/ressources'); // Redirect to resources page after submission
   };
 
   // Get subject preview data
@@ -174,19 +181,13 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onClose }) 
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl w-[90vw] max-h-[95vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-900 pr-8">
-            {t('add_new_resource', 'Ajouter une nouvelle ressource')}
-          </DialogTitle>
-          <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </DialogClose>
-        </DialogHeader>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="bg-white rounded-2xl shadow-lg p-6 max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+          {t('add_new_resource', 'Ajouter une nouvelle ressource')}
+        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-8 mt-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
           <div>
             <label htmlFor="title" className="block text-sm font-semibold text-gray-900 mb-3">
               {t('resource_title', 'Titre de la ressource')}
@@ -244,6 +245,35 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onClose }) 
             </div>
           </div>
 
+          {/* Champ URL de l'image */}
+          <div>
+            <label htmlFor="imageUrl" className="block text-sm font-semibold text-gray-900 mb-3">
+              URL de l'image (facultatif)
+            </label>
+            <input
+              id="imageUrl"
+              name="imageUrl"
+              type="url"
+              placeholder="https://example.com/image.jpg"
+              value={formState.imageUrl}
+              onChange={handleChange}
+              className="w-full border border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-150"
+            />
+          </div>
+
+          {/* Case à cocher pour le statut payant */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isPaid"
+              checked={formState.isPaid}
+              onCheckedChange={(checked) => setFormState(prev => ({ ...prev, isPaid: Boolean(checked) }))}
+              className="border-gray-300 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+            />
+            <label htmlFor="isPaid" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Ressource payante
+            </label>
+          </div>
+
           {/* Aperçu de la matière sélectionnée */}
           {formState.subject && (
             <div>
@@ -271,7 +301,7 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onClose }) 
           <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => navigate('/ressources')} // Back button
               className="bg-gray-100 text-gray-700 font-semibold px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors duration-150"
             >
               {t('cancel', 'Annuler')}
@@ -284,9 +314,9 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onClose }) 
             </button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };
 
-export default AddResourceModal; 
+export default CreateResourcePage; 

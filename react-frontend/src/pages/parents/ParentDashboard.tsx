@@ -30,13 +30,30 @@ const ParentDashboard = () => {
   const selectedChild = parentChildren.find(c => c.studentId === selectedChildId);
   const childStatus = selectedChild?.attendanceStatus || 'present';
 
-  let chartData: { date: string; progression: number; }[] = [];
+  // Définir les axes X de référence selon le mode
+  const xAxisByMode: { [key: string]: string[] } = {
+    continue: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'],
+    integration: ['Sep', 'Oct', 'Nov', 'Déc', 'Jan'],
+    trimestrielle: ['Trim 1', 'Trim 2', 'Trim 3'],
+  };
+
+  let chartData: { date: string; progression: number | null; }[] = [];
   if (selectedChild?.progression) {
+    let rawData: { date: string; progression: number }[] = [];
     if (selectedCompetence?.id && selectedChild.progression.byCompetence) {
-      chartData = selectedChild.progression.byCompetence[selectedCompetence.id] || [];
+      rawData = selectedChild.progression.byCompetence[selectedCompetence.id] || [];
     } else if (selectedChild.progression.byEvaluationType) {
-      chartData = selectedChild.progression.byEvaluationType[evaluationType] || [];
+      rawData = selectedChild.progression.byEvaluationType[evaluationType] || [];
     }
+    // Toujours utiliser l'axe X du mode sélectionné
+    const referenceDates = xAxisByMode[evaluationType] || [];
+    chartData = referenceDates.map(date => {
+      const found = rawData.find(d => d.date === date);
+      return {
+        date,
+        progression: found ? found.progression : null,
+      };
+    });
   }
 
   const handleCompetenceChange = (competence: Competence) => {
@@ -81,17 +98,16 @@ const ParentDashboard = () => {
                 </span>
                 <ChevronDown className="h-4 w-4 text-gray-500" />
               </button>
-              {!selectedCompetence && (
-                <select 
-                    className="border border-gray-300 rounded-md px-3 py-1 text-sm"
-                    value={evaluationType}
-                    onChange={(e) => setEvaluationType(e.target.value)}
-                >
-                    <option value="continue">{t('continue', 'Continue')}</option>
-                    <option value="integration">{t('integration', 'Intégration')}</option>
-                    <option value="trimestrielle">{t('trimestrielle', 'Trimestrielle')}</option>
-                </select>
-              )}
+              {/* Le sélecteur de mode doit toujours être visible */}
+              <select 
+                  className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+                  value={evaluationType}
+                  onChange={(e) => setEvaluationType(e.target.value)}
+              >
+                  <option value="continue">{t('continue', 'Continue')}</option>
+                  <option value="integration">{t('integration', 'Intégration')}</option>
+                  <option value="trimestrielle">{t('trimestrielle', 'Trimestrielle')}</option>
+              </select>
             </div>
           </div>
           <div style={{ height: '300px' }}>
