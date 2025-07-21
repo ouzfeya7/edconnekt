@@ -31,6 +31,7 @@ import MesCours from "./pages/enseignants/MesCoursPage";
 import PdiSeancePage from "./pages/PdiSeancePage";
 import PdiDetailPage from "./pages/PdiDetailPage";
 import RessourceDetailPage from "./pages/RessourceDetailPage";
+import CreateResourcePage from "./pages/CreateResourcePage"; // Import the new page
 
 import ArchivesPage from "./pages/ArchivesPage";
 import { JSX } from "react/jsx-runtime";
@@ -49,6 +50,7 @@ import CreateEventPage from './pages/CreateEventPage';
 import EmploiDuTemps from './pages/EmploiDuTemps';
 import ParentDashboard from "./pages/parents/ParentDashboard";
 import ParentRapportPage from "./pages/parents/ParentRapportPage"; // Importer la nouvelle page
+import PaiementPage from './pages/PaiementPage';
 
 
 // Définition des types de rôles pour la clarté
@@ -74,6 +76,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/messages", element: <MessageEnseignant /> },
     { path: "/ressources", element: <Ressource /> },
     { path: "/ressources/archives", element: <ArchivesPage /> },
+    { path: "/ressources/creer", element: <CreateResourcePage /> }, // New route for resource creation
     { path: "/emploi-du-temps", element: <EmploiDuTemps /> },
     { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
     { path: "/pdi", element: <PdiSeancePage /> },
@@ -131,15 +134,19 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/mes-notes", element: <MesNotesPage /> },
     { path: "/notifications", element: <MessageEnseignant /> },
     { path: "/ressources", element: <Ressource /> }, // Ajouter la route des ressources
+    { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
     { path: "*", element: <NotFound /> },
   ],
   administrateur: [
     { path: "/", element: <Accueil /> },
+    { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
+    { path: "/ressources/creer", element: <CreateResourcePage /> }, // New route for resource creation
     { path: "*", element: <NotFound /> },
     { path: "/profile", element: <ProfilePage /> },
   ],
   espaceFamille: [
     { path: "/", element: <Accueil /> },
+    { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
     { path: "*", element: <NotFound /> },
     { path: "/profile", element: <ProfilePage /> },
   ],
@@ -196,6 +203,7 @@ const AppContent = () => {
     <Routes>
       {/* Redirige vers la page d'accueil si un utilisateur connecté essaie d'aller sur /login */}
       <Route path="/login" element={<Navigate to="/" replace />} />
+      <Route path="/paiement/:id" element={<PaiementPage />} />
 
       {/* Affiche le layout principal avec les routes autorisées pour le rôle de l'utilisateur */}
       <Route element={<DashboardLayout role={userRole} />}>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
+// import { useTranslation } from 'react-i18next';
 
 // --- Définition des types ---
 interface Resource {
@@ -9,6 +9,8 @@ interface Resource {
   description: string;
   imageUrl: string;
   isArchived: boolean;
+  isPaid?: boolean;
+  paymentUrl?: string;
 }
 
 interface ResourceFile {
@@ -36,11 +38,73 @@ interface ResourceContextType {
 }
 
 // --- Données Mock Initiales ---
-const getInitialResources = (t: (key: string) => string): Resource[] => [
-    { id: 1, title: "Découverte du monde C.I. - Les éditions didactikos", subject: t('history'), description: "Cours sur l'histoire du monde.", imageUrl: "https://marketplace.canva.com/EAFaU-oW3B8/1/0/1131w/canva-green-and-white-modern-illustrative-science-book-cover-nFct_o6aTNE.jpg", isArchived: false },
-    { id: 2, title: "Aujourd'hui au Sénégal: Bocar, Dakar", subject: t('geography'), description: "Étude des cartes et des paysages.", imageUrl: "https://i.pinimg.com/736x/2f/50/99/2f5099335527a206a4b27c6999a38914.jpg", isArchived: false },
-    { id: 3, title: "Découverte du monde sénégal cm2 3e étape elève", subject: t('french'), description: "Apprentissage de la langue française.", imageUrl: "https://static.fnac-static.com/multimedia/Images/FR/NR/e0/75/74/7632352/1507-1/tsp20230222123543/Decouverte-du-monde-Grande-section.jpg", isArchived: false },
-    { id: 4, title: "Les bases de l'algèbre", subject: t('mathematics'), description: "Algèbre, géométrie et analyse.", imageUrl: "https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?q=80&w=2070&auto=format&fit=crop", isArchived: true },
+const getInitialResources = (): Resource[] => [
+    {
+        id: 1,
+        title: "Cahier d’activités EDD CP",
+        subject: "Vivre dans son milieu",
+        description: "Cahier d'activités pour l'éducation au développement durable, niveau CP. Disponible chez les éditions Didactikos.",
+        imageUrl: "https://editionsdidactikos.sn/wp-content/uploads/2025/06/Capture-decran-2025-06-23-a-16.24.24.png",
+        isArchived: false,
+        isPaid: false
+    },
+    {
+        id: 2,
+        title: "Cahier d’activités EDD CP (nouvelle édition)",
+        subject: "Vivre dans son milieu",
+        description: "Nouvelle édition du cahier d'activités pour l'éducation au développement durable, CP.",
+        imageUrl: "https://editionsdidactikos.sn/wp-content/uploads/2024/11/Capture-decran-2024-11-02-a-10.17.45.png",
+        isArchived: false,
+        isPaid: true,
+        paymentUrl: "/paiement/2"
+    },
+    {
+        id: 3,
+        title: "Découverte du monde CP",
+        subject: "Histoire",
+        description: "Livre de découverte du monde pour le CP, éditions Didactikos.",
+        imageUrl: "https://editionsdidactikos.sn/wp-content/uploads/2022/09/livre-de-decouverte-du-monde-cp.png",
+        isArchived: false,
+        isPaid: false
+    },
+    {
+        id: 4,
+        title: "Mathématiques CP",
+        subject: "Mathématiques",
+        description: "Livre de mathématiques pour le CP, éditions Didactikos.",
+        imageUrl: "https://editionsdidactikos.sn/wp-content/uploads/2022/05/livre-de-mathematique-cp.png",
+        isArchived: false,
+        isPaid: true,
+        paymentUrl: "/paiement/4"
+    },
+    {
+        id: 5,
+        title: "Langue et communication CP",
+        subject: "Français",
+        description: "Livre de langue et communication pour le CP, éditions Didactikos.",
+        imageUrl: "https://editionsdidactikos.sn/wp-content/uploads/2022/04/livre-de-langue-et-communication-cp.png",
+        isArchived: false,
+        isPaid: false
+    },
+    {
+        id: 6,
+        title: "Découverte du monde CP",
+        subject: "Géographie",
+        description: "Livre de découverte du monde pour le CP, éditions Didactikos.",
+        imageUrl: "https://editionsdidactikos.sn/wp-content/uploads/2022/09/livre-de-decouverte-du-monde-cp.png",
+        isArchived: false,
+        isPaid: false
+    },
+    {
+        id: 7,
+        title: "Lecture CP",
+        subject: "Français",
+        description: "Français Sénégal CP langue et communication",
+        imageUrl: "https://m.media-amazon.com/images/I/41pleKyHSvL._SY445_SX342_.jpg",
+        isArchived: false,
+        isPaid: true,
+        paymentUrl: "/paiement/7"
+    }
 ];
 
 const initialFiles: FilesByResource = {
@@ -64,13 +128,11 @@ const ResourceContext = createContext<ResourceContextType | undefined>(undefined
 
 // --- Fournisseur du Contexte (Provider) ---
 export const ResourceProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const { t } = useTranslation();
-    const [resources, setResources] = useState<Resource[]>(() => getInitialResources(t));
+    // const { t } = useTranslation();
+    const [resources, setResources] = useState<Resource[]>(() => getInitialResources());
     const [files, setFiles] = useState<FilesByResource>(initialFiles);
     
-    React.useEffect(() => {
-        setResources(getInitialResources(t));
-    }, [t]);
+    // Plus besoin de useEffect pour t
 
     const addResource = (newResourceData: Omit<Resource, 'id' | 'isArchived'>) => {
         setResources(prev => {

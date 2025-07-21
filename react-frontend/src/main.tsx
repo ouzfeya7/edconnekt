@@ -15,6 +15,8 @@ import { AuthProvider } from './pages/authentification/AuthContext';
 import { EventProvider } from './contexts/EventContext';
 import { StudentProvider } from './contexts/StudentContext';
 import { FilterProvider } from './contexts/FilterContext';
+import PaiementPage from './pages/PaiementPage';
+import RessourceDetailPage from './pages/RessourceDetailPage';
 
 // Synchronize dayjs locale with i18next
 const updateDayjsLocale = (lng: string | undefined) => {
