@@ -20,23 +20,46 @@ body,
   position: relative;
 }
 
+/* Scrollbars invisibles */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 0px;
+  background: transparent;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
-  background: #e0e0e0;
+  background: transparent;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: transparent;
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: transparent;
+}
+
+/* Firefox scrollbar invisible */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Pour les conteneurs avec overflow */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: transparent;
 }
 
 @theme inline {

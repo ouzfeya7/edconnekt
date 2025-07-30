@@ -24,7 +24,8 @@ import {
   Settings,
   Bell,
   MapPin,
-  BookMarked
+  BookMarked,
+  Package
 } from 'lucide-react';
 
 // Interface Student pour le dashboard (structure complète)
@@ -310,6 +311,45 @@ function Dashboard() {
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
+          </div>
+
+          {/* Widget fournitures */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/50 rounded-xl p-6 shadow-sm">
+            {/* Motifs décoratifs pour la section fournitures */}
+            <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/15 rounded-full -translate-y-14 translate-x-14"></div>
+            <div className="absolute bottom-0 left-0 w-20 h-20 bg-indigo-500/15 rounded-full translate-y-10 -translate-x-10"></div>
+            
+            <div className="relative flex items-center gap-2 mb-4">
+              <Package className="w-5 h-5 text-blue-600" />
+              <h2 className="text-xl font-semibold text-slate-800">Fournitures</h2>
+            </div>
+            <div className="relative space-y-3">
+              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-blue-200/70 shadow-sm backdrop-blur-sm">
+                <div className="p-2 bg-blue-100 rounded-lg border border-blue-200">
+                  <Package className="w-4 h-4 text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-blue-800">Fournitures de base</p>
+                  <p className="text-sm text-blue-600">Vérifier la liste des fournitures nécessaires.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-blue-200/70 shadow-sm backdrop-blur-sm">
+                <div className="p-2 bg-indigo-100 rounded-lg border border-indigo-200">
+                  <Package className="w-4 h-4 text-indigo-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-indigo-800">Fournitures spécifiques</p>
+                  <p className="text-sm text-indigo-600">Vérifier les fournitures spécifiques à votre matière.</p>
+                </div>
+              </div>
+            </div>
+            <button 
+              onClick={() => navigate('/fournitures')}
+              className="w-full mt-4 text-sm text-blue-600 hover:text-blue-800 flex items-center justify-center gap-1 transition-colors font-medium"
+            >
+              <span>Voir ma liste de fournitures</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
           </div>
         </div>
       </div>

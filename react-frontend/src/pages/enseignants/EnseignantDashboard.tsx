@@ -7,7 +7,6 @@ import { ActionCard } from '../../components/ui/ActionCard';
 import ClassHeader from '../../components/classe/ClassHeader';
 import CourseDetailHeader from '../../components/course/CourseDetailHeader';
 import CourseCard from '../../components/course/CourseCard';
-import ProgressSteps from '../../components/ui/ProgressSteps';
 import { Combobox } from '../../components/ui/Combobox';
 import { getEnrichedCourses, EnrichedCourse } from '../../lib/mock-student-data';
 import { useStudents } from '../../contexts/StudentContext';
@@ -17,7 +16,7 @@ import { useAuth } from '../authentification/useAuth';
 import AddFicheModal, { NewFicheData } from '../../components/course/AddFicheModal';
 
 // Import icons from lucide-react
-import { Plus, BarChart2, Mail, Calendar } from 'lucide-react';
+import { Plus, BarChart2, Mail, Calendar, Package } from 'lucide-react';
 
 // --- Données de Test Externalisées ---
 
@@ -329,34 +328,61 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div> 
+        {/* Section Gestion des fournitures */}
+        <div className="mt-8">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold text-lg text-gray-800">PDI 08-13</h3>
-            <button className="text-[#FF8C00] text-sm font-medium hover:underline cursor-pointer">{t('view_all', 'Voir tout')}</button>
+            <h3 className="font-semibold text-lg text-gray-800">Gestion des fournitures</h3>
+            <button 
+              onClick={() => navigate('/fournitures')}
+              className="text-blue-600 text-sm font-medium hover:underline cursor-pointer"
+            >
+              {t('view_all', 'Voir tout')}
+            </button>
           </div>
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <table className="w-full text-gray-700 text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="text-left p-4 font-semibold">{t('skills', 'Compétences')}</th>
-                  <th className="text-left p-4 font-semibold">PDI 08-13</th>
-                  <th className="text-left p-4 font-semibold">{t('evaluation_date', 'Date évaluation')}</th>
-                  <th className="text-left p-4 font-semibold">{t('progression', 'Progression')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[t('reading', 'Lecture'), t('grammar', 'Grammaire'), t('spelling', 'Orthographe')].map((competence, index) => (
-                  <tr key={index} className="border-t border-gray-200 hover:bg-gray-50">
-                    <td className="p-4">{competence}</td>
-                    <td className="p-4">Trimestre 1</td>
-                    <td className="p-4">2 Mars 2025</td>
-                    <td className="p-4">
-                    <ProgressSteps progress={75} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <Package className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                  <h4 className="font-semibold text-blue-800 mb-1">Fournitures de base</h4>
+                  <p className="text-sm text-blue-600">Cahiers, stylos, règles, etc.</p>
+                  <div className="mt-3 text-2xl font-bold text-blue-800">12</div>
+                  <p className="text-xs text-blue-600">articles</p>
+                </div>
+                
+                <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                  <Package className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                  <h4 className="font-semibold text-green-800 mb-1">Fournitures spécifiques</h4>
+                  <p className="text-sm text-green-600">Matériel pour activités spéciales</p>
+                  <div className="mt-3 text-2xl font-bold text-green-800">5</div>
+                  <p className="text-xs text-green-600">articles</p>
+                </div>
+                
+                <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <Package className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                  <h4 className="font-semibold text-purple-800 mb-1">Total fournitures</h4>
+                  <p className="text-sm text-purple-600">Liste complète</p>
+                  <div className="mt-3 text-2xl font-bold text-purple-800">17</div>
+                  <p className="text-xs text-purple-600">articles</p>
+                </div>
+              </div>
+              
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h5 className="font-medium text-gray-800">Actions rapides</h5>
+                    <p className="text-sm text-gray-600">Gérez la liste des fournitures pour votre classe</p>
+                  </div>
+                  <button
+                    onClick={() => navigate('/fournitures')}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Package className="w-4 h-4" />
+                    <span>Gérer les fournitures</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

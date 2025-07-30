@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Package, ArrowRight } from 'lucide-react';
 import CourseDetailHeader from '../../components/course/CourseDetailHeader';
 import ChildSelectorCard from '../../components/parents/ChildSelectorCard';
 import { Competence } from '../../lib/notes-data'; // Garder seulement ce qui est nécessaire
@@ -37,7 +37,7 @@ const ParentDashboard = () => {
     trimestrielle: ['Trim 1', 'Trim 2', 'Trim 3'],
   };
 
-  let chartData: { date: string; progression: number | null; }[] = [];
+  let chartData: { date: string; progression: number; }[] = [];
   if (selectedChild?.progression) {
     let rawData: { date: string; progression: number }[] = [];
     if (selectedCompetence?.id && selectedChild.progression.byCompetence) {
@@ -51,12 +51,12 @@ const ParentDashboard = () => {
       const found = rawData.find(d => d.date === date);
       return {
         date,
-        progression: found ? found.progression : null,
+        progression: found && found.progression !== null ? found.progression : 0,
       };
     });
   }
 
-  const handleCompetenceChange = (competence: Competence) => {
+  const handleCompetenceChange = (competence: Competence | null) => {
     setSelectedCompetence(competence);
     setIsCompetenceModalOpen(false);
   };
@@ -118,6 +118,52 @@ const ParentDashboard = () => {
         {/* Section des évaluations récentes */}
         <div className="lg:col-span-1">
             <RecentEvaluations />
+        </div>
+      </div>
+      
+      {/* Widget Fournitures */}
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Package className="w-6 h-6 text-green-600" />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">Fournitures scolaires</h3>
+              <p className="text-sm text-gray-600">Consultez la liste des fournitures nécessaires</p>
+            </div>
+          </div>
+          <button
+            onClick={() => window.location.href = '/fournitures'}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+          >
+            <span>Voir les fournitures</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-center gap-2 mb-2">
+              <Package className="w-4 h-4 text-green-600" />
+              <span className="text-sm font-medium text-green-800">Fournitures de base</span>
+            </div>
+            <p className="text-xs text-green-600">Cahiers, stylos, règles, etc.</p>
+          </div>
+          
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-2 mb-2">
+              <Package className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-800">Fournitures spécifiques</span>
+            </div>
+            <p className="text-xs text-blue-600">Matériel pour activités spéciales</p>
+          </div>
+          
+          <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+            <div className="flex items-center gap-2 mb-2">
+              <Package className="w-4 h-4 text-purple-600" />
+              <span className="text-sm font-medium text-purple-800">Suivi des achats</span>
+            </div>
+            <p className="text-xs text-purple-600">Marquer ce qui est acheté</p>
+          </div>
         </div>
       </div>
       
