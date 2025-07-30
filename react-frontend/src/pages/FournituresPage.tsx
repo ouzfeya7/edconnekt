@@ -58,10 +58,10 @@ interface FournitureModalProps {
 }
 
 function FournitureModal({ isOpen, onClose, fourniture, onSave }: FournitureModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<Fourniture, 'id'>>({
     nom: '',
     description: '',
-    categorie: 'Écriture & Correction' as const,
+    categorie: 'Écriture & Correction' as CategorieFourniture,
     quantite: 1,
     estAchete: false
   });
@@ -79,7 +79,7 @@ function FournitureModal({ isOpen, onClose, fourniture, onSave }: FournitureModa
       setFormData({
         nom: '',
         description: '',
-        categorie: 'Écriture & Correction',
+        categorie: 'Écriture & Correction' as CategorieFourniture,
         quantite: 1,
         estAchete: false
       });
@@ -139,7 +139,7 @@ function FournitureModal({ isOpen, onClose, fourniture, onSave }: FournitureModa
               </label>
               <select
                 value={formData.categorie}
-                onChange={(e) => setFormData({...formData, categorie: e.target.value as any})}
+                onChange={(e) => setFormData({...formData, categorie: e.target.value as CategorieFourniture})}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
                 required
               >
@@ -370,13 +370,13 @@ function FournituresPage() {
   };
 
   // Filtrage des fournitures
-  const filteredFournitures = fournituresParClasse[currentClass] || []
-    .filter((fourniture) => {
-      const matchesSearch = fourniture.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           fourniture.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategorie = !filterCategorie || fourniture.categorie === filterCategorie;
-      return matchesSearch && matchesCategorie;
-    });
+  const currentFournitures = fournituresParClasse[currentClass] || [];
+  const filteredFournitures = currentFournitures.filter((fourniture) => {
+    const matchesSearch = fourniture.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         fourniture.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategorie = !filterCategorie || fourniture.categorie === filterCategorie;
+    return matchesSearch && matchesCategorie;
+  });
 
   // Statistiques
   const totalFournitures = fournituresParClasse[currentClass]?.length || 0;
@@ -437,7 +437,7 @@ function FournituresPage() {
     academicYear: "2023-2024"
   };
 
-  const addPdfHeader = (doc, classe, title) => {
+  const addPdfHeader = (doc: any, classe: string, title: string) => {
     // Logo
     try {
       doc.addImage(schoolLogo, 'PNG', 25, 15, 30, 30);

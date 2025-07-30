@@ -117,7 +117,8 @@ const DetailLeconPage: React.FC = () => {
 
         <div className="mt-6 mb-6">
           <LessonResourcesSection 
-            resources={lessonData.resources} 
+            courseId="course-1"
+            lessonId="lesson-1"
             onViewResource={handleViewResource}
           />
         </div>

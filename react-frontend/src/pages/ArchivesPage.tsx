@@ -343,7 +343,7 @@ function ArchivesPage() {
 
   const displayedResources: ArchivedResource[] = paginatedResources.map(resource => ({
         ...resource,
-    archivedAt: resource.archivedAt || new Date().toLocaleDateString('fr-FR'),
+    archivedAt: resource.isArchived ? new Date().toLocaleDateString('fr-FR') : undefined,
     author: resource.author || { id: '1', name: 'Enseignant', role: 'enseignant' }
   }));
 
