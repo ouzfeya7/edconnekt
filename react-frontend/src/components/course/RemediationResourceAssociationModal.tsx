@@ -20,6 +20,7 @@ interface RemediationResource {
   addedBy: string;
   addedAt: string;
   isActive: boolean;
+  isPaid?: boolean;
 }
 
 interface RemediationResourceAssociationModalProps {
@@ -118,7 +119,7 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
       
       const success = await remediationResourceService.associateResourceToRemediation({
         remediationId,
-        resourceId: resource.id,
+        resourceId: parseInt(resource.id) || Date.now(),
         addedBy,
         addedAt: new Date().toISOString()
       });
@@ -127,7 +128,7 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
         const remediationResource: RemediationResource = {
           id: Date.now().toString(),
           remediationId,
-          resourceId: resource.id,
+          resourceId: parseInt(resource.id) || Date.now(),
           title: resource.title,
           description: resource.description,
           subject: resource.subject,
@@ -138,7 +139,7 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
           addedBy,
           addedAt: new Date().toISOString(),
           isActive: true,
-          isPaid: resource.isPaid
+          isPaid: resource.isPaid || false
         };
 
         onResourceAssociated(remediationResource);

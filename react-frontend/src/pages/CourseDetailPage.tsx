@@ -69,7 +69,7 @@ interface DisplayResource {
   imageUrl?: string;
   competence?: string;
   visibility?: "PRIVATE" | "CLASS" | "SCHOOL";
-  fileType?: "PDF" | "DOCX" | "PPTX" | "VIDEO" | "IMAGE" | "LINK";
+  fileType?: "PDF" | "DOCX" | "PPTX" | "VIDEO" | "IMAGE" | "LINK" | "AUDIO" | "DOC" | "PPT" | "XLS" | "XLSX" | "TXT" | "HTML" | "JSON" | "ZIP" | "FILE";
   fileSize?: number;
   version?: number;
   isPaid?: boolean;

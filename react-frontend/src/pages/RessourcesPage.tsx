@@ -468,7 +468,12 @@ function RessourcesPage() {
       const titleMatch = resource.title.toLowerCase().includes(searchLower);
       const descriptionMatch = resource.description?.toLowerCase().includes(searchLower) || false;
       const competenceMatch = resource.competence?.toLowerCase().includes(searchLower) || false;
-      const authorMatch = resource.author?.toLowerCase().includes(searchLower) || false;
+      const authorMatch = (() => {
+        if (resource.author && typeof resource.author === 'object' && resource.author !== null && 'name' in resource.author) {
+          return (resource.author as { name: string }).name.toLowerCase().includes(searchLower);
+        }
+        return false;
+      })();
       
       if (!titleMatch && !descriptionMatch && !competenceMatch && !authorMatch) {
       return false;

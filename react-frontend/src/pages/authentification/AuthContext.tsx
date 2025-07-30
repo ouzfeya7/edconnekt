@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         emailVerified: true,
       };
       setUser(mockUser);
-      setRoles(['enseignant']);
+      setRoles(['eleve']);
       setIsAuthenticated(true);
       setLoading(false);
       return;
