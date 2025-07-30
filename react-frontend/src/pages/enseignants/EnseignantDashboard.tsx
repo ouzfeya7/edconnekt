@@ -36,43 +36,43 @@ type ProgressionPoint = { date: string; progression: number };
 type SkillData = { [skillName: string]: ProgressionPoint[] };
 type ProgressionData = { [studentName: string]: SkillData };
 
-// Données de test mises à jour pour le graphique de progression
+// Données de test mises à jour pour le graphique de progression (converties en pourcentages)
 const progressionDataByStudent: ProgressionData = {
   "Fatima Fall": {
-    "Français": [{ date: "Trimestre 1", progression: 14 }, { date: "Trimestre 2", progression: 17 }, { date: "Trimestre 3", progression: 18 }],
-    "Anglais": [{ date: "Trimestre 1", progression: 12 }, { date: "Trimestre 2", progression: 11 }, { date: "Trimestre 3", progression: 13 }],
-    "Histoire": [{ date: "Trimestre 1", progression: 15 }, { date: "Trimestre 2", progression: 14 }, { date: "Trimestre 3", progression: 16 }],
+    "Français": [{ date: "Trimestre 1", progression: 70 }, { date: "Trimestre 2", progression: 85 }, { date: "Trimestre 3", progression: 90 }],
+    "Anglais": [{ date: "Trimestre 1", progression: 60 }, { date: "Trimestre 2", progression: 55 }, { date: "Trimestre 3", progression: 65 }],
+    "Histoire": [{ date: "Trimestre 1", progression: 75 }, { date: "Trimestre 2", progression: 70 }, { date: "Trimestre 3", progression: 80 }],
   },
   "Moussa Diop": {
-    "Français": [{ date: "Trimestre 1", progression: 8 }, { date: "Trimestre 2", progression: 10 }, { date: "Trimestre 3", progression: 9 }],
-    "Géographie": [{ date: "Trimestre 1", progression: 15 }, { date: "Trimestre 2", progression: 12 }, { date: "Trimestre 3", progression: 11 }],
-    "Informatique": [{ date: "Trimestre 1", progression: 18 }, { date: "Trimestre 2", progression: 16 }, { date: "Trimestre 3", progression: 17 }],
+    "Français": [{ date: "Trimestre 1", progression: 40 }, { date: "Trimestre 2", progression: 50 }, { date: "Trimestre 3", progression: 45 }],
+    "Géographie": [{ date: "Trimestre 1", progression: 75 }, { date: "Trimestre 2", progression: 60 }, { date: "Trimestre 3", progression: 55 }],
+    "Informatique": [{ date: "Trimestre 1", progression: 90 }, { date: "Trimestre 2", progression: 80 }, { date: "Trimestre 3", progression: 85 }],
   },
   "Ndeye Thiam": { 
-    "Français": [{ date: "Trimestre 1", progression: 18 }, { date: "Trimestre 2", progression: 16 }, { date: "Trimestre 3", progression: 17 }],
-    "Éducation civique": [{ date: "Trimestre 1", progression: 10 }, { date: "Trimestre 2", progression: 13 }, { date: "Trimestre 3", progression: 15 }],
-    "Arts plastiques": [{ date: "Trimestre 1", progression: 13 }, { date: "Trimestre 2", progression: 15 }, { date: "Trimestre 3", progression: 14 }],
+    "Français": [{ date: "Trimestre 1", progression: 90 }, { date: "Trimestre 2", progression: 80 }, { date: "Trimestre 3", progression: 85 }],
+    "Éducation civique": [{ date: "Trimestre 1", progression: 50 }, { date: "Trimestre 2", progression: 65 }, { date: "Trimestre 3", progression: 75 }],
+    "Arts plastiques": [{ date: "Trimestre 1", progression: 65 }, { date: "Trimestre 2", progression: 75 }, { date: "Trimestre 3", progression: 70 }],
   },
   "Abdoulaye Sow": { 
-    "Histoire": [{ date: "Trimestre 1", progression: 11 }, { date: "Trimestre 2", progression: 14 }, { date: "Trimestre 3", progression: 15 }],
-    "Géographie": [{ date: "Trimestre 1", progression: 16 }, { date: "Trimestre 2", progression: 14 }, { date: "Trimestre 3", progression: 14 }],
-    "Anglais": [{ date: "Trimestre 1", progression: 9 }, { date: "Trimestre 2", progression: 12 }, { date: "Trimestre 3", progression: 14 }],
+    "Histoire": [{ date: "Trimestre 1", progression: 55 }, { date: "Trimestre 2", progression: 70 }, { date: "Trimestre 3", progression: 75 }],
+    "Géographie": [{ date: "Trimestre 1", progression: 80 }, { date: "Trimestre 2", progression: 70 }, { date: "Trimestre 3", progression: 70 }],
+    "Anglais": [{ date: "Trimestre 1", progression: 45 }, { date: "Trimestre 2", progression: 60 }, { date: "Trimestre 3", progression: 70 }],
   },
   "Aissatou Ba": { 
-    "Français": [{ date: "Trimestre 1", progression: 7 }, { date: "Trimestre 2", progression: 9 }, { date: "Trimestre 3", progression: 10 }],
-    "Éducation physique et sportive (EPS)": [{ date: "Trimestre 1", progression: 19 }, { date: "Trimestre 2", progression: 17 }, { date: "Trimestre 3", progression: 18 }],
+    "Français": [{ date: "Trimestre 1", progression: 35 }, { date: "Trimestre 2", progression: 45 }, { date: "Trimestre 3", progression: 50 }],
+    "Éducation physique et sportive (EPS)": [{ date: "Trimestre 1", progression: 95 }, { date: "Trimestre 2", progression: 85 }, { date: "Trimestre 3", progression: 90 }],
   },
   "Cheikh Gueye": { 
-    "Français": [{ date: "Trimestre 1", progression: 16 }, { date: "Trimestre 2", progression: 14 }, { date: "Trimestre 3", progression: 12 }],
-    "Informatique": [{ date: "Trimestre 1", progression: 18 }, { date: "Trimestre 2", progression: 15 }, { date: "Trimestre 3", progression: 13 }]
+    "Français": [{ date: "Trimestre 1", progression: 80 }, { date: "Trimestre 2", progression: 70 }, { date: "Trimestre 3", progression: 60 }],
+    "Informatique": [{ date: "Trimestre 1", progression: 90 }, { date: "Trimestre 2", progression: 75 }, { date: "Trimestre 3", progression: 65 }]
   },
    "Marie Sene": { 
-    "Français": [{ date: "Trimestre 1", progression: 19 }, { date: "Trimestre 2", progression: 18 }, { date: "Trimestre 3", progression: 20 }],
-    "Anglais": [{ date: "Trimestre 1", progression: 17 }, { date: "Trimestre 2", progression: 19 }, { date: "Trimestre 3", progression: 18 }]
+    "Français": [{ date: "Trimestre 1", progression: 95 }, { date: "Trimestre 2", progression: 90 }, { date: "Trimestre 3", progression: 100 }],
+    "Anglais": [{ date: "Trimestre 1", progression: 85 }, { date: "Trimestre 2", progression: 95 }, { date: "Trimestre 3", progression: 90 }]
   },
   "Jean Dupont": {
-    "Histoire": [{ date: "Trimestre 1", progression: 12 }, { date: "Trimestre 2", progression: 15 }, { date: "Trimestre 3", progression: 14 }],
-    "Géographie": [{ date: "Trimestre 1", progression: 11 }, { date: "Trimestre 2", progression: 10 }, { date: "Trimestre 3", progression: 12 }]
+    "Histoire": [{ date: "Trimestre 1", progression: 60 }, { date: "Trimestre 2", progression: 75 }, { date: "Trimestre 3", progression: 70 }],
+    "Géographie": [{ date: "Trimestre 1", progression: 55 }, { date: "Trimestre 2", progression: 50 }, { date: "Trimestre 3", progression: 60 }]
   },
 };
 
