@@ -20,9 +20,18 @@ const Navbar = ({ role }: NavbarProps) => {
       {currentMenu
         .filter(item => !item.hideInNavbar)
         .map((item) => {
+          // Vérifier si l'onglet doit être actif en utilisant activePaths
           let isActive = false;
           
-          if (item.to === '/evaluations') {
+          if (item.activePaths) {
+            // Utiliser activePaths si défini
+            isActive = item.activePaths.some(path => {
+              // Gérer les paramètres dynamiques (comme :remediationId)
+              const pathPattern = path.replace(/:[^/]+/g, '[^/]+');
+              const regex = new RegExp(`^${pathPattern}$`);
+              return regex.test(location.pathname);
+            });
+          } else if (item.to === '/evaluations') {
             // Logique pour les évaluations
             isActive = location.pathname.startsWith('/evaluations') || 
                       location.pathname.startsWith('/gestion-notes') ||

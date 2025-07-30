@@ -332,7 +332,7 @@ const ResourceListItem: React.FC<ResourceListItemProps> = ({
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 rounded-md text-xs font-medium text-blue-700">
                   <Tag className="w-3 h-3" />v{resource.version || 1}
                 </span>
-                {resource.visibility && (
+                {resource.visibility && !isParent && (
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${
                       resource.visibility === "PRIVATE"
@@ -443,9 +443,7 @@ function RessourcesPage() {
   );
 
   // Nouveaux filtres avancés
-  const [competenceFilter, setCompetenceFilter] = useState<string>("");
   const [fileTypeFilter, setFileTypeFilter] = useState<string>("");
-  const [authorFilter, setAuthorFilter] = useState<string>("");
   const [visibilityFilter, setVisibilityFilter] = useState<string>("");
 
   // Removed isAddModalOpen state
@@ -465,11 +463,17 @@ function RessourcesPage() {
 
     if (resourceDomain !== activeDomain) return false;
     if (activeSubject && resource.subject !== activeSubject) return false;
-    if (
-      searchTerm &&
-      !resource.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const titleMatch = resource.title.toLowerCase().includes(searchLower);
+      const descriptionMatch = resource.description?.toLowerCase().includes(searchLower) || false;
+      const competenceMatch = resource.competence?.toLowerCase().includes(searchLower) || false;
+      const authorMatch = resource.author?.toLowerCase().includes(searchLower) || false;
+      
+      if (!titleMatch && !descriptionMatch && !competenceMatch && !authorMatch) {
       return false;
+      }
+    }
 
     // Filtrage par statut payant
     if (paymentFilter === "paid" && !resource.isPaid) return false;
@@ -477,23 +481,9 @@ function RessourcesPage() {
 
     // Nouveaux filtres avancés
     if (
-      competenceFilter &&
-      resource.competence &&
-      !resource.competence
-        .toLowerCase()
-        .includes(competenceFilter.toLowerCase())
-    )
-      return false;
-    if (
       fileTypeFilter &&
       resource.fileType &&
       resource.fileType !== fileTypeFilter
-    )
-      return false;
-    if (
-      authorFilter &&
-      resource.author?.name &&
-      !resource.author.name.toLowerCase().includes(authorFilter.toLowerCase())
     )
       return false;
     if (
@@ -512,9 +502,7 @@ function RessourcesPage() {
     activeDomain,
     activeSubject,
     searchTerm,
-    competenceFilter,
     fileTypeFilter,
-    authorFilter,
     visibilityFilter,
   ]);
 
@@ -589,8 +577,8 @@ function RessourcesPage() {
 
       {/* Bloc filtres dans une carte blanche */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-          <div className="flex space-x-4 overflow-x-auto pb-2">
+        {/* Domaines de compétences */}
+        <div className="flex space-x-4 overflow-x-auto pb-4 mb-4">
             {domainNames.map((domain) => (
               <button
                 key={domain}
@@ -605,120 +593,9 @@ function RessourcesPage() {
               </button>
             ))}
           </div>
-          <div className="flex gap-4">
-            <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Rechercher une ressource..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 bg-white rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition"
-              />
-            </div>
 
-            {/* Filtre par statut payant */}
-            <select
-              value={paymentFilter}
-              onChange={(e) =>
-                setPaymentFilter(e.target.value as "all" | "paid" | "free")
-              }
-              className="px-4 py-2 border border-gray-300 bg-white rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition"
-            >
-              <option value="all">Tous les statuts</option>
-              <option value="free">Gratuit</option>
-              <option value="paid">Payant</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Filtres avancés */}
-        <div className="border-t border-gray-200 pt-4 mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-gray-700">
-              Filtres avancés
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-            {/* Filtre par compétence */}
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">
-                Compétence
-              </label>
-              <input
-                type="text"
-                placeholder="Rechercher par compétence..."
-                value={competenceFilter}
-                onChange={(e) => setCompetenceFilter(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-              />
-            </div>
-
-            {/* Filtre par type de fichier */}
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Type</label>
-              <select
-                value={fileTypeFilter}
-                onChange={(e) => setFileTypeFilter(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-              >
-                <option value="">Tous les types</option>
-                <option value="PDF">PDF</option>
-                <option value="DOCX">DOCX</option>
-                <option value="PPTX">PPTX</option>
-                <option value="VIDEO">Vidéo</option>
-                <option value="IMAGE">Image</option>
-                <option value="LINK">Lien</option>
-              </select>
-            </div>
-
-            {/* Filtre par auteur */}
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Auteur</label>
-              <input
-                type="text"
-                placeholder="Rechercher par auteur..."
-                value={authorFilter}
-                onChange={(e) => setAuthorFilter(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-              />
-            </div>
-
-            {/* Filtre par visibilité */}
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">
-                Visibilité
-              </label>
-              <select
-                value={visibilityFilter}
-                onChange={(e) => setVisibilityFilter(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-              >
-                <option value="">Toutes les visibilités</option>
-                <option value="PRIVATE">Privé</option>
-                <option value="CLASS">Classe</option>
-                <option value="SCHOOL">École</option>
-              </select>
-            </div>
-
-            {/* Bouton de réinitialisation */}
-            <div className="flex items-end">
-              <button
-                onClick={() => {
-                  setCompetenceFilter("");
-                  setFileTypeFilter("");
-                  setAuthorFilter("");
-                  setVisibilityFilter("");
-                }}
-                className="w-full px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Réinitialiser
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2 mb-2">
+        {/* Matières */}
+        <div className="flex flex-wrap gap-2 mb-6">
           {domainsData[activeDomain].map((subject) => (
             <button
               key={subject}
@@ -734,6 +611,116 @@ function RessourcesPage() {
               {subject}
             </button>
           ))}
+        </div>
+
+        {/* Barre de séparation */}
+        <div className="border-t border-gray-200 mb-6"></div>
+
+        {/* Barre de recherche unifiée */}
+        <div className="mb-6">
+          <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+              placeholder="Rechercher par nom, description, compétence, auteur..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-base"
+              />
+          </div>
+            </div>
+
+        {/* Filtres au même niveau */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+            {/* Filtre par statut payant */}
+          <div>
+            <label className="block text-xs text-gray-600 mb-1 font-medium">
+              Statut
+            </label>
+            <select
+              value={paymentFilter}
+              onChange={(e) =>
+                setPaymentFilter(e.target.value as "all" | "paid" | "free")
+              }
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="free">Gratuit</option>
+              <option value="paid">Payant</option>
+            </select>
+            </div>
+
+            {/* Filtre par type de fichier */}
+            <div>
+            <label className="block text-xs text-gray-600 mb-1 font-medium">
+              Type
+            </label>
+              <select
+                value={fileTypeFilter}
+                onChange={(e) => setFileTypeFilter(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+              >
+                <option value="">Tous les types</option>
+                <option value="PDF">PDF</option>
+                <option value="DOCX">DOCX</option>
+                <option value="PPTX">PPTX</option>
+                <option value="VIDEO">Vidéo</option>
+                <option value="IMAGE">Image</option>
+                <option value="LINK">Lien</option>
+              </select>
+            </div>
+
+
+
+          {/* Filtre par visibilité - Masqué pour les parents/élèves */}
+          {canModifyResources ? (
+            <div>
+              <label className="block text-xs text-gray-600 mb-1 font-medium">
+                Visibilité
+              </label>
+              <select
+                value={visibilityFilter}
+                onChange={(e) => setVisibilityFilter(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+              >
+                <option value="">Toutes les visibilités</option>
+                <option value="PRIVATE">Privé</option>
+                <option value="CLASS">Classe</option>
+                <option value="SCHOOL">École</option>
+              </select>
+            </div>
+          ) : (
+                         /* Bouton de réinitialisation pour les parents/élèves */
+            <div className="flex items-end">
+              <button
+                onClick={() => {
+                   setSearchTerm("");
+                  setFileTypeFilter("");
+                   setPaymentFilter("all");
+                }}
+                className="w-full px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Réinitialiser
+              </button>
+            </div>
+          )}
+
+                     {/* Bouton de réinitialisation pour les enseignants */}
+           {canModifyResources && (
+             <div className="flex items-end">
+            <button
+                 onClick={() => {
+                   setSearchTerm("");
+                   setFileTypeFilter("");
+                   setVisibilityFilter("");
+                   setPaymentFilter("all");
+                 }}
+                 className="w-full px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+               >
+                 Réinitialiser
+            </button>
+             </div>
+           )}
         </div>
 
         {/* Liste des ressources sous forme de lignes améliorée */}

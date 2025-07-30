@@ -117,10 +117,10 @@ export const mockParentData: ParentData = {
       }
     },
     { 
-      studentId: 'eleve-02', 
+      studentId: '2', 
       firstName: 'Moussa', 
       lastName: 'Keita', 
-      studentAvatar: '/path/to/avatar2.png',
+      studentAvatar: 'https://i.pravatar.cc/150?img=2',
       attendanceStatus: 'absent',
       notes: {
         'cp1-fr-orale': 35,

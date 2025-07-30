@@ -148,29 +148,160 @@ const Agenda: React.FC = () => {
         cursor: pointer;
       }
 
+      /* Styles pour les événements normaux */
       .fc-event.event-reunion { 
         border-color: #3b82f6; 
         background-color: rgba(59, 130, 246, 0.1);
         border-left-width: 4px;
         cursor: pointer;
+        color: #1e40af !important;
       }
       .fc-event.event-activite { 
         border-color: #8b5cf6; 
         background-color: rgba(139, 92, 246, 0.1);
         border-left-width: 4px;
         cursor: pointer;
+        color: #6b21a8 !important;
       }
       .fc-event.event-sportif { 
         border-color: #10b981; 
         background-color: rgba(16, 185, 129, 0.1);
         border-left-width: 4px;
         cursor: pointer;
+        color: #065f46 !important;
       }
       .fc-event.event-autre { 
         border-color: #6b7280; 
         background-color: rgba(107, 114, 128, 0.1);
         border-left-width: 4px;
         cursor: pointer;
+        color: #374151 !important;
+      }
+
+      /* Forcer la couleur de texte sombre pour tous les événements normaux */
+      .fc-event .fc-event-title,
+      .fc-event .fc-event-main,
+      .fc-event .fc-event-time,
+      .fc-event .fc-event-title-container {
+        color: inherit !important;
+      }
+
+      .fc-event * {
+        color: inherit !important;
+      }
+
+      /* Styles spécifiques pour les événements qui durent toute la journée */
+      .fc-daygrid-event {
+        font-weight: 600;
+        color: #1f2937 !important;
+        border-radius: 4px;
+        margin: 1px 2px;
+      }
+
+      .fc-daygrid-event.event-reunion {
+        background-color: #dbeafe !important;
+        border-color: #3b82f6 !important;
+        color: #1e40af !important;
+      }
+
+      .fc-daygrid-event.event-activite {
+        background-color: #e9d5ff !important;
+        border-color: #8b5cf6 !important;
+        color: #6b21a8 !important;
+      }
+
+      .fc-daygrid-event.event-sportif {
+        background-color: #d1fae5 !important;
+        border-color: #10b981 !important;
+        color: #065f46 !important;
+      }
+
+      .fc-daygrid-event.event-autre {
+        background-color: #f3f4f6 !important;
+        border-color: #6b7280 !important;
+        color: #374151 !important;
+      }
+
+      /* Forcer la couleur de texte sombre pour tous les événements allDay */
+      .fc-daygrid-event .fc-event-title,
+      .fc-daygrid-event .fc-event-main,
+      .fc-daygrid-event .fc-event-time,
+      .fc-daygrid-event .fc-event-title-container {
+        color: inherit !important;
+      }
+
+      /* S'assurer que le texte des événements allDay reste sombre */
+      .fc-daygrid-event * {
+        color: inherit !important;
+      }
+
+      /* Styles pour les événements allDay dans la vue semaine/mois */
+      .fc-daygrid-event-dot {
+        border-width: 3px;
+        border-radius: 50%;
+      }
+
+      .fc-daygrid-event-dot.event-reunion {
+        border-color: #3b82f6 !important;
+      }
+
+      .fc-daygrid-event-dot.event-activite {
+        border-color: #8b5cf6 !important;
+      }
+
+      .fc-daygrid-event-dot.event-sportif {
+        border-color: #10b981 !important;
+      }
+
+      .fc-daygrid-event-dot.event-autre {
+        border-color: #6b7280 !important;
+      }
+
+      /* Styles pour améliorer la lisibilité du texte des événements allDay */
+      .fc-daygrid-event {
+        font-size: 12px !important;
+        line-height: 1.2 !important;
+        padding: 2px 4px !important;
+        margin: 1px 2px !important;
+        border-radius: 3px !important;
+        font-weight: 500 !important;
+      }
+
+      /* Styles spécifiques pour les événements allDay dans la vue mois */
+      .fc-daygrid-day-events .fc-daygrid-event {
+        margin: 1px 0 !important;
+        border-radius: 2px !important;
+      }
+
+      /* Amélioration du contraste pour les événements allDay */
+      .fc-daygrid-event .fc-event-title {
+        color: inherit !important;
+        font-weight: 600 !important;
+      }
+
+      /* Styles pour les événements allDay dans la vue semaine */
+      .fc-timegrid-event {
+        font-weight: 500 !important;
+        border-radius: 4px !important;
+      }
+
+      /* Forcer la couleur de texte sombre pour les événements allDay dans la vue semaine */
+      .fc-timegrid-event .fc-event-title,
+      .fc-timegrid-event .fc-event-main,
+      .fc-timegrid-event .fc-event-time,
+      .fc-timegrid-event .fc-event-title-container {
+        color: inherit !important;
+      }
+
+      .fc-timegrid-event * {
+        color: inherit !important;
+      }
+
+      /* Amélioration de l'affichage des événements allDay */
+      .fc-daygrid-more-link {
+        color: #6b7280 !important;
+        font-weight: 500 !important;
+        font-size: 11px !important;
       }
       
       .fc-event-main { 
