@@ -31,17 +31,25 @@ const Sidebar = ({ role, isOpen }: SidebarProps) => {
       {currentMenu && (
         <nav className="space-y-2 pt-2">
             {currentMenu.map((item) => {
+              // Vérifier si l'onglet doit être actif en utilisant activePaths
+              const isActive = item.activePaths 
+                ? item.activePaths.some(path => {
+                    // Gérer les paramètres dynamiques (comme :remediationId)
+                    const pathPattern = path.replace(/:[^/]+/g, '[^/]+');
+                    const regex = new RegExp(`^${pathPattern}$`);
+                    return regex.test(location.pathname);
+                  })
+                : location.pathname === item.to;
+
               return (
                 <NavLink
                   key={item.titleKey}
                   to={item.to}
-                  className={({ isActive }) =>
-                    `flex items-center p-3 rounded-lg text-base transition-colors duration-200 ${
-                      isActive
-                        ? "bg-[#184867] text-white"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`
-                  }
+                  className={`flex items-center p-3 rounded-lg text-base transition-colors duration-200 ${
+                    isActive
+                      ? "bg-[#184867] text-white"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
                 >
                   {item.icon}
                   <span className="ml-3">{t(item.titleKey)}</span>

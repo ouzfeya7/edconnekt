@@ -25,13 +25,16 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification }) => 
   };
 
   return (
-    <div className="flex items-start space-x-3 py-2 border-b border-gray-100 last:border-b-0">
+    <Link 
+      to="/notifications" 
+      className="flex items-start space-x-3 py-3 px-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+    >
       <div className={cn("mt-1 w-2 h-2 rounded-full", !notification.read ? "bg-blue-500" : "bg-gray-300")}></div>
       <div className="flex-1">
         <p className="text-sm text-gray-700">{getNotificationMessage()}</p>
-        <p className="text-xs text-gray-400">{new Date(notification.date).toLocaleDateString()}</p>
+        <p className="text-xs text-gray-400 mt-1">{new Date(notification.date).toLocaleDateString()}</p>
       </div>
-    </div>
+    </Link>
   );
 };
 
@@ -45,7 +48,7 @@ const Notifications: React.FC = () => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-bold text-gray-800">{t('notifications', 'Notifications')}</h3>
         <Link to="/notifications" className="text-sm font-semibold text-blue-600 hover:underline">
           {t('see_all', 'Toutes voir')}
@@ -53,11 +56,16 @@ const Notifications: React.FC = () => {
       </div>
       <div className="flex-grow">
         {recentNotifications.length > 0 ? (
-          recentNotifications.map((notification) => (
-            <NotificationItem key={notification.id} notification={notification} />
-          ))
+          <div className="space-y-1">
+            {recentNotifications.map((notification) => (
+              <NotificationItem key={notification.id} notification={notification} />
+            ))}
+          </div>
         ) : (
-          <p className="text-sm text-gray-500 text-center mt-4">{t('notifications.no_new', 'Aucune nouvelle notification.')}</p>
+          <div className="text-center py-8">
+            <Bell className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-sm text-gray-500">{t('notifications.no_new', 'Aucune nouvelle notification.')}</p>
+          </div>
         )}
       </div>
     </div>

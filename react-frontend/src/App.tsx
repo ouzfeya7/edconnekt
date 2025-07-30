@@ -51,6 +51,7 @@ import CreateEventPage from './pages/CreateEventPage';
 import EmploiDuTemps from './pages/EmploiDuTemps';
 import ParentDashboard from "./pages/parents/ParentDashboard";
 import ParentRapportPage from "./pages/parents/ParentRapportPage"; // Importer la nouvelle page
+import ParentRemediationPage from "./pages/parents/ParentRemediationPage"; // Importer la page de remédiation
 import PaiementPage from './pages/PaiementPage';
 
 
@@ -127,6 +128,8 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   parent: [
     { path: "/", element: <ParentDashboard /> },
     { path: "/rapport", element: <ParentRapportPage /> },
+    { path: "/remediation", element: <ParentRemediationPage /> }, // Route pour la page de remédiation
+    { path: "/remediation/:remediationId", element: <RemediationDetailPage /> }, // Route pour la page de détail de remédiation
     { path: "/calendar", element: <Agenda /> },
     { path: "/agenda", element: <Agenda /> },
     { path: "/agenda/create", element: <CreateEventPage /> },

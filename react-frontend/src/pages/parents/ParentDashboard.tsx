@@ -14,7 +14,7 @@ import TrimesterAverages from '../../components/parents/TrimesterAverages';
 import UpcomingEvents from '../../components/parents/UpcomingEvents';
 import Notifications from '../../components/parents/Notifications';
 import { useEvents } from '../../contexts/EventContext'; // Importer le hook des événements
-import dayjs from 'dayjs';
+
 import { mockParentData } from '../../lib/mock-parent-data'; // Importer les données parent
 
 const ParentDashboard = () => {
@@ -61,8 +61,8 @@ const ParentDashboard = () => {
     setIsCompetenceModalOpen(false);
   };
 
-  const { events } = useEvents(); 
-  const todayEvents = events.filter(event => dayjs(event.start as string).isSame(dayjs(), 'day'));
+  const { getUpcomingEvents } = useEvents(); 
+  const upcomingEvents = getUpcomingEvents(3);
 
   return (
     <div className="bg-white min-h-screen p-4 md:p-6 space-y-6">
@@ -176,7 +176,7 @@ const ParentDashboard = () => {
               <TrimesterAverages selectedChild={selectedChild} />
           </div>
           <div className="lg:col-span-1">
-              <UpcomingEvents events={todayEvents} />
+              <UpcomingEvents events={upcomingEvents} />
           </div>
       </div>
 

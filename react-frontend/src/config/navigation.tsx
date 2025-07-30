@@ -12,6 +12,7 @@ export interface MenuItemType {
   to: string;
   icon: JSX.Element;
   hideInNavbar?: boolean; // Nouvelle propriété optionnelle
+  activePaths?: string[]; // Chemins pour lesquels l'onglet doit rester actif
 }
 
 export type Role = "enseignant" | "directeur" | "eleve" | "parent" | "administrateur" | "espaceFamille";
@@ -53,6 +54,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
       { titleKey: "home", to: "/", icon: <FaHome /> },
       { titleKey: "Notes", to: "/mes-notes", icon: <FaFileAlt /> },
       { titleKey: "Rapport", to: "/rapport", icon: <FaChartLine /> }, // Icône différencié
+      { titleKey: "Remediation", to: "/remediation", icon: <FaChalkboardTeacher />, activePaths: ["/remediation", "/remediation/:remediationId"] },
       { titleKey: "Ressources", to: "/ressources", icon: <FaBook /> },
       { titleKey: "Agenda", to: "/calendar", icon: <FaCalendarAlt /> },
       { titleKey: "Message", to: "/messages", icon: <FaEnvelope />, hideInNavbar: true },

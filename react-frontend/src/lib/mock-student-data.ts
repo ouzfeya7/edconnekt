@@ -788,7 +788,8 @@ export const getStudentAgendaEvents = () => [
     type: "evaluation" as const,
     color: "blue" as const,
     location: "Salle 12",
-    description: "Évaluation sur les fractions et les nombres décimaux"
+    description: "Évaluation sur les fractions et les nombres décimaux",
+    allDay: false
   },
   {
     id: 2,
@@ -799,7 +800,8 @@ export const getStudentAgendaEvents = () => [
     type: "meeting" as const,
     color: "green" as const,
     location: "Grande salle",
-    description: "Bilan trimestriel avec les parents"
+    description: "Bilan trimestriel avec les parents",
+    allDay: false
   },
   {
     id: 3,
@@ -810,6 +812,43 @@ export const getStudentAgendaEvents = () => [
     type: "activity" as const,
     color: "purple" as const,
     location: "Musée des Sciences",
-    description: "Visite guidée sur l'évolution et la biodiversité"
+    description: "Visite guidée sur l'évolution et la biodiversité",
+    allDay: false
+  },
+  {
+    id: 4,
+    title: "Journée portes ouvertes",
+    subject: "Général",
+    date: "Aujourd'hui",
+    fullDate: new Date().toISOString().split('T')[0] + 'T00:00:00.000Z', // Aujourd'hui à 00:00
+    type: "activity" as const,
+    color: "purple" as const,
+    location: "École",
+    description: "Journée portes ouvertes pour les futurs élèves",
+    allDay: true
+  },
+  {
+    id: 5,
+    title: "Congé de Pâques",
+    subject: "Général",
+    date: "Demain",
+    fullDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T00:00:00.000Z', // Demain à 00:00
+    type: "meeting" as const,
+    color: "green" as const,
+    location: "École fermée",
+    description: "Congé scolaire pour les vacances de Pâques",
+    allDay: true
+  },
+  {
+    id: 6,
+    title: "Examen blanc",
+    subject: "Toutes matières",
+    date: "Vendredi prochain",
+    fullDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T00:00:00.000Z', // Vendredi à 00:00
+    type: "evaluation" as const,
+    color: "blue" as const,
+    location: "Toutes les salles",
+    description: "Examen blanc pour préparer les évaluations finales",
+    allDay: true
   }
 ]; 
