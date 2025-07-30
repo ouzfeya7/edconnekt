@@ -7,7 +7,7 @@ import { getSubjectsForClass, Domain, Subject, Competence } from '../../lib/note
 interface CompetenceSelectorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onApply: (competence: { id: string; label: string }) => void;
+  onApply: (competence: { id: string; label: string } | null) => void;
   classId: string;
 }
 

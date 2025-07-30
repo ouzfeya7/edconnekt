@@ -1,106 +1,111 @@
-import React, { useState } from 'react';
-import ResourceCard from './ResourceCard'; // Importer le ResourceCard
+import React, { useState, useEffect } from 'react';
+import ResourceCard from './ResourceCard';
 import { useAuth } from '../../pages/authentification/useAuth';
 import { ActionCard } from '../ui/ActionCard';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2, Eye } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
-
-// Interface pour les ressources de la leçon
-interface Resource {
-  id: string;
-  title: string;
-  imageUrl: string;
-  fileCount: number;
-}
-
-// Interface pour le formulaire (plus détaillée)
-interface FormData {
-    id: string;
-    title: string;
-    subject: string;
-    description: string;
-    imageUrl: string;
-    fileCount: number;
-}
-
-// Composant de formulaire défini localement
-function AddResourceForm({ onAddResource, onClose }: { onAddResource: (resource: FormData) => void, onClose: () => void }) {
-  const [title, setTitle] = useState("");
-  const [subject, setSubject] = useState("");
-  const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newResource: FormData = {
-      id: Date.now().toString(),
-      title,
-      subject,
-      description,
-      imageUrl,
-      fileCount: 0,
-    };
-    onAddResource(newResource);
-    onClose();
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-1">
-      <h2 className="text-xl font-semibold mb-2 text-gray-700">Ajouter une nouvelle ressource</h2>
-      <input type="text" placeholder="Titre de la ressource" value={title} onChange={(e) => setTitle(e.target.value)} className="border p-2 rounded-md" required />
-      <input type="text" placeholder="Matière" value={subject} onChange={(e) => setSubject(e.target.value)} className="border p-2 rounded-md" required />
-      <textarea placeholder="Courte description" value={description} onChange={(e) => setDescription(e.target.value)} className="border p-2 rounded-md h-24" required />
-      <input type="text" placeholder="URL de l'image" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="border p-2 rounded-md" required />
-      <button type="submit" className="bg-orange-500 text-white px-4 py-2.5 rounded-md hover:bg-orange-600">Ajouter la ressource</button>
-    </form>
-  );
-}
+import ResourceAssociationModal from './ResourceAssociationModal';
+import { courseResourceService, CourseResource } from '../../services/courseResourceService';
 
 // Logique de rôle
 type Role = "enseignant" | "directeur" | "eleve" | "parent" | "administrateur" | "espaceFamille";
 const rolesPriority: Role[] = ["administrateur", "directeur", "enseignant", "eleve", "parent", "espaceFamille"];
 
 interface LessonResourcesSectionProps {
-  resources: Omit<Resource, 'fileCount'>[]; // Adapter le type entrant
-  onViewResource?: (resourceId: string) => void; // Callback pour la vue d'une ressource
+  courseId: string;
+  lessonId?: string;
+  onViewResource?: (resourceId: string) => void;
 }
 
 const LessonResourcesSection: React.FC<LessonResourcesSectionProps> = ({
-  resources: initialResources,
+  courseId,
+  lessonId,
   onViewResource,
 }) => {
   const { roles } = useAuth();
   const userRole = rolesPriority.find(r => roles.includes(r));
   
-  // Ajouter fileCount aux ressources initiales
-  const [resources, setResources] = useState<Resource[]>(
-    initialResources.map(r => ({ ...r, fileCount: 0 }))
-  );
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [resources, setResources] = useState<CourseResource[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const addResource = (newResource: FormData) => {
+  // Charger les ressources du cours/leçon
+  useEffect(() => {
+    const loadResources = async () => {
+      setIsLoading(true);
+      try {
+        let courseResources: CourseResource[];
+        if (lessonId) {
+          courseResources = await courseResourceService.getLessonResources(courseId, lessonId);
+        } else {
+          courseResources = await courseResourceService.getCourseResources(courseId);
+        }
+        setResources(courseResources);
+      } catch (error) {
+        console.error('Erreur lors du chargement des ressources:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadResources();
+  }, [courseId, lessonId]);
+
+  // Gérer l'ajout d'une nouvelle ressource
+  const handleResourceAssociated = (newResource: CourseResource) => {
     setResources(prev => [...prev, newResource]);
   };
+
+  // Gérer la suppression d'une ressource
+  const handleRemoveResource = async (resourceId: string) => {
+    try {
+      const success = await courseResourceService.removeResourceFromCourse(courseId, resourceId);
+      if (success) {
+        setResources(prev => prev.filter(r => r.resourceId !== resourceId));
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    }
+  };
+
+  const canModifyResources = userRole === 'enseignant' || userRole === 'directeur' || userRole === 'administrateur';
+
+  if (isLoading) {
+    return (
+      <section className="mb-6">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-xl font-semibold text-gray-800">Ressources</h3>
+        </div>
+        <div className="text-center py-8">
+          <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-gray-500 mt-2">Chargement des ressources...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="mb-6">
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-xl font-semibold text-gray-800">Ressources</h3>
-        {userRole === 'enseignant' && (
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        {canModifyResources && (
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogTrigger asChild>
               <div className="inline-block">
                 <ActionCard 
                   icon={<Plus className="text-orange-500 w-5 h-5" />} 
-                  label="Ajouter une ressource" 
-                  onClick={() => setIsDialogOpen(true)}
+                  label="Associer une ressource" 
+                  onClick={() => setIsModalOpen(true)}
                 />
               </div>
             </DialogTrigger>
             <DialogContent>
-              <AddResourceForm 
-                onAddResource={addResource} 
-                onClose={() => setIsDialogOpen(false)}
+              <ResourceAssociationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                courseId={courseId}
+                lessonId={lessonId}
+                onResourceAssociated={handleResourceAssociated}
               />
             </DialogContent>
           </Dialog>
@@ -108,17 +113,55 @@ const LessonResourcesSection: React.FC<LessonResourcesSectionProps> = ({
       </div>
       
       {resources.length === 0 ? (
-        userRole !== 'enseignant' && <p className="text-gray-500 text-sm">Aucune ressource pour cette leçon.</p>
+        <div className="text-center py-8">
+          <Eye className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+          <p className="text-gray-500 text-sm">
+            {canModifyResources 
+              ? "Aucune ressource associée à cette leçon. Cliquez sur 'Associer une ressource' pour commencer."
+              : "Aucune ressource pour cette leçon."
+            }
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {resources.map(resource => (
-            <ResourceCard 
-              key={resource.id}
-              title={resource.title}
-              imageUrl={resource.imageUrl}
-              fileCount={resource.fileCount}
-              onViewResource={onViewResource ? () => onViewResource(resource.id) : undefined}
-            />
+            <div key={resource.id} className="relative group">
+              <ResourceCard 
+                title={resource.title}
+                imageUrl={resource.imageUrl}
+                fileCount={1} // Chaque ressource a au moins un fichier
+                onViewResource={onViewResource ? () => onViewResource(resource.resourceId) : undefined}
+              />
+              
+              {/* Badge de visibilité */}
+              <div className="absolute top-2 right-2">
+                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                  resource.visibility === 'PRIVATE' ? 'bg-red-100 text-red-700' :
+                  resource.visibility === 'CLASS' ? 'bg-blue-100 text-blue-700' :
+                  'bg-green-100 text-green-700'
+                }`}>
+                  {resource.visibility === 'PRIVATE' ? 'Privé' :
+                   resource.visibility === 'CLASS' ? 'Classe' : 'École'}
+                </span>
+              </div>
+
+              {/* Bouton de suppression pour les enseignants */}
+              {canModifyResources && (
+                <button
+                  onClick={() => handleRemoveResource(resource.resourceId)}
+                  className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                  title="Retirer cette ressource"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              )}
+
+              {/* Informations supplémentaires */}
+              <div className="mt-2 text-xs text-gray-500">
+                <p>Ajouté par {resource.addedBy}</p>
+                <p>{new Date(resource.addedAt).toLocaleDateString('fr-FR')}</p>
+              </div>
+            </div>
           ))}
         </div>
       )}

@@ -32,6 +32,7 @@ import PdiSeancePage from "./pages/PdiSeancePage";
 import PdiDetailPage from "./pages/PdiDetailPage";
 import RessourceDetailPage from "./pages/RessourceDetailPage";
 import CreateResourcePage from "./pages/CreateResourcePage"; // Import the new page
+import FournituresPage from "./pages/FournituresPage"; // Import de la page fournitures
 
 import ArchivesPage from "./pages/ArchivesPage";
 import { JSX } from "react/jsx-runtime";
@@ -92,6 +93,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/devoirs/:devoirId", element: <EnseignantDevoirDetailPage /> },
     { path: "/evaluations", element: <Evaluations /> },
     { path: "/remediations/:remediationId", element: <RemediationDetailPage /> },
+    { path: "/fournitures", element: <FournituresPage /> },
     { path: "*", element: <NotFound /> }, // Utilisation de '*' pour le catch-all
   ],
   directeur: [
@@ -119,6 +121,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/mes-cours", element: <MesCoursPage /> },
     { path: "/mes-cours/:courseId", element: <CourseDetailPage /> },
     { path: "/lecons/:lessonId", element: <DetailLeconPage /> },
+    { path: "/fournitures", element: <FournituresPage /> },
     { path: "*", element: <NotFound /> },
   ],
   parent: [
@@ -135,6 +138,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/notifications", element: <MessageEnseignant /> },
     { path: "/ressources", element: <Ressource /> }, // Ajouter la route des ressources
     { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
+    { path: "/fournitures", element: <FournituresPage /> },
     { path: "*", element: <NotFound /> },
   ],
   administrateur: [
@@ -147,6 +151,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   espaceFamille: [
     { path: "/", element: <Accueil /> },
     { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
+    { path: "/fournitures", element: <FournituresPage /> },
     { path: "*", element: <NotFound /> },
     { path: "/profile", element: <ProfilePage /> },
   ],
