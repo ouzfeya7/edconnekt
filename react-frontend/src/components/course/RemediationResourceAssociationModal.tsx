@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
-import { Search, Upload, FileText, Plus, X, Eye, Users, Globe, Lock, DollarSign, Check } from 'lucide-react';
+import { Search, Upload, FileText, X, Eye, Users, Globe, Lock, DollarSign, Check } from 'lucide-react';
 import { useAuth } from '../../pages/authentification/useAuth';
 import { useAvailableResources, AvailableResource } from '../../hooks/useAvailableResources';
 import { useResources } from '../../contexts/ResourceContext';
@@ -465,8 +465,8 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
                     <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                     <p className="text-gray-600 mb-1">Cliquez pour sélectionner un fichier</p>
                     <p className="text-sm text-gray-500">PDF, DOC, PPT, Images, Vidéos (max 250MB)</p>
-                  </label>
-                </div>
+                  </label> 
+                </div> 
               ) : (
                 <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
                   <div className="flex items-center justify-between">

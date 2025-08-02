@@ -30,6 +30,7 @@ import DetailLeconPage from "./pages/eleves/DetailLeconPage";
 import MesCours from "./pages/enseignants/MesCoursPage";
 import PdiSeancePage from "./pages/PdiSeancePage";
 import PdiDetailPage from "./pages/PdiDetailPage";
+
 import RessourceDetailPage from "./pages/RessourceDetailPage";
 import CreateResourcePage from "./pages/CreateResourcePage"; // Import the new page
 import FournituresPage from "./pages/FournituresPage"; // Import de la page fournitures
