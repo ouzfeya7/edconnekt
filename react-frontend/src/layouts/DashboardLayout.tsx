@@ -6,6 +6,7 @@ import { Role } from "../config/navigation"; // Importer Role
 import { useAuth } from "../pages/authentification/useAuth";
 import ScrollToTop from "../components/layout/ScrollToTop";
 import { FilterProvider } from "../contexts/FilterContext";
+import SiteSpeakAIChatbot from "../components/chatbot/SiteSpeakAIChatbot";
 
 // Définir une structure pour les données de l'utilisateur
 export interface User {
@@ -139,6 +140,8 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
     );
   }
 
+
+
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gdark700">
       <div className="hidden lg:flex lg:flex-shrink-0">
@@ -165,6 +168,9 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
           </FilterProvider>
         </main>
       </div>
+
+      {/* Assistant IA SiteSpeakAI - Widget flottant */}
+      <SiteSpeakAIChatbot isFloating={true} />
     </div>
   );
 };

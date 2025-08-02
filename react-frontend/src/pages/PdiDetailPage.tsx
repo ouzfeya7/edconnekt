@@ -1,305 +1,329 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { mockFacilitators, pdiSessionStats, Facilitator } from '../lib/mock-data';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { mockFacilitators, Facilitator, mockPdiStudents, PdiStudent } from '../lib/mock-data';
 import { useFilters } from '../contexts/FilterContext';
 
 // Import des composants réutilisables
-import DateCard from '../components/Header/DateCard';
 import TrimestreCard from '../components/Header/TrimestreCard';
 import PdiCard from '../components/Header/PdiCard';
-import StatsCard from '../components/Header/StatsCard';
 import CircularProgress from '../components/ui/CircularProgress';
-import ClassTabs from '../components/pdi/ClassTabs';
 import {
-  Briefcase, MoreHorizontal, Filter, AlertTriangle, TrendingDown, TrendingUp, Users, FileText, Bell, Target, Check, Minus, ArrowRight, Download,
+  Briefcase, AlertTriangle, Users, FileText, Bell, Target, Check, 
+  TrendingDown, TrendingUp, Download, Share2, Clock, CheckCircle,
+  Calendar, Eye, EyeOff
 } from 'lucide-react';
 
-// Nouveaux imports pour le tableau et la toolbar
-import Toolbar from '../components/ui/Toolbar';
-import { mockPdiStudents, PdiStudent } from '../lib/mock-data';
-
-// Interface pour les données du tableau PDI amélioré
-interface PdiTableData {
+// Interface pour les données de séance PDI enrichie
+interface PdiSession {
   id: string;
-  student: PdiStudent;
-  needsAssistance: boolean;
+  date: string;
+  classId: string; // Ajout de l'identifiant de classe
+  className: string; // Ajout du nom de classe
+  status: 'completed' | 'in_progress' | 'scheduled';
+  students: PdiSessionStudent[];
+  observations: string;
+  reportGenerated: boolean;
+  reportShared: boolean;
+}
+
+interface PdiSessionStudent extends PdiStudent {
+  presence: 'present' | 'late' | 'absent';
+  observations?: string;
+  globalScore: number;
   difficultyLevel: 'critique' | 'modéré' | 'léger' | 'normal';
-  competencesEnDifficulte: string[];
-  scoreGlobal: number;
-  weeklyProgress: number; // Progression depuis la semaine dernière
-  alertes: Array<{
-    type: 'absence' | 'regression' | 'plateau' | 'attention_urgente';
+  needsAssistance: boolean;
+  alerts: Array<{
+    type: 'score_low' | 'regression' | 'absence' | 'attention_urgente';
     message: string;
     severity: 'high' | 'medium' | 'low';
   }>;
-
-  rapportGenere: boolean;
 }
 
-const PdiDetailPage: React.FC = () => {
-  const { facilitatorId } = useParams<{ facilitatorId: string }>();
-  const facilitator = mockFacilitators.find((f: Facilitator) => f.id === facilitatorId);
-
-  // États pour les filtres de l'en-tête
-  const { currentDate, currentTrimestre, setCurrentTrimestre } = useFilters();
-  const [pdi, setPdi] = useState('PDI 08-13');
+// Fonction pour transformer les données PdiStudent en PdiSessionStudent
+const transformPdiStudentToSessionStudent = (student: PdiStudent): PdiSessionStudent => {
+  // Calcul du score global
+  const scores = [student.langage, student.conte, student.vocabulaire, student.lecture, student.graphisme];
+  const globalScore = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
   
-  // États pour le tableau (recherche et pagination)
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filterLevel, setFilterLevel] = useState<'tous' | 'critique' | 'modéré' | 'léger' | 'alertes'>('tous');
-  const [showAlertsOnly, setShowAlertsOnly] = useState(false);
-  const itemsPerPage = 5;
-
-  if (!facilitator) {
-    return <div className="p-6">Facilitateur non trouvé.</div>;
+  // Déterminer le niveau de difficulté selon le système de l'école
+  let difficultyLevel: 'critique' | 'modéré' | 'léger' | 'normal';
+  let needsAssistance = false;
+  
+  if (globalScore < 30) {
+    difficultyLevel = 'critique';
+    needsAssistance = true;
+  } else if (globalScore < 50) {
+    difficultyLevel = 'modéré';
+    needsAssistance = true;
+  } else if (globalScore < 70) {
+    difficultyLevel = 'léger';
+    needsAssistance = true;
+  } else {
+    difficultyLevel = 'normal';
+    needsAssistance = false;
   }
-
-  const handleTabChange = (selectedClass: string) => {
-    console.log("Classe sélectionnée :", selectedClass);
-  };
-
-  // Fonction pour générer des alertes automatiques selon le système de l'école
-  const generateAlertes = (student: PdiStudent, scoreGlobal: number, competencesEnDifficulte: string[]) => {
-    const alertes = [];
-
-    // Alerte "Pas Réussi" - critique (0-30)
-    if (scoreGlobal < 30) {
-      alertes.push({
-        type: 'regression' as const,
-        message: 'Score critique - Pas Réussi',
+  
+  // Générer les alertes automatiques
+  const alerts = [];
+  if (globalScore < 30) {
+    alerts.push({
+      type: 'score_low' as const,
+      message: 'Score critique < 30%',
         severity: 'high' as const
       });
-    }
-
-    // Alerte "Peu Réussi" - plateau (30-50)
-    if (scoreGlobal >= 30 && scoreGlobal < 50) {
-      alertes.push({
-        type: 'plateau' as const,
-        message: 'Peu Réussi - Renforcement nécessaire',
+  } else if (globalScore < 70) {
+    alerts.push({
+      type: 'score_low' as const,
+      message: 'Score global < 70%',
         severity: 'medium' as const
       });
     }
 
-    // Alerte attention urgente pour multiples compétences en difficulté
+  // Vérifier les compétences en difficulté
+  const competencesEnDifficulte = [];
+  if (student.langage < 50) competencesEnDifficulte.push('Langage');
+  if (student.conte < 50) competencesEnDifficulte.push('Conte');
+  if (student.vocabulaire < 50) competencesEnDifficulte.push('Vocabulaire');
+  if (student.lecture < 50) competencesEnDifficulte.push('Lecture');
+  if (student.graphisme < 50) competencesEnDifficulte.push('Graphisme');
+  
     if (competencesEnDifficulte.length >= 3) {
-      alertes.push({
+    alerts.push({
         type: 'attention_urgente' as const,
         message: 'Intervention immédiate requise',
         severity: 'high' as const
       });
     }
 
-    return alertes;
+  return {
+    ...student,
+    presence: 'present' as const, // Par défaut présent
+    globalScore,
+    difficultyLevel,
+    needsAssistance,
+    alerts
   };
+};
 
-  // Fonction pour analyser les difficultés d'un élève avec suivi hebdomadaire
-  const analyzeStudentDifficulties = (student: PdiStudent): PdiTableData => {
-    const scores = [student.langage, student.conte, student.vocabulaire, student.lecture, student.graphisme];
-    const scoreGlobal = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
-    
-    // Seuils selon le système officiel de l'école
-    const seuilPasReussi = 30;      // 0-30: Pas Réussi (Rouge)
-    const seuilPeuReussi = 50;      // 30-50: Peu Réussi (Orange)
-    const seuilReussi = 70;         // 50-70: Réussi (Jaune)
-    const seuilBienReussi = 90;     // 70-90: Bien Réussi (Vert clair)
-    // 90-100: Très Bien Réussi (Vert foncé)
-    
-    const competencesEnDifficulte: string[] = [];
-    const scoresByCompetence = {
-      'Langage': student.langage,
-      'Conte': student.conte,
-      'Vocabulaire': student.vocabulaire,
-      'Lecture': student.lecture,
-      'Graphisme': student.graphisme
-    };
-
-    // Identifier les compétences en difficulté (< 50 = Peu/Pas Réussi)
-    Object.entries(scoresByCompetence).forEach(([competence, score]) => {
-      if (score < seuilPeuReussi) {
-        competencesEnDifficulte.push(competence);
-      }
-    });
-
-    // Déterminer le niveau de difficulté selon le système de l'école
-    let difficultyLevel: 'critique' | 'modéré' | 'léger' | 'normal';
-    let needsAssistance = false;
-
-    if (scoreGlobal < seuilPasReussi || competencesEnDifficulte.length >= 3) {
-      difficultyLevel = 'critique';    // Pas Réussi (0-30)
-      needsAssistance = true;
-    } else if (scoreGlobal < seuilPeuReussi || competencesEnDifficulte.length >= 2) {
-      difficultyLevel = 'modéré';      // Peu Réussi (30-50)
-      needsAssistance = true;
-    } else if (scoreGlobal < seuilReussi || competencesEnDifficulte.length >= 1) {
-      difficultyLevel = 'léger';       // Réussi mais à surveiller (50-70)
-      needsAssistance = true;
-    } else {
-      difficultyLevel = 'normal';      // Bien/Très Bien Réussi (70+)
-      needsAssistance = false;
-    }
-
-    // Génération des alertes automatiques
-    const alertes = generateAlertes(student, scoreGlobal, competencesEnDifficulte);
-
-    // Simulation de données de suivi hebdomadaire
-    const weeklyProgress = Math.round((Math.random() - 0.5) * 20); // -10 à +10
-    const rapportGenere = Math.random() < 0.7; // 70% ont un rapport généré
+// Créer les séances PDI avec les vraies données par classe
+const createPdiSessions = (facilitator: Facilitator): PdiSession[] => {
+  const sessionStudents = mockPdiStudents.map(transformPdiStudentToSessionStudent);
+  
+  // Dates fixes pour les mercredis (selon les spécifications)
+  const wednesdayDates = [
+    '30/07/2025', // PRESK 1
+    '23/07/2025', // PRESK 2
+    '16/07/2025', // CP1
+    '09/07/2025', // CP2
+    '02/07/2025'  // CE1
+  ];
+  
+  // Créer une séance par classe du facilitateur avec les dates de mercredi fixes
+  return facilitator.classes.map((className, index) => {
+    const sessionDate = wednesdayDates[index] || wednesdayDates[0]; // Fallback si plus de classes que de dates
 
     return {
-      id: student.id,
-      student,
-      needsAssistance,
-      difficultyLevel,
-      competencesEnDifficulte,
-      scoreGlobal,
-      weeklyProgress,
-      alertes,
-      rapportGenere
+      id: `${index + 1}`,
+      date: sessionDate,
+      classId: `class-${index + 1}`,
+      className: className,
+      status: 'completed' as const,
+      students: sessionStudents.slice(0, 3 + index), // Simuler différents nombres d'élèves par classe
+      observations: `Séance productive avec la classe ${className}. Une bonne participation générale. Quelques élèves nécessitent un suivi renforcé.`,
+      reportGenerated: index % 2 === 0, // Alterner les rapports générés
+      reportShared: index % 3 === 0 // Alterner les rapports partagés
     };
-  };
-
-  // Transformation des données avec analyse des difficultés
-  const analyzedStudents = mockPdiStudents.map(analyzeStudentDifficulties);
-
-  // Filtrage et pagination des élèves
-  const filteredStudents = analyzedStudents.filter(data => {
-    const matchesSearch = data.student.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterLevel === 'tous' || 
-                         (filterLevel === 'alertes' && data.alertes.length > 0) ||
-                         data.difficultyLevel === filterLevel;
-    const matchesAlerts = !showAlertsOnly || data.alertes.length > 0;
-    return matchesSearch && matchesFilter && matchesAlerts;
   });
+};
 
-  const paginatedStudents = filteredStudents.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+const PdiDetailPage: React.FC = () => {
+  const { facilitatorId } = useParams<{ facilitatorId: string }>();
+  const navigate = useNavigate();
+  const facilitator = mockFacilitators.find((f: Facilitator) => f.id === facilitatorId);
 
-  // Calcul des statistiques d'assistance
-  const studentsNeedingAssistance = analyzedStudents.filter(data => data.needsAssistance);
-  const criticalStudents = analyzedStudents.filter(data => data.difficultyLevel === 'critique');
-  const studentsWithAlerts = analyzedStudents.filter(data => data.alertes.length > 0);
-  const rapportsEnAttente = analyzedStudents.filter(data => !data.rapportGenere).length;
+  // États pour les filtres
+  const { currentTrimestre, setCurrentTrimestre } = useFilters();
+  const [pdi, setPdi] = useState('semaine-45'); // Semaine actuelle (21-25 Juil)
+  
+  // États pour la gestion des séances
+  const [sessions, setSessions] = useState<PdiSession[]>(facilitator ? createPdiSessions(facilitator) : []);
+  const [selectedSession, setSelectedSession] = useState<PdiSession | null>(sessions[0] || null);
+  const [activeTab, setActiveTab] = useState<'sessions' | 'presence' | 'difficulty' | 'observations' | 'report'>('sessions');
+  const [showWarning, setShowWarning] = useState(false);
 
-  // Fonction pour obtenir le style de ligne selon le niveau de difficulté
-  const getRowStyle = (difficultyLevel: string, hasAlerts: boolean) => {
-    switch (difficultyLevel) {
-      case 'critique':
-        return 'bg-white hover:bg-gray-50';
-      case 'modéré':
-        return 'bg-white hover:bg-gray-50';
-      case 'léger':
-        return 'bg-white hover:bg-gray-50';
-      default:
-        return 'bg-white hover:bg-gray-50';
+  // Validation de la règle de gestion : une seule séance par classe/semaine
+  useEffect(() => {
+    const validateSessions = () => {
+      if (!facilitator) return;
+      
+      // Vérifier s'il y a plusieurs séances pour la même classe dans la même semaine
+      const classSessions = sessions.filter(s => s.date === '31/07/2025'); // Simuler la même semaine
+      const classCounts = classSessions.reduce((acc, session) => {
+        acc[session.className] = (acc[session.className] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      const hasMultipleSessions = Object.values(classCounts).some(count => count > 1);
+      
+      if (hasMultipleSessions) {
+        setShowWarning(true);
+      }
+    };
+
+    validateSessions();
+  }, [sessions, pdi, currentTrimestre, facilitator]);
+
+  // Mettre à jour les sessions quand le facilitateur change
+  useEffect(() => {
+    if (facilitator) {
+      const newSessions = createPdiSessions(facilitator);
+      setSessions(newSessions);
+      setSelectedSession(newSessions[0] || null);
+    }
+  }, [facilitator]);
+
+  if (!facilitator) {
+    return <div className="p-6">Facilitateur non trouvé.</div>;
+  }
+
+  // Fonctions pour la gestion des séances
+  const handlePresenceChange = (studentId: string, presence: 'present' | 'late' | 'absent') => {
+    if (!selectedSession) return;
+    
+    setSelectedSession(prev => prev ? {
+      ...prev,
+      students: prev.students.map(student => 
+        student.id === studentId ? { ...student, presence } : student
+      )
+    } : null);
+  };
+
+  const handleObservationChange = (studentId: string, observation: string) => {
+    if (!selectedSession) return;
+    
+    setSelectedSession(prev => prev ? {
+      ...prev,
+      students: prev.students.map(student => 
+        student.id === studentId ? { ...student, observations: observation } : student
+      )
+    } : null);
+  };
+
+  const markAllPresent = () => {
+    if (!selectedSession) return;
+    
+    setSelectedSession(prev => prev ? {
+      ...prev,
+      students: prev.students.map(student => ({
+        ...student,
+        presence: 'present' as const
+      }))
+    } : null);
+  };
+
+  const generateReport = () => {
+    if (!selectedSession) return;
+    
+    setSelectedSession(prev => prev ? { ...prev, reportGenerated: true } : null);
+    // Logique de génération PDF
+  };
+
+  const shareWithParents = () => {
+    if (!selectedSession) return;
+    
+    if (selectedSession.reportShared) {
+      // Le rapport est déjà partagé - demander accord direction
+      if (window.confirm('Le rapport a déjà été partagé. Une nouvelle version nécessite l\'accord de la direction. Continuer ?')) {
+        // Logique pour demander accord direction
+        console.log('Demande d\'accord direction pour nouvelle version');
+      }
+    } else {
+      setSelectedSession(prev => prev ? { ...prev, reportShared: true } : null);
+      // Logique de notification parents
     }
   };
 
-  // Fonction pour obtenir le badge de difficulté selon le système de l'école
-  const getDifficultyBadge = (difficultyLevel: string) => {
-    switch (difficultyLevel) {
-      case 'critique':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-            <AlertTriangle size={12} />
-            Pas Réussi
-          </span>
-        );
-      case 'modéré':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-            <TrendingDown size={12} />
-            Peu Réussi
-          </span>
-        );
-      case 'léger':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-            <Check size={14} className="text-green-600" />
-            Réussi
-          </span>
-        );
+  // Fonctions utilitaires
+  const getPresenceIcon = (presence: string) => {
+    switch (presence) {
+      case 'present':
+        return <CheckCircle size={16} className="text-green-600" />;
+      case 'late':
+        return <Clock size={16} className="text-orange-600" />;
+      case 'absent':
+        return <AlertTriangle size={16} className="text-red-600" />;
       default:
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            Bien Réussi
-          </span>
-        );
+        return null;
     }
   };
 
-  // Fonction pour afficher les alertes
-  const renderAlertes = (alertes: PdiTableData['alertes']) => {
-    if (alertes.length === 0) return <span className="text-gray-400">Aucune</span>;
-    
-    return (
-      <div className="space-y-1">
-        {alertes.map((alerte, index) => (
-          <div key={index} className={`flex items-center gap-1 text-xs px-2 py-1 rounded ${
-            alerte.severity === 'high' ? 'bg-red-100 text-red-700' :
-            alerte.severity === 'medium' ? 'bg-orange-100 text-orange-700' :
-            'bg-yellow-100 text-yellow-700'
-          }`}>
-            <Bell size={10} />
-            <span>{alerte.message}</span>
-          </div>
-        ))}
-      </div>
-    );
+  const getDifficultyBadge = (level: string) => {
+    switch (level) {
+      case 'critique':
+        return <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Critique</span>;
+      case 'modéré':
+        return <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">Modéré</span>;
+      case 'léger':
+        return <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Léger</span>;
+      default:
+        return <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Normal</span>;
+    }
   };
 
-  // Fonction pour formatter les scores avec les couleurs officielles de l'école
-  const formatScoreWithColor = (score: number) => {
-    let colorClass = '';
-    if (score >= 90) colorClass = 'text-green-800 font-bold';        // Très Bien Réussi (90-100)
-    else if (score >= 70) colorClass = 'text-green-600 font-semibold'; // Bien Réussi (70-90)
-    else if (score >= 50) colorClass = 'text-yellow-600';              // Réussi (50-70)
-    else if (score >= 30) colorClass = 'text-orange-600 font-semibold'; // Peu Réussi (30-50)
-    else colorClass = 'text-red-600 font-bold';                       // Pas Réussi (0-30)
-    
-    return <span className={colorClass}>{score}%</span>;
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Terminée</span>;
+      case 'in_progress':
+        return <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">En cours</span>;
+      case 'scheduled':
+        return <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">Programmée</span>;
+      default:
+        return null;
+    }
   };
 
-  // Fonction pour afficher la progression hebdomadaire
-  const renderWeeklyProgress = (progress: number) => {
-    const isPositive = progress > 0;
-    const isNeutral = progress === 0;
-    
-    return (
-      <div className={`flex items-center gap-1 text-sm ${
-        isPositive ? 'text-green-600' : isNeutral ? 'text-gray-500' : 'text-red-600'
-      }`}>
-        {isPositive ? <TrendingUp size={14} /> : isNeutral ? null : <TrendingDown size={14} />}
-        <span>{isPositive ? '+' : ''}{progress}%</span>
-      </div>
-    );
-  };
+  // Calculs des statistiques
+  const studentsInDifficulty = selectedSession?.students.filter(s => s.needsAssistance) || [];
+  const criticalStudents = selectedSession?.students.filter(s => s.difficultyLevel === 'critique') || [];
+  const studentsWithAlerts = selectedSession?.students.filter(s => s.alerts.length > 0) || [];
+  const averageScore = selectedSession ? 
+    Math.round(selectedSession.students.reduce((sum, s) => sum + s.globalScore, 0) / selectedSession.students.length) : 0;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* Fil d'Ariane */}
       <div className="text-sm text-gray-500 mb-4">
-        <span>Séance PDI</span>
+        <span>Séances PDI</span>
         <span className="mx-2">/</span>
         <span className="text-gray-800 font-medium">{facilitator.name}</span>
       </div>
 
-      {/* En-tête avec filtres et stats générales */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <DateCard value={currentDate} onChange={() => {}} />
-          <TrimestreCard value={currentTrimestre} onChange={setCurrentTrimestre} />
-          <PdiCard value={pdi} onChange={setPdi} />
+      {/* Avertissement pour séances multiples */}
+      {showWarning && (
+        <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={20} className="text-orange-600" />
+            <div>
+              <h3 className="font-medium text-orange-800">Attention : Séances multiples détectées</h3>
+              <p className="text-sm text-orange-700">
+                Plusieurs séances PDI ont été créées pour la même classe cette semaine. 
+                Veuillez vérifier et consolider si nécessaire.
+              </p>
+            </div>
+            <button 
+              onClick={() => setShowWarning(false)}
+              className="ml-auto text-orange-600 hover:text-orange-800"
+            >
+              ×
+            </button>
+          </div>
         </div>
-        <StatsCard stats={pdiSessionStats} />
-      </div>
+      )}
 
-      {/* Section d'information du facilitateur (Améliorée) */}
+      {/* Section d'information du facilitateur */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6">
-        {/* En-tête du facilitateur */}
-        <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
+        <div className="flex flex-col sm:flex-row items-center gap-6">
           <img 
             src={facilitator.avatarUrl} 
             alt={facilitator.name} 
@@ -313,237 +337,299 @@ const PdiDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
-        
-        {/* Statistiques clés du facilitateur */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Stat 1: Moyenne de la classe */}
-          <div className="bg-gray-50/80 rounded-xl p-4 flex flex-col items-center justify-center border border-gray-200 text-center">
-            <p className="text-xs sm:text-sm text-gray-500 mb-2">Moyenne Classe</p>
-            <CircularProgress percentage={facilitator.stats.avg} />
           </div>
 
-          {/* Stat 2: Compétence acquise */}
-          <div className="bg-gray-50/80 rounded-xl p-4 flex flex-col items-center justify-center border border-gray-200 text-center">
-            <p className="text-xs sm:text-sm text-gray-500 mb-2">Comp. acquise</p>
-            <CircularProgress percentage={facilitator.stats.acquired} />
+      {/* En-tête avec filtres */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <TrimestreCard value={currentTrimestre} onChange={setCurrentTrimestre} />
+        <PdiCard value={pdi} onChange={setPdi} />
           </div>
 
-          {/* Stat 3: Compétence non acquise */}
-          <div className="bg-gray-50/80 rounded-xl p-4 flex flex-col items-center justify-center border border-gray-200 text-center">
-            <p className="text-xs sm:text-sm text-gray-500 mb-2">Comp. non acquise</p>
-            <CircularProgress percentage={facilitator.stats.notAcquired} />
+      {/* Onglets pour différentes vues */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8 px-6">
+            {[
+              { id: 'sessions', label: 'Mes Séances', icon: <Calendar size={16} /> },
+              { id: 'presence', label: 'Présence', icon: <Users size={16} /> },
+              { id: 'difficulty', label: 'Élèves en difficulté', icon: <AlertTriangle size={16} /> },
+              { id: 'observations', label: 'Observations', icon: <FileText size={16} /> },
+              { id: 'report', label: 'Rapport', icon: <Download size={16} /> }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-orange-500 text-orange-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </nav>
           </div>
           
-          {/* Stat 4: Élèves à remédier (mise en avant) */}
-          <div className="bg-red-50 rounded-xl p-4 flex flex-col items-center justify-center border border-red-200 text-center">
-            <p className="text-xs sm:text-sm text-red-600 font-semibold mb-1">À remédier</p>
-            <span className="text-4xl font-bold text-red-700">{facilitator.stats.remediation}</span>
+        <div className="p-6">
+          {/* F-01 : Liste des séances */}
+          {activeTab === 'sessions' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Mes Séances PDI</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {sessions.map(session => (
+                  <div 
+                    key={session.id} 
+                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                      selectedSession?.id === session.id 
+                        ? 'border-orange-500 bg-orange-50' 
+                        : 'border-gray-200 hover:border-orange-300'
+                    }`}
+                    onClick={() => setSelectedSession(session)}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h4 className="font-medium text-gray-800">{session.date}</h4>
+                        <span className="text-sm text-orange-600 font-medium">{session.className}</span>
           </div>
-        </div>
+                      {getStatusBadge(session.status)}
       </div>
 
-      {/* Tableau de bord PDI avec alertes intégrées */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        {/* Élèves nécessitant une assistance */}
-        <div className="bg-white rounded-lg shadow-sm border border-orange-200 p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Users className="w-4 h-4 text-orange-600" />
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Users size={14} />
+                        <span>{session.students.length} élèves</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Target size={14} />
+                        <span>Moyenne: {Math.round(session.students.reduce((sum, s) => sum + s.globalScore, 0) / session.students.length)}%</span>
             </div>
-            <div>
-              <p className="text-sm font-medium text-orange-800">À assister</p>
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle size={14} />
+                        <span>{session.students.filter(s => s.needsAssistance).length} en difficulté</span>
             </div>
-          </div>
-          <p className="text-2xl font-bold text-orange-700">{studentsNeedingAssistance.length}</p>
-           <p className="text-xs text-orange-600">scores &lt; 70 (besoin d'aide)</p>
          </div>
 
-         {/* Cas critiques */}
-         <div className="bg-white rounded-lg shadow-sm border border-red-200 p-4">
-           <div className="flex items-center gap-3 mb-2">
-             <div className="p-2 bg-red-100 rounded-lg">
-               <AlertTriangle className="w-4 h-4 text-red-600" />
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="text-xs text-gray-500">
+                        {session.reportGenerated ? (
+                          <span className="text-green-600 flex items-center gap-1">
+                            <FileText size={12} />
+                            Rapport généré
+                          </span>
+                        ) : (
+                          <span className="text-orange-600 flex items-center gap-1">
+                            <AlertTriangle size={12} />
+                            Rapport en attente
+                          </span>
+                        )}
              </div>
-             <div>
-               <p className="text-sm font-medium text-red-800">Pas Réussi</p>
+                      {session.reportShared && (
+                        <span className="text-xs text-blue-600 flex items-center gap-1">
+                          <Share2 size={12} />
+                          Partagé
+                        </span>
+                      )}
              </div>
            </div>
-           <p className="text-2xl font-bold text-red-700">{criticalStudents.length}</p>
-            <p className="text-xs text-red-600">score 0-30 (intervention urgente)</p>
+                ))}
            </div>
+            </div>
+          )}
 
-        {/* Alertes actives */}
-        <div className="bg-white rounded-lg shadow-sm border border-purple-200 p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Bell className="w-4 h-4 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-purple-800">Alertes actives</p>
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-purple-700">{studentsWithAlerts.length}</p>
-          <p className="text-xs text-purple-600">élèves avec alertes</p>
-        </div>
+          {/* F-04 : Saisie de présence */}
+          {activeTab === 'presence' && selectedSession && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Présence - {selectedSession.date}</h3>
+                  <p className="text-sm text-gray-600">Classe: {selectedSession.className}</p>
+                </div>
+                <button 
+                  onClick={markAllPresent}
+                  className="px-3 py-1 text-sm text-orange-600 hover:text-orange-700 font-medium"
+                >
+                  Marquer tous présents
+                </button>
+              </div>
 
-        {/* Rapports en attente */}
-        <div className="bg-white rounded-lg shadow-sm border border-blue-200 p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <FileText className="w-4 h-4 text-blue-600" />
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {selectedSession.students.map(student => (
+                  <div key={student.id} className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <img src={student.avatarUrl} alt={student.name} className="w-10 h-10 rounded-full" />
             <div>
-              <p className="text-sm font-medium text-blue-800">Rapports en attente</p>
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-blue-700">{rapportsEnAttente}</p>
-          <p className="text-xs text-blue-600">à générer cette semaine</p>
+                        <h4 className="font-medium text-gray-800">{student.name}</h4>
+                        <p className="text-sm text-gray-500">Score: {student.globalScore}%</p>
         </div>
       </div>
       
-      {/* Conteneur pour onglets, toolbar et tableau */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 pt-4">
-          <h3 className="text-xl font-semibold text-gray-800 mb-3">Élèves en difficulté</h3>
-      <ClassTabs classes={facilitator.classes} onTabChange={handleTabChange} />
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        {getPresenceIcon(student.presence)}
+                        <select
+                          value={student.presence}
+                          onChange={(e) => handlePresenceChange(student.id, e.target.value as 'present' | 'late' | 'absent')}
+                          className="text-sm border border-gray-300 rounded px-2 py-1"
+                        >
+                          <option value="present">Présent</option>
+                          <option value="late">Retard</option>
+                          <option value="absent">Absent</option>
+                        </select>
         </div>
 
-        <Toolbar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          searchPlaceholder="Rechercher un élève..."
-          showPagination={true}
-          currentPage={currentPage}
-          totalItems={filteredStudents.length}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
-          containerClassName="px-6"
-          rightActions={
-            <div className="flex items-center gap-2 sm:gap-4">
-              <select
-                value={filterLevel}
-                onChange={(e) => setFilterLevel(e.target.value as any)}
-                className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                <option value="tous">Tous les élèves</option>
-                <option value="alertes">Avec alertes</option>
-                <option value="critique">Pas Réussi (0-30)</option>
-                <option value="modéré">Peu Réussi (30-50)</option>
-                <option value="léger">Réussi (50-70)</option>
-              </select>
+                      <textarea
+                        placeholder="Observations..."
+                        value={student.observations || ''}
+                        onChange={(e) => handleObservationChange(student.id, e.target.value)}
+                        className="w-full text-sm border border-gray-300 rounded px-2 py-1 resize-none"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          }
-        />
-        
-        {/* Tableau PDI amélioré avec suivi hebdomadaire */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Élève & Score Global
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Compétences
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Progression Hebdo
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Niveau d'assistance
-                </th>
-                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                   Alertes intégrées
-                 </th>
-                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                   Rapport Hebdo
-                 </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {paginatedStudents.map((data) => (
-                <tr key={data.id} className={getRowStyle(data.difficultyLevel, data.alertes.length > 0)}>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <img className="h-10 w-10 rounded-full" src={data.student.avatarUrl} alt="" />
-                      </div>
-                      <div className="ml-3">
-                        <div className="text-sm font-medium text-gray-900">{data.student.name}</div>
-                        <div className="text-sm text-gray-500">Global: {formatScoreWithColor(data.scoreGlobal)}</div>
+          )}
+
+          {/* F-02 : Tableau "Élèves en difficulté" */}
+          {activeTab === 'difficulty' && selectedSession && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Élèves en difficulté - {selectedSession.date}</h3>
+                <p className="text-sm text-gray-600">Classe: {selectedSession.className}</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {selectedSession.students.filter(s => s.needsAssistance).map(student => (
+                  <div key={student.id} className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <img src={student.avatarUrl} alt={student.name} className="w-10 h-10 rounded-full" />
+                      <div>
+                        <h4 className="font-medium text-gray-800">{student.name}</h4>
+                        {getDifficultyBadge(student.difficultyLevel)}
                       </div>
                     </div>
-                  </td>
-                  <td className="px-4 py-4 text-xs">
-                    <div className="grid grid-cols-2 gap-1">
-                      <div>Lang: {formatScoreWithColor(data.student.langage)}</div>
-                      <div>Conte: {formatScoreWithColor(data.student.conte)}</div>
-                      <div>Vocab: {formatScoreWithColor(data.student.vocabulaire)}</div>
-                      <div>Lect: {formatScoreWithColor(data.student.lecture)}</div>
-                      <div className="col-span-2">Graph: {formatScoreWithColor(data.student.graphisme)}</div>
+                    
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">Score global: {student.globalScore}%</p>
+                      <div className="text-xs space-y-1">
+                        <p>Langage: {student.langage}%</p>
+                        <p>Conte: {student.conte}%</p>
+                        <p>Vocabulaire: {student.vocabulaire}%</p>
+                        <p>Lecture: {student.lecture}%</p>
+                        <p>Graphisme: {student.graphisme}%</p>
+                      </div>
                     </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    {renderWeeklyProgress(data.weeklyProgress)}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="space-y-1">
-                      {getDifficultyBadge(data.difficultyLevel)}
-                      {data.competencesEnDifficulte.length > 0 && (
-                        <div className="text-xs text-gray-600">
-                          {data.competencesEnDifficulte.join(', ')}
+                    
+                    {student.alerts.length > 0 && (
+                      <div className="mt-3 space-y-1">
+                        {student.alerts.map((alert, index) => (
+                          <div key={index} className={`text-xs px-2 py-1 rounded ${
+                            alert.severity === 'high' ? 'bg-red-100 text-red-700' :
+                            alert.severity === 'medium' ? 'bg-orange-100 text-orange-700' :
+                            'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            <Bell size={10} className="inline mr-1" />
+                            {alert.message}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div className="mt-3 flex gap-2">
+                      <button className="px-3 py-1 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200">
+                        Ajouter remédiation
+                      </button>
+                      <button className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                        Générer rapport
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* F-07 : Observations */}
+          {activeTab === 'observations' && selectedSession && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Observations - {selectedSession.date}</h3>
+                <p className="text-sm text-gray-600">Classe: {selectedSession.className}</p>
+              </div>
+              
+              <textarea
+                value={selectedSession.observations}
+                onChange={(e) => setSelectedSession(prev => prev ? { ...prev, observations: e.target.value } : null)}
+                placeholder="Décrivez les observations de cette séance PDI..."
+                className="w-full border border-gray-300 rounded-lg p-4 resize-none"
+                rows={8}
+              />
+              
+              <div className="flex gap-2">
+                <button className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
+                  Sauvegarder
+                </button>
+                <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                  Templates
+                </button>
+              </div>
                         </div>
                       )}
+
+          {/* F-05 & F-06 : Rapport hebdomadaire */}
+          {activeTab === 'report' && selectedSession && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Rapport hebdomadaire - {selectedSession.date}</h3>
+                  <p className="text-sm text-gray-600">Classe: {selectedSession.className}</p>
                     </div>
-                  </td>
-                                     <td className="px-4 py-4">
-                     {renderAlertes(data.alertes)}
-                   </td>
-                   <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="flex items-center justify-center">
-                      {data.rapportGenere ? (
+                <div className="flex gap-2">
+                  {!selectedSession.reportGenerated ? (
+                    <button
+                      onClick={generateReport}
+                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center gap-2"
+                    >
+                      <Download size={16} />
+                      Générer le rapport
+                    </button>
+                  ) : (
+                    <>
+                      <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2">
+                        <Download size={16} />
+                        Télécharger
+                      </button>
+                      {!selectedSession.reportShared && (
                         <button 
-                          className="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
-                          aria-label="Télécharger le rapport"
-                          title="Télécharger le rapport"
+                          onClick={shareWithParents}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
                         >
-                          <Download size={18} />
+                          <Share2 size={16} />
+                          Partager avec les parents
                         </button>
-                      ) : (
-                        <span className="text-gray-400 font-bold" aria-label="Rapport en attente">-</span>
+                      )}
+                    </>
                       )}
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
 
-        {/* Légende et informations PDI */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-          <div className="flex flex-wrap gap-2 text-xs">
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-2 bg-green-800 rounded"></div>
-              <span>Très Bien Réussi (90-100)</span>
+              {selectedSession.reportGenerated && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 text-green-800">
+                    <CheckCircle size={20} />
+                    <span className="font-medium">Rapport généré avec succès</span>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-2 bg-green-600 rounded"></div>
-              <span>Bien Réussi (70-90)</span>
+                  {selectedSession.reportShared && (
+                    <p className="text-green-700 text-sm mt-1">Parents notifiés automatiquement</p>
+                  )}
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-2 bg-yellow-500 rounded"></div>
-              <span>Réussi (50-70)</span>
+              )}
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-2 bg-orange-500 rounded"></div>
-              <span>Peu Réussi (30-50)</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-2 bg-red-500 rounded"></div>
-              <span>Pas Réussi (0-30)</span>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

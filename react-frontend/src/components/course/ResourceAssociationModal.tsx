@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
-import { Search, Upload, FileText, Plus, X, Eye, Users, Globe, Lock, DollarSign } from 'lucide-react';
+import { Search, Upload, FileText, X, Eye, Users, Globe, Lock, DollarSign } from 'lucide-react';
 import { courseResourceService, CourseResource } from '../../services/courseResourceService';
 import { useAuth } from '../../pages/authentification/useAuth';
 import { useAvailableResources, AvailableResource } from '../../hooks/useAvailableResources';
