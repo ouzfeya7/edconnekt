@@ -15,6 +15,37 @@ export interface Domain {
   subjects: Subject[];
 }
 
+// Types pour les données PDI
+export interface PdiCompetence {
+  id: string;
+  name: string;
+  currentScore: number;
+  weeklyEvolution: number;
+  teacherComment: string;
+  status: 'acquis' | 'en_cours' | 'a_renforcer';
+}
+
+export interface PdiSession {
+  sessionCode: string;
+  sessionDate: string;
+  trimester: number;
+  week: number;
+  competences: PdiCompetence[];
+  actionPlan: {
+    inClass: { action: string; description: string }[];
+    atHome: { action: string; description: string }[];
+    followUp: string;
+  };
+  attendance: {
+    total: number;
+    present: number;
+    late: number;
+    absent: number;
+    observations: string;
+  };
+  parentMessage: string;
+}
+
 export interface StudentNote {
   studentId: string;
   firstName: string;
@@ -31,6 +62,9 @@ export interface StudentNote {
       byEvaluationType?: {
           [evalType: string]: { date: string, progression: number }[]
       };
+  };
+  pdiSessions?: {
+    [sessionKey: string]: PdiSession;
   };
 }
 
