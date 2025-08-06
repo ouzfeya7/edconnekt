@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 export type NoteValue = number | 'absent' | 'non-evalue' | string | undefined | null;
 
 export interface NoteData {
-  id: string; // Corresponds à studentId
-  [key: string]: any; 
+  id: string; // Corresponds to studentId
+  [key: string]: NoteValue | string | number; 
 }
 
 export interface NoteColumn {

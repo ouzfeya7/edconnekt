@@ -112,7 +112,6 @@ const PdiCard: React.FC<PdiCardProps> = ({ value, onChange }) => {
   };
 
   const days = getDaysInMonth(currentMonth);
-  const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'];
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-full relative">

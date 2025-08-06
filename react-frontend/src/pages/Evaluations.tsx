@@ -7,7 +7,7 @@ import DevoirsSection from '../components/evaluations/DevoirsSection';
 import QuadrantChart from '../components/charts/QuadrantChart';
 import ProgressionChart from '../components/charts/ProgressionChart';
 import { Combobox } from '../components/ui/Combobox';
-import { mockDevoirs } from './gestionNotes/GestionDevoirsPage';
+import { getStudentAssignments, StudentAssignment } from '../lib/mock-student-data';
 import dayjs from 'dayjs';
 
 const initialEvaluationData = [
@@ -39,6 +39,24 @@ const progressionDataByStudent: ProgressionData = {
 };
 
 const studentOptions = Object.keys(progressionDataByStudent).map(name => ({ value: name, label: name }));
+
+const transformAssignmentToDevoir = (assignment: StudentAssignment): {
+  id: string;
+  title: string;
+  subject: string;
+  startDate: string;
+  endDate: string;
+  submitted: number;
+  notSubmitted: number;
+} => ({
+  id: assignment.id.toString(),
+  title: assignment.title,
+  subject: assignment.subject,
+  startDate: dayjs().format('DD MMMM YYYY'),
+  endDate: assignment.dueDate,
+  submitted: Math.floor(Math.random() * 20), // Valeur fictive
+  notSubmitted: 20 - Math.floor(Math.random() * 20), // Valeur fictive
+});
 
 const LegendItem = ({ color, text }: { color: string, text: string }) => (
     <div className="flex items-center space-x-2">
@@ -112,29 +130,39 @@ const Evaluations = () => {
   ];
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen text-gray-700">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        {t('evaluation', 'Evaluations')}
-      </h1>
+    <div className="bg-white min-h-screen p-4 md:p-6">
+      {/* En-tête avec design moderne */}
+      <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 shadow-sm border border-emerald-200/50 p-6">
+        {/* Motifs décoratifs */}
+        <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-500/15 rounded-full -translate-y-14 translate-x-14"></div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-teal-500/15 rounded-full translate-y-10 -translate-x-10"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-500/5 rounded-full"></div>
+        
+        <div className="relative">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">
+            {t('evaluation', 'Evaluations')}
+          </h1>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {actionButtons.map((btn, index) => <ActionCard key={index} {...btn} />)}
       </div>
 
-      <DevoirsSection devoirs={mockDevoirs.slice(0, 3)} />
+      <DevoirsSection devoirs={getStudentAssignments().slice(0, 3).map(transformAssignmentToDevoir)} />
 
       <div className="mt-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('evaluation_statistics', 'Statistiques des évaluations')}</h2>
+        <h2 className="text-xl font-bold text-slate-800 mb-6">{t('evaluation_statistics', 'Statistiques des évaluations')}</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Quadrant Chart Card */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
               <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold text-gray-800">Évaluations</h3>
+                  <h3 className="text-lg font-bold text-slate-800">Évaluations</h3>
                   <input
                     type="date"
                     value={dayjs(currentDate).format('YYYY-MM-DD')}
                     onChange={(e) => setCurrentDate(new Date(e.target.value))}
-                    className="border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   />
               </div>
               <div className="h-96 flex-grow">
@@ -148,9 +176,9 @@ const Evaluations = () => {
           </div>
 
           {/* Progression Chart Card */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
               <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold text-gray-800">Progression des compétences</h3>
+                  <h3 className="text-lg font-bold text-slate-800">Progression des compétences</h3>
                   <div className="flex gap-2">
                       <Combobox
                           options={studentOptions}

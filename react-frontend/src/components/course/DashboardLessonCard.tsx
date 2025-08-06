@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, User, BookOpen } from 'lucide-react';
+import { Clock, MapPin, Users } from 'lucide-react';
 
 interface DashboardLessonCardProps {
   id: string;
@@ -87,7 +87,7 @@ const DashboardLessonCard: React.FC<DashboardLessonCardProps> = ({
         </div>
         
         <div className="flex items-center gap-2 text-xs text-slate-600">
-          <User className="w-3 h-3" />
+          <Users className="w-3 h-3" />
           <span className="truncate">{teacher}</span>
         </div>
       </div>

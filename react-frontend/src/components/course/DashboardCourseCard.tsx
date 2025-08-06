@@ -1,5 +1,6 @@
 import React from 'react';
-import { Clock, User, Users, UserCheck } from 'lucide-react';
+import { BookOpen, Calendar, MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface DashboardCourseCardProps {
   subject: string;
@@ -14,18 +15,19 @@ interface DashboardCourseCardProps {
   remediationCount?: number;
 }
 
-const DashboardCourseCard: React.FC<DashboardCourseCardProps> = ({
+const DashboardCourseCard: React.FC<DashboardCourseCardProps> = ({ 
   subject,
   teacher,
   progress,
   status,
   nextLessonDate,
   onViewDetails,
-  title = "Résoudre une équation du second degrés",
-  time = "8H30 - 10H30",
-  presentCount = 1,
-  remediationCount = 1
+  title,
+  time,
+  presentCount,
+  remediationCount
 }) => {
+  const { t } = useTranslation();
   // Générer un avatar simple avec initiales
   const getTeacherInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();

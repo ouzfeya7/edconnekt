@@ -1,32 +1,60 @@
-import React from 'react';
-import { PlusCircle, Pencil, X, Calendar, Clock, Users } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { PlusCircle, Pencil, X, Calendar, Clock, Users, AlertTriangle, Search, Tag, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { SchoolEvent, formatDateHeader, getEventCategories } from './agenda_data';
+import { SchoolEvent, getEventCategories } from './agenda_data';
 import { useTranslation } from 'react-i18next';
 
 interface AgendaSidebarProps {
   groupedEvents: { [key: string]: SchoolEvent[] };
-  onAddEvent?: () => void; // Optionnel car on utilise la navigation directe
+  onAddEvent?: () => void;
   onEventClick: (date: string) => void;
-  onEditEvent?: (event: SchoolEvent) => void; // Optionnel car on utilise la navigation directe
+  onEditEvent?: (event: SchoolEvent) => void;
   onCloseSidebar?: () => void;
 }
 
 const AgendaSidebar: React.FC<AgendaSidebarProps> = ({ 
   groupedEvents, 
   onEventClick, 
+  onAddEvent,
+  onEditEvent,
   onCloseSidebar 
 }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isCompactView, setIsCompactView] = useState(false);
+  
   const eventCategories = getEventCategories(t);
+
+  const filteredEvents = useMemo(() => {
+    let events = Object.values(groupedEvents).flat();
+    
+    // Filtre par recherche
+    if (searchTerm) {
+      events = events.filter(event => 
+        (event.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+        (event.location && event.location.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+    
+    // Filtre par catégorie
+    if (selectedCategory) {
+      events = events.filter(event => event.category === selectedCategory);
+    }
+    
+    return events.sort((a, b) => 
+      new Date(a.start as string).getTime() - new Date(b.start as string).getTime()
+    );
+  }, [groupedEvents, searchTerm, selectedCategory]);
 
   const getEventIcon = (category: keyof typeof eventCategories) => {
     switch (category) {
-      case 'reunion': return <Users size={16} className="text-blue-600" />;
-      case 'activite': return <Calendar size={16} className="text-purple-600" />;
-      case 'sportif': return <Clock size={16} className="text-green-600" />;
-      default: return <Calendar size={16} className="text-gray-600" />;
+      case 'reunion': return <Users size={14} className="text-blue-600" />;
+      case 'activite': return <Calendar size={14} className="text-purple-600" />;
+      case 'sportif': return <Clock size={14} className="text-green-600" />;
+      case 'remediation': return <AlertTriangle size={14} className="text-red-600" />;
+      default: return <Tag size={14} className="text-gray-600" />;
     }
   };
 
@@ -35,176 +63,182 @@ const AgendaSidebar: React.FC<AgendaSidebarProps> = ({
       case 'reunion': return 'border-l-blue-500 bg-blue-50';
       case 'activite': return 'border-l-purple-500 bg-purple-50';
       case 'sportif': return 'border-l-green-500 bg-green-50';
+      case 'remediation': return 'border-l-red-500 bg-red-50';
       default: return 'border-l-gray-500 bg-gray-50';
     }
   };
 
   const handleAddEvent = () => {
-    navigate('/agenda/create');
+    if (onAddEvent) {
+      onAddEvent();
+    } else {
+      navigate('/agenda/create');
+    }
     if (onCloseSidebar) onCloseSidebar();
   };
 
   const handleEditEvent = (event: SchoolEvent) => {
-    navigate(`/agenda/edit/${event.id}`);
+    if (onEditEvent) {
+      onEditEvent(event);
+    } else {
+      navigate(`/agenda/edit/${event.id}`);
+    }
     if (onCloseSidebar) onCloseSidebar();
   };
 
   return (
     <div className="h-full bg-white border-r border-gray-200 flex flex-col shadow-sm">
       {/* En-tête */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold text-gray-900">{t('agenda_title', 'Mon Agenda')}</h1>
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-lg font-bold text-gray-900">{t('agenda_title', 'Mon Agenda')}</h1>
           {onCloseSidebar && (
             <button
               onClick={onCloseSidebar}
               className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <X size={20} className="text-gray-500" />
+              <X size={18} className="text-gray-500" />
             </button>
           )}
         </div>
         
         <button
           onClick={handleAddEvent}
-          className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
+          className="w-full bg-white border border-gray-300 hover:shadow-md text-gray-700 py-3 px-4 rounded-full flex items-center gap-3 font-medium transition-all duration-200 hover:bg-gray-50"
         >
-          <PlusCircle size={18} />
-          {t('add_event', 'Nouvel événement')}
+          <PlusCircle size={20} className="text-orange-500" />
+          <span>Nouvel événement</span>
         </button>
       </div>
 
-      {/* Navigation par catégories */}
-      <div className="p-4 border-b border-gray-200">
-        <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-          {t('categories', 'Catégories')}
-        </h3>
-        <div className="space-y-1">
-          {Object.entries(eventCategories).map(([key, category]) => {
-            const eventCount = Object.values(groupedEvents)
-              .flat()
-              .filter(event => event.category === key).length;
-            
-            return (
-              <div
-                key={key}
-                className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer group"
-              >
-                <div className="flex items-center gap-3">
-                  {getEventIcon(key as keyof typeof eventCategories)}
-                  <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                    {category.label}
-                  </span>
-                </div>
-                {eventCount > 0 && (
-                  <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                    {eventCount}
-                  </span>
-                )}
-              </div>
-            );
-          })}
+      {/* Barre de recherche avec filtre par catégorie */}
+      <div className="p-3 border-b border-gray-200">
+        <div className="space-y-2">
+          <div className="relative">
+            <Search size={14} className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-8 pr-3 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+            />
+          </div>
+          
+          {/* Filtre par catégorie - liste déroulante */}
+          <select
+            value={selectedCategory || ''}
+            onChange={(e) => setSelectedCategory(e.target.value || null)}
+            className="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm bg-white"
+          >
+            <option value="">Toutes les catégories</option>
+            {Object.entries(eventCategories).map(([key, category]) => {
+              const eventCount = Object.values(groupedEvents)
+                .flat()
+                .filter(event => event.category === key).length;
+              
+              return (
+                <option key={key} value={key}>
+                  {category.label} ({eventCount})
+                </option>
+              );
+            })}
+          </select>
         </div>
       </div>
 
-      {/* Liste des événements */}
+      {/* Liste des événements - avec plus d'espace */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4">
-          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-            {t('upcoming_events', 'Événements à venir')}
-          </h3>
+        <div className="p-3">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {t('upcoming_events', 'Événements à venir')}
+            </h3>
+            <button
+              onClick={() => setIsCompactView(!isCompactView)}
+              className="text-xs text-gray-500 hover:text-gray-700"
+            >
+              {isCompactView ? 'Vue étendue' : 'Vue compacte'}
+            </button>
+          </div>
           
-          {Object.keys(groupedEvents).length > 0 ? (
-            <div className="space-y-4">
-              {Object.keys(groupedEvents).map(dateKey => (
-                <div key={dateKey}>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2 sticky top-0 bg-white py-1">
-                    {formatDateHeader(dateKey, i18n.language)}
-                  </h4>
-                  <div className="space-y-2">
-                    {groupedEvents[dateKey].map(event => (
-                      <div
-                        key={event.id}
-                        onClick={() => onEventClick(event.start as string)}
-                        className={`
-                          border-l-4 rounded-r-lg p-3 cursor-pointer transition-all duration-200 hover:shadow-sm
-                          ${getCategoryColor(event.category)}
-                        `}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              {getEventIcon(event.category)}
-                              <h5 className="text-sm font-medium text-gray-900 truncate">
-                                {event.title}
-                              </h5>
-                            </div>
-                            
-                            <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
-                              <Clock size={12} />
-                              {event.allDay ? (
-                                <span>{t('all_day', 'Journée entière')}</span>
-                              ) : (
+          {filteredEvents.length > 0 ? (
+            <div className="space-y-2">
+              {filteredEvents.map(event => (
+                <div
+                  key={event.id}
+                  className={`p-3 rounded-lg border-l-4 transition-colors hover:shadow-sm cursor-pointer ${
+                    getCategoryColor(event.category)
+                  }`}
+                  onClick={() => onEventClick((event.start as string).slice(0, 10))}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        {getEventIcon(event.category)}
+                        <h4 className="text-sm font-medium text-gray-900 truncate">
+                          {event.title}
+                        </h4>
+                      </div>
+                      
+                      {!isCompactView && (
+                        <>
+                          <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
+                            <Calendar size={12} />
+                            <span>
+                              {new Date(event.start as string).toLocaleDateString(i18n.language, { 
+                                weekday: 'short', 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })}
+                            </span>
+                            {!event.allDay && (
+                              <>
+                                <Clock size={12} />
                                 <span>
-                                  {event.start ? 
-                                    new Date(event.start as string).toLocaleTimeString(i18n.language, { 
-                                      hour: '2-digit', 
-                                      minute: '2-digit' 
-                                    }) : ''
-                                  }
+                                  {new Date(event.start as string).toLocaleTimeString(i18n.language, { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                  })}
                                 </span>
-                              )}
-                            </div>
-
-                            {event.location && (
-                              <div className="text-xs text-gray-500 truncate">
-                                📍 {event.location}
-                              </div>
-                            )}
-
-                            {event.targetAudience && event.targetAudience.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mt-2">
-                                {event.targetAudience.slice(0, 2).map((audience, index) => (
-                                  <span
-                                    key={index}
-                                    className="text-xs bg-white bg-opacity-70 text-gray-600 px-2 py-1 rounded-full"
-                                  >
-                                    {audience}
-                                  </span>
-                                ))}
-                                {event.targetAudience.length > 2 && (
-                                  <span className="text-xs text-gray-500">
-                                    +{event.targetAudience.length - 2}
-                                  </span>
-                                )}
-                              </div>
+                              </>
                             )}
                           </div>
                           
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditEvent(event);
-                            }}
-                            className="p-1.5 hover:bg-white hover:bg-opacity-70 rounded-full transition-colors ml-2"
-                          >
-                            <Pencil size={14} className="text-gray-500 hover:text-gray-700" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                          {event.location && (
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <MapPin size={12} />
+                              <span className="truncate">{event.location}</span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditEvent(event);
+                      }}
+                      className="p-1 hover:bg-gray-200 rounded transition-colors opacity-0 group-hover:opacity-100"
+                      title="Modifier l'événement"
+                    >
+                      <Pencil size={12} className="text-gray-500" />
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="text-center py-8">
-              <Calendar size={48} className="text-gray-300 mx-auto mb-3" />
-              <p className="text-sm text-gray-500 mb-2">
-                {t('no_events_to_display', 'Aucun événement à afficher')}
-              </p>
-              <p className="text-xs text-gray-400">
-                {t('click_add_event', 'Cliquez sur "Nouvel événement" pour commencer')}
+              <div className="text-gray-400 mb-2">
+                <Calendar size={24} />
+              </div>
+              <p className="text-sm text-gray-500">
+                {searchTerm || selectedCategory 
+                  ? 'Aucun événement trouvé' 
+                  : 'Aucun événement à venir'
+                }
               </p>
             </div>
           )}

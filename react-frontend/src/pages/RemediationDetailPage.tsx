@@ -230,13 +230,7 @@ const RemediationDetailPage = () => {
     );
   }
 
-  const handleStatusChange = (studentId: string, newStatus: 'present' | 'absent' | 'late') => {
-    setStudents(currentStudents =>
-      currentStudents.map(student =>
-        student.id === studentId ? { ...student, status: newStatus } : student
-      )
-    );
-  };
+
 
   const handleGradeChange = (studentId: string, rawValue: string) => {
     const trimmedValue = rawValue.trim();
@@ -365,10 +359,9 @@ const RemediationDetailPage = () => {
       doc.text('RÉSULTATS DES ÉLÈVES', 25, startY);
       startY += 7;
 
-      const studentHeaders = ['Nom', 'Présence', 'Note initiale', 'Note remédiation', 'Progression', 'Compétence'];
+      const studentHeaders = ['Nom', 'Note initiale', 'Note remédiation', 'Progression', 'Compétence'];
       const studentRows = students.map(student => [
         student.name,
-        student.status === 'present' ? 'Présent' : student.status === 'absent' ? 'Absent' : 'Retard',
         student.initialGrade?.toString() || '-',
         student.remediationGrade?.toString() || '-',
         student.initialGrade && student.remediationGrade ? 
@@ -390,11 +383,10 @@ const RemediationDetailPage = () => {
          },
          columnStyles: {
            0: { cellWidth: 35 }, // Nom
-           1: { cellWidth: 25 }, // Présence
-           2: { cellWidth: 25 }, // Note initiale
-           3: { cellWidth: 30 }, // Note remédiation
-           4: { cellWidth: 25 }, // Progression
-           5: { cellWidth: 30 }  // Compétence
+           1: { cellWidth: 25 }, // Note initiale
+           2: { cellWidth: 30 }, // Note remédiation
+           3: { cellWidth: 25 }, // Progression
+           4: { cellWidth: 30 }  // Compétence
          }
        });
 
@@ -407,7 +399,7 @@ const RemediationDetailPage = () => {
       startY += 7;
 
       const stats = [
-        ['Élèves présents', `${studentsPresent}/${remediation.studentCount} (${Math.round((studentsPresent / remediation.studentCount) * 100)}%)`],
+        ['Élèves participants', `${studentsPresent}/${remediation.studentCount} (${Math.round((studentsPresent / remediation.studentCount) * 100)}%)`],
         ['Compétences acquises', `${competencesAcquired} élèves (${Math.round((competencesAcquired / studentsPresent) * 100)}%)`],
         ['Amélioration moyenne', `+${Math.round(averageImprovement)} points`],
         ['Score Moyen Session', `${remediation.pdiIntegration.competenceTracking.current}%`]
@@ -482,19 +474,19 @@ const RemediationDetailPage = () => {
 
 
 
-  // Calculs des statistiques
-  const studentsPresent = students.filter(s => s.status !== 'absent').length;
+  // Calculs des statistiques - ADAPTÉS SANS PRÉSENCE
+  const studentsPresent = students.length; // Tous les élèves sont considérés
   const competencesAcquired = students.filter(s => s.competenceAcquired).length;
   const averageImprovement = students
     .filter(s => s.remediationGrade && s.initialGrade)
     .reduce((acc, s) => acc + (s.remediationGrade! - s.initialGrade!), 0) / 
     students.filter(s => s.remediationGrade && s.initialGrade).length || 0;
     
-  // Calcul du Score Moyen des élèves présents
+  // Calcul du Score Moyen - ADAPTÉ SANS PRÉSENCE
   const averagePdiProgression = students
-    .filter(s => s.status === 'present' && s.remediationGrade)
+    .filter(s => s.remediationGrade)
     .reduce((acc, s) => acc + s.remediationGrade!, 0) /
-    (students.filter(s => s.status === 'present' && s.remediationGrade).length || 1);
+    (students.filter(s => s.remediationGrade).length || 1);
 
   // Fonction pour rendre l'onglet Méthode (vue parentale)
   const renderMethodTab = () => {
@@ -1373,7 +1365,6 @@ const RemediationDetailPage = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="text-left p-4 font-semibold text-slate-700">Élève</th>
-                      <th className="text-center p-4 font-semibold text-slate-700">Présence</th>
                       <th className="text-center p-4 font-semibold text-slate-700">Note initiale</th>
                       <th className="text-center p-4 font-semibold text-slate-700">Note remédiation</th>
                       <th className="text-center p-4 font-semibold text-slate-700">Progression</th>
@@ -1391,27 +1382,10 @@ const RemediationDetailPage = () => {
                           </div>
                         </td>
                         <td className="p-4 text-center">
-                          <select
-                            value={student.status}
-                            onChange={(e) => handleStatusChange(student.id, e.target.value as 'present' | 'absent' | 'late')}
-                            disabled={remediation.status !== 'in_progress'}
-                            className={`border-none text-center px-3 py-1 text-xs font-semibold rounded-full ${
-                              student.status === 'present' ? 'bg-green-100 text-green-800' :
-                              student.status === 'absent' ? 'bg-red-100 text-red-800' :
-                              'bg-amber-100 text-amber-800'
-                            } ${
-                              remediation.status !== 'in_progress'
-                                ? 'cursor-not-allowed opacity-70'
-                                : 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500'
-                            }`}
-                          >
-                            <option value="present">{t('present')}</option>
-                            <option value="absent">{t('absent')}</option>
-                            <option value="late">{t('late')}</option>
-                          </select>
+                          <span className="text-slate-700">{remediation.status === 'upcoming' ? '-' : (student.initialGrade ?? '-')}</span>
                         </td>
                         <td className="p-4 text-center">
-                          <span className="text-slate-700">{remediation.status === 'upcoming' ? '-' : (student.initialGrade ?? '-')}</span>
+                          <span className="text-slate-700">{remediation.status === 'upcoming' ? '-' : (student.remediationGrade ?? '-')}</span>
                         </td>
                         <td 
                           className={`p-4 text-center ${remediation.status === 'in_progress' ? 'cursor-pointer' : ''}`}
@@ -1879,17 +1853,17 @@ const RemediationDetailPage = () => {
                     />
                     <p className="text-xs text-slate-500 mt-1">en minutes</p>
                   </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Description de votre méthode</label>
-                  <textarea 
-                    name="description"
-                    placeholder="Décrivez comment vous avez aidé votre enfant..."
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                    required
-                  />
-                </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Description de votre méthode</label>
+                    <textarea 
+                      name="description"
+                      placeholder="Décrivez comment vous avez aidé votre enfant..."
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      required
+                    />
+                  </div>
 
                 <div className="flex justify-end space-x-3 pt-4">
                   <button 
@@ -1915,14 +1889,7 @@ const RemediationDetailPage = () => {
         </div>
         )}
 
-        {/* Modal d'association de ressources - pour tous les utilisateurs */}
-        <RemediationResourceAssociationModal
-          isOpen={isResourceModalOpen}
-          onClose={() => setIsResourceModalOpen(false)}
-          remediationId={remediationId || ''}
-          onResourceAssociated={handleResourceAssociated}
-          remediationSubject={remediation.subject}
-        />
+
 
       </div>
     </div>

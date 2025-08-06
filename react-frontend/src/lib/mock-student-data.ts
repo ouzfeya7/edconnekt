@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 // Données centralisées des élèves pour assurer la cohérence entre toutes les pages
 
 export interface StudentData {
@@ -848,7 +850,44 @@ export const getStudentAgendaEvents = () => [
     type: "evaluation" as const,
     color: "blue" as const,
     location: "Toutes les salles",
-    description: "Examen blanc pour préparer les évaluations finales",
+    description: "Examen blanc pour préparer les évaluations trimestrielles",
     allDay: true
+  },
+  // Événements de remédiation basés sur les vraies sessions de remédiation de mock-data.ts
+  {
+    id: 'rem1',
+    title: "Remédiation en lecture",
+    subject: "Français",
+    date: "Il y a 5 jours 14h00",
+    fullDate: dayjs().subtract(5, 'day').toISOString().split('T')[0] + 'T14:00:00.000Z',
+    type: "remediation" as const,
+    color: "red" as const,
+    location: "Salle de remédiation A",
+    description: "Fluidité de la lecture - Identifier les sons complexes (ou, on, an)",
+    allDay: false
+  },
+  {
+    id: 'rem3',
+    title: "Soutien en numération",
+    subject: "Mathématiques",
+    date: "Demain 15h30",
+    fullDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T15:30:00.000Z',
+    type: "remediation" as const,
+    color: "red" as const,
+    location: "Salle de mathématiques",
+    description: "Additionner des nombres à deux chiffres sans retenue",
+    allDay: false
+  },
+  {
+    id: 'rem4',
+    title: "Atelier d'écriture créative",
+    subject: "Français",
+    date: "Aujourd'hui 16h00",
+    fullDate: new Date().toISOString().split('T')[0] + 'T16:00:00.000Z',
+    type: "remediation" as const,
+    color: "red" as const,
+    location: "Salle de remédiation B",
+    description: "Rédiger une phrase simple en respectant l'ordre des mots",
+    allDay: false
   }
 ]; 

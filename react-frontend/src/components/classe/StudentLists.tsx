@@ -57,7 +57,7 @@ const StudentList: React.FC<StudentListProps> = ({ onStudentClick }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 mt-4">
+    <div className="bg-white rounded-2xl shadow-md p-6 mt-4 border border-gray-200">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-gray-800">{t('student_list')}</h2>
         <div className="flex items-center gap-4">
@@ -85,7 +85,7 @@ const StudentList: React.FC<StudentListProps> = ({ onStudentClick }) => {
       <div className="overflow-x-auto rounded-lg">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="text-gray-500 text-xs uppercase tracking-wide border-b">
+            <tr className="text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200">
               <th className="py-3 px-4 text-left">#</th>
               <th className="py-3 px-4 text-left">{t('photo', 'Photo')}</th>
               <th className="py-3 px-4 text-left">{t('last_name', 'Nom')}</th>
@@ -98,7 +98,7 @@ const StudentList: React.FC<StudentListProps> = ({ onStudentClick }) => {
             {paginatedStudents.map((student, idx) => (
               <tr
                 key={student.id}
-                className="border-b hover:bg-gray-100 transition cursor-pointer"
+                className="border-b border-gray-200 hover:bg-gray-100 transition cursor-pointer"
                 onClick={() => onStudentClick?.(student)}
               >
                 <td className="py-3 px-4 text-gray-700">
@@ -151,7 +151,7 @@ const StudentList: React.FC<StudentListProps> = ({ onStudentClick }) => {
       </div>
       
       {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-4 pt-4 border-t">
+        <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
           <span className="text-sm text-gray-700">
             {t('page_of', { currentPage, totalPages })}
           </span>

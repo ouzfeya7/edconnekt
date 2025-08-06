@@ -29,9 +29,17 @@ const PdiSeancePage: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-gray-800 mb-4">Séances PDI</h1>
-      
+    <div className="bg-white min-h-screen p-4 md:p-6">
+      {/* En-tête moderne décoratif */}
+      <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-purple-50 to-fuchsia-50 shadow-sm border border-purple-200/50 p-6">
+        {/* Motifs décoratifs */}
+        <div className="absolute top-0 right-0 w-28 h-28 bg-purple-500/15 rounded-full -translate-y-14 translate-x-14"></div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-fuchsia-500/15 rounded-full translate-y-10 -translate-x-10"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-purple-500/5 rounded-full"></div>
+        <div className="relative">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Séances PDI</h1>
+        </div>
+      </div>
       {/* En-tête avec filtres et nouvelles statistiques PDI */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

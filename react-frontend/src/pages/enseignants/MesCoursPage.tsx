@@ -91,21 +91,21 @@ const MesCours = () => {
   ];
 
   return (
-    <div className="p-6 bg-[#F5F7FA] min-h-screen">
-       <AddFicheModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onApply={handleAddFiche}
-      />
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">{t('my_courses')}</h1>
+    <div className="bg-white min-h-screen p-4 md:p-6">
+      {/* En-tête moderne décoratif */}
+      <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 shadow-sm border border-orange-200/50 p-6">
+        {/* Motifs décoratifs */}
+        <div className="absolute top-0 right-0 w-28 h-28 bg-orange-500/15 rounded-full -translate-y-14 translate-x-14"></div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-amber-500/15 rounded-full translate-y-10 -translate-x-10"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-orange-500/5 rounded-full"></div>
+        <div className="relative">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">{t('my_courses')}</h1>
+        </div>
       </div>
-
       {/* Action Buttons */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
         {actionButtons.map((btn, index) => <ActionCard key={index} {...btn} />)}
       </div>
-
       {/* Filters and Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -148,7 +148,7 @@ const MesCours = () => {
 
       {/* Remediation Section */}
       <div className="mt-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('remediation')}</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('remediations_of_the_day', 'Remédiations du jour')}</h2>
         <div className="grid md:grid-cols-3 gap-6">
           {remediations.map((remediation) => (
             <RemediationCard 

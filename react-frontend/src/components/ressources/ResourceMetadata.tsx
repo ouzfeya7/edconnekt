@@ -23,14 +23,17 @@ interface ResourceMetadataProps {
     version?: number;
     classId?: string;
   };
+  onUpdate?: () => void;
 }
 
-const ResourceMetadata: React.FC<ResourceMetadataProps> = ({ resource }) => {
+const ResourceMetadata: React.FC<ResourceMetadataProps> = ({ 
+  resource, 
+  onUpdate 
+}) => {
   const { t } = useTranslation();
-  const { roles } = useAuth();
+  const { user, roles } = useAuth();
   
   // Permissions : les parents/élèves voient moins d'informations
-  const isReadOnlyUser = roles.includes('parent') || roles.includes('eleve');
   const canViewDetailedMetadata = roles.includes('enseignant') || roles.includes('directeur') || roles.includes('administrateur');
 
   const formatFileSize = (bytes?: number): string => {

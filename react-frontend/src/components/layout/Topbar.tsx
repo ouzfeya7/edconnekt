@@ -1,7 +1,7 @@
 import { Bell, Menu, X, User as UserIcon, LogOut, Calendar } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useEvents } from "../events/EventContext";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { User } from "../../layouts/DashboardLayout";
 import Navbar from "./Navbar";
 import { Role } from "../../config/navigation";
@@ -39,6 +39,7 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
   const { t } = useTranslation();
   const { events } = useEvents();
   const { logout } = useAuth();
+  const location = useLocation();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -118,14 +119,25 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
       <div className="flex items-center gap-4">
         <LanguageSwitcher />
         <Link 
-          to="/emploi-du-temps" 
-          className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+          to="/calendar" 
+          className={`relative p-2 rounded-full transition-colors ${
+            location.pathname === '/calendar' 
+              ? 'bg-blue-100 text-blue-600' 
+              : 'hover:bg-gray-100 text-gray-700'
+          }`}
           title={t('schedule')}
         >
-          <Calendar className="h-6 w-6 text-gray-700" />
+          <Calendar className="h-6 w-6" />
         </Link>
-        <Link to="/messages" className="relative p-2 rounded-full hover:bg-gray-100">
-          <Bell className="h-6 w-6 text-gray-700" />
+        <Link 
+          to="/messages" 
+          className={`relative p-2 rounded-full transition-colors ${
+            location.pathname === '/messages' 
+              ? 'bg-blue-100 text-blue-600' 
+              : 'hover:bg-gray-100 text-gray-700'
+          }`}
+        >
+          <Bell className="h-6 w-6" />
           {events.length > 0 && (
              <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-red-500 border-2 border-white"></span>
           )}
