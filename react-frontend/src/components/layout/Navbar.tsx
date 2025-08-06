@@ -46,6 +46,9 @@ const Navbar = ({ role }: NavbarProps) => {
           } else if (item.to === '/ressources') {
             // Logique pour "Ressources" - actif pour la page principale et les pages de détails
             isActive = location.pathname.startsWith('/ressources');
+          } else if (item.to === '/fournitures') {
+            // Logique pour "Fournitures" - actif pour la page des fournitures
+            isActive = location.pathname.startsWith('/fournitures');
           } else {
             // Logique standard pour les autres routes
             isActive = location.pathname === item.to;

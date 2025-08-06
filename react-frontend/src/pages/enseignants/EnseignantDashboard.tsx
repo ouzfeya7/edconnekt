@@ -13,7 +13,7 @@ import { useStudents } from '../../contexts/StudentContext';
 import dayjs from 'dayjs';
 import { useFilters } from '../../contexts/FilterContext';
 import { useAuth } from '../authentification/useAuth';
-import AddFicheModal, { NewFicheData } from '../../components/course/AddFicheModal';
+
 
 // Import icons from lucide-react
 import { Plus, BarChart2, Mail, Calendar, Package } from 'lucide-react';
@@ -91,7 +91,6 @@ const Dashboard = () => {
   } = useFilters();
   
   const [chartData, setChartData] = useState(initialEvaluationData);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const [courses, setCourses] = useState<EnrichedCourse[]>([]);
   const [skillOptions, setSkillOptions] = useState<{ value: string, label: string }[]>([]);
@@ -150,37 +149,13 @@ const Dashboard = () => {
     }
   }, [selectedStudent, selectedSkill]);
 
-  const handleAddFiche = (data: NewFicheData) => {
-    const teacherName = user ? `${user.firstName} ${user.lastName}` : t('unknown_teacher', 'Enseignant non identifié');
-    const courseId = `course-${Date.now()}`;
-    const newCourse: EnrichedCourse = {
-      id: courseId,
-      subject: data.subject,
-      teacher: teacherName,
-      theme: "Nouveau cours",
-      title: data.title,
-      time: data.time,
-      progress: 0,
-      totalLessons: 10,
-      completedLessons: 0,
-      status: "upcoming" as const,
-      nextLessonDate: "À planifier",
-      classId: currentClasse,
-      domain: "Langues et Communication",
-      competences: [],
-      presentCount: 0,
-      remediationCount: 0,
-      onViewDetails: () => navigate(`/mes-cours/${courseId}`)
-    };
-    setCourses(prevCourses => [newCourse, ...prevCourses].slice(0, 4));
-    setIsModalOpen(false);
-  };
+
 
   const actionButtons = [
     {
-      icon: <Plus className="text-orange-500" />,
-      label: t('add_sheet', 'Ajouter une fiche'),
-      onClick: () => setIsModalOpen(true)
+      icon: <Package className="text-orange-500" />,
+      label: t('supplies', 'Fournitures'),
+      onClick: () => navigate('/fournitures')
     },
     {
       icon: <BarChart2 className="text-orange-500" />,
@@ -201,11 +176,6 @@ const Dashboard = () => {
 
   return (
     <div className="flex flex-col min-h-full bg-[#F5F7FA]">
-      <AddFicheModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onApply={handleAddFiche}
-      />
       
       {/* Header du thème avec style immersif - dans un conteneur avec padding comme l'emploi du temps */}
       <div className="p-4 md:p-6">
@@ -328,63 +298,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Section Gestion des fournitures */}
-        <div className="mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold text-lg text-gray-800">Gestion des fournitures</h3>
-            <button 
-              onClick={() => navigate('/fournitures')}
-              className="text-blue-600 text-sm font-medium hover:underline cursor-pointer"
-            >
-              {t('view_all', 'Voir tout')}
-            </button>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <Package className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <h4 className="font-semibold text-blue-800 mb-1">Fournitures de base</h4>
-                  <p className="text-sm text-blue-600">Cahiers, stylos, règles, etc.</p>
-                  <div className="mt-3 text-2xl font-bold text-blue-800">12</div>
-                  <p className="text-xs text-blue-600">articles</p>
-                </div>
-                
-                <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                  <Package className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                  <h4 className="font-semibold text-green-800 mb-1">Fournitures spécifiques</h4>
-                  <p className="text-sm text-green-600">Matériel pour activités spéciales</p>
-                  <div className="mt-3 text-2xl font-bold text-green-800">5</div>
-                  <p className="text-xs text-green-600">articles</p>
-                </div>
-                
-                <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-                  <Package className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                  <h4 className="font-semibold text-purple-800 mb-1">Total fournitures</h4>
-                  <p className="text-sm text-purple-600">Liste complète</p>
-                  <div className="mt-3 text-2xl font-bold text-purple-800">17</div>
-                  <p className="text-xs text-purple-600">articles</p>
-                </div>
-              </div>
-              
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h5 className="font-medium text-gray-800">Actions rapides</h5>
-                    <p className="text-sm text-gray-600">Gérez la liste des fournitures pour votre classe</p>
-                  </div>
-                  <button
-                    onClick={() => navigate('/fournitures')}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <Package className="w-4 h-4" />
-                    <span>Gérer les fournitures</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
   );

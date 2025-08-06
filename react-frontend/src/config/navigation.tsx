@@ -1,6 +1,6 @@
 import {
     FaHome, FaUsers, FaFileAlt, FaChalkboardTeacher,
-    FaCalendarAlt, FaEnvelope, FaUser, FaChartLine, FaBook, FaClipboardList
+    FaCalendarAlt, FaEnvelope, FaUser, FaChartLine, FaBook, FaClipboardList, FaBox
 } from "react-icons/fa";
 import { MdSettings } from "react-icons/md";
 import { JSX } from "react/jsx-runtime";
@@ -46,6 +46,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
       { titleKey: "my_courses", to: "/mes-cours", icon: <FaChalkboardTeacher /> },
       { titleKey: "Mes Notes", to: "/mes-notes", icon: <FaFileAlt /> },
       { titleKey: "Devoirs", to: "/devoirs", icon: <FaChalkboardTeacher /> },
+      { titleKey: "supplies", to: "/fournitures", icon: <FaBox /> },
       { titleKey: "Ressources", to: "/ressources", icon: <FaBook /> },
       { titleKey: "Agenda", to: "/calendar", icon: <FaCalendarAlt />, hideInNavbar: true },
       { titleKey: "Message", to: "/messages", icon: <FaEnvelope />, hideInNavbar: true },
@@ -56,6 +57,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
       { titleKey: "Notes", to: "/mes-notes", icon: <FaFileAlt /> },
       { titleKey: "Rapport", to: "/rapport", icon: <FaChartLine /> }, // Icône différencié
       { titleKey: "Remediation", to: "/remediation", icon: <FaChalkboardTeacher />, activePaths: ["/remediation", "/remediation/:remediationId"] },
+      { titleKey: "supplies", to: "/fournitures", icon: <FaBox /> },
       { titleKey: "Ressources", to: "/ressources", icon: <FaBook /> },
       { titleKey: "Agenda", to: "/calendar", icon: <FaCalendarAlt />, hideInNavbar: true },
       { titleKey: "Message", to: "/messages", icon: <FaEnvelope />, hideInNavbar: true },
