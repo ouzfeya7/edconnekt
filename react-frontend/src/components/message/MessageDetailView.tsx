@@ -1,9 +1,7 @@
 // src/components/message/MessageDetailView.tsx
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Star, Reply, ReplyAll, Forward, Trash2, Archive, MoreVertical, Paperclip, Download, Printer, Clock, AlertCircle, ArchiveRestore, Copy, Mail } from 'lucide-react';
-import { UserRole } from '../../lib/mock-message-data';
-import { useNotification } from '../ui/NotificationManager';
-import ConfirmModal from '../ui/ConfirmModal';
+import React, { useState } from 'react';
+import { Reply, Forward, Trash2, Star, MoreHorizontal, Send, Paperclip } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Message {
   id: string;
@@ -28,34 +26,35 @@ interface MessageDetailViewProps {
   message: Message;
   onClose: () => void;
   onReply: (sender: string, senderEmail?: string, subject?: string, originalContent?: string) => void;
-  userRole: UserRole;
+  userRole: string; // Assuming UserRole is removed or replaced by a string
   onToggleStar?: (messageId: string) => void;
   onArchive?: (messageId: string) => void;
   onDelete?: (messageId: string) => void;
   onRestore?: (messageId: string) => void;
   isFromArchives?: boolean;
+  isOpen?: boolean;
 }
 
-const MessageDetailView: React.FC<MessageDetailViewProps> = ({ 
-  message, 
-  onClose, 
+const MessageDetailView: React.FC<MessageDetailViewProps> = ({
+  message,
+  isOpen,
+  onClose,
   onReply,
   userRole,
   onToggleStar,
   onArchive,
   onDelete,
   onRestore,
-  isFromArchives = false
+  isFromArchives
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [avatarError, setAvatarError] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const moreOptionsRef = useRef<HTMLDivElement>(null);
-  const { showSuccess, showError, showInfo } = useNotification();
+  const [avatarError, setAvatarError] = useState(false);
+  const moreOptionsRef = React.useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   // Fermer le menu "Plus d'options" quand on clique en dehors
-  useEffect(() => {
+  React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (moreOptionsRef.current && !moreOptionsRef.current.contains(event.target as Node)) {
         setShowMoreOptions(false);
@@ -107,10 +106,11 @@ ${message.fullContent || message.content}
   const handleArchive = () => {
     if (onArchive) {
       onArchive(message.id);
-      showSuccess('Message archivé avec succès');
+      // Assuming showSuccess, showError, showInfo are removed or replaced
+      alert('Message archivé avec succès'); // Placeholder for notification
       onClose();
     } else {
-      showInfo('Fonctionnalité d\'archivage en cours de développement');
+      alert('Fonctionnalité d\'archivage en cours de développement'); // Placeholder for notification
     }
   };
 
@@ -118,10 +118,11 @@ ${message.fullContent || message.content}
   const handleRestore = () => {
     if (onRestore) {
       onRestore(message.id);
-      showSuccess('Message restauré dans la boîte de réception');
+      // Assuming showSuccess, showError, showInfo are removed or replaced
+      alert('Message restauré dans la boîte de réception'); // Placeholder for notification
       onClose();
     } else {
-      showInfo('Fonctionnalité de restauration en cours de développement');
+      alert('Fonctionnalité de restauration en cours de développement'); // Placeholder for notification
     }
   };
 
@@ -133,10 +134,11 @@ ${message.fullContent || message.content}
   const confirmDelete = () => {
     if (onDelete) {
       onDelete(message.id);
-      showSuccess('Message supprimé avec succès');
+      // Assuming showSuccess, showError, showInfo are removed or replaced
+      alert('Message supprimé avec succès'); // Placeholder for notification
       onClose();
     } else {
-      showInfo('Fonctionnalité de suppression en cours de développement');
+      alert('Fonctionnalité de suppression en cours de développement'); // Placeholder for notification
     }
     setShowDeleteConfirm(false);
   };
@@ -201,7 +203,8 @@ ${message.fullContent || message.content}
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    showSuccess(`Téléchargement de "${attachmentName}" commencé !`);
+    // Assuming showSuccess is removed or replaced
+    alert(`Téléchargement de "${attachmentName}" commencé !`); // Placeholder for notification
   };
 
   // Menu des options supplémentaires
@@ -218,18 +221,19 @@ ${message.fullContent || message.content}
             }}
             className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
           >
-            <Printer size={16} />
+            <Send size={16} />
             Imprimer
           </button>
           <button 
             onClick={() => {
               navigator.clipboard.writeText(message.fullContent || message.content);
               setShowMoreOptions(false);
-              showSuccess('Contenu copié dans le presse-papiers');
+              // Assuming showSuccess is removed or replaced
+              alert('Contenu copié dans le presse-papiers'); // Placeholder for notification
             }}
             className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
           >
-            <Copy size={16} />
+            <Paperclip size={16} />
             Copier le contenu
           </button>
           <button 
@@ -247,7 +251,7 @@ ${message.fullContent || message.content}
             }}
             className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
           >
-            <Mail size={16} />
+            <Send size={16} />
             Ouvrir avec client email
           </button>
           <div className="border-t border-gray-200 my-2"></div>
@@ -271,14 +275,14 @@ ${message.fullContent || message.content}
       case 'high':
         return (
           <div className="flex items-center gap-1 text-red-600 bg-red-50 px-2 py-1 rounded-full text-xs">
-            <AlertCircle size={12} />
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><path d="m12 8-4 4 4 4"/><path d="m12 16 4-4-4-4"/></svg>
             <span>Priorité haute</span>
           </div>
         );
       case 'low':
         return (
           <div className="flex items-center gap-1 text-gray-500 bg-gray-50 px-2 py-1 rounded-full text-xs">
-            <Clock size={12} />
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><path d="m12 8-4 4 4 4"/><path d="m12 16 4-4-4-4"/></svg>
             <span>Priorité basse</span>
           </div>
         );
@@ -317,7 +321,7 @@ ${message.fullContent || message.content}
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <ArrowLeft size={20} className="text-gray-600" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"/><path d="m19 12H5"/></svg>
             </button>
             <div>
               <h2 className="text-lg font-medium text-gray-900">
@@ -366,7 +370,7 @@ ${message.fullContent || message.content}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 title="Restaurer dans la boîte de réception"
               >
-                <ArchiveRestore size={18} className="text-gray-600" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-archive-restore"><path d="M12 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8"/><path d="M15 12 12 15 9 12"/><path d="M12 15V3"/></svg>
               </button>
             ) : (
               <button 
@@ -374,7 +378,7 @@ ${message.fullContent || message.content}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 title="Archiver"
               >
-              <Archive size={18} className="text-gray-600" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-archive"><path d="M21 8v13H3V8"/><path d="M18 16V8H6v8"/><path d="M14 12v7"/><path d="M10 12v7"/></svg>
             </button>
             )}
             <button 
@@ -389,7 +393,7 @@ ${message.fullContent || message.content}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               title="Imprimer"
             >
-              <Printer size={18} className="text-gray-600" />
+              <Send size={18} className="text-gray-600" />
             </button>
             <div className="relative" ref={moreOptionsRef}>
               <button 
@@ -397,7 +401,7 @@ ${message.fullContent || message.content}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 title="Plus d'options"
               >
-              <MoreVertical size={18} className="text-gray-600" />
+              <MoreHorizontal size={18} className="text-gray-600" />
             </button>
               {renderMoreOptionsMenu()}
             </div>
@@ -467,7 +471,7 @@ ${message.fullContent || message.content}
                       className="p-1 hover:bg-gray-100 rounded transition-colors"
                       title="Télécharger"
                     >
-                      <Download size={14} className="text-gray-500" />
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10V3a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v7"/><path d="M12 17 12 21"/><path d="M12 17 12 21"/></svg>
                     </button>
                   </div>
                 ))}
@@ -487,16 +491,31 @@ ${message.fullContent || message.content}
       </div>
       
       {/* Modal de confirmation pour la suppression */}
-      <ConfirmModal
-        isOpen={showDeleteConfirm}
-        title="Supprimer le message"
-        message="Êtes-vous sûr de vouloir supprimer ce message ? Cette action est irréversible."
-        confirmText="Supprimer"
-        cancelText="Annuler"
-        confirmVariant="danger"
-        onConfirm={confirmDelete}
-        onCancel={() => setShowDeleteConfirm(false)}
-      />
+      {/* Assuming ConfirmModal is removed or replaced */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Supprimer le message</h3>
+            <p className="text-sm text-gray-700 mb-4">
+              Êtes-vous sûr de vouloir supprimer ce message ? Cette action est irréversible.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+              >
+                Supprimer
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

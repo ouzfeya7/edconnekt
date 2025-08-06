@@ -411,7 +411,7 @@ const TrimestrielleView: React.FC<TrimestrielleViewProps> = ({ role, selectedChi
         const doc = new jsPDF() as jsPDFWithAutoTable;
         const title = `Bulletin Trimestriel - ${activeSubject.name}`;
         const studentName = role === 'parent' ? `${studentData.firstName} ${studentData.lastName}` : user.name;
-        let startY = addPdfHeader(doc, currentClasse, title, studentName);
+        const startY = addPdfHeader(doc, currentClasse, title, studentName);
 
         const tableBody = activeSubject.competences.map(c => {
             const noteValue = studentData.notes[c.id];

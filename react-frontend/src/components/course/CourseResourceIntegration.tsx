@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Calendar, BookOpen, Plus, Link, ExternalLink } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, X, Search, BookOpen, Users, Eye, EyeOff, ExternalLink, Calendar } from 'lucide-react';
 import { useAuth } from '../../pages/authentification/useAuth';
 import ResourceAssociationModal from './ResourceAssociationModal';
 import { courseResourceService, CourseResource } from '../../services/courseResourceService';
@@ -24,7 +24,7 @@ const CourseResourceIntegration: React.FC<CourseResourceIntegrationProps> = ({
   const canModifyResources = roles.includes('enseignant') || roles.includes('directeur') || roles.includes('administrateur');
 
   // Charger les ressources récentes du cours
-  React.useEffect(() => {
+  useEffect(() => {
     const loadRecentResources = async () => {
       try {
         const resources = await courseResourceService.getCourseResources(courseId);
@@ -50,13 +50,14 @@ const CourseResourceIntegration: React.FC<CourseResourceIntegrationProps> = ({
     }
   };
 
-  const getVisibilityLabel = (visibility: string) => {
-    switch (visibility) {
-      case 'PRIVATE': return 'Privé';
-      case 'CLASS': return 'Classe';
-      case 'SCHOOL': return 'École';
-      default: return 'Inconnu';
-    }
+  const handleVisibilityChange = (resourceId: string, newVisibility: 'PRIVATE' | 'CLASS' | 'SCHOOL') => {
+    setRecentResources(prev => 
+      prev.map(resource => 
+        resource.id === resourceId 
+          ? { ...resource, visibility: newVisibility }
+          : resource
+      )
+    );
   };
 
   return (

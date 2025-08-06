@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dialog } from '@headlessui/react';
-import { Calendar, MapPin, Users, Clock, FileText, X, Tag, Edit } from 'lucide-react';
+import { Calendar, MapPin, Users, Clock, FileText, X, Tag, Edit, BookOpen, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SchoolEvent, getEventCategories } from './agenda_data';
 import { useTranslation } from 'react-i18next';
@@ -25,11 +25,19 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ isOpen, onClose, 
     onClose();
   };
 
+  const handleViewRemediationDetails = () => {
+    // Naviguer vers la page de détails de remédiation
+    // On peut utiliser l'ID de l'événement ou chercher la session correspondante
+    navigate(`/remediation/${event.id}`);
+    onClose();
+  };
+
   const getCategoryIcon = (category: keyof typeof eventCategories) => {
     switch (category) {
       case 'reunion': return <Users size={16} className="text-blue-600" />;
       case 'activite': return <Calendar size={16} className="text-purple-600" />;
       case 'sportif': return <Clock size={16} className="text-green-600" />;
+      case 'remediation': return <BookOpen size={16} className="text-rose-600" />;
       default: return <Tag size={16} className="text-gray-600" />;
     }
   };
@@ -39,6 +47,7 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ isOpen, onClose, 
       case 'reunion': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'activite': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'sportif': return 'bg-green-100 text-green-800 border-green-200';
+      case 'remediation': return 'bg-rose-100 text-rose-700 border-rose-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -158,6 +167,31 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ isOpen, onClose, 
                 </div>
               </div>
             )}
+
+            {/* Section spéciale pour les remédiations */}
+            {event.category === 'remediation' && (
+              <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-rose-100 rounded-lg">
+                    <BookOpen size={18} className="text-rose-600" />
+                  </div>
+                  <h3 className="font-semibold text-rose-800">Session de remédiation</h3>
+                </div>
+                <p className="text-rose-700 text-sm mb-4">
+                  Cette session de remédiation est conçue pour aider les élèves en difficulté. 
+                  Consultez les détails complets pour voir les méthodes utilisées, les ressources disponibles 
+                  et le suivi des progrès.
+                </p>
+                <button
+                  onClick={handleViewRemediationDetails}
+                  className="w-full px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <BookOpen size={16} />
+                  Voir les détails de la remédiation
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Actions */}
@@ -165,14 +199,14 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ isOpen, onClose, 
             <div className="flex justify-between">
               <button 
                 onClick={handleEditEvent}
-                className="px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
+                className="px-6 py-2 bg-white border border-gray-300 hover:shadow-md text-gray-700 font-medium rounded-full transition-all duration-200 hover:bg-gray-50 flex items-center gap-2"
               >
                 <Edit size={16} />
                 {t('edit', 'Modifier')}
               </button>
               <button 
                 onClick={onClose} 
-                className="px-6 py-2 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg border border-gray-300 transition-colors"
+                className="px-6 py-2 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-full border border-gray-300 transition-colors"
               >
                 {t('close', 'Fermer')}
               </button>

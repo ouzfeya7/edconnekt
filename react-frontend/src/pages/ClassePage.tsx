@@ -57,9 +57,17 @@ const ClassePage = () => {
   };
 
   return (
-    <div className="flex-1 p-6 overflow-auto bg-[#F5F7FA]">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">{t('my_classes')}</h1>
-      
+    <div className="bg-white min-h-screen p-4 md:p-6">
+      {/* En-tête moderne décoratif */}
+      <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 shadow-sm border border-blue-200/50 p-6">
+        {/* Motifs décoratifs */}
+        <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/15 rounded-full -translate-y-14 translate-x-14"></div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-cyan-500/15 rounded-full translate-y-10 -translate-x-10"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-500/5 rounded-full"></div>
+        <div className="relative">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">{t('my_classes')}</h1>
+        </div>
+      </div>
       {/* Grille principale pour la mise en page en deux colonnes */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
         

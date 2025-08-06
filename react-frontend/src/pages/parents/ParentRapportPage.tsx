@@ -446,7 +446,7 @@ const ParentRapportPage: React.FC = () => {
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">Rapport PDI - Séance</h1>
               <p className="text-slate-600">Consultez les progrès de votre enfant lors des séances PDI</p>
-            </div>
+          </div>
             <button onClick={handleDownloadPdf} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
               <Download className="w-4 h-4" />
               Télécharger PDF

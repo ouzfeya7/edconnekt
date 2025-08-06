@@ -9,19 +9,18 @@ interface CalendarHeaderProps {
   onNext: () => void;
   onToday: () => void;
   onViewChange: (view: string) => void;
-  onToggleSidebar?: () => void;
+  onToggleSidebar: () => void;
   isSidebarOpen?: boolean;
 }
 
-const CalendarHeader: React.FC<CalendarHeaderProps> = ({ 
-  title, 
-  currentView, 
-  onPrev, 
-  onNext, 
-  onToday, 
+const CalendarHeader: React.FC<CalendarHeaderProps> = ({
+  title,
+  currentView,
+  onPrev,
+  onNext,
+  onToday,
   onViewChange,
-  onToggleSidebar,
-  isSidebarOpen 
+  onToggleSidebar
 }) => {
   const { t } = useTranslation();
   

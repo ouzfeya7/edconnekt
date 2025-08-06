@@ -12,7 +12,7 @@ interface ResourceVersionsProps {
 
 const ResourceVersions: React.FC<ResourceVersionsProps> = ({ resourceId, resourceTitle }) => {
   const { t } = useTranslation();
-  const { getVersionsByResourceId, addVersion } = useResources();
+  const { getVersionsByResourceId } = useResources();
   const { roles } = useAuth();
   
   // Permissions : seuls les enseignants et admin peuvent voir les versions

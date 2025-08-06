@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Download, Clock, Calendar } from 'lucide-react';
+import { Download, Clock, Calendar, ArrowLeft } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable, { Table } from 'jspdf-autotable';
 import { useUser } from '../layouts/DashboardLayout';
 import { ActionCard } from '../components/ui/ActionCard';
 import schoolLogo from '../assets/logo-yka-1.png';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface jsPDFWithAutoTable extends jsPDF {
     lastAutoTable?: Table;
@@ -124,6 +126,8 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
 
 const EmploiDuTemps: React.FC = () => {
     const { user } = useUser();
+    const navigate = useNavigate();
+    const { t } = useTranslation();
     const [selectedWeek] = useState("Semaine du 13 - 17 Janvier 2025");
     
     const currentClasse = user?.classId || "CP2";
@@ -242,12 +246,22 @@ const EmploiDuTemps: React.FC = () => {
                                 </p>
                             </div>
                         </div>
-                        <ActionCard
-                            icon={<Download className="w-5 h-5 text-orange-500" />}
-                            label="Télécharger en PDF"
-                            onClick={handleExportPdf}
-                            className="bg-orange-50 hover:bg-orange-100 border border-orange-200 shadow-sm"
-                        />
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => navigate('/calendar')}
+                                className="group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+                                title={t('back_to_agenda', 'Retour à l\'agenda')}
+                            >
+                                <ArrowLeft className="h-4 w-4" />
+                                <span className="hidden sm:inline font-semibold">{t('back_to_agenda', 'Agenda')}</span>
+                            </button>
+                            <ActionCard
+                                icon={<Download className="w-5 h-5 text-orange-500" />}
+                                label="Télécharger en PDF"
+                                onClick={handleExportPdf}
+                                className="bg-orange-50 hover:bg-orange-100 border border-orange-200 shadow-sm"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

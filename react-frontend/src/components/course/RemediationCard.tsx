@@ -6,18 +6,6 @@ import 'dayjs/locale/fr';
 import { RemediationSession } from '../../lib/mock-data';
 import Badge from '../ui/Badge';
 
-// Type pour la remédiation dans les leçons
-interface LessonRemediation {
-  id: string;
-  title: string;
-  subject: string;
-  time: string;
-  teacher: string;
-  teacherImage: string;
-  statusText: string;
-  statusColor: string;
-}
-
 interface RemediationCardProps {
   remediation?: RemediationSession;
   // Props alternatives pour les remédiations de leçons
@@ -37,7 +25,7 @@ interface RemediationCardProps {
 
 const statusConfig = {
   completed: { label: 'Terminé', textColor: 'text-green-700', bgColor: 'bg-green-100' },
-  upcoming: { label: 'À venir', textColor: 'text-blue-700', bgColor: 'bg-blue-100' },
+  upcoming: { label: 'Planifiée', textColor: 'text-blue-700', bgColor: 'bg-blue-100' },
   'in_progress': { label: 'En cours', textColor: 'text-orange-700', bgColor: 'bg-orange-100' },
 };
 

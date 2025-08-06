@@ -1,20 +1,23 @@
-import { monthNames } from "./constants"; // On peut extraire les noms des mois dans un fichier de constants pour réutilisation
-const currentDate = new Date();
-const currentMonth = new Date().toLocaleString('fr-FR', { month: 'long' });
-const currentMonthIndex = currentDate.getMonth();
-const months = [
-  "janvier", "février", "mars", "avril", "mai", "juin",
-  "juillet", "août", "septembre", "octobre", "novembre", "décembre"
-];
+import React from 'react';
 
 interface ReportButtonsProps {
-  selectedView: "Annuel" | "Trimestre" | "Mois" | "PDI";
+  currentPeriod: string;
+  onPeriodChange: (period: string) => void;
+  periods: string[];
+  selectedView?: "Mois" | "Annuel" | "Trimestre" | "PDI";
 }
 
 const ReportButtons: React.FC<ReportButtonsProps> = ({ selectedView }) => {
   const handleDownload = (name: string) => {
     alert(`Téléchargement de ${name}`);
   };
+
+  const months = [
+    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+  ];
+
+  const currentMonth = new Date().toLocaleDateString('fr-FR', { month: 'long' });
 
   if (selectedView === "Annuel") {
     return (

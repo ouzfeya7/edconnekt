@@ -31,7 +31,7 @@ const StudentProfileSection: React.FC<StudentProfileProps> = ({ student, onBack 
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
       {/* En-tête avec bouton retour, conditionnel au rôle */}
       {userRole !== 'eleve' && (
         <div className="flex items-center mb-6">

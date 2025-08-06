@@ -19,7 +19,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const studentEvents = getStudentAgendaEvents();
     const formattedEvents: SchoolEvent[] = studentEvents.map(event => {
       // Déterminer la catégorie basée sur le type d'événement
-      let category: 'reunion' | 'activite' | 'sportif' | 'autre' = 'reunion';
+      let category: 'reunion' | 'activite' | 'sportif' | 'remediation' | 'autre' = 'reunion';
       switch (event.type) {
         case 'evaluation':
           category = 'reunion';
@@ -29,6 +29,9 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           break;
         case 'activity':
           category = 'activite';
+          break;
+        case 'remediation':
+          category = 'remediation';
           break;
         default:
           category = 'autre';

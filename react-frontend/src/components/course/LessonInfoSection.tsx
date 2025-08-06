@@ -18,7 +18,7 @@ interface LessonInfoSectionProps {
 // Placeholder pour un composant de graphique circulaire
 // const CircularProgress: React.FC<{ percentage: number, colorClass: string }> = ({ percentage, colorClass }) => { ... }; -- CETTE SECTION SERA SUPPRIMEE
 
-const StatDisplay: React.FC<StatItem> = ({ title, value, percentage, progressColor = 'text-green-500' }) => {
+const StatDisplay: React.FC<StatItem> = ({ title, value, percentage }) => {
   return (
     <div className="flex-1 px-4 py-2">
       <p className="text-sm text-gray-500 mb-2 truncate h-10">{title}</p>
