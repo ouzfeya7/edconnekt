@@ -1147,11 +1147,40 @@ export interface PdiStudent {
 }
 
 export const mockPdiStudents: PdiStudent[] = [
+  // PRESK 1 - Élèves avec différents niveaux
   { id: 's1', name: 'Khadija Ndiaye', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/1.jpg', evaluationDate: '2 Mars 2025', langage: 75, conte: 79, vocabulaire: 68, lecture: 40, graphisme: 79, progression: [1,1,1,0,0], remarques: '-' },
   { id: 's2', name: 'Maty Diop', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/2.jpg', evaluationDate: '2 Mars 2025', langage: 86, conte: 83, vocabulaire: 56, lecture: 82, graphisme: 28, progression: [1,1,1,1,0], remarques: '-' },
   { id: 's3', name: 'Mouhamed Fall', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/1.jpg', evaluationDate: '2 Mars 2025', langage: 71, conte: 1, vocabulaire: 72, lecture: 65, graphisme: 63, progression: [1,1,0,0,0], remarques: '-' },
   { id: 's4', name: 'Astou Gueye', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/3.jpg', evaluationDate: '2 Mars 2025', langage: 18, conte: 19, vocabulaire: 98, lecture: 25, graphisme: 88, progression: [1,0,0,0,0], remarques: 'Difficultés en lecture' },
   { id: 's5', name: 'Lamine Sow', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/2.jpg', evaluationDate: '2 Mars 2025', langage: 94, conte: 53, vocabulaire: 14, lecture: 56, graphisme: 48, progression: [1,1,1,1,1], remarques: '-' },
+  
+  // PRESK 2 - Élèves avec difficultés variées
+  { id: 's6', name: 'Fatou Diallo', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/4.jpg', evaluationDate: '2 Mars 2025', langage: 45, conte: 52, vocabulaire: 38, lecture: 15, graphisme: 62, progression: [0,0,0,0,0], remarques: 'Nécessite un suivi renforcé' },
+  { id: 's7', name: 'Mamadou Ba', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/3.jpg', evaluationDate: '2 Mars 2025', langage: 82, conte: 78, vocabulaire: 85, lecture: 75, graphisme: 80, progression: [1,1,1,1,1], remarques: '-' },
+  { id: 's8', name: 'Aissatou Ndiaye', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/5.jpg', evaluationDate: '2 Mars 2025', langage: 65, conte: 58, vocabulaire: 72, lecture: 45, graphisme: 68, progression: [1,1,0,0,0], remarques: 'Progrès en lecture' },
+  { id: 's9', name: 'Ousmane Camara', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/4.jpg', evaluationDate: '2 Mars 2025', langage: 25, conte: 30, vocabulaire: 22, lecture: 18, graphisme: 35, progression: [0,0,0,0,0], remarques: 'Difficultés importantes' },
+  { id: 's10', name: 'Mariama Seck', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/6.jpg', evaluationDate: '2 Mars 2025', langage: 88, conte: 92, vocabulaire: 85, lecture: 90, graphisme: 25, progression: [1,1,1,1,0], remarques: 'Excellent niveau mais difficultés en graphisme' },
+  
+  // CP1 - Élèves avec profils variés
+  { id: 's11', name: 'Ibrahim Fall', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/5.jpg', evaluationDate: '2 Mars 2025', langage: 78, conte: 82, vocabulaire: 75, lecture: 68, graphisme: 72, progression: [1,1,1,1,0], remarques: '-' },
+  { id: 's12', name: 'Khadija Diop', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/7.jpg', evaluationDate: '2 Mars 2025', langage: 35, conte: 42, vocabulaire: 38, lecture: 25, graphisme: 45, progression: [0,0,0,0,0], remarques: 'Remédiation nécessaire' },
+  { id: 's13', name: 'Modou Sarr', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/6.jpg', evaluationDate: '2 Mars 2025', langage: 92, conte: 88, vocabulaire: 95, lecture: 85, graphisme: 18, progression: [1,1,1,1,0], remarques: 'Excellent niveau mais difficultés importantes en graphisme' },
+  { id: 's14', name: 'Aminata Gueye', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/8.jpg', evaluationDate: '2 Mars 2025', langage: 68, conte: 72, vocabulaire: 65, lecture: 58, graphisme: 70, progression: [1,1,1,0,0], remarques: 'Bons progrès' },
+  { id: 's15', name: 'Lamine Kane', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/7.jpg', evaluationDate: '2 Mars 2025', langage: 55, conte: 48, vocabulaire: 52, lecture: 42, graphisme: 58, progression: [0,0,0,0,0], remarques: 'Suivi à maintenir' },
+  
+  // CP2 - Élèves avec niveaux avancés
+  { id: 's16', name: 'Fatou Ndiaye', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/9.jpg', evaluationDate: '2 Mars 2025', langage: 85, conte: 88, vocabulaire: 82, lecture: 78, graphisme: 85, progression: [1,1,1,1,1], remarques: '-' },
+  { id: 's17', name: 'Moussa Diallo', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/8.jpg', evaluationDate: '2 Mars 2025', langage: 72, conte: 75, vocabulaire: 68, lecture: 65, graphisme: 70, progression: [1,1,1,0,0], remarques: '-' },
+  { id: 's18', name: 'Aissatou Ba', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/10.jpg', evaluationDate: '2 Mars 2025', langage: 95, conte: 92, vocabulaire: 98, lecture: 88, graphisme: 22, progression: [1,1,1,1,0], remarques: 'Excellence mais difficultés en graphisme' },
+  { id: 's19', name: 'Omar Seck', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/9.jpg', evaluationDate: '2 Mars 2025', langage: 45, conte: 52, vocabulaire: 48, lecture: 38, graphisme: 50, progression: [0,0,0,0,0], remarques: 'Intervention requise' },
+  { id: 's20', name: 'Mariama Camara', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/11.jpg', evaluationDate: '2 Mars 2025', langage: 88, conte: 85, vocabulaire: 90, lecture: 82, graphisme: 87, progression: [1,1,1,1,1], remarques: '-' },
+  
+  // CE1 - Élèves avec profils intermédiaires
+  { id: 's21', name: 'Ibrahim Thiam', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/10.jpg', evaluationDate: '2 Mars 2025', langage: 78, conte: 82, vocabulaire: 75, lecture: 72, graphisme: 80, progression: [1,1,1,1,0], remarques: '-' },
+  { id: 's22', name: 'Khadija Cisse', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/12.jpg', evaluationDate: '2 Mars 2025', langage: 65, conte: 68, vocabulaire: 62, lecture: 58, graphisme: 70, progression: [1,1,0,0,0], remarques: 'Progrès constants' },
+  { id: 's23', name: 'Modou Fall', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/11.jpg', evaluationDate: '2 Mars 2025', langage: 92, conte: 88, vocabulaire: 95, lecture: 85, graphisme: 15, progression: [1,1,1,1,0], remarques: 'Excellent niveau mais difficultés majeures en graphisme' },
+  { id: 's24', name: 'Aminata Diagne', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/female/13.jpg', evaluationDate: '2 Mars 2025', langage: 42, conte: 48, vocabulaire: 45, lecture: 35, graphisme: 50, progression: [0,0,0,0,0], remarques: 'Difficultés persistantes' },
+  { id: 's25', name: 'Lamine Sall', avatarUrl: 'https://xsgames.co/randomusers/assets/avatars/male/12.jpg', evaluationDate: '2 Mars 2025', langage: 85, conte: 82, vocabulaire: 88, lecture: 80, graphisme: 85, progression: [1,1,1,1,1], remarques: '-' },
 ]; 
 
 // Interface pour les données de remédiation des parents
