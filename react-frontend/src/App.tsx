@@ -46,9 +46,9 @@ import EnseignantDevoirDetailPage from './pages/gestionNotes/DevoirDetailPage';
 import CreateDevoirPage from './pages/gestionNotes/CreateDevoirPage';
 import AppLoader from './components/ui/AppLoader';
 import RemediationDetailPage from './pages/RemediationDetailPage';
+import RemediationPage from './pages/RemediationPage';
 import DevoirsPage from './pages/eleves/DevoirsPage';
 import EleveDevoirDetailPage from './pages/eleves/DevoirDetailPage';
-import CreateEventPage from './pages/CreateEventPage';
 import EmploiDuTemps from './pages/EmploiDuTemps';
 import ParentDashboard from "./pages/parents/ParentDashboard";
 import ParentRapportPage from "./pages/parents/ParentRapportPage"; // Importer la nouvelle page
@@ -74,8 +74,6 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/classes", element: <Classe /> },
     { path: "/calendar", element: <Agenda /> },
     { path: "/agenda", element: <Agenda /> },
-    { path: "/agenda/create", element: <CreateEventPage /> },
-    { path: "/agenda/edit/:eventId", element: <CreateEventPage /> },
     { path: "/messages", element: <MessageEnseignant /> },
     { path: "/ressources", element: <Ressource /> },
     { path: "/ressources/archives", element: <ArchivesPage /> },
@@ -94,6 +92,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/devoirs/creer", element: <CreateDevoirPage /> },
     { path: "/devoirs/:devoirId", element: <EnseignantDevoirDetailPage /> },
     { path: "/evaluations", element: <Evaluations /> },
+    { path: "/remediation", element: <RemediationPage /> },
     { path: "/remediations/:remediationId", element: <RemediationDetailPage /> },
     { path: "/fournitures", element: <FournituresPage /> },
     { path: "*", element: <NotFound /> }, // Utilisation de '*' pour le catch-all
@@ -115,8 +114,6 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/calendar", element: <Agenda /> },
     { path: "/agenda", element: <Agenda /> },
     { path: "/emploi-du-temps", element: <EmploiDuTemps /> },
-    { path: "/agenda/create", element: <CreateEventPage /> },
-    { path: "/agenda/edit/:eventId", element: <CreateEventPage /> },
     { path: "/messages", element: <MessageEleve /> },
     { path: "/evaluations/notes", element: <GNote /> },
     { path: "/profile", element: <ProfilePage /> },
@@ -133,8 +130,6 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/remediation/:remediationId", element: <RemediationDetailPage /> }, // Route pour la page de détail de remédiation
     { path: "/calendar", element: <Agenda /> },
     { path: "/agenda", element: <Agenda /> },
-    { path: "/agenda/create", element: <CreateEventPage /> },
-    { path: "/agenda/edit/:eventId", element: <CreateEventPage /> },
     { path: "/emploi-du-temps", element: <EmploiDuTemps /> },
     { path: "/messages", element: <MessageEleve /> },
     { path: "/profile", element: <ProfilePage /> },

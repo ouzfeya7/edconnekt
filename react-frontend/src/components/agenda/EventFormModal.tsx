@@ -7,31 +7,33 @@ import { useTranslation } from 'react-i18next';
 interface EventFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  isEditMode: boolean;
-  currentEvent: SchoolEvent;
+  event: SchoolEvent;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   onAudienceChange: (audience: string) => void;
   onAllDayChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSave: () => void;
   onDelete: () => void;
   errors: { title?: string };
+  eventCategories: ReturnType<typeof getEventCategories>;
+  targetAudiences: ReturnType<typeof getTargetAudiences>;
+  isEditMode: boolean;
 }
 
 const EventFormModal: React.FC<EventFormModalProps> = ({
   isOpen,
   onClose,
-  isEditMode,
-  currentEvent,
+  event,
   onInputChange,
   onAudienceChange,
   onAllDayChange,
   onSave,
   onDelete,
-  errors
+  errors,
+  eventCategories,
+  targetAudiences,
+  isEditMode
 }) => {
   const { t } = useTranslation();
-  const eventCategories = getEventCategories(t);
-  const targetAudiences = getTargetAudiences(t);
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="fixed z-50 inset-0 overflow-y-auto">
@@ -68,7 +70,7 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
                 <input 
                   type="text" 
                   name="title" 
-                  value={currentEvent.title || ''} 
+                  value={event.title || ''} 
                   onChange={onInputChange} 
                   className={`w-full border rounded-xl p-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors ${
                     errors.title ? 'border-red-300 bg-red-50' : 'border-gray-300'
@@ -92,7 +94,7 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
                   </label>
                   <select 
                     name="category" 
-                    value={currentEvent.category} 
+                    value={event.category} 
                     onChange={onInputChange} 
                     className="w-full border border-gray-300 rounded-xl p-3 bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   >
@@ -110,7 +112,7 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
                   <input 
                     type="text" 
                     name="location" 
-                    value={currentEvent.location || ''} 
+                    value={event.location || ''} 
                     onChange={onInputChange} 
                     className="w-full border border-gray-300 rounded-xl p-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                     placeholder={t('location_placeholder', 'Salle de classe, gymnase...')}
@@ -132,7 +134,7 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
                       id="allDay" 
                       type="checkbox" 
                       name="allDay" 
-                      checked={currentEvent.allDay} 
+                      checked={event.allDay} 
                       onChange={onAllDayChange} 
                       className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                     />
@@ -148,9 +150,9 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
                         {t('start', 'Début')}
                       </label>
                       <input 
-                        type={currentEvent.allDay ? 'date' : 'datetime-local'} 
+                        type={event.allDay ? 'date' : 'datetime-local'} 
                         name="start" 
-                        value={currentEvent.start?.slice(0, currentEvent.allDay ? 10 : 16)} 
+                        value={event.start?.slice(0, event.allDay ? 10 : 16)} 
                         onChange={onInputChange} 
                         className="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                       />
@@ -160,9 +162,9 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
                         {t('end', 'Fin')}
                       </label>
                       <input 
-                        type={currentEvent.allDay ? 'date' : 'datetime-local'} 
+                        type={event.allDay ? 'date' : 'datetime-local'} 
                         name="end" 
-                        value={currentEvent.end?.slice(0, currentEvent.allDay ? 10 : 16)} 
+                        value={event.end?.slice(0, event.allDay ? 10 : 16)} 
                         onChange={onInputChange} 
                         className="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                       />
@@ -179,7 +181,7 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
                 </label>
                 <textarea 
                   name="description" 
-                  value={currentEvent.description || ''} 
+                  value={event.description || ''} 
                   onChange={onInputChange} 
                   rows={4} 
                   className="w-full border border-gray-300 rounded-xl p-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors resize-none"
@@ -200,7 +202,7 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
                       type="button"
                       onClick={() => onAudienceChange(audience)} 
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                        currentEvent.targetAudience.includes(audience) 
+                        event.targetAudience.includes(audience) 
                           ? 'bg-orange-500 text-white shadow-md hover:bg-orange-600' 
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
                       }`}
@@ -228,13 +230,13 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
             <div className="flex gap-3">
               <button 
                 onClick={onClose} 
-                className="px-6 py-2 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg border border-gray-300 transition-colors"
+                className="px-6 py-2 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-full border border-gray-300 transition-colors"
               >
                 {t('cancel', 'Annuler')}
               </button>
               <button 
                 onClick={onSave} 
-                className="px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                className="px-6 py-2 bg-white border border-gray-300 hover:shadow-md text-gray-700 font-medium rounded-full transition-all duration-200 hover:bg-gray-50"
               >
                 {t('save', 'Enregistrer')}
               </button>

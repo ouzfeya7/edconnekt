@@ -53,10 +53,11 @@ const MessageSidebar: React.FC<MessageSidebarProps> = ({
         return messages.filter(msg => msg.category === 'Facilitateur').length;
       case 'admin':
         return messages.filter(msg => msg.category === 'Administration').length;
-      case 'important':
+      case 'important': {
         const starredInInbox = messages.filter(msg => msg.isStarred).length;
         const starredInSent = sentMessages.filter(msg => msg.isStarred).length;
         return starredInInbox + starredInSent;
+      }
       case 'archives':
         return archivedMessages.length;
       case 'draft':

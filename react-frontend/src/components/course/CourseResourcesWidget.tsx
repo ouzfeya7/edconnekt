@@ -8,12 +8,14 @@ interface CourseResourcesWidgetProps {
   courseId: string;
   courseTitle: string;
   onViewResource?: (resourceId: string) => void;
+  onResourceClick?: (resourceId: string) => void;
 }
 
-const CourseResourcesWidget: React.FC<CourseResourcesWidgetProps> = ({
-  courseId,
+const CourseResourcesWidget: React.FC<CourseResourcesWidgetProps> = ({ 
+  courseId, 
   courseTitle,
-  onViewResource
+  onViewResource,
+  onResourceClick 
 }) => {
   const { roles } = useAuth();
   const [resources, setResources] = useState<CourseResource[]>([]);
@@ -148,7 +150,7 @@ const CourseResourcesWidget: React.FC<CourseResourcesWidgetProps> = ({
             <div
               key={resource.id}
               className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition cursor-pointer"
-              onClick={() => onViewResource?.(resource.resourceId)}
+              onClick={() => onResourceClick?.(resource.resourceId)}
             >
               {/* Icône du type de fichier */}
               <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">

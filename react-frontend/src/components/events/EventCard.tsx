@@ -16,7 +16,7 @@ const EventCard: React.FC<EventCardProps> = ({ events }) => {
   );
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 w-full">
+    <div className="bg-white rounded-lg shadow-sm p-4 w-full border border-gray-200">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('todays_events')}</h3>
       
       <div className="space-y-4">

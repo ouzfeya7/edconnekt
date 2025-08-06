@@ -29,7 +29,7 @@ const ClassDetailsCard: React.FC<ClassDetailsCardProps> = ({
   const displayName = classInfo ? classInfo.name : className;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 w-full font-sans">
+    <div className="bg-white rounded-xl shadow-sm p-6 w-full font-sans border border-gray-200">
       {/* Cercle avec nom de la classe */}
       <div className="w-24 h-24 bg-pink-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto">
         {displayName}

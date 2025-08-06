@@ -9,7 +9,12 @@ const RapportView: React.FC = () => {
   return (
     <div className="p-6">
       <ViewButton selectedView={selectedView} setSelectedView={setSelectedView} />
-      <ReportButtons selectedView={selectedView} />
+      <ReportButtons 
+        selectedView={selectedView} 
+        currentPeriod=""
+        onPeriodChange={() => {}}
+        periods={[]}
+      />
       {selectedView === "PDI" && <StudentTable selectedSubject={""} />}
     </div>
   );

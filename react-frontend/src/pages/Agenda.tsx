@@ -8,20 +8,26 @@ import frLocale from '@fullcalendar/core/locales/fr';
 import enLocale from '@fullcalendar/core/locales/en-gb';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Clock } from 'lucide-react';
 
 import AgendaSidebar from '../components/agenda/AgendaSidebar';
 import EventDetailsModal from '../components/agenda/EventDetailsModal';
-import { SchoolEvent } from '../components/agenda/agenda_data';
+import EventFormModal from '../components/agenda/EventFormModal';
+import { SchoolEvent, defaultEventState, getEventCategories, getTargetAudiences } from '../components/agenda/agenda_data';
 import CalendarHeader from '../components/agenda/CalendarHeader';
 import { useEvents } from '../contexts/EventContext';
 import Toast from '../components/ui/Toast';
 
 const Agenda: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { events } = useEvents();
+  const { events, setEvents } = useEvents();
   const navigate = useNavigate();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [viewingEvent, setViewingEvent] = useState<SchoolEvent | null>(null);
+  const [currentEvent, setCurrentEvent] = useState<SchoolEvent>(() => defaultEventState(t));
+  const [errors, setErrors] = useState<{ title?: string }>({});
   const calendarRef = useRef<FullCalendar>(null);
   const [calendarTitle, setCalendarTitle] = useState('');
   const [currentView, setCurrentView] = useState('dayGridMonth');
@@ -29,6 +35,8 @@ const Agenda: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const location = useLocation();
+  const eventCategories = getEventCategories(t);
+  const targetAudiences = getTargetAudiences(t);
 
   const openDetailsModal = (eventData: EventInput) => {
     setViewingEvent(eventData as SchoolEvent);
@@ -37,16 +45,95 @@ const Agenda: React.FC = () => {
 
   const openFormForNewEvent = (arg?: DateClickArg) => {
     const dateStr = arg?.dateStr || new Date().toISOString().slice(0, 10);
-    navigate('/agenda/create', { 
-      state: { date: dateStr }
+    setCurrentEvent({
+      ...defaultEventState(t),
+      start: dateStr + 'T09:00',
+      end: dateStr + 'T10:00'
     });
+    setIsEditMode(false);
+    setIsFormOpen(true);
   };
 
   const openFormForExistingEvent = (eventData: SchoolEvent) => {
-    navigate(`/agenda/edit/${eventData.id}`);
+    setCurrentEvent({
+      ...eventData,
+      start: eventData.start ? new Date(eventData.start as string).toISOString().slice(0, 16) : defaultEventState(t).start,
+      end: eventData.end ? new Date(eventData.end as string).toISOString().slice(0, 16) : defaultEventState(t).end,
+      targetAudience: eventData.targetAudience || [],
+    });
+    setIsEditMode(true);
+    setIsFormOpen(true);
   };
   
   const closeDetailsModal = () => setIsDetailsOpen(false);
+  const closeFormModal = () => setIsFormOpen(false);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setCurrentEvent(prev => ({ ...prev, [name]: value }));
+    if (name === 'title' && errors.title) {
+      setErrors(prev => ({ ...prev, title: undefined }));
+    }
+  };
+
+  const handleAudienceChange = (audience: string) => {
+    setCurrentEvent(prev => {
+      const newAudience = prev.targetAudience.includes(audience)
+        ? prev.targetAudience.filter(a => a !== audience)
+        : [...prev.targetAudience, audience];
+      return { ...prev, targetAudience: newAudience };
+    });
+  };
+  
+  const handleAllDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentEvent(prev => ({ ...prev, allDay: e.target.checked }));
+  };
+
+  const validateForm = () => {
+    const newErrors: { title?: string } = {};
+    if (!(currentEvent.title || '').trim()) {
+      newErrors.title = t('title_is_required', "Le titre est obligatoire.");
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!validateForm()) return;
+
+    try {
+      const eventToSave: SchoolEvent = {
+        ...currentEvent,
+        className: eventCategories[currentEvent.category].className,
+      };
+      
+      if (isEditMode) {
+        setEvents(events.map(event => event.id === eventToSave.id ? eventToSave : event));
+        setToastMessage(t('event_updated_success', 'Événement modifié avec succès'));
+      } else {
+        setEvents([...events, { ...eventToSave, id: new Date().getTime().toString() }]);
+        setToastMessage(t('event_created_success', 'Événement créé avec succès'));
+      }
+      
+      closeFormModal();
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!isEditMode || !currentEvent.id) return;
+    
+    if (window.confirm(t('confirm_delete_event', 'Êtes-vous sûr de vouloir supprimer cet événement ?'))) {
+      try {
+        setEvents(events.filter(event => event.id !== currentEvent.id));
+        setToastMessage(t('event_deleted_success', 'Événement supprimé avec succès'));
+        closeFormModal();
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+      }
+    }
+  };
 
   const groupedEvents = useMemo(() => {
     const grouped: { [key: string]: SchoolEvent[] } = {};
@@ -170,6 +257,13 @@ const Agenda: React.FC = () => {
         cursor: pointer;
         color: #065f46 !important;
       }
+      .fc-event.event-remediation { 
+        border-color: #ef4444; 
+        background-color: rgba(239, 68, 68, 0.1);
+        border-left-width: 4px;
+        cursor: pointer;
+        color: #dc2626 !important;
+      }
       .fc-event.event-autre { 
         border-color: #6b7280; 
         background-color: rgba(107, 114, 128, 0.1);
@@ -216,6 +310,12 @@ const Agenda: React.FC = () => {
         color: #065f46 !important;
       }
 
+      .fc-daygrid-event.event-remediation {
+        background-color: #fef3f2 !important;
+        border-color: #ef4444 !important;
+        color: #dc2626 !important;
+      }
+
       .fc-daygrid-event.event-autre {
         background-color: #f3f4f6 !important;
         border-color: #6b7280 !important;
@@ -251,6 +351,10 @@ const Agenda: React.FC = () => {
 
       .fc-daygrid-event-dot.event-sportif {
         border-color: #10b981 !important;
+      }
+
+      .fc-daygrid-event-dot.event-remediation {
+        border-color: #ef4444 !important;
       }
 
       .fc-daygrid-event-dot.event-autre {
@@ -380,16 +484,26 @@ const Agenda: React.FC = () => {
       <div className={`flex-1 flex flex-col min-w-0 ${isSidebarOpen ? '' : 'lg:ml-0'}`}>
         {/* En-tête */}
         <div className="bg-white border-b border-gray-200 p-4 lg:p-6 flex-shrink-0 border-l border-l-gray-200">
-          <CalendarHeader
-            title={calendarTitle}
-            currentView={currentView}
-            onPrev={() => calendarApi?.prev()}
-            onNext={() => calendarApi?.next()}
-            onToday={() => calendarApi?.today()}
-            onViewChange={(view) => calendarApi?.changeView(view)}
-            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-            isSidebarOpen={isSidebarOpen}
-          />
+          <div className="flex items-center justify-between mb-4">
+            <CalendarHeader
+              title={calendarTitle}
+              currentView={currentView}
+              onPrev={() => calendarApi?.prev()}
+              onNext={() => calendarApi?.next()}
+              onToday={() => calendarApi?.today()}
+              onViewChange={(view) => calendarApi?.changeView(view)}
+              onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+              isSidebarOpen={isSidebarOpen}
+            />
+                         <button
+               onClick={() => navigate('/emploi-du-temps')}
+               className="flex items-center gap-2 px-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+               title={t('view_schedule', 'Voir l\'emploi du temps')}
+             >
+               <Clock className="h-4 w-4" />
+               <span className="hidden sm:inline">{t('view_schedule', 'Emploi du temps')}</span>
+             </button>
+          </div>
         </div>
         
         {/* Calendrier - occupe tout l'espace restant */}
@@ -435,6 +549,22 @@ const Agenda: React.FC = () => {
           onClose={() => setToastMessage(null)}
         />
       )}
+
+      {/* Modale de formulaire */}
+      <EventFormModal
+        isOpen={isFormOpen}
+        onClose={closeFormModal}
+        event={currentEvent}
+        onInputChange={handleInputChange}
+        onAudienceChange={handleAudienceChange}
+        onAllDayChange={handleAllDayChange}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        errors={errors}
+        eventCategories={eventCategories}
+        targetAudiences={targetAudiences}
+        isEditMode={isEditMode}
+      />
     </div>
     </>
   );
