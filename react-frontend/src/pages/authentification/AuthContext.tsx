@@ -15,7 +15,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const MOCK_AUTH = true;
+const MOCK_AUTH = false;
 
 const transformRoles = (keycloakRoles: string[]): string[] => {
   const appRoles: string[] = [];
@@ -121,7 +121,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     if (!MOCK_AUTH) {
-      keycloak.logout({ redirectUri: 'http://app.uat1-engy-partners.com:8000' });
+      keycloak.logout({ redirectUri: 'https://app.uat1-engy-partners.com' });
     } else {
       setIsAuthenticated(false);
       setUser(null);
