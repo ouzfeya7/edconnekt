@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         const authenticated = await keycloak.init({
           onLoad: 'login-required',
-          redirectUri: 'http://app.uat1-engy-partners.com:8000/login',
+          redirectUri: 'https://app.uat1-engy-partners.com/',
           pkceMethod: 'S256',
           responseMode: 'fragment',
           scope: 'openid profile email roles',

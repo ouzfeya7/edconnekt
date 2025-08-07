@@ -12,11 +12,9 @@ import { getEnrichedCourses, EnrichedCourse } from '../../lib/mock-student-data'
 import { useStudents } from '../../contexts/StudentContext';
 import dayjs from 'dayjs';
 import { useFilters } from '../../contexts/FilterContext';
-import { useAuth } from '../authentification/useAuth';
-
 
 // Import icons from lucide-react
-import { Plus, BarChart2, Mail, Calendar, Package } from 'lucide-react';
+import { BarChart2, Mail, Calendar, Package } from 'lucide-react';
 
 // --- Données de Test Externalisées ---
 
@@ -81,7 +79,6 @@ const studentOptions = Object.keys(progressionDataByStudent).map(name => ({ valu
 const Dashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { studentCount } = useStudents();
   const { 
     currentClasse, 
@@ -175,7 +172,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F5F7FA]">
+    <div className="flex flex-col min-h-full bg-white">
       
       {/* Header du thème avec style immersif - dans un conteneur avec padding comme l'emploi du temps */}
       <div className="p-4 md:p-6">
