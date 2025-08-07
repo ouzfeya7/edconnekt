@@ -10,7 +10,7 @@ type Props = {
 };
 
 export const ActionCard: React.FC<Props> = ({ icon, label, onClick, href, download, className }) => {
-  const baseClasses = "cursor-pointer p-4 bg-white shadow rounded-2xl flex gap-2 items-center justify-center hover:text-orange-500 transition";
+  const baseClasses = "cursor-pointer p-4 bg-white shadow rounded-2xl flex gap-2 items-center justify-center hover:text-orange-500 transition border border-gray-200";
   
   const content = (
     <>
