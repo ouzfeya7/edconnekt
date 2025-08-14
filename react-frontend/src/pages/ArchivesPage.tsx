@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useResources } from '../contexts/ResourceContext';
+import { useResources as useRemoteResources } from '../hooks/useResources';
+import { useRestoreResource } from '../hooks/useRestoreResource';
 import { useAuth } from '../pages/authentification/useAuth';
 import { 
   ArrowLeft, Search, FileText, Archive, RefreshCw, Filter, 
@@ -9,6 +10,8 @@ import {
   ChevronLeft, ChevronRight, Plus, FolderOpen, Clock
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '../components/ui/dialog';
+import { ResourceStatus } from '../api/resource-service/api';
+import { subjectIdToNameMap } from './RessourcesPage';
 
 // Data for domains and subjects, matching RessourcesPage exactly
 const domainsData: { [key: string]: string[] } = {
@@ -268,7 +271,7 @@ const ArchivedResourceListItem: React.FC<ArchivedResourceListItemProps> = ({
 
 function ArchivesPage() {
     const navigate = useNavigate();
-  const { resources, unarchiveResource, deleteResource } = useResources();
+  const restoreMutation = useRestoreResource();
   const { roles } = useAuth();
     
     const canModifyResources = roles.includes('enseignant') || roles.includes('directeur') || roles.includes('administrateur');
@@ -279,33 +282,21 @@ function ArchivesPage() {
     const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'subject'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [showRestoreConfirm, setShowRestoreConfirm] = useState<number | null>(null);
+  const [showRestoreConfirm, setShowRestoreConfirm] = useState<number | string | null>(null);
   
   const itemsPerPage = 8;
 
-    const archivedResources = resources.filter(resource => {
-        if (!resource.isArchived) return false;
-    
-    // Filtrage par recherche
-    if (searchTerm && !resource.title.toLowerCase().includes(searchTerm.toLowerCase()) && 
-        !resource.description.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-    
-    // Filtrage par domaine
-    if (selectedDomain !== 'all') {
-      const resourceDomain = Object.keys(domainsData).find(domain => 
-        domainsData[domain].includes(resource.subject)
-      );
-      if (resourceDomain !== selectedDomain) return false;
-    }
-    
-    // Filtrage par matière
-    if (selectedSubject !== 'all' && resource.subject !== selectedSubject) return false;
-    
-        return true;
-    });
+  const {
+    data: archivedResources,
+    isLoading: isLoading,
+    error: error,
+  } = useRemoteResources({
+    status: ResourceStatus.Archived,
+    limit: 100, // TODO: Implement proper pagination
+  });
 
-  // Tri des ressources
-  const sortedResources = [...archivedResources].sort((a, b) => {
+  // Tri des ressources (côté client pour l'instant)
+  const sortedResources = [...(archivedResources || [])].sort((a, b) => {
     let aValue: any, bValue: any;
     
     switch (sortBy) {
@@ -314,8 +305,8 @@ function ArchivesPage() {
         bValue = b.title.toLowerCase();
         break;
       case 'subject':
-        aValue = a.subject.toLowerCase();
-        bValue = b.subject.toLowerCase();
+        aValue = (subjectIdToNameMap[a.subject_id] || String(a.subject_id)).toLowerCase();
+        bValue = (subjectIdToNameMap[b.subject_id] || String(b.subject_id)).toLowerCase();
         break;
       case 'date':
       default:
@@ -341,15 +332,12 @@ function ArchivesPage() {
         currentPage * itemsPerPage
     );
 
-  const displayedResources: ArchivedResource[] = paginatedResources.map(resource => ({
-        ...resource,
-    archivedAt: resource.isArchived ? new Date().toLocaleDateString('fr-FR') : undefined,
-    author: resource.author || { id: '1', name: 'Enseignant', role: 'enseignant' }
-  }));
-
-  const handleRestore = (resourceId: number) => {
-    unarchiveResource(resourceId);
+  const handleRestore = (resourceId: number | string) => {
+    restoreMutation.mutate(String(resourceId), {
+      onSuccess: () => {
     setShowRestoreConfirm(null);
+      }
+    });
   };
 
 
@@ -374,7 +362,7 @@ function ArchivesPage() {
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Ressources Archivées</h1>
                 <p className="text-gray-600 mt-1">
-                  {archivedResources.length} ressource{archivedResources.length !== 1 ? 's' : ''} archivée{archivedResources.length !== 1 ? 's' : ''}
+                  {archivedResources?.length || 0} ressource{archivedResources?.length !== 1 ? 's' : ''} archivée{archivedResources?.length !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
@@ -465,7 +453,7 @@ function ArchivesPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total archivées</p>
-                <p className="text-2xl font-bold text-gray-900">{archivedResources.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{archivedResources?.length || 0}</p>
               </div>
             </div>
           </div>
@@ -478,7 +466,7 @@ function ArchivesPage() {
               <div>
                 <p className="text-sm text-gray-600">PDF</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {archivedResources.filter(r => r.fileType === 'PDF').length}
+                  {archivedResources?.filter(r => r.fileType === 'PDF').length || 0}
                 </p>
               </div>
             </div>
@@ -492,7 +480,7 @@ function ArchivesPage() {
               <div>
                 <p className="text-sm text-gray-600">Enseignants</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {new Set(archivedResources.map(r => r.author?.name)).size}
+                  {new Set(archivedResources?.map(r => r.author?.name)).size || 0}
                 </p>
                     </div>
                 </div>
@@ -506,8 +494,8 @@ function ArchivesPage() {
               <div>
                 <p className="text-sm text-gray-600">Espace utilisé</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {archivedResources.reduce((sum, r) => sum + (r.fileSize || 0), 0) > 0 
-                    ? Math.round(archivedResources.reduce((sum, r) => sum + (r.fileSize || 0), 0) / (1024 * 1024)) + ' MB'
+                  {archivedResources?.reduce((sum, r) => sum + (r.fileSize || 0), 0) > 0 
+                    ? Math.round(archivedResources?.reduce((sum, r) => sum + (r.fileSize || 0), 0) / (1024 * 1024)) + ' MB'
                     : 'N/A'
                   }
                 </p>
@@ -518,11 +506,24 @@ function ArchivesPage() {
 
         {/* Liste des ressources */}
             <div className="space-y-6">
-                {displayedResources.length > 0 ? (
-                    displayedResources.map(resource => (
+                {paginatedResources.length > 0 ? (
+                    paginatedResources.map(resource => (
                         <ArchivedResourceListItem 
                             key={resource.id} 
-                            resource={resource} 
+                            resource={{
+                              id: resource.id,
+                              title: resource.title,
+                              subject: subjectIdToNameMap[resource.subject_id] || String(resource.subject_id),
+                              description: resource.description || "",
+                              isArchived: true,
+                              visibility: resource.visibility,
+                              fileSize: resource.size_bytes,
+                              author: {id: resource.author_user_id, name: resource.author_user_id, role: ""},
+                              createdAt: resource.created_at,
+                              updatedAt: resource.updated_at,
+                              version: resource.version,
+                              archivedAt: resource.updated_at, // Using updated_at for now
+                            }}
                   onRestore={() => setShowRestoreConfirm(resource.id)}
                             canModify={canModifyResources}
                         />

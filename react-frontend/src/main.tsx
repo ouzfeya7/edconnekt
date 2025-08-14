@@ -1,6 +1,7 @@
 import './index.css';
 // import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // Import Keycloak commenté temporairement
 // import { ReactKeycloakProvider } from '@react-keycloak/web';
 // import keycloak from './pages/authentification/keycloak.ts';
@@ -15,8 +16,6 @@ import { AuthProvider } from './pages/authentification/AuthContext';
 import { EventProvider } from './contexts/EventContext';
 import { StudentProvider } from './contexts/StudentContext';
 import { FilterProvider } from './contexts/FilterContext';
-import PaiementPage from './pages/PaiementPage';
-import RessourceDetailPage from './pages/RessourceDetailPage';
 
 // Synchronize dayjs locale with i18next
 const updateDayjsLocale = (lng: string | undefined) => {
@@ -31,6 +30,8 @@ i18n.on('languageChanged', (lng) => {
 // Initial set
 updateDayjsLocale(i18n.language);
 
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById('root')!).render(
   // Keycloak Provider commenté temporairement
   // <ReactKeycloakProvider
@@ -43,14 +44,16 @@ createRoot(document.getElementById('root')!).render(
   //   onEvent={(event, error) => {
   //     console.log('Keycloak event', event, error);
   //   }}>
-  <AuthProvider>
-    <FilterProvider>
-      <EventProvider>
-        <StudentProvider>
-          <App />
-        </StudentProvider>
-      </EventProvider>
-    </FilterProvider>
-  </AuthProvider>
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <FilterProvider>
+        <EventProvider>
+          <StudentProvider>
+            <App />
+          </StudentProvider>
+        </EventProvider>
+      </FilterProvider>
+    </AuthProvider>
+  </QueryClientProvider>
   //  </ReactKeycloakProvider>
 );

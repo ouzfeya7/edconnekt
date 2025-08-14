@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -29,20 +29,12 @@ import {
   Eye,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useResources } from "../contexts/ResourceContext";
+import { useResources as useRemoteResources } from "../hooks/useResources";
+import { useArchiveResource } from "../hooks/useArchiveResource";
 import { useAuth } from "../pages/authentification/useAuth"; // Utiliser useAuth
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
-} from "../components/ui/dialog";
+import { Visibility, ResourceStatus, ResourceOut } from "../api/resource-service/api";
 
-import ResourceVersions from "../components/ressources/ResourceVersions";
+
 import AuditTrail from "../components/ressources/AuditTrail";
 
 // Data for domains and subjects, mirroring AddResourcePage
@@ -73,6 +65,29 @@ const domainNames = [
   "STEM",
   "CREATIVITE ARTISTIQUE / SPORTIVE",
 ];
+
+export const subjectNameToIdMap: { [key: string]: number } = {
+  "Anglais": 1,
+  "Français": 2,
+  "Études islamiques": 3,
+  "Géographie": 4,
+  "Histoire": 5,
+  "Lecture arabe": 6,
+  "Qran": 7,
+  "Vivre dans son milieu": 8,
+  "Vivre ensemble": 9,
+  "Wellness": 10,
+  "Mathématiques": 11,
+  "Arts plastiques": 12,
+  "EPS": 13,
+  "Motricité": 14,
+  "Musique": 15,
+  "Théâtre/Drama": 16,
+};
+
+export const subjectIdToNameMap: { [key: number]: string } = Object.fromEntries(
+  Object.entries(subjectNameToIdMap).map(([name, id]) => [id, name])
+);
 
 // Couleurs subtiles spécifiques à chaque matière (utilisées dans d'autres composants)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -168,7 +183,7 @@ const getIconForSubject = (subject: string) => {
 };
 
 interface DisplayResource {
-  id: number;
+  id: string | number;
   title: string;
   subject: string;
   description: string;
@@ -200,7 +215,6 @@ interface ResourceListItemProps {
 
 const ResourceListItem: React.FC<ResourceListItemProps> = ({
   resource,
-  onArchive,
   isParent,
 }) => {
   const Icon = getIconForSubject(resource.subject);
@@ -351,65 +365,6 @@ const ResourceListItem: React.FC<ResourceListItemProps> = ({
                   </span>
                 )}
               </div>
-
-              {/* Boutons d'action */}
-              <div className="flex items-center gap-1">
-                {/* Versions - Enseignants uniquement */}
-                <ResourceVersions
-                  resourceId={resource.id}
-                  resourceTitle={resource.title}
-                />
-
-                {/* Bouton d'archivage - Enseignants et admin uniquement */}
-                {!isParent && (
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-orange-700 bg-orange-50 rounded-md hover:bg-orange-100 transition-colors duration-150"
-                        onClick={(e) => e.stopPropagation()}
-                        title="Archiver la ressource"
-                      >
-                        <FolderDown className="w-3 h-3" />
-                        Archiver
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-md">
-                      <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-gray-900">
-                          Confirmer l'archivage
-                        </DialogTitle>
-                        <DialogDescription className="text-gray-600 mt-2">
-                          Voulez-vous vraiment archiver la ressource "
-                          {resource.title}" ? Elle ne sera plus visible sur
-                          cette page.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <DialogFooter className="gap-3 mt-6">
-                        <DialogClose asChild>
-                          <button
-                            type="button"
-                            className="flex-1 bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl hover:bg-gray-200 font-medium transition-colors duration-150"
-                          >
-                            Annuler
-                          </button>
-                        </DialogClose>
-                        <DialogClose asChild>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onArchive();
-                            }}
-                            className="flex-1 bg-orange-500 text-white px-4 py-2.5 rounded-xl hover:bg-orange-600 font-medium transition-colors duration-150"
-                          >
-                            Archiver
-                          </button>
-                        </DialogClose>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -421,8 +376,8 @@ const ResourceListItem: React.FC<ResourceListItemProps> = ({
 function RessourcesPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { resources, archiveResource } = useResources();
-  const { roles } = useAuth(); // Récupération des rôles de l'utilisateur
+  const { user, roles } = useAuth(); // Récupération des rôles de l'utilisateur
+  const archiveMutation = useArchiveResource();
 
   // Détection des rôles pour masquer les fonctionnalités appropriées
   const canModifyResources =
@@ -445,102 +400,82 @@ function RessourcesPage() {
   // Nouveaux filtres avancés
   const [fileTypeFilter, setFileTypeFilter] = useState<string>("");
   const [visibilityFilter, setVisibilityFilter] = useState<string>("");
+  const itemsPerPage = 20;
+
+  const activeSubjectId = activeSubject ? subjectNameToIdMap[activeSubject] : null;
+
+  const {
+    data: apiResources,
+  } = useRemoteResources({
+    limit: itemsPerPage,
+    offset: (currentPage - 1) * itemsPerPage,
+    visibility: (visibilityFilter as Visibility) || null,
+    subjectId: activeSubjectId,
+    status: ResourceStatus.Active,
+  });
 
   // Removed isAddModalOpen state
-  const itemsPerPage = 20; // Changé de 10 à 20 par page
 
   const handleDomainChange = (domain: string) => {
     setActiveDomain(domain);
     setActiveSubject(null);
   };
 
-  const filteredResources = resources.filter((resource) => {
-    if (resource.isArchived) return false;
+  // Mapping minimal de ResourceOut (API) -> DisplayResource
+  const mapApiResourceToDisplay = (r: ResourceOut): DisplayResource => {
+    // TODO: remplacer subject_id/competence_id par libellés dès que le mapping est fourni
+    const fileTypeFromMime = (() => {
+      const mt = r.mime_type as string;
+      if (!mt) return "PDF" as const;
+      if (mt.startsWith("image/")) return "IMAGE" as const;
+      if (mt.startsWith("video/")) return "VIDEO" as const;
+      if (mt.includes("pdf")) return "PDF" as const;
+      if (mt.includes("presentation")) return "PPTX" as const;
+      if (mt.includes("word")) return "DOCX" as const;
+      return "PDF" as const;
+    })();
 
-    const resourceDomain = Object.keys(domainsData).find((domain) =>
-      domainsData[domain].includes(resource.subject)
-    );
+    return {
+      id: r.id,
+      title: r.title,
+      subject: subjectIdToNameMap[r.subject_id] || String(r.subject_id),
+      description: r.description ?? "",
+      addedDate: new Date(r.created_at).toLocaleDateString("fr-FR"),
+      author: r.author_user_id === user?.id ? `${user.firstName} ${user.lastName}` : r.author_user_id,
+      isArchived: r.status === "ARCHIVED",
+      visibility: r.visibility,
+      fileType: fileTypeFromMime,
+      fileSize: r.size_bytes,
+      version: r.version,
+      createdAt: r.created_at,
+      updatedAt: r.updated_at,
+    };
+  };
 
-    if (resourceDomain !== activeDomain) return false;
-    if (activeSubject && resource.subject !== activeSubject) return false;
-    if (searchTerm) {
+  const displayedResources: DisplayResource[] = (apiResources ?? [])
+    .map(mapApiResourceToDisplay)
+    .filter((resource) => {
+      if (!searchTerm) return true;
       const searchLower = searchTerm.toLowerCase();
-      const titleMatch = resource.title.toLowerCase().includes(searchLower);
-      const descriptionMatch = resource.description?.toLowerCase().includes(searchLower) || false;
-      const competenceMatch = resource.competence?.toLowerCase().includes(searchLower) || false;
-      const authorMatch = (() => {
-        if (resource.author && typeof resource.author === 'object' && resource.author !== null && 'name' in resource.author) {
-          return (resource.author as { name: string }).name.toLowerCase().includes(searchLower);
-        }
-        return false;
-      })();
-      
-      if (!titleMatch && !descriptionMatch && !competenceMatch && !authorMatch) {
-      return false;
-      }
-    }
-
-    // Filtrage par statut payant
-    if (paymentFilter === "paid" && !resource.isPaid) return false;
-    if (paymentFilter === "free" && resource.isPaid) return false;
-
-    // Nouveaux filtres avancés
-    if (
-      fileTypeFilter &&
-      resource.fileType &&
-      resource.fileType !== fileTypeFilter
-    )
-      return false;
-    if (
-      visibilityFilter &&
-      resource.visibility &&
-      resource.visibility !== visibilityFilter
-    )
-      return false;
-
+      return (
+        resource.title.toLowerCase().includes(searchLower) ||
+        resource.description.toLowerCase().includes(searchLower) ||
+        (resource.competence || "").toLowerCase().includes(searchLower) ||
+        resource.author.toLowerCase().includes(searchLower)
+      );
+    })
+    .filter((resource) => {
+      if (paymentFilter === "all") return true;
+      if (paymentFilter === "paid") return resource.isPaid;
+      if (paymentFilter === "free") return !resource.isPaid;
     return true;
   });
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [
-    activeDomain,
-    activeSubject,
-    searchTerm,
-    fileTypeFilter,
-    visibilityFilter,
-  ]);
+  const totalPages = apiResources ? Math.ceil(displayedResources.length / itemsPerPage) : 1; // This will need to be adjusted once the API returns total count
 
-  const totalPages = Math.ceil(filteredResources.length / itemsPerPage);
-  const paginatedResources = filteredResources.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const displayedResources: DisplayResource[] = paginatedResources.map(
-    (resource) => {
-      // Utiliser la fonction detectFileType pour déterminer le type de fichier
-      let detectedFileType: DisplayResource['fileType'] = "PDF";
-      
-      // Si on a un fileType existant, on vérifie s'il est dans les types autorisés
-      if (resource.fileType) {
-        const allowedTypes = ["PDF", "DOCX", "PPTX", "VIDEO", "IMAGE", "LINK"] as const;
-        if (allowedTypes.includes(resource.fileType as typeof allowedTypes[number])) {
-          detectedFileType = resource.fileType as DisplayResource['fileType'];
-        }
-      }
-      
-      return {
-        ...resource,
-        addedDate: new Date().toLocaleDateString("fr-FR"),
-        author: "Enseignant", // Par défaut, afficher "Enseignant" comme auteur
-        visibility: resource.visibility || "SCHOOL", // Par défaut, visibilité école
-        fileType: detectedFileType,
-        fileSize: resource.fileSize || 2048576,
-        version: resource.version || 1,
-      };
-    }
-  );
+  const handleArchive = (resourceId: string | number) => {
+    archiveMutation.mutate(String(resourceId));
+  };
 
   return (
     <div className="bg-white min-h-screen p-4 md:p-6">
@@ -733,9 +668,9 @@ function RessourcesPage() {
           {displayedResources.length > 0 ? (
             displayedResources.map((resource) => (
               <ResourceListItem
-                key={resource.id}
+                key={typeof resource.id === 'string' ? resource.id : String(resource.id)}
                 resource={resource}
-                onArchive={() => archiveResource(resource.id)}
+                onArchive={() => handleArchive(resource.id)}
                 isParent={!canModifyResources}
               />
             ))

@@ -4,7 +4,10 @@ import {
     Upload, FileText, Lock, Users, Globe,
     ChevronLeft, ChevronRight, Check, AlertCircle
 } from "lucide-react";
-import { useResources } from "../contexts/ResourceContext";
+import { useCreateResource } from "../hooks/useCreateResource";
+import { useUpdateResource } from "../hooks/useUpdateResource";
+import { useResourceDetail } from "../hooks/useResourceDetail";
+import { subjectNameToIdMap, subjectIdToNameMap } from "./RessourcesPage";
 
 // Données des domaines et matières (réutilisées depuis RessourcesPage)
 const domainsData: { [key: string]: string[] } = {
@@ -36,8 +39,10 @@ interface ResourceFormData {
 function CreateResourcePage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { addResource, updateResource } = useResources();
+    const createResourceMutation = useCreateResource();
+    const updateResourceMutation = useUpdateResource();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [creationError, setCreationError] = useState<string | null>(null);
 
     // États du formulaire
     const [currentStep, setCurrentStep] = useState(1);
@@ -62,47 +67,41 @@ function CreateResourcePage() {
 
     // États pour l'édition
     const [isEditMode, setIsEditMode] = useState(false);
-    const [editingResourceId, setEditingResourceId] = useState<number | null>(null);
+    const [editingResourceId, setEditingResourceId] = useState<string | null>(null);
     const [readOnlyFields, setReadOnlyFields] = useState<string[]>([]);
+    
+    // Récupération des données pour l'édition
+    const resourceIdFromURL = searchParams.get('resourceId');
+    const { data: resourceToEdit, isLoading: isLoadingResource } = useResourceDetail(resourceIdFromURL!);
 
     // Initialisation pour l'édition
     useEffect(() => {
         const editParam = searchParams.get('edit');
-        const dataParam = searchParams.get('data');
-        const readOnlyParam = searchParams.get('readOnly');
-
-        if (editParam === 'true' && dataParam) {
-            try {
-                const editData = JSON.parse(decodeURIComponent(dataParam));
-                const readOnly = readOnlyParam ? JSON.parse(decodeURIComponent(readOnlyParam)) : [];
-
+        if (editParam === 'true' && resourceIdFromURL) {
                 setIsEditMode(true);
-                setEditingResourceId(editData.id);
-                setReadOnlyFields(readOnly);
+            setEditingResourceId(resourceIdFromURL);
+        }
+
+        if (isEditMode && resourceToEdit) {
+            const subjectName = subjectIdToNameMap[resourceToEdit.subject_id] || '';
+            const domainName = Object.keys(domainsData).find(domain => 
+                domainsData[domain].includes(subjectName)
+            ) || domainNames[0];
 
                 // Pré-remplir les données du formulaire
                 setFormData({
-                    title: editData.title || '',
-                    description: editData.description || '',
-                    domain: editData.domain || domainNames[0],
-                    subject: editData.subject || '',
-                    competence: editData.competence || '',
-                    visibility: editData.visibility || 'SCHOOL',
-                });
-
-                // Pré-remplir l'image de couverture
-                if (editData.imageUrl) {
-                    setCoverImageUrl(editData.imageUrl);
-                }
+                title: resourceToEdit.title || '',
+                description: resourceToEdit.description || '',
+                domain: domainName,
+                subject: subjectName,
+                competence: '', // API does not provide this yet
+                visibility: resourceToEdit.visibility || 'SCHOOL',
+            });
 
                 // Commencer par l'étape 1 pour permettre la navigation
                 setCurrentStep(1);
-
-            } catch (error) {
-                console.error('Erreur lors du parsing des données d\'édition:', error);
             }
-        }
-    }, [searchParams]);
+    }, [searchParams, resourceIdFromURL, isEditMode, resourceToEdit]);
 
     // Validation des étapes (maintenant 3 étapes au lieu de 4)
     const isStep1Valid = uploadedFile !== null || isEditMode;
@@ -234,40 +233,51 @@ function CreateResourcePage() {
     // Création ou mise à jour de la ressource
     const createResource = async () => {
         if (!uploadedFile && !isEditMode) return;
+        setCreationError(null);
 
-        try {
-            const resourceData = {
+        const subjectId = subjectNameToIdMap[formData.subject];
+        // For now, let's use a placeholder for competenceId
+        const competenceId = 1;
+
+        if (isEditMode && editingResourceId) {
+            updateResourceMutation.mutate({
+                resourceId: editingResourceId,
                 title: formData.title,
                 description: formData.description,
-                subject: formData.subject,
-                competence: formData.competence,
+                subjectId: subjectId,
+                competenceId: competenceId,
                 visibility: formData.visibility,
-                imageUrl: (coverImageUrl || coverImageFile) 
-                    ? (coverImageFile ? URL.createObjectURL(coverImageFile) : coverImageUrl)
-                    : (uploadedFile?.type.startsWith('image/') ? URL.createObjectURL(uploadedFile) : '/placeholder-image.jpg'),
-                fileType: uploadedFile ? getFileTypeFromMime(uploadedFile.type) : undefined,
-                fileSize: uploadedFile?.size,
-                uploadedFile: uploadedFile || undefined, // ✅ Stocker le fichier uploadé (null devient undefined)
-                author: {
-                    id: 'user_1',
-                    name: 'Enseignant',
-                    role: 'enseignant'
+                file: uploadedFile || undefined,
+            }, {
+                onSuccess: () => {
+                    navigate('/ressources');
+                },
+                onError: (error) => {
+                    setCreationError(error.message || "Une erreur inattendue est survenue.");
                 }
-            };
-
-            if (isEditMode && editingResourceId) {
-                // Mode édition : mettre à jour la ressource existante
-                updateResource(editingResourceId, resourceData);
-            } else {
-                // Mode création : ajouter une nouvelle ressource
-                addResource(resourceData);
-            }
-
+            });
+        } else if (uploadedFile) {
+            createResourceMutation.mutate({
+                title: formData.title,
+                description: formData.description,
+                subjectId: subjectId,
+                competenceId: competenceId,
+                visibility: formData.visibility,
+                file: uploadedFile,
+            }, {
+                onSuccess: () => {
             navigate('/ressources');
-        } catch (error) {
-            console.error('Erreur lors de la création/modification:', error);
+                },
+                onError: (error) => {
+                    setCreationError(error.message || "Une erreur inattendue est survenue.");
+                }
+            });
         }
     };
+
+    if (isLoadingResource && isEditMode) {
+        return <div>Chargement de la ressource pour modification...</div>;
+    }
 
     // Fonction pour mapper les types MIME vers les types de fichiers
     const getFileTypeFromMime = (mimeType: string): 'PDF' | 'DOCX' | 'PPTX' | 'VIDEO' | 'IMAGE' | 'LINK' => {
@@ -736,6 +746,12 @@ function CreateResourcePage() {
                     )}
 
                     {/* Bouton de création/modification */}
+                    {creationError && (
+                        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <AlertCircle className="w-5 h-5 text-red-500" />
+                            <span className="text-red-700">{creationError}</span>
+                        </div>
+                    )}
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                         <div className="flex items-center gap-3">
                             <Check className="w-5 h-5 text-green-600" />

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Download, Clock, Calendar, ArrowLeft } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Download, Clock, ArrowLeft } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable, { Table } from 'jspdf-autotable';
 import { useUser } from '../layouts/DashboardLayout';
@@ -7,6 +7,14 @@ import { ActionCard } from '../components/ui/ActionCard';
 import schoolLogo from '../assets/logo-yka-1.png';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import FullCalendar from '@fullcalendar/react';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import frLocale from '@fullcalendar/core/locales/fr';
+import enLocale from '@fullcalendar/core/locales/en-gb';
+// Supprime l'entête de navigation et le contrôle de vue
+import EventDetailsModal from '../components/agenda/EventDetailsModal';
+import { SchoolEvent } from '../components/agenda/agenda_data';
 
 interface jsPDFWithAutoTable extends jsPDF {
     lastAutoTable?: Table;
@@ -37,6 +45,35 @@ const timeSlots = [
 ];
 
 const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
+
+// Détection simple de la matière à partir du titre
+const getSubjectKeyFromTitle = (title: string): string => {
+    const lower = (title || '').toLowerCase();
+    if (lower.includes('english')) return 'english';
+    if (lower.includes('vocabulary') || lower.includes('phonics') || lower.includes('grammar')) return 'language';
+    if (lower.includes('hum') || lower.includes('islamic')) return 'humanities';
+    if (lower.includes('communication') || lower.includes('lecture')) return 'literacy';
+    if (lower.includes('epsa') || lower.includes('musique') || lower.includes('éducation environnementale') || lower.includes('eps')) return 'arts';
+    if (lower.includes('stem')) return 'stem';
+    if (lower.includes('community') || lower.includes('communaut') || lower.includes('arts scéniques')) return 'community';
+    if (lower.includes('wellness')) return 'wellness';
+    if (lower.includes('morning')) return 'briefing';
+    return 'general';
+};
+
+// Couleurs PDF par matière (pastels)
+const pdfFillColorBySubject: Record<string, [number, number, number]> = {
+    briefing: [219, 234, 254],     // bleu clair
+    english: [255, 237, 213],      // orange pastel
+    language: [237, 233, 254],     // violet très clair
+    literacy: [243, 232, 255],     // lavande
+    arts: [254, 226, 226],         // rose clair
+    stem: [220, 252, 231],         // vert clair
+    community: [255, 247, 237],    // orange très pâle
+    humanities: [187, 247, 208],   // vert menthe
+    wellness: [224, 242, 254],     // bleu ciel
+    general: [243, 244, 246],      // gris très clair
+};
 
 // Cours avec position et durée en créneaux (chaque créneau = 30 min)
 const coursesData = {
@@ -127,11 +164,90 @@ const addPdfHeader = (doc: jsPDF, classe: string, title: string) => {
 const EmploiDuTemps: React.FC = () => {
     const { user } = useUser();
     const navigate = useNavigate();
-    const { t } = useTranslation();
-    const [selectedWeek] = useState("Semaine du 13 - 17 Janvier 2025");
+    const { t, i18n } = useTranslation();
+    const calendarRef = useRef<FullCalendar>(null);
+    // Vue figée sur la semaine type
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [viewingEvent, setViewingEvent] = useState<SchoolEvent | null>(null);
+    const [events, setEvents] = useState<SchoolEvent[]>([]);
     
     const currentClasse = user?.classId || "CP2";
     const currentDate = new Date().toLocaleDateString('fr-FR');
+
+    // Construire les événements à partir des données locales (semaine type)
+    useEffect(() => {
+        const getWeekStartMonday = (date: Date) => {
+            const d = new Date(date);
+            const day = d.getDay(); // 0=dimanche, 1=lundi
+            const diff = (day === 0 ? -6 : 1) - day; // ajuster au lundi de la semaine courante
+            d.setDate(d.getDate() + diff);
+            d.setHours(0, 0, 0, 0);
+            return d;
+        };
+
+        const monday = getWeekStartMonday(new Date());
+
+        const dayNameToOffset: Record<string, number> = {
+            'Lundi': 0,
+            'Mardi': 1,
+            'Mercredi': 2,
+            'Jeudi': 3,
+            'Vendredi': 4,
+        };
+
+        const getEndTime = (startSlot: number, duration: number): string => {
+            const endIndex = startSlot + duration;
+            if (endIndex < timeSlots.length) {
+                return timeSlots[endIndex].time;
+            }
+            return '13:00';
+        };
+
+        const toIso = (baseDate: Date, time: string): string => {
+            const [h, m] = time.split(':').map(Number);
+            const d = new Date(baseDate);
+            d.setHours(h, m, 0, 0);
+            return d.toISOString();
+        };
+
+        const getSubjectKeyFromTitle = (title: string): string => {
+            const lower = title.toLowerCase();
+            if (lower.includes('english')) return 'english';
+            if (lower.includes('vocabulary') || lower.includes('phonics') || lower.includes('grammar')) return 'language';
+            if (lower.includes('hum') || lower.includes('islamic')) return 'humanities';
+            if (lower.includes('communication') || lower.includes('lecture')) return 'literacy';
+            if (lower.includes('epsa') || lower.includes('musique') || lower.includes('éducation environnementale') || lower.includes('eps')) return 'arts';
+            if (lower.includes('stem')) return 'stem';
+            if (lower.includes('community') || lower.includes('communaut') || lower.includes('arts scéniques')) return 'community';
+            if (lower.includes('wellness')) return 'wellness';
+            if (lower.includes('morning')) return 'briefing';
+            return 'general';
+        };
+
+        const built: SchoolEvent[] = Object.entries(coursesData).flatMap(([dayName, slots]) => {
+            const offset = dayNameToOffset[dayName];
+            const dayDate = new Date(monday);
+            dayDate.setDate(monday.getDate() + offset);
+
+            return slots.map((course, idx) => {
+                const startTime = timeSlots[course.startSlot].time;
+                const endTime = getEndTime(course.startSlot, course.duration);
+                const subjectKey = getSubjectKeyFromTitle(course.title);
+                return {
+                    id: `${dayName}-${idx}`,
+                    title: course.title,
+                    start: toIso(dayDate, startTime),
+                    end: toIso(dayDate, endTime),
+                    allDay: false,
+                    category: 'activite',
+                    targetAudience: ['Élèves'],
+                    className: `event-${subjectKey}`,
+                } as SchoolEvent;
+            });
+        });
+
+        setEvents(built);
+    }, []);
 
     const handleExportPdf = () => {
         try {
@@ -160,8 +276,8 @@ const EmploiDuTemps: React.FC = () => {
                     const courseAtSlot = daySchedule.find(course => course.startSlot === slotIndex);
                     
                     if (courseAtSlot) {
-                        // Si un cours commence à ce slot, l'afficher
-                        row.push(`${courseAtSlot.title.replace('\n', ' ')} (${courseAtSlot.time})`);
+                        // Si un cours commence à ce slot, l'afficher (coloration via didParseCell)
+                        row.push(`${courseAtSlot.title.replace('\n', ' ')}`);
                     } else {
                         // Vérifier si ce slot fait partie d'un cours qui a commencé avant
                         const ongoingCourse = daySchedule.find(course => 
@@ -174,7 +290,7 @@ const EmploiDuTemps: React.FC = () => {
                             row.push('');
                         } else {
                             // Pas de cours à ce slot
-                            row.push('-');
+                            row.push('');
                         }
                     }
                 });
@@ -203,11 +319,30 @@ const EmploiDuTemps: React.FC = () => {
                 },
                 columnStyles: {
                     0: { cellWidth: 25, fontStyle: 'bold', halign: 'left', fillColor: [248, 250, 252] },
-                    1: { cellWidth: 45, halign: 'center' },
-                    2: { cellWidth: 45, halign: 'center' },
-                    3: { cellWidth: 45, halign: 'center' },
-                    4: { cellWidth: 45, halign: 'center' },
-                    5: { cellWidth: 45, halign: 'center' },
+                    1: { cellWidth: 44, halign: 'center' },
+                    2: { cellWidth: 44, halign: 'center' },
+                    3: { cellWidth: 44, halign: 'center' },
+                    4: { cellWidth: 44, halign: 'center' },
+                    5: { cellWidth: 44, halign: 'center' },
+                },
+                didParseCell: (data) => {
+                    const { section, row, column, cell } = data;
+                    if (section === 'body' && column.index > 0) {
+                        const slotIndex = row.index; // correspond à timeSlots.slice(0,10)
+                        const dayIndex = column.index - 1; // 0..4 => Lundi..Vendredi
+                        const dayKey = days[dayIndex] as keyof typeof coursesData;
+                        const courseCovering = coursesData[dayKey].find(c => c.startSlot <= slotIndex && (c.startSlot + c.duration) > slotIndex);
+                        if (courseCovering) {
+                            const subjectKey = getSubjectKeyFromTitle(courseCovering.title);
+                            const fill = pdfFillColorBySubject[subjectKey] || pdfFillColorBySubject.general;
+                            cell.styles.fillColor = [fill[0], fill[1], fill[2]] as [number, number, number];
+                            cell.styles.textColor = [30, 58, 138] as [number, number, number];
+                            // Mettre en gras uniquement sur la première case (début du cours)
+                            if (courseCovering.startSlot === slotIndex) {
+                                cell.styles.fontStyle = 'bold';
+                            }
+                        }
+                    }
                 }
             });
 
@@ -240,10 +375,7 @@ const EmploiDuTemps: React.FC = () => {
                                 <h1 className="text-3xl font-bold text-slate-800 mb-2">
                                     Emploi du Temps YKA {currentClasse.toUpperCase()}
                                 </h1>
-                                <p className="text-slate-600 font-medium flex items-center gap-2">
-                                    <Calendar className="w-4 h-4" />
-                                    {selectedWeek}
-                                </p>
+                                {/* Semaine type: pas d'affichage de dates */}
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
@@ -263,86 +395,79 @@ const EmploiDuTemps: React.FC = () => {
                             />
                         </div>
                     </div>
+                    {/* Navigation supprimée pour une semaine type */}
                 </div>
             </div>
 
-            {/* Grille de l'emploi du temps avec style moderne */}
-            <div className="bg-white from-slate-50 to-white rounded-xl p-6 shadow-lg border border-slate-200">
-                {/* En-tête avec les jours */}
-                <div className="grid grid-cols-6 gap-4 mb-6">
-                    <div></div> {/* Colonne vide pour les horaires */}
-                    {days.map(day => (
-                        <div key={day} className="text-center">
-                            <h3 className="text-slate-700 font-semibold text-lg">{day}</h3>
-                        </div>
-                    ))}
-                </div>
+            {/* Styles d'événement par matière avec bon contraste */}
+            <style>{`
+                /* Palette matières */
+                .event-briefing { background-color: rgba(59, 130, 246, 0.10) !important; border-color: #3b82f6 !important; color: #1E3A8A !important; }
+                .event-english { background-color: rgba(245, 158, 11, 0.12) !important; border-color: #f59e0b !important; color: #1E3A8A !important; }
+                .event-language { background-color: rgba(139, 92, 246, 0.12) !important; border-color: #8b5cf6 !important; color: #1E3A8A !important; }
+                .event-literacy { background-color: rgba(192, 132, 252, 0.12) !important; border-color: #c084fc !important; color: #1E3A8A !important; }
+                .event-arts { background-color: rgba(244, 63, 94, 0.10) !important; border-color: #f43f5e !important; color: #1E3A8A !important; }
+                .event-stem { background-color: rgba(16, 185, 129, 0.12) !important; border-color: #10b981 !important; color: #1E3A8A !important; }
+                .event-community { background-color: rgba(249, 115, 22, 0.12) !important; border-color: #f97316 !important; color: #1E3A8A !important; }
+                .event-humanities { background-color: rgba(34, 197, 94, 0.12) !important; border-color: #22c55e !important; color: #1E3A8A !important; }
+                .event-wellness { background-color: rgba(14, 165, 233, 0.12) !important; border-color: #0ea5e9 !important; color: #1E3A8A !important; }
+                .event-general { background-color: rgba(107, 114, 128, 0.10) !important; border-color: #6b7280 !important; color: #1E3A8A !important; }
 
-                {/* Grille avec horaires et cours */}
-                <div className="relative">
-                    {/* Grille de base */}
-                    <div className="grid grid-cols-6 gap-2">
-                        {/* Colonne des horaires */}
-                        <div className="space-y-0">
-                            {timeSlots.map((slot) => (
-                                <div key={slot.time} className="flex items-start justify-center relative pt-1" style={{ height: '72px' }}>
-                                    <span className="bg-slate-200 text-slate-700 px-3 py-1 rounded text-sm font-medium border border-slate-300" style={{ fontFamily: 'Montserrat' }}>
-                                        {slot.label}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
+                .fc .fc-timegrid-event[class*='event-'],
+                .fc .fc-daygrid-event[class*='event-'],
+                .fc-event[class*='event-'] {
+                    border-left-width: 4px !important;
+                    border-left-style: solid !important;
+                    font-weight: 600 !important;
+                }
+                /* S'assurer que tout le contenu interne hérite d'une couleur lisible */
+                .fc .fc-timegrid-event .fc-event-main,
+                .fc .fc-timegrid-event .fc-event-title,
+                .fc .fc-timegrid-event .fc-event-time,
+                .fc .fc-timegrid-event .fc-event-title-container,
+                .fc-event[class*='event-'] .fc-event-main,
+                .fc-event[class*='event-'] * {
+                    color: #1E3A8A !important;
+                }
+                .fc .fc-timegrid-event {
+                    border-radius: 8px !important;
+                }
+            `}</style>
 
-                        {/* Colonnes des jours */}
-                        {days.map(day => (
-                            <div key={day} className="relative" style={{ height: `${timeSlots.length * 72}px` }}>
-                                {/* Grille de positionnement absolu pour chaque cours */}
-                                {coursesData[day as keyof typeof coursesData].map((course, index) => {
-                                    const topPosition = course.startSlot * 72 + (course.startSlot > 0 ? 4 : 0); // +4px d'offset sauf pour le premier
-                                    const height = course.duration * 72 - 8; // Hauteur uniforme pour même durée
-                                    
-                                    return (
-                                        <div
-                                            key={index}
-                                            className={`absolute left-0 right-0 p-2 rounded-lg border-l-4 shadow-sm ${course.color} flex flex-col justify-start overflow-hidden`}
-                                            style={{
-                                                top: `${topPosition}px`,
-                                                height: `${height}px`,
-                                                minHeight: '56px'
-                                            }}
-                                        >
-                                            <div className="text-xs font-medium opacity-75 mb-1 break-words" style={{ color: '#1E3A8A', fontFamily: 'Montserrat' }}>
-                                                {course.time}
-                                            </div>
-                                            <div className="text-sm font-semibold leading-tight break-words hyphens-auto" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', color: '#1E3A8A', fontFamily: 'Montserrat' }}>
-                                                {course.title.split('\n').map((line, i) => (
-                                                    <div key={i} className="break-words" style={{ color: '#1E3A8A', fontFamily: 'Montserrat' }}>{line}</div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ))}
-                    </div>
-                    
-                    {/* Barre de PAUSE qui s'étend sur toutes les colonnes */}
-                    <div
-                        className="absolute bg-white border border-slate-300 border-l-4 border-l-slate-400 rounded-lg flex items-center justify-center shadow-sm"
-                        style={{
-                            top: '360px', // Position du slot 5 (10:30) avec 72px par slot
-                            left: 'calc(16.6667% + 0rem)', // Début après la colonne des horaires
-                            right: '0rem', // Marge droite pour aligner avec les cartes
-                            height: '64px', // -8px pour le gap comme les autres cartes (72-8=64)
-                            zIndex: 10
-                        }}
-                    >
-                        <span className="font-bold text-lg tracking-wider" style={{ color: '#1E3A8A', fontFamily: 'Montserrat' }}>PAUSE</span>
-                    </div>
-                </div>
+            {/* Calendrier dynamique hebdomadaire - rendu directement sur la page */}
+            <FullCalendar
+                key={i18n.language}
+                ref={calendarRef}
+                plugins={[timeGridPlugin, interactionPlugin]}
+                initialView={'timeGridWeek'}
+                headerToolbar={false}
+                locale={i18n.language === 'fr' ? frLocale : enLocale}
+                firstDay={1}
+                weekends={false}
+                slotMinTime={'08:00:00'}
+                slotMaxTime={'13:00:00'}
+                slotDuration={'00:30:00'}
+                allDaySlot={false}
+                height={"80vh"}
+                expandRows={true}
+                nowIndicator={true}
+                events={events}
+                displayEventTime={false}
+                eventClick={(clickInfo) => {
+                    setViewingEvent(clickInfo.event.toPlainObject({ collapseExtendedProps: true }) as SchoolEvent);
+                    setIsDetailsOpen(true);
+                }}
+                dayHeaderFormat={{ weekday: 'long' }}
+                slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
+                buttonText={{ today: "Aujourd'hui", week: 'Semaine', day: 'Jour' }}
+            />
 
-
-            </div>
+            {/* Détails de l'événement */}
+            <EventDetailsModal
+                isOpen={isDetailsOpen}
+                onClose={() => setIsDetailsOpen(false)}
+                event={viewingEvent}
+            />
         </div>
     );
 };

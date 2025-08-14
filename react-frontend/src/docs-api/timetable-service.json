@@ -1,0 +1,1332 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Timetable Service",
+        "description": "API REST conforme au cahier des charges avec authentification par en-têtes",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/health": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health",
+                "operationId": "health_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/message": {
+            "get": {
+                "tags": [
+                    "Test"
+                ],
+                "summary": "Get Message",
+                "description": "Point de terminaison de test pour démontrer la récupération des en-têtes\nselon le guide de l'équipe Infrastructure",
+                "operationId": "get_message_message_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/rooms/": {
+            "post": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Create Room",
+                "description": "Créer une salle. Rôles: ADMIN, COORDONNATEUR",
+                "operationId": "create_room_rooms__post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RoomCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoomRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "List Rooms",
+                "description": "Lister les salles.",
+                "operationId": "list_rooms_rooms__get",
+                "parameters": [
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/RoomRead"
+                                    },
+                                    "title": "Response List Rooms Rooms  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/timeslots/": {
+            "post": {
+                "tags": [
+                    "Timeslots"
+                ],
+                "summary": "Create Timeslot",
+                "description": "Créer un créneau horaire. Rôles: ADMIN, COORDONNATEUR",
+                "operationId": "create_timeslot_timeslots__post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TimeslotCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimeslotRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Timeslots"
+                ],
+                "summary": "List Timeslots",
+                "description": "Lister les créneaux horaires.",
+                "operationId": "list_timeslots_timeslots__get",
+                "parameters": [
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TimeslotRead"
+                                    },
+                                    "title": "Response List Timeslots Timeslots  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/lessons/": {
+            "post": {
+                "tags": [
+                    "Lessons"
+                ],
+                "summary": "Create Lessons",
+                "description": "Créer un cours ou une série (repeatweekly). Rôles: ENSEIGNANT, COORDONNATEUR, ADMIN",
+                "operationId": "create_lessons_lessons__post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LessonCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LessonRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Lessons"
+                ],
+                "summary": "List Lessons",
+                "description": "Lister les cours (filtres: classe, prof, dates). Rôles: tous. PARENT: accès restreint.",
+                "operationId": "list_lessons_lessons__get",
+                "parameters": [
+                    {
+                        "name": "class_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Class Id"
+                        }
+                    },
+                    {
+                        "name": "from_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "From Date"
+                        }
+                    },
+                    {
+                        "name": "to_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "To Date"
+                        }
+                    },
+                    {
+                        "name": "teacher_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Teacher Id"
+                        }
+                    },
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/LessonRead"
+                                    },
+                                    "title": "Response List Lessons Lessons  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/lessons/{lesson_id}": {
+            "patch": {
+                "tags": [
+                    "Lessons"
+                ],
+                "summary": "Update Lesson",
+                "description": "Mettre à jour salle/timeslot. Vérifie conflit. Rôles: ENSEIGNANT, COORDONNATEUR, ADMIN",
+                "operationId": "update_lesson_lessons_lesson_id_patch",
+                "parameters": [
+                    {
+                        "name": "lesson_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Lesson Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LessonUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LessonRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Lessons"
+                ],
+                "summary": "Delete Lesson",
+                "description": "Supprimer un cours. Rôles: COORDONNATEUR, ADMIN",
+                "operationId": "delete_lesson_lessons_lesson_id_delete",
+                "parameters": [
+                    {
+                        "name": "lesson_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Lesson Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LessonRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/absences/": {
+            "post": {
+                "tags": [
+                    "Absences"
+                ],
+                "summary": "Create Absence",
+                "description": "Déclarer une absence (status REPORTED). Rôles: ENSEIGNANT, COORDONNATEUR, ADMIN",
+                "operationId": "create_absence_absences__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AbsenceCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AbsenceRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/absences/{absence_id}/validate": {
+            "post": {
+                "tags": [
+                    "Absences"
+                ],
+                "summary": "Validate Absence",
+                "description": "Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.",
+                "operationId": "validate_absence_absences_absence_id_validate_post",
+                "parameters": [
+                    {
+                        "name": "absence_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Absence Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AbsenceRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/absences/{absence_id}": {
+            "delete": {
+                "tags": [
+                    "Absences"
+                ],
+                "summary": "Delete Absence",
+                "description": "Supprimer une absence. Rôles: COORDONNATEUR, ADMIN",
+                "operationId": "delete_absence_absences_absence_id_delete",
+                "parameters": [
+                    {
+                        "name": "absence_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Absence Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AbsenceRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/replacements/": {
+            "post": {
+                "tags": [
+                    "Replacements"
+                ],
+                "summary": "Create Replacement",
+                "description": "Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTION, ADMIN",
+                "operationId": "create_replacement_replacements__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReplacementCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReplacementRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/replacements/{replacement_id}": {
+            "delete": {
+                "tags": [
+                    "Replacements"
+                ],
+                "summary": "Delete Replacement",
+                "description": "Supprimer un remplacement. Rôles: COORDONNATEUR, ADMIN",
+                "operationId": "delete_replacement_replacements_replacement_id_delete",
+                "parameters": [
+                    {
+                        "name": "replacement_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Replacement Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReplacementRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/feed/{class_id}.ics": {
+            "get": {
+                "tags": [
+                    "Feed"
+                ],
+                "summary": "Get Ics Feed",
+                "description": "Flux iCalendar public pour une classe.",
+                "operationId": "get_ics_feed_feed_class_id_ics_get",
+                "parameters": [
+                    {
+                        "name": "class_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Class Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/lessons/{lesson_id}/audit": {
+            "get": {
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Get Lesson Audit",
+                "description": "Journal d'audit pour un cours. Rôle: DIRECTION",
+                "operationId": "get_lesson_audit_lessons_lesson_id_audit_get",
+                "parameters": [
+                    {
+                        "name": "lesson_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Lesson Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TimetableAuditRead"
+                                    },
+                                    "title": "Response Get Lesson Audit Lessons  Lesson Id  Audit Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AbsenceCreate": {
+                "properties": {
+                    "teacher_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Teacher Id"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Date"
+                    },
+                    "timeslot_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Timeslot Id"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "title": "Reason"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status",
+                        "default": "REPORTED"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "teacher_id",
+                    "date",
+                    "timeslot_id",
+                    "reason"
+                ],
+                "title": "AbsenceCreate"
+            },
+            "AbsenceRead": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "teacher_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Teacher Id"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Date"
+                    },
+                    "timeslot_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Timeslot Id"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "title": "Reason"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "teacher_id",
+                    "date",
+                    "timeslot_id",
+                    "reason",
+                    "status",
+                    "created_at"
+                ],
+                "title": "AbsenceRead"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "LessonCreate": {
+                "properties": {
+                    "class_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Class Id"
+                    },
+                    "subject_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Subject Id"
+                    },
+                    "teacher_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Teacher Id"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Date"
+                    },
+                    "timeslot_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Timeslot Id"
+                    },
+                    "room_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Room Id"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/LessonStatus",
+                        "default": "SCHEDULED"
+                    },
+                    "repeatweekly": {
+                        "type": "integer",
+                        "title": "Repeatweekly",
+                        "default": 1
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "class_id",
+                    "subject_id",
+                    "teacher_id",
+                    "date",
+                    "timeslot_id",
+                    "room_id"
+                ],
+                "title": "LessonCreate"
+            },
+            "LessonRead": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "class_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Class Id"
+                    },
+                    "subject_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Subject Id"
+                    },
+                    "teacher_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Teacher Id"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Date"
+                    },
+                    "timeslot_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Timeslot Id"
+                    },
+                    "room_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Room Id"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/LessonStatus"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "class_id",
+                    "subject_id",
+                    "teacher_id",
+                    "date",
+                    "timeslot_id",
+                    "room_id",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "LessonRead"
+            },
+            "LessonStatus": {
+                "type": "string",
+                "enum": [
+                    "SCHEDULED",
+                    "CANCELLED",
+                    "REPLACED"
+                ],
+                "title": "LessonStatus"
+            },
+            "LessonUpdate": {
+                "properties": {
+                    "room_id": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Room Id"
+                    },
+                    "timeslot_id": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Timeslot Id"
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/LessonStatus"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "type": "object",
+                "title": "LessonUpdate"
+            },
+            "ReplacementCreate": {
+                "properties": {
+                    "lesson_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Lesson Id"
+                    },
+                    "new_teacher_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "New Teacher Id"
+                    },
+                    "validated_by": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Validated By"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "lesson_id",
+                    "new_teacher_id",
+                    "validated_by"
+                ],
+                "title": "ReplacementCreate"
+            },
+            "ReplacementRead": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "lesson_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Lesson Id"
+                    },
+                    "old_teacher_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Old Teacher Id"
+                    },
+                    "new_teacher_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "New Teacher Id"
+                    },
+                    "validated_by": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Validated By"
+                    },
+                    "validated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Validated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "lesson_id",
+                    "old_teacher_id",
+                    "new_teacher_id",
+                    "validated_by"
+                ],
+                "title": "ReplacementRead"
+            },
+            "RoomCreate": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "capacity": {
+                        "type": "integer",
+                        "title": "Capacity"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "capacity"
+                ],
+                "title": "RoomCreate"
+            },
+            "RoomRead": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "capacity": {
+                        "type": "integer",
+                        "title": "Capacity"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "capacity"
+                ],
+                "title": "RoomRead"
+            },
+            "TimeslotCreate": {
+                "properties": {
+                    "start_time": {
+                        "type": "string",
+                        "format": "time",
+                        "title": "Start Time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "time",
+                        "title": "End Time"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "start_time",
+                    "end_time"
+                ],
+                "title": "TimeslotCreate"
+            },
+            "TimeslotRead": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "time",
+                        "title": "Start Time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "time",
+                        "title": "End Time"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "start_time",
+                    "end_time"
+                ],
+                "title": "TimeslotRead"
+            },
+            "TimetableAuditRead": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "entity_type": {
+                        "type": "string",
+                        "title": "Entity Type"
+                    },
+                    "entity_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Entity Id"
+                    },
+                    "action": {
+                        "type": "string",
+                        "title": "Action"
+                    },
+                    "actor_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Actor Id"
+                    },
+                    "actor_role": {
+                        "type": "string",
+                        "title": "Actor Role"
+                    },
+                    "diff": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Diff"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "entity_type",
+                    "entity_id",
+                    "action",
+                    "actor_id",
+                    "actor_role",
+                    "diff",
+                    "created_at"
+                ],
+                "title": "TimetableAuditRead"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

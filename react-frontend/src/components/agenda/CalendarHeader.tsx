@@ -11,6 +11,8 @@ interface CalendarHeaderProps {
   onViewChange: (view: string) => void;
   onToggleSidebar: () => void;
   isSidebarOpen?: boolean;
+  showTodayButton?: boolean;
+  showViewOptions?: boolean;
 }
 
 const CalendarHeader: React.FC<CalendarHeaderProps> = ({
@@ -20,7 +22,9 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onNext,
   onToday,
   onViewChange,
-  onToggleSidebar
+  onToggleSidebar,
+  showTodayButton = true,
+  showViewOptions = true
 }) => {
   const { t } = useTranslation();
   
@@ -69,48 +73,54 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       {/* Section droite - Bouton Aujourd'hui + Sélecteur de vue */}
       <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
         {/* Bouton Aujourd'hui */}
-        <button 
-          onClick={onToday} 
-          className="px-4 py-2 bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-200 rounded-lg font-medium transition-colors flex items-center gap-2"
-        >
-          <Calendar size={16} />
-          <span className="hidden sm:inline">{t('today', "Aujourd'hui")}</span>
-        </button>
+        {showTodayButton && (
+          <button 
+            onClick={onToday} 
+            className="px-4 py-2 bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-200 rounded-lg font-medium transition-colors flex items-center gap-2"
+          >
+            <Calendar size={16} />
+            <span className="hidden sm:inline">{t('today', "Aujourd'hui")}</span>
+          </button>
+        )}
 
         {/* Sélecteur de vue - Style boutons sur desktop, select sur mobile */}
-        <div className="flex lg:hidden">
-          <select
-            value={currentView}
-            onChange={(e) => onViewChange(e.target.value)}
-            className="bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 px-3 py-2"
-          >
-            {viewOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        {showViewOptions && (
+          <div className="flex lg:hidden">
+            <select
+              value={currentView}
+              onChange={(e) => onViewChange(e.target.value)}
+              className="bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 px-3 py-2"
+            >
+              {viewOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Boutons de vue pour desktop */}
-        <div className="hidden lg:flex bg-gray-100 rounded-lg p-1">
-          {viewOptions.map(option => (
-            <button
-              key={option.value}
-              onClick={() => onViewChange(option.value)}
-              className={`
-                flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200
-                ${currentView === option.value 
-                  ? 'bg-white text-orange-600 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }
-              `}
-            >
-              {option.icon}
-              <span>{option.label}</span>
-            </button>
-          ))}
-        </div>
+        {showViewOptions && (
+          <div className="hidden lg:flex bg-gray-100 rounded-lg p-1">
+            {viewOptions.map(option => (
+              <button
+                key={option.value}
+                onClick={() => onViewChange(option.value)}
+                className={`
+                  flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200
+                  ${currentView === option.value 
+                    ? 'bg-white text-orange-600 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }
+                `}
+              >
+                {option.icon}
+                <span>{option.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
