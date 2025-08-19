@@ -33,8 +33,7 @@ const transformRoles = (keycloakRoles: string[]): string[] => {
       case 'ROLE_PARENT':
         appRoles.push('parent');
         break;
-      case 'ROLE_ADMIN_SYSTEME':
-      case 'ROLE_ADMIN_FONCTIONNEL':
+      case 'ROLE_ADMIN':
         appRoles.push('administrateur');
         break;
       case 'ROLE_ESPACE_FAMILLE':

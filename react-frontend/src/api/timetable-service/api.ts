@@ -858,7 +858,7 @@ export const AuditApiFactory = function (configuration?: Configuration, basePath
         /**
          * Journal d\'audit pour un cours. Rôle: DIRECTION
          * @summary Get Lesson Audit
-         * @param {string} lessonId 
+         * @param {string} lessonId     
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */

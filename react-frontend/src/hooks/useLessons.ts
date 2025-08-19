@@ -34,8 +34,8 @@ export function useLessons(params: UseLessonsParams = {}) {
       );
       return response.data;
     },
-    // Garde les données précédentes pendant le re-fetching pour une expérience plus fluide
-    keepPreviousData: true,
+    // Evite le refetch bruyant et les retries infinis si l'API répond 500
+    retry: false,
     // Ne ré-exécute pas automatiquement la requête lorsque la fenêtre reprend le focus
     refetchOnWindowFocus: false,
   });
