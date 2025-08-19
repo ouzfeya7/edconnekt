@@ -1,0 +1,173 @@
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../layouts/DashboardLayout';
+import { 
+  AlertTriangle, 
+  Calendar, 
+  GraduationCap, 
+  Upload,
+  RefreshCw
+} from 'lucide-react';
+import { useDirector } from '../../contexts/DirectorContext';
+import DashboardCharts from '../../components/directeur/DashboardCharts';
+import LevelStats from '../../components/directeur/LevelStats';
+import DashboardKPIs from '../../components/directeur/dashboard/DashboardKPIs';
+
+const DirecteurDashboard = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { user } = useUser();
+  const { isRefreshing, lastUpdate, refreshData, kpiData } = useDirector();
+
+  const shortcuts = [
+    {
+      title: t('onboarding', 'Onboarding'),
+      description: t('import_users', 'Importer des utilisateurs'),
+      icon: <Upload className="w-6 h-6" />,
+      color: 'bg-blue-500',
+      onClick: () => navigate('/onboarding')
+    },
+    {
+      title: t('alertes', 'Alertes'),
+      description: t('view_alerts', 'Voir les alertes'),
+      icon: <AlertTriangle className="w-6 h-6" />,
+      color: 'bg-red-500',
+      onClick: () => navigate('/alertes')
+    },
+    {
+      title: t('emploi_du_temps', 'Emploi du temps'),
+      description: t('planning', 'Planifier les cours'),
+      icon: <Calendar className="w-6 h-6" />,
+      color: 'bg-green-500',
+      onClick: () => navigate('/emploi-du-temps')
+    },
+    {
+      title: t('referentiels', 'Référentiels'),
+      description: t('manage_references', 'Gérer les référentiels'),
+      icon: <GraduationCap className="w-6 h-6" />,
+      color: 'bg-purple-500',
+      onClick: () => navigate('/referentiels')
+    }
+  ];
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600 mx-auto mb-4"></div>
+          <div className="text-slate-600">Chargement des données...</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white min-h-screen p-4 md:p-6">
+      {/* Header avec bienvenue */}
+      <div className="mb-8 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {t('welcome_director', 'Bienvenue, Directeur')}
+          </h1>
+          <p className="text-gray-600">
+            {t('dashboard_subtitle', 'Tableau de bord de votre établissement')}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            {t('last_update', 'Dernière mise à jour')} : {lastUpdate.toLocaleTimeString()}
+          </p>
+        </div>
+        <button
+          onClick={refreshData}
+          disabled={isRefreshing}
+          className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          title={t('refresh_data', 'Actualiser les données')}
+        >
+          <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
+
+      {/* KPI Cards */}
+      <DashboardKPIs />
+
+      {/* Raccourcis */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          {t('quick_actions', 'Actions Rapides')}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {shortcuts.map((shortcut, index) => (
+            <button
+              key={index}
+              onClick={shortcut.onClick}
+              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow duration-200 text-left group"
+            >
+              <div className={`${shortcut.color} w-12 h-12 rounded-lg flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-200`}>
+                {shortcut.icon}
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">{shortcut.title}</h3>
+              <p className="text-sm text-gray-600">{shortcut.description}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+             {/* Statistiques par niveau */}
+       <LevelStats className="mb-8" />
+
+       {/* Graphiques et visualisations */}
+       <DashboardCharts className="mb-8" />
+
+       {/* Section Informations rapides */}
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+         <div className="bg-white border border-gray-200 rounded-lg p-6">
+           <h3 className="text-lg font-semibold text-gray-900 mb-4">
+             {t('recent_activities', 'Activités Récentes')}
+           </h3>
+           <div className="space-y-3">
+             <div className="flex items-center space-x-3">
+               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+               <span className="text-sm text-gray-600">
+                 {t('new_student_registered', 'Nouvel élève inscrit')}
+               </span>
+             </div>
+             <div className="flex items-center space-x-3">
+               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+               <span className="text-sm text-gray-600">
+                 {t('new_alert_created', 'Nouvelle alerte créée')}
+               </span>
+             </div>
+             <div className="flex items-center space-x-3">
+               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+               <span className="text-sm text-gray-600">
+                 {t('schedule_updated', 'Emploi du temps mis à jour')}
+               </span>
+             </div>
+           </div>
+         </div>
+
+         <div className="bg-white border border-gray-200 rounded-lg p-6">
+           <h3 className="text-lg font-semibold text-gray-900 mb-4">
+             {t('quick_stats', 'Statistiques Rapides')}
+           </h3>
+           <div className="space-y-3">
+             <div className="flex justify-between">
+               <span className="text-sm text-gray-600">{t('teachers', 'Enseignants')}</span>
+               <span className="font-semibold">{kpiData.enseignants}</span>
+             </div>
+             <div className="flex justify-between">
+               <span className="text-sm text-gray-600">{t('classes', 'Classes')}</span>
+               <span className="font-semibold">{kpiData.classes}</span>
+             </div>
+             <div className="flex justify-between">
+               <span className="text-sm text-gray-600">{t('absence_rate', 'Taux d\'absence')}</span>
+               <span className="font-semibold text-red-600">{kpiData.tauxAbsenteisme}%</span>
+             </div>
+           </div>
+         </div>
+       </div>
+    </div>
+  );
+};
+
+export default DirecteurDashboard;

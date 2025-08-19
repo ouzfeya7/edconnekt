@@ -11,5 +11,3 @@ const configuration = new Configuration({
 export const defaultApi = new DefaultApi(configuration, undefined, resourceAxios);
 export const resourcesApi = new ResourcesApi(configuration, undefined, resourceAxios);
 export const resourceApiBaseUrl = RESOURCE_API_BASE_URL;
-
-

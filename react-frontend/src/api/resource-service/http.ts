@@ -31,5 +31,3 @@ resourceAxios.interceptors.request.use((config) => {
 });
 
 export default resourceAxios;
-
-

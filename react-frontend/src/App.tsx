@@ -10,7 +10,6 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import Accueil from "./pages/Accueil";
 import Eleves from "./pages/Eleves";
 import Evaluations from "./pages/Evaluations";
-import Rapport from "./pages/Rapport";
 import NotFound from "./pages/NotFound";
 import EnseignantDashboard from "./pages/enseignants/EnseignantDashboard";
 // import ClassePage from "./pages/ClassePage";
@@ -40,6 +39,12 @@ import { JSX } from "react/jsx-runtime";
 import { ResourceProvider } from "./contexts/ResourceContext";
 import { EventProvider } from './contexts/EventContext'; // Importer le provider
 import { NotificationProvider } from './contexts/NotificationContext'; // Importer le nouveau provider
+import { DirectorProvider } from './contexts/DirectorContext'; // Importer le provider directeur
+import { OnboardingProvider } from './contexts/OnboardingContext'; // Importer le provider onboarding
+import { AlertProvider } from './contexts/AlertContext'; // Importer le provider alertes
+import { ScheduleProvider } from './contexts/ScheduleContext'; // Importer le provider emploi du temps
+import { SettingsProvider } from './contexts/SettingsContext'; // Importer le provider paramètres
+import { DirectorTimetableProvider } from './contexts/DirectorTimetableContext'; // Importer le provider emploi du temps directeur
 import GestionNotesPage from './pages/gestionNotes/GestionNotesPage';
 import GestionDevoirsPage from './pages/gestionNotes/GestionDevoirsPage';
 import EnseignantDevoirDetailPage from './pages/gestionNotes/DevoirDetailPage';
@@ -54,6 +59,24 @@ import ParentDashboard from "./pages/parents/ParentDashboard";
 import ParentRapportPage from "./pages/parents/ParentRapportPage"; // Importer la nouvelle page
 import ParentRemediationPage from "./pages/parents/ParentRemediationPage"; // Importer la page de remédiation
 import PaiementPage from './pages/PaiementPage';
+
+// Import des pages du directeur
+import DirecteurDashboard from './pages/directeur/DirecteurDashboard';
+import OnboardingPage from './pages/directeur/OnboardingPage';
+import ReferentielsPage from './pages/directeur/ReferentielsPage';
+import CentreAlertesPage from './pages/directeur/CentreAlertesPage';
+import EmploiDuTempsPage from './pages/directeur/EmploiDuTempsPage';
+import ParametresPage from './pages/directeur/ParametresPage';
+import RessourcesAuditPage from './pages/directeur/RessourcesAuditPage';
+
+// Import des pages de l'administrateur
+import AdminDashboard from './pages/admin/dashboard/AdminDashboard';
+import EtablissementsPage from './pages/admin/etablissements/EtablissementsPage';
+import UtilisateursPage from './pages/admin/utilisateurs/UtilisateursPage';
+import AbonnementsPage from './pages/admin/abonnements/AbonnementsPage';
+import PlansPage from './pages/admin/plans/PlansPage';
+import ReferentielsAdminPage from './pages/admin/referentiels/ReferentielsAdminPage';
+import ImportsPage from './pages/admin/imports/ImportsPage';
 
 
 // Définition des types de rôles pour la clarté
@@ -98,8 +121,13 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "*", element: <NotFound /> }, // Utilisation de '*' pour le catch-all
   ],
   directeur: [
-    { path: "/", element: <Accueil /> },
-    { path: "/rapport", element: <Rapport /> },
+    { path: "/", element: <DirecteurDashboard /> },
+    { path: "/onboarding", element: <OnboardingPage /> },
+    { path: "/referentiels", element: <ReferentielsPage /> },
+    { path: "/alertes", element: <CentreAlertesPage /> },
+    { path: "/emploi-du-temps", element: <EmploiDuTempsPage /> },
+    { path: "/audit-ressources", element: <RessourcesAuditPage /> },
+    { path: "/parametres", element: <ParametresPage /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "*", element: <NotFound /> },
   ],
@@ -141,11 +169,15 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "*", element: <NotFound /> },
   ],
   administrateur: [
-    { path: "/", element: <Accueil /> },
-    { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
-    { path: "/ressources/creer", element: <CreateResourcePage /> }, // New route for resource creation
-    { path: "*", element: <NotFound /> },
+    { path: "/", element: <AdminDashboard /> },
+    { path: "/etablissements", element: <EtablissementsPage /> },
+    { path: "/utilisateurs", element: <UtilisateursPage /> },
+    { path: "/abonnements", element: <AbonnementsPage /> },
+    { path: "/plans", element: <PlansPage /> },
+    { path: "/referentiels", element: <ReferentielsAdminPage /> },
+    { path: "/imports", element: <ImportsPage /> },
     { path: "/profile", element: <ProfilePage /> },
+    { path: "*", element: <NotFound /> },
   ],
   espaceFamille: [
     { path: "/", element: <Accueil /> },
@@ -225,7 +257,19 @@ const App = () => {
       <ResourceProvider>
         <EventProvider>
           <NotificationProvider>
-            <AppContent />
+                    <DirectorProvider>
+          <OnboardingProvider>
+            <AlertProvider>
+              <ScheduleProvider>
+                <SettingsProvider>
+                  <DirectorTimetableProvider>
+                    <AppContent />
+                  </DirectorTimetableProvider>
+                </SettingsProvider>
+              </ScheduleProvider>
+            </AlertProvider>
+          </OnboardingProvider>
+        </DirectorProvider>
           </NotificationProvider>
         </EventProvider>
       </ResourceProvider>
