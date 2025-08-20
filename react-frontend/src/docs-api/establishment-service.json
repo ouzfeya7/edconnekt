@@ -1,0 +1,1007 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Etablissement Service",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Root",
+                "description": "Endpoint racine de l'application.",
+                "operationId": "root__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/health/": {
+            "get": {
+                "tags": [
+                    "Health",
+                    "health"
+                ],
+                "summary": "Health Check",
+                "description": "Vérifie la santé du service (connexion DB uniquement)",
+                "operationId": "health_check_api_health__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/": {
+            "post": {
+                "tags": [
+                    "Etablissements",
+                    "établissements"
+                ],
+                "summary": "Create Establishment",
+                "description": "Crée un nouvel établissement\n\nRequiert le rôle ROLE_ADMIN.",
+                "operationId": "create_establishment_api_etablissements__post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EtablissementCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EtablissementOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Etablissements",
+                    "établissements"
+                ],
+                "summary": "List Establishments",
+                "description": "Liste tous les établissements avec pagination et filtres\n\nRequiert le rôle ROLE_ADMIN.",
+                "operationId": "list_establishments_api_etablissements__get",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/StatusEnum",
+                            "description": "Filtrer par statut"
+                        },
+                        "description": "Filtrer par statut"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Nombre maximum d'éléments",
+                            "default": 10,
+                            "title": "Limit"
+                        },
+                        "description": "Nombre maximum d'éléments"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Offset pour la pagination",
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Offset pour la pagination"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/EtablissementOut"
+                                    },
+                                    "title": "Response List Establishments Api Etablissements  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/{establishment_id}": {
+            "get": {
+                "tags": [
+                    "Etablissements",
+                    "établissements"
+                ],
+                "summary": "Get Establishment",
+                "description": "Récupère un établissement par son ID\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut accéder qu'à son propre établissement.",
+                "operationId": "get_establishment_api_etablissements__establishment_id__get",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EtablissementOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Etablissements",
+                    "établissements"
+                ],
+                "summary": "Update Establishment",
+                "description": "Met à jour les informations d'un établissement",
+                "operationId": "update_establishment_api_etablissements__establishment_id__patch",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EtablissementUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EtablissementOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/{establishment_id}/coordinates": {
+            "patch": {
+                "tags": [
+                    "Etablissements",
+                    "établissements"
+                ],
+                "summary": "Update Establishment Coordinates",
+                "description": "Met à jour les coordonnées d'un établissement\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut modifier que son propre établissement.",
+                "operationId": "update_establishment_coordinates_api_etablissements__establishment_id__coordinates_patch",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EtablissementCoordinatesUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EtablissementOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/{establishment_id}/status": {
+            "patch": {
+                "tags": [
+                    "Etablissements",
+                    "établissements"
+                ],
+                "summary": "Update Establishment Status",
+                "description": "Met à jour le statut d'un établissement\n\nRequiert le rôle ROLE_ADMIN.",
+                "operationId": "update_establishment_status_api_etablissements__establishment_id__status_patch",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/StatusEnum"
+                        }
+                    },
+                    {
+                        "name": "motif",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "Motif"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EtablissementOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/public/": {
+            "get": {
+                "tags": [
+                    "Etablissements",
+                    "établissements"
+                ],
+                "summary": "List Public Establishments",
+                "description": "Liste publique des établissements actifs\n\nAucune authentification requise - accessible publiquement.\nRetourne seulement les établissements avec le statut ACTIVE.",
+                "operationId": "list_public_establishments_api_etablissements_public__get",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Nombre maximum d'éléments",
+                            "default": 10,
+                            "title": "Limit"
+                        },
+                        "description": "Nombre maximum d'éléments"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Offset pour la pagination",
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Offset pour la pagination"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/EtablissementOut"
+                                    },
+                                    "title": "Response List Public Establishments Api Etablissements Public  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "EtablissementCoordinatesUpdate": {
+                "properties": {
+                    "nom": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 100,
+                                "minLength": 2
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Nom",
+                        "description": "Nom de l'établissement"
+                    },
+                    "adresse": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 200,
+                                "minLength": 5
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Adresse",
+                        "description": "Adresse de l'établissement"
+                    },
+                    "email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Email",
+                        "description": "Email de contact"
+                    },
+                    "telephone": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Telephone",
+                        "description": "Numéro de téléphone"
+                    },
+                    "ville": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Ville",
+                        "description": "Ville de l'établissement"
+                    },
+                    "pays": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pays",
+                        "description": "Pays de l'établissement"
+                    }
+                },
+                "type": "object",
+                "title": "EtablissementCoordinatesUpdate",
+                "description": "Schéma pour la mise à jour des coordonnées uniquement"
+            },
+            "EtablissementCreate": {
+                "properties": {
+                    "nom": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 2,
+                        "title": "Nom",
+                        "description": "Nom de l'établissement"
+                    },
+                    "adresse": {
+                        "type": "string",
+                        "maxLength": 200,
+                        "minLength": 5,
+                        "title": "Adresse",
+                        "description": "Adresse de l'établissement"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email",
+                        "description": "Email de contact"
+                    },
+                    "telephone": {
+                        "type": "string",
+                        "title": "Telephone",
+                        "description": "Numéro de téléphone"
+                    },
+                    "ville": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Ville",
+                        "description": "Ville de l'établissement"
+                    },
+                    "pays": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pays",
+                        "description": "Pays de l'établissement"
+                    },
+                    "plan": {
+                        "$ref": "#/components/schemas/PlanEnum",
+                        "default": "BASIC"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/StatusEnum",
+                        "default": "TRIAL"
+                    },
+                    "date_debut": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Date Debut"
+                    },
+                    "date_fin": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Date Fin"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "nom",
+                    "adresse",
+                    "email",
+                    "telephone"
+                ],
+                "title": "EtablissementCreate"
+            },
+            "EtablissementOut": {
+                "properties": {
+                    "nom": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 2,
+                        "title": "Nom",
+                        "description": "Nom de l'établissement"
+                    },
+                    "adresse": {
+                        "type": "string",
+                        "maxLength": 200,
+                        "minLength": 5,
+                        "title": "Adresse",
+                        "description": "Adresse de l'établissement"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email",
+                        "description": "Email de contact"
+                    },
+                    "telephone": {
+                        "type": "string",
+                        "title": "Telephone",
+                        "description": "Numéro de téléphone"
+                    },
+                    "ville": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Ville",
+                        "description": "Ville de l'établissement"
+                    },
+                    "pays": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pays",
+                        "description": "Pays de l'établissement"
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "plan": {
+                        "$ref": "#/components/schemas/PlanEnum"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/StatusEnum"
+                    },
+                    "date_debut": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Date Debut"
+                    },
+                    "date_fin": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Date Fin"
+                    },
+                    "subscription_start": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Subscription Start"
+                    },
+                    "subscription_end": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Subscription End"
+                    },
+                    "etablissement_group": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Etablissement Group"
+                    },
+                    "etablissement_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Etablissement Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    },
+                    "deleted_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Deleted At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "nom",
+                    "adresse",
+                    "email",
+                    "telephone",
+                    "id",
+                    "plan",
+                    "status",
+                    "date_debut",
+                    "date_fin",
+                    "etablissement_group",
+                    "etablissement_id",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "EtablissementOut"
+            },
+            "EtablissementUpdate": {
+                "properties": {
+                    "nom": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 100,
+                                "minLength": 2
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Nom",
+                        "description": "Nom de l'établissement"
+                    },
+                    "adresse": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Adresse",
+                        "description": "Adresse de l'établissement"
+                    },
+                    "email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Email",
+                        "description": "Email de contact"
+                    },
+                    "telephone": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Telephone",
+                        "description": "Numéro de téléphone"
+                    },
+                    "ville": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Ville",
+                        "description": "Ville de l'établissement"
+                    },
+                    "pays": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pays",
+                        "description": "Pays de l'établissement"
+                    },
+                    "plan": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PlanEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/StatusEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "date_debut": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Date Debut"
+                    },
+                    "date_fin": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Date Fin"
+                    }
+                },
+                "type": "object",
+                "title": "EtablissementUpdate"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "PlanEnum": {
+                "type": "string",
+                "enum": [
+                    "BASIC",
+                    "PRO",
+                    "ENTREPRISE"
+                ],
+                "title": "PlanEnum"
+            },
+            "StatusEnum": {
+                "type": "string",
+                "enum": [
+                    "TRIAL",
+                    "ACTIVE",
+                    "SUSPENDED",
+                    "CLOSED"
+                ],
+                "title": "StatusEnum"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

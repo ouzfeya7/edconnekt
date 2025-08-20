@@ -77,6 +77,7 @@ import AbonnementsPage from './pages/admin/abonnements/AbonnementsPage';
 import PlansPage from './pages/admin/plans/PlansPage';
 import ReferentielsAdminPage from './pages/admin/referentiels/ReferentielsAdminPage';
 import ImportsPage from './pages/admin/imports/ImportsPage';
+import ClassesAdminPage from './pages/admin/classes/ClassesAdminPage';
 
 
 // Définition des types de rôles pour la clarté
@@ -171,6 +172,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   administrateur: [
     { path: "/", element: <AdminDashboard /> },
     { path: "/etablissements", element: <EtablissementsPage /> },
+    { path: "/admin/classes", element: <ClassesAdminPage /> },
     { path: "/utilisateurs", element: <UtilisateursPage /> },
     { path: "/abonnements", element: <AbonnementsPage /> },
     { path: "/plans", element: <PlansPage /> },

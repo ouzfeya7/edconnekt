@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Settings, Building, Users, Bell, Shield } from 'lucide-react';
+import { Settings, Building, Users, Bell, Shield, Layers } from 'lucide-react';
 import SchoolSettingsForm from '../../components/directeur/parametres/SchoolSettingsForm';
 import CycleManagement from '../../components/directeur/parametres/CycleManagement';
+import ClassesAdminPage from '../admin/classes/ClassesAdminPage';
 
 const ParametresPage = () => {
   const { t } = useTranslation();
@@ -21,6 +22,13 @@ const ParametresPage = () => {
       title: t('academic_cycles', 'Cycles Scolaires'),
       icon: Settings,
       component: CycleManagement,
+      available: true
+    },
+    {
+      id: 'classes',
+      title: t('classes_settings', 'Classes'),
+      icon: Layers,
+      component: ClassesAdminPage,
       available: true
     },
     {
