@@ -1,0 +1,1486 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Classe Service",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Root",
+                "description": "Endpoint racine de l'application.",
+                "operationId": "root__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Health Check",
+                "description": "Vérifie l'état de santé du service.",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/health": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health Check",
+                "description": "Vérifie l'état de santé du service.\n\nReturns:\n    dict: État du service",
+                "operationId": "health_check_api_v1_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/": {
+            "get": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Get Classes",
+                "description": "Liste les classes avec filtres et pagination.",
+                "operationId": "get_classes_api_v1_classes__get",
+                "parameters": [
+                    {
+                        "name": "etablissement_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Etablissement Id"
+                        }
+                    },
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 200,
+                            "exclusiveMinimum": 0,
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    },
+                    {
+                        "name": "nom",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "Nom"
+                        }
+                    },
+                    {
+                        "name": "niveau",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "Niveau"
+                        }
+                    },
+                    {
+                        "name": "is_archived",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false,
+                            "title": "Is Archived"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardResponse_List_ClasseOut__"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Create Classe",
+                "description": "Crée une nouvelle classe.",
+                "operationId": "create_classe_api_v1_classes__post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClasseCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClasseOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/enseignants": {
+            "post": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Assign Enseignant",
+                "description": "Affecte un enseignant à une classe.",
+                "operationId": "assign_enseignant_api_v1_classes_enseignants_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClasseEnseignantCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClasseEnseignantOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/eleves": {
+            "post": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Assign Eleve",
+                "description": "Affecte un élève à une classe.",
+                "operationId": "assign_eleve_api_v1_classes_eleves_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClasseEleveCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClasseEleveOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/keycloak-roles": {
+            "get": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Get Keycloak Roles",
+                "description": "Endpoint de test pour vérifier les rôles Keycloak de l'utilisateur.\nUtilisé pour les tests d'intégration.",
+                "operationId": "get_keycloak_roles_api_v1_classes_keycloak_roles_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/admin-only": {
+            "post": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Admin Only Endpoint",
+                "description": "Endpoint de test réservé aux administrateurs.\nUtilisé pour les tests d'intégration.",
+                "operationId": "admin_only_endpoint_api_v1_classes_admin_only_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/me/permissions": {
+            "get": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Get My Permissions",
+                "description": "Endpoint pour récupérer les permissions de l'utilisateur actuel.\nUtilisé pour les tests d'intégration.",
+                "operationId": "get_my_permissions_api_v1_classes_me_permissions_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/{classe_id}": {
+            "patch": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Update Classe",
+                "description": "Met à jour une classe.",
+                "operationId": "update_classe_api_v1_classes__classe_id__patch",
+                "parameters": [
+                    {
+                        "name": "classe_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Classe Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClasseUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClasseOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Get Classe",
+                "description": "Récupère une classe par son ID.",
+                "operationId": "get_classe_api_v1_classes__classe_id__get",
+                "parameters": [
+                    {
+                        "name": "classe_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Classe Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClasseOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Archive Classe",
+                "description": "Archive une classe (soft delete).",
+                "operationId": "archive_classe_api_v1_classes__classe_id__delete",
+                "parameters": [
+                    {
+                        "name": "classe_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Classe Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/{classe_id}/enseignants": {
+            "get": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Get Enseignants",
+                "description": "Récupère tous les enseignants d'une classe.",
+                "operationId": "get_enseignants_api_v1_classes__classe_id__enseignants_get",
+                "parameters": [
+                    {
+                        "name": "classe_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Classe Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ClasseEnseignantOut"
+                                    },
+                                    "title": "Response Get Enseignants Api V1 Classes  Classe Id  Enseignants Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/{classe_id}/eleves": {
+            "get": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Get Eleves",
+                "description": "Récupère tous les élèves d'une classe.",
+                "operationId": "get_eleves_api_v1_classes__classe_id__eleves_get",
+                "parameters": [
+                    {
+                        "name": "classe_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Classe Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ClasseEleveOut"
+                                    },
+                                    "title": "Response Get Eleves Api V1 Classes  Classe Id  Eleves Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/{classe_id}/audits": {
+            "get": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Get Audits",
+                "description": "Récupère l'historique d'audit d'une classe.",
+                "operationId": "get_audits_api_v1_classes__classe_id__audits_get",
+                "parameters": [
+                    {
+                        "name": "classe_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Classe Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ClasseAuditOut"
+                                    },
+                                    "title": "Response Get Audits Api V1 Classes  Classe Id  Audits Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/{classe_id}/statistics": {
+            "get": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Get Statistics",
+                "description": "Récupère les statistiques d'une classe.",
+                "operationId": "get_statistics_api_v1_classes__classe_id__statistics_get",
+                "parameters": [
+                    {
+                        "name": "classe_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Classe Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardResponse_ClasseStatistics_"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/classes/{classe_id}/history": {
+            "get": {
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "Get History",
+                "description": "Récupère l'historique complet d'une classe.",
+                "operationId": "get_history_api_v1_classes__classe_id__history_get",
+                "parameters": [
+                    {
+                        "name": "classe_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Classe Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ClasseHistoryOut"
+                                    },
+                                    "title": "Response Get History Api V1 Classes  Classe Id  History Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ClasseAuditOut": {
+                "properties": {
+                    "classe_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Classe Id"
+                    },
+                    "operation": {
+                        "type": "string",
+                        "title": "Operation"
+                    },
+                    "motif": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Motif"
+                    },
+                    "auteur_id": {
+                        "type": "string",
+                        "title": "Auteur Id"
+                    },
+                    "auteur_nom": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Auteur Nom"
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "date_operation": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Date Operation"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "classe_id",
+                    "operation",
+                    "motif",
+                    "auteur_id",
+                    "auteur_nom",
+                    "id",
+                    "date_operation"
+                ],
+                "title": "ClasseAuditOut"
+            },
+            "ClasseCreate": {
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "title": "Code"
+                    },
+                    "nom": {
+                        "type": "string",
+                        "title": "Nom"
+                    },
+                    "niveau": {
+                        "type": "string",
+                        "title": "Niveau"
+                    },
+                    "annee_scolaire": {
+                        "type": "string",
+                        "title": "Annee Scolaire"
+                    },
+                    "etablissement_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Etablissement Id"
+                    },
+                    "capacity": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Capacity",
+                        "default": 0
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "code",
+                    "nom",
+                    "niveau",
+                    "annee_scolaire",
+                    "etablissement_id"
+                ],
+                "title": "ClasseCreate"
+            },
+            "ClasseEleveCreate": {
+                "properties": {
+                    "classe_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Classe Id"
+                    },
+                    "eleve_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Eleve Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "classe_id",
+                    "eleve_id"
+                ],
+                "title": "ClasseEleveCreate"
+            },
+            "ClasseEleveOut": {
+                "properties": {
+                    "classe_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Classe Id"
+                    },
+                    "eleve_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Eleve Id"
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "date_entree": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Date Entree"
+                    },
+                    "date_sortie": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Date Sortie"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "classe_id",
+                    "eleve_id",
+                    "id",
+                    "date_entree",
+                    "date_sortie"
+                ],
+                "title": "ClasseEleveOut"
+            },
+            "ClasseEnseignantCreate": {
+                "properties": {
+                    "classe_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Classe Id"
+                    },
+                    "enseignant_kc_id": {
+                        "type": "string",
+                        "title": "Enseignant Kc Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "classe_id",
+                    "enseignant_kc_id"
+                ],
+                "title": "ClasseEnseignantCreate"
+            },
+            "ClasseEnseignantOut": {
+                "properties": {
+                    "classe_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Classe Id"
+                    },
+                    "enseignant_kc_id": {
+                        "type": "string",
+                        "title": "Enseignant Kc Id"
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "date_affectation": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Date Affectation"
+                    },
+                    "date_fin": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Date Fin"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "classe_id",
+                    "enseignant_kc_id",
+                    "id",
+                    "date_affectation",
+                    "date_fin"
+                ],
+                "title": "ClasseEnseignantOut"
+            },
+            "ClasseHistoryOut": {
+                "properties": {
+                    "history_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "History Id"
+                    },
+                    "original_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Original Id"
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "Code"
+                    },
+                    "nom": {
+                        "type": "string",
+                        "title": "Nom"
+                    },
+                    "niveau": {
+                        "type": "string",
+                        "title": "Niveau"
+                    },
+                    "annee_scolaire": {
+                        "type": "string",
+                        "title": "Annee Scolaire"
+                    },
+                    "etablissement_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Etablissement Id"
+                    },
+                    "capacity": {
+                        "type": "integer",
+                        "title": "Capacity"
+                    },
+                    "archived_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Archived At"
+                    },
+                    "createur_id": {
+                        "type": "string",
+                        "title": "Createur Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "created_by": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created By"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    },
+                    "updated_by": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated By"
+                    },
+                    "op": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Op"
+                    },
+                    "op_reason": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Op Reason"
+                    },
+                    "change_type": {
+                        "type": "string",
+                        "title": "Change Type"
+                    },
+                    "changed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Changed At"
+                    },
+                    "changed_by": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Changed By"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "history_id",
+                    "original_id",
+                    "code",
+                    "nom",
+                    "niveau",
+                    "annee_scolaire",
+                    "etablissement_id",
+                    "capacity",
+                    "archived_at",
+                    "createur_id",
+                    "created_at",
+                    "created_by",
+                    "updated_at",
+                    "updated_by",
+                    "op",
+                    "op_reason",
+                    "change_type",
+                    "changed_at",
+                    "changed_by"
+                ],
+                "title": "ClasseHistoryOut"
+            },
+            "ClasseOut": {
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "title": "Code"
+                    },
+                    "nom": {
+                        "type": "string",
+                        "title": "Nom"
+                    },
+                    "niveau": {
+                        "type": "string",
+                        "title": "Niveau"
+                    },
+                    "annee_scolaire": {
+                        "type": "string",
+                        "title": "Annee Scolaire"
+                    },
+                    "etablissement_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Etablissement Id"
+                    },
+                    "capacity": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Capacity",
+                        "default": 0
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "createur_id": {
+                        "type": "string",
+                        "title": "Createur Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "created_by": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created By"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    },
+                    "updated_by": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated By"
+                    },
+                    "op": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Op"
+                    },
+                    "op_reason": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Op Reason"
+                    },
+                    "archived_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Archived At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "code",
+                    "nom",
+                    "niveau",
+                    "annee_scolaire",
+                    "etablissement_id",
+                    "id",
+                    "createur_id",
+                    "created_at",
+                    "created_by",
+                    "updated_at",
+                    "updated_by",
+                    "op",
+                    "op_reason",
+                    "archived_at"
+                ],
+                "title": "ClasseOut"
+            },
+            "ClasseStatistics": {
+                "properties": {
+                    "nombre_eleves": {
+                        "type": "integer",
+                        "title": "Nombre Eleves"
+                    },
+                    "nombre_enseignants": {
+                        "type": "integer",
+                        "title": "Nombre Enseignants"
+                    },
+                    "taux_remplissage": {
+                        "type": "number",
+                        "title": "Taux Remplissage"
+                    },
+                    "moyenne_age_eleves": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Moyenne Age Eleves"
+                    },
+                    "dernier_evenement_classe": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Dernier Evenement Classe"
+                    },
+                    "pourcentage_filles_garcons": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "number"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pourcentage Filles Garcons"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "nombre_eleves",
+                    "nombre_enseignants",
+                    "taux_remplissage"
+                ],
+                "title": "ClasseStatistics"
+            },
+            "ClasseUpdate": {
+                "properties": {
+                    "code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Code"
+                    },
+                    "nom": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Nom"
+                    },
+                    "niveau": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Niveau"
+                    },
+                    "annee_scolaire": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Annee Scolaire"
+                    },
+                    "capacity": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Capacity"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "nom",
+                    "niveau",
+                    "annee_scolaire"
+                ],
+                "title": "ClasseUpdate"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "Metadata": {
+                "properties": {
+                    "skip": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Skip"
+                    },
+                    "limit": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Limit"
+                    },
+                    "total": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Total"
+                    }
+                },
+                "type": "object",
+                "title": "Metadata"
+            },
+            "StandardResponse_ClasseStatistics_": {
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/ClasseStatistics"
+                    },
+                    "meta": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Metadata"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "data"
+                ],
+                "title": "StandardResponse[ClasseStatistics]"
+            },
+            "StandardResponse_List_ClasseOut__": {
+                "properties": {
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/ClasseOut"
+                        },
+                        "type": "array",
+                        "title": "Data"
+                    },
+                    "meta": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Metadata"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "data"
+                ],
+                "title": "StandardResponse[List[ClasseOut]]"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}
