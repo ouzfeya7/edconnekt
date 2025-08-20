@@ -67,6 +67,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
   administrateur: [
     { titleKey: "home", to: "/", icon: <FaHome /> },
     { titleKey: "etablissements", to: "/etablissements", icon: <FaBuilding /> },
+    { titleKey: "classes", to: "/admin/classes", icon: <FaUsers /> },
     { titleKey: "utilisateurs", to: "/utilisateurs", icon: <FaUsers /> },
     { titleKey: "abonnements", to: "/abonnements", icon: <FaFileInvoiceDollar /> },
     { titleKey: "plans", to: "/plans", icon: <FaTags /> },

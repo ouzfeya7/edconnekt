@@ -1,36 +1,42 @@
 
 import React, { useState, useMemo } from 'react';
-import { etablissementsData, Etablissement } from './mock-etablissements';
 import { FaEdit, FaToggleOn, FaToggleOff, FaPlus, FaSearch } from 'react-icons/fa';
 import { Button } from '../../../components/ui/button';
 import Badge from '../../../components/ui/Badge';
 import EtablissementFormModal from './EtablissementFormModal';
+import { useEstablishments } from '../../../hooks/useEstablishments';
+import { useUpdateEstablishmentStatus } from '../../../hooks/useUpdateEstablishmentStatus';
+import type { EtablissementOut, PlanEnum, StatusEnum } from '../../../api/establishment-service/api';
 
 const EtablissementsPage: React.FC = () => {
-  const [etablissements, setEtablissements] = useState<Etablissement[]>(etablissementsData);
   const [searchTerm, setSearchTerm] = useState('');
-  const [planFilter, setPlanFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [planFilter, setPlanFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingEtablissement, setEditingEtablissement] = useState<Etablissement | null>(null);
+  const [editingEtablissement, setEditingEtablissement] = useState<EtablissementOut | null>(null);
+
+  const { data: establishments, isLoading, isError } = useEstablishments({
+    limit: 100,
+    offset: 0,
+    status: statusFilter !== 'all' ? (statusFilter as StatusEnum) : undefined,
+  });
+  const updateStatusMutation = useUpdateEstablishmentStatus();
 
 
   const filteredEtablissements = useMemo(() => {
-    return etablissements
-      .filter(etab => etab.name.toLowerCase().includes(searchTerm.toLowerCase()))
-      .filter(etab => planFilter === 'all' || etab.plan === planFilter)
-      .filter(etab => statusFilter === 'all' || etab.status === statusFilter);
-  }, [etablissements, searchTerm, planFilter, statusFilter]);
+    const list = establishments ?? [];
+    return list
+      .filter(etab => etab.nom.toLowerCase().includes(searchTerm.toLowerCase()))
+      .filter(etab => planFilter === 'all' || etab.plan === (planFilter as PlanEnum))
+      .filter(etab => statusFilter === 'all' || etab.status === (statusFilter as StatusEnum));
+  }, [establishments, searchTerm, planFilter, statusFilter]);
 
-  const handleToggleStatus = (id: string) => {
-    setEtablissements(prev =>
-      prev.map(etab =>
-        etab.id === id ? { ...etab, status: etab.status === 'actif' ? 'inactif' : 'actif' } : etab
-      )
-    );
+  const handleToggleStatus = (id: string, current: StatusEnum) => {
+    const next: StatusEnum = current === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+    updateStatusMutation.mutate({ establishmentId: id, status: next });
   };
 
-  const handleOpenModal = (etablissement: Etablissement | null = null) => {
+  const handleOpenModal = (etablissement: EtablissementOut | null = null) => {
     setEditingEtablissement(etablissement);
     setIsModalOpen(true);
   };
@@ -40,14 +46,8 @@ const EtablissementsPage: React.FC = () => {
     setEditingEtablissement(null);
   };
 
-  const handleSaveEtablissement = (etablissement: Etablissement) => {
-    if (editingEtablissement) {
-      // Update
-      setEtablissements(prev => prev.map(etab => etab.id === etablissement.id ? etablissement : etab));
-    } else {
-      // Create
-      setEtablissements(prev => [...prev, etablissement]);
-    }
+  const handleSaveEtablissement = () => {
+    console.info('Enregistrement via API à l’étape suivante.');
   };
 
 
@@ -65,6 +65,8 @@ const EtablissementsPage: React.FC = () => {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        {isLoading && <div className="text-gray-600">Chargement des établissements…</div>}
+        {isError && <div className="text-red-600">Erreur lors du chargement des établissements.</div>}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-gray-200">
           <div className="relative">
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -82,9 +84,9 @@ const EtablissementsPage: React.FC = () => {
             onChange={e => setPlanFilter(e.target.value)}
           >
             <option value="all">Tous les plans</option>
-            <option value="Basic">Basic</option>
-            <option value="Premium">Premium</option>
-            <option value="Enterprise">Enterprise</option>
+            <option value="BASIC">Basic</option>
+            <option value="PRO">Pro</option>
+            <option value="ENTREPRISE">Enterprise</option>
           </select>
           <select 
             className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
@@ -92,8 +94,10 @@ const EtablissementsPage: React.FC = () => {
             onChange={e => setStatusFilter(e.target.value)}
           >
             <option value="all">Tous les statuts</option>
-            <option value="actif">Actif</option>
-            <option value="inactif">Inactif</option>
+            <option value="TRIAL">Essai</option>
+            <option value="ACTIVE">Actif</option>
+            <option value="SUSPENDED">Suspendu</option>
+            <option value="CLOSED">Fermé</option>
           </select>
         </div>
 
@@ -113,35 +117,37 @@ const EtablissementsPage: React.FC = () => {
               {filteredEtablissements.map((etab) => (
                 <tr key={etab.id} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="p-4 flex items-center">
-                    {etab.logoUrl && <img src={etab.logoUrl} alt={`Logo ${etab.name}`} className="w-10 h-10 rounded-full mr-4" />}
                     <div>
-                      <div className="font-medium text-gray-900">{etab.name}</div>
-                      <div className="text-sm text-gray-500">{etab.address}</div>
+                      <div className="font-medium text-gray-900">{etab.nom}</div>
+                      <div className="text-sm text-gray-500">{etab.adresse}</div>
                     </div>
                   </td>
                   <td className="p-4">
                     <Badge 
-                      text={etab.plan}
-                      bgColor={etab.plan === 'Premium' ? 'bg-blue-100' : etab.plan === 'Enterprise' ? 'bg-red-100' : 'bg-gray-100'}
-                      color={etab.plan === 'Premium' ? 'text-blue-800' : etab.plan === 'Enterprise' ? 'text-red-800' : 'text-gray-800'}
+                      text={etab.plan === 'BASIC' ? 'Basic' : etab.plan === 'PRO' ? 'Pro' : 'Enterprise'}
+                      bgColor={etab.plan === 'PRO' ? 'bg-blue-100' : etab.plan === 'ENTREPRISE' ? 'bg-red-100' : 'bg-gray-100'}
+                      color={etab.plan === 'PRO' ? 'text-blue-800' : etab.plan === 'ENTREPRISE' ? 'text-red-800' : 'text-gray-800'}
                     />
                   </td>
                   <td className="p-4">
                      <Badge 
-                      text={etab.status}
-                      bgColor={etab.status === 'actif' ? 'bg-green-100' : 'bg-gray-100'}
-                      color={etab.status === 'actif' ? 'text-green-800' : 'text-gray-800'}
+                      text={etab.status === 'ACTIVE' ? 'Actif' : etab.status === 'SUSPENDED' ? 'Suspendu' : etab.status === 'TRIAL' ? 'Essai' : 'Fermé'}
+                      bgColor={etab.status === 'ACTIVE' ? 'bg-green-100' : etab.status === 'SUSPENDED' ? 'bg-yellow-100' : etab.status === 'TRIAL' ? 'bg-blue-100' : 'bg-gray-100'}
+                      color={etab.status === 'ACTIVE' ? 'text-green-800' : etab.status === 'SUSPENDED' ? 'text-yellow-800' : etab.status === 'TRIAL' ? 'text-blue-800' : 'text-gray-800'}
                     />
                   </td>
-                  <td className="p-4 text-gray-700">{etab.contact}</td>
-                  <td className="p-4 text-gray-700">{new Date(etab.dateCreation).toLocaleDateString('fr-SN')}</td>
+                  <td className="p-4 text-gray-700">
+                    <div className="text-sm">{etab.email}</div>
+                    {etab.telephone && <div className="text-sm text-gray-500">{etab.telephone}</div>}
+                  </td>
+                  <td className="p-4 text-gray-700">{etab.created_at ? new Date(etab.created_at).toLocaleDateString('fr-SN') : '-'}</td>
                   <td className="p-4 text-center">
                     <div className="flex item-center justify-center">
                       <Button variant="ghost" size="sm" className="mr-2" onClick={() => handleOpenModal(etab)}>
                         <FaEdit size={16} />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(etab.id)} className={etab.status === 'actif' ? 'text-green-600 hover:text-green-700' : 'text-gray-400 hover:text-gray-500'}>
-                        {etab.status === 'actif' ? <FaToggleOn size={22} /> : <FaToggleOff size={22} />}
+                      <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(etab.id, etab.status)} className={etab.status === 'ACTIVE' ? 'text-green-600 hover:text-green-700' : 'text-gray-400 hover:text-gray-500'}>
+                        {etab.status === 'ACTIVE' ? <FaToggleOn size={22} /> : <FaToggleOff size={22} />}
                       </Button>
                     </div>
                   </td>

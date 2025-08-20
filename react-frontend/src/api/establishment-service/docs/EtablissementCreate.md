@@ -1,0 +1,38 @@
+# EtablissementCreate
+
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**nom** | **string** | Nom de l\&#39;établissement | [default to undefined]
+**adresse** | **string** | Adresse de l\&#39;établissement | [default to undefined]
+**email** | **string** | Email de contact | [default to undefined]
+**telephone** | **string** | Numéro de téléphone | [default to undefined]
+**ville** | **string** |  | [optional] [default to undefined]
+**pays** | **string** |  | [optional] [default to undefined]
+**plan** | [**PlanEnum**](PlanEnum.md) |  | [optional] [default to undefined]
+**status** | [**StatusEnum**](StatusEnum.md) |  | [optional] [default to undefined]
+**date_debut** | **string** |  | [optional] [default to undefined]
+**date_fin** | **string** |  | [optional] [default to undefined]
+
+## Example
+
+```typescript
+import { EtablissementCreate } from './api';
+
+const instance: EtablissementCreate = {
+    nom,
+    adresse,
+    email,
+    telephone,
+    ville,
+    pays,
+    plan,
+    status,
+    date_debut,
+    date_fin,
+};
+```
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           redirectUri: 'http://localhost:8000/',
           pkceMethod: 'S256',
           responseMode: 'fragment',
-          scope: 'openid profile email roles resource-service.access timetable-service.access',
+          scope: 'openid profile email roles resource-service.access timetable-service.access classe-service.access establishment-service.access',
         });
         setIsAuthenticated(authenticated);
 
