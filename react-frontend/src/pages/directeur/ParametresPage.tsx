@@ -4,9 +4,13 @@ import { Settings, Building, Users, Bell, Shield, Layers } from 'lucide-react';
 import SchoolSettingsForm from '../../components/directeur/parametres/SchoolSettingsForm';
 import CycleManagement from '../../components/directeur/parametres/CycleManagement';
 import ClassesAdminPage from '../admin/classes/ClassesAdminPage';
+import { useAuth } from '../authentification/useAuth';
 
 const ParametresPage = () => {
   const { t } = useTranslation();
+  const { roles } = useAuth();
+  const isDirector = roles.includes('directeur');
+  const storedEtablissementId = (typeof window !== 'undefined' && sessionStorage.getItem('etablissement_id')) || '';
   const [activeTab, setActiveTab] = useState('school');
 
   const settingsTabs = [
@@ -81,6 +85,15 @@ const ParametresPage = () => {
     if (!activeTabData.component) return null;
 
     const Component = activeTabData.component;
+    // Onglet Classes: inclure l'import CSV au-dessus de la liste
+    if (activeTabData.id === 'classes') {
+      return (
+        <div className="p-4">
+          <ClassesAdminPage />
+        </div>
+      );
+    }
+
     return <Component />;
   };
 

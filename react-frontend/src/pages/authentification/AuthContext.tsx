@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     if (!MOCK_AUTH) {
-      keycloak.logout({ redirectUri: 'https://localhost:8000/' });
+      keycloak.logout({ redirectUri: 'http://localhost:8000/' });
     } else {
       setIsAuthenticated(false);
       setUser(null);
