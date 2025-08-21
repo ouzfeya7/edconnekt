@@ -1,9 +1,10 @@
 
 import React, { useState, useMemo } from 'react';
-import { FaEdit, FaToggleOn, FaToggleOff, FaPlus, FaSearch } from 'react-icons/fa';
+import { FaEdit, FaToggleOn, FaToggleOff, FaPlus, FaSearch, FaFileImport } from 'react-icons/fa';
 import { Button } from '../../../components/ui/button';
 import Badge from '../../../components/ui/Badge';
 import EtablissementFormModal from './EtablissementFormModal';
+import ImportEstablishmentsModal from './ImportEstablishmentsModal';
 import { useEstablishments } from '../../../hooks/useEstablishments';
 import { useUpdateEstablishmentStatus } from '../../../hooks/useUpdateEstablishmentStatus';
 import type { EtablissementOut, PlanEnum, StatusEnum } from '../../../api/establishment-service/api';
@@ -13,6 +14,7 @@ const EtablissementsPage: React.FC = () => {
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [editingEtablissement, setEditingEtablissement] = useState<EtablissementOut | null>(null);
 
   const { data: establishments, isLoading, isError } = useEstablishments({
@@ -58,10 +60,16 @@ const EtablissementsPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-800">Gestion des Établissements</h1>
           <p className="text-gray-600 mt-1">Recherchez, filtrez et gérez les établissements de la plateforme.</p>
         </div>
-        <Button onClick={() => handleOpenModal()}>
-          <FaPlus className="mr-2" />
-          Ajouter un établissement
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => handleOpenModal()}>
+            <FaPlus className="mr-2" />
+            Ajouter un établissement
+          </Button>
+          <Button variant="secondary" onClick={() => setIsImportOpen(true)}>
+            <FaFileImport className="mr-2" />
+            Importer des établissements
+          </Button>
+        </div>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -164,6 +172,7 @@ const EtablissementsPage: React.FC = () => {
         onSave={handleSaveEtablissement}
         etablissementToEdit={editingEtablissement}
       />
+      <ImportEstablishmentsModal isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
     </div>
   );
 };
