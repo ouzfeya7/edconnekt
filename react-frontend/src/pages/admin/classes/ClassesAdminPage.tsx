@@ -4,10 +4,16 @@ import { useClasses } from '../../../hooks/useClasses';
 import type { StatusEnum } from '../../../api/establishment-service/api';
 import type { ClasseOut } from '../../../api/classe-service/api';
 import { Button } from '../../../components/ui/button';
-import { FaPlus, FaSearch, FaFileImport } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaFileImport, FaUserPlus, FaUserEdit, FaTrash } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 import CreateClasseModal from './CreateClasseModal';
 import ImportClassesModal from './ImportClassesModal';
+import EditClasseModal from './EditClasseModal';
+import AssignTeacherModal from './AssignTeacherModal';
+import AssignStudentModal from './AssignStudentModal';
+import { useArchiveClasse } from '../../../hooks/useArchiveClasse';
 import { useAuth } from '../../authentification/useAuth';
+import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 
 const ClassesAdminPage: React.FC = () => {
   const [selectedEtablissementId, setSelectedEtablissementId] = useState<string>('');
@@ -16,6 +22,9 @@ const ClassesAdminPage: React.FC = () => {
   const [isArchived, setIsArchived] = useState<string>('false');
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
   const [isImportOpen, setIsImportOpen] = useState<boolean>(false);
+  const [editTarget, setEditTarget] = useState<ClasseOut | null>(null);
+  const [assignTeacherTarget, setAssignTeacherTarget] = useState<string>('');
+  const [assignStudentTarget, setAssignStudentTarget] = useState<string>('');
   const [skip] = useState<number>(0);
   const [limit] = useState<number>(100);
 
@@ -43,6 +52,28 @@ const ClassesAdminPage: React.FC = () => {
   });
 
   const classes: ClasseOut[] = useMemo(() => classesResponse?.data ?? [], [classesResponse]);
+  const archiveMutation = useArchiveClasse();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingArchive, setPendingArchive] = useState<{ id: string; nom: string } | null>(null);
+
+  const askArchive = (id: string, nom: string) => {
+    setPendingArchive({ id, nom });
+    setConfirmOpen(true);
+  };
+
+  const confirmArchive = () => {
+    if (!pendingArchive) return;
+    archiveMutation.mutate(pendingArchive.id, {
+      onSuccess: () => {
+        toast.success('Classe archivée avec succès');
+        setConfirmOpen(false);
+        setPendingArchive(null);
+      },
+      onError: () => {
+        toast.error("Échec de l'archivage de la classe");
+      },
+    });
+  };
 
   return (
     <div className="p-8 bg-white min-h-screen">
@@ -138,6 +169,7 @@ const ClassesAdminPage: React.FC = () => {
                   <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Année scolaire</th>
                   <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Capacité</th>
                   <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Créée le</th>
+                  <th className="p-4 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -149,6 +181,22 @@ const ClassesAdminPage: React.FC = () => {
                     <td className="p-4">{c.annee_scolaire}</td>
                     <td className="p-4">{typeof c.capacity === 'number' ? c.capacity : '-'}</td>
                     <td className="p-4">{c.created_at ? new Date(c.created_at).toLocaleDateString('fr-SN') : '-'}</td>
+                    <td className="p-4">
+                      <div className="flex gap-2 justify-center">
+                        <Button variant="ghost" size="sm" onClick={() => setEditTarget(c)} title="Modifier">
+                          <FaUserEdit />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => setAssignTeacherTarget(c.id)} title="Assigner enseignant">
+                          <FaUserPlus />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => setAssignStudentTarget(c.id)} title="Assigner élève">
+                          <FaUserPlus />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => askArchive(c.id, c.nom)} title="Archiver">
+                          <FaTrash />
+                        </Button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -166,6 +214,18 @@ const ClassesAdminPage: React.FC = () => {
         isOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
         etablissementId={selectedEtablissementId}
+      />
+      <EditClasseModal isOpen={!!editTarget} onClose={() => setEditTarget(null)} classe={editTarget} />
+      <AssignTeacherModal isOpen={!!assignTeacherTarget} onClose={() => setAssignTeacherTarget('')} classeId={assignTeacherTarget} />
+      <AssignStudentModal isOpen={!!assignStudentTarget} onClose={() => setAssignStudentTarget('')} classeId={assignStudentTarget} />
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        title="Archiver cette classe ?"
+        description={pendingArchive ? `Classe: ${pendingArchive.nom}` : undefined}
+        confirmText="Archiver"
+        cancelText="Annuler"
+        onCancel={() => { setConfirmOpen(false); setPendingArchive(null); }}
+        onConfirm={confirmArchive}
       />
     </div>
   );
