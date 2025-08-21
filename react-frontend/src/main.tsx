@@ -16,6 +16,7 @@ import { AuthProvider } from './pages/authentification/AuthContext';
 import { EventProvider } from './contexts/EventContext';
 import { StudentProvider } from './contexts/StudentContext';
 import { FilterProvider } from './contexts/FilterContext';
+import { Toaster } from 'react-hot-toast';
 
 // Synchronize dayjs locale with i18next
 const updateDayjsLocale = (lng: string | undefined) => {
@@ -50,6 +51,7 @@ createRoot(document.getElementById('root')!).render(
         <EventProvider>
           <StudentProvider>
             <App />
+            <Toaster position="top-right" />
           </StudentProvider>
         </EventProvider>
       </FilterProvider>
