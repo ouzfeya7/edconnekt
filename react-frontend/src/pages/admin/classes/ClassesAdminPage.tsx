@@ -4,8 +4,9 @@ import { useClasses } from '../../../hooks/useClasses';
 import type { StatusEnum } from '../../../api/establishment-service/api';
 import type { ClasseOut } from '../../../api/classe-service/api';
 import { Button } from '../../../components/ui/button';
-import { FaPlus, FaSearch } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaFileImport } from 'react-icons/fa';
 import CreateClasseModal from './CreateClasseModal';
+import ImportClassesModal from './ImportClassesModal';
 import { useAuth } from '../../authentification/useAuth';
 
 const ClassesAdminPage: React.FC = () => {
@@ -14,6 +15,7 @@ const ClassesAdminPage: React.FC = () => {
   const [niveauFilter, setNiveauFilter] = useState<string>('');
   const [isArchived, setIsArchived] = useState<string>('false');
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
+  const [isImportOpen, setIsImportOpen] = useState<boolean>(false);
   const [skip] = useState<number>(0);
   const [limit] = useState<number>(100);
 
@@ -49,10 +51,16 @@ const ClassesAdminPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-800">Gestion des Classes</h1>
           <p className="text-gray-600 mt-1">Lister et créer des classes par établissement.</p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)} disabled={!selectedEtablissementId}>
-          <FaPlus className="mr-2" />
-          Nouvelle classe
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setIsCreateOpen(true)} disabled={!selectedEtablissementId}>
+            <FaPlus className="mr-2" />
+            Nouvelle classe
+          </Button>
+          <Button onClick={() => setIsImportOpen(true)} disabled={!selectedEtablissementId} variant="secondary">
+            <FaFileImport className="mr-2" />
+            Importer des classes
+          </Button>
+        </div>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -152,6 +160,11 @@ const ClassesAdminPage: React.FC = () => {
       <CreateClasseModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
+        etablissementId={selectedEtablissementId}
+      />
+      <ImportClassesModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
         etablissementId={selectedEtablissementId}
       />
     </div>
