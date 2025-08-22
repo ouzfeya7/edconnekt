@@ -44,7 +44,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-2 text-gray-800">Tableau de bord Administrateur</h1>
-      <p className="text-gray-600 mb-8">Vue d'ensemble et pilotage du système EdConnect.</p>
+      <p className="text-gray-600 mb-8">Vue d'ensemble et pilotage du système EdConnekt.</p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {dashboardItems.map((item) => (
