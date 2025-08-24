@@ -4,7 +4,7 @@ import { useClasses } from '../../../hooks/useClasses';
 import type { StatusEnum } from '../../../api/establishment-service/api';
 import type { ClasseOut } from '../../../api/classe-service/api';
 import { Button } from '../../../components/ui/button';
-import { FaPlus, FaSearch, FaFileImport, FaUserPlus, FaUserEdit, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaFileImport, FaUserPlus, FaUserEdit, FaTrash, FaUserGraduate, FaChalkboardTeacher, FaInfoCircle } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import CreateClasseModal from './CreateClasseModal';
 import ImportClassesModal from './ImportClassesModal';
@@ -155,7 +155,13 @@ const ClassesAdminPage: React.FC = () => {
 
         {/* Liste */}
         {!selectedEtablissementId ? (
-          <div className="text-gray-600">Veuillez sélectionner un établissement pour afficher les classes.</div>
+          <div className="mt-6 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+            <FaInfoCircle className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-xl font-semibold text-gray-900">Aucun établissement sélectionné</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Veuillez utiliser le menu déroulant ci-dessus pour choisir un établissement et afficher ses classes.
+            </p>
+          </div>
         ) : isLoadingClasses ? (
           <div className="text-gray-600">Chargement des classes…</div>
         ) : (
@@ -182,18 +188,42 @@ const ClassesAdminPage: React.FC = () => {
                     <td className="p-4">{typeof c.capacity === 'number' ? c.capacity : '-'}</td>
                     <td className="p-4">{c.created_at ? new Date(c.created_at).toLocaleDateString('fr-SN') : '-'}</td>
                     <td className="p-4">
-                      <div className="flex gap-2 justify-center">
-                        <Button variant="ghost" size="sm" onClick={() => setEditTarget(c)} title="Modifier">
-                          <FaUserEdit />
+                      <div className="flex items-center gap-2 justify-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditTarget(c)}
+                          title="Modifier"
+                          className="text-gray-600 hover:text-blue-600"
+                        >
+                          <FaUserEdit className="w-5 h-5" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => setAssignTeacherTarget(c.id)} title="Assigner enseignant">
-                          <FaUserPlus />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setAssignTeacherTarget(c.id)}
+                          title="Assigner enseignant"
+                          className="text-gray-600 hover:text-green-600"
+                        >
+                          <FaChalkboardTeacher className="w-5 h-5" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => setAssignStudentTarget(c.id)} title="Assigner élève">
-                          <FaUserPlus />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setAssignStudentTarget(c.id)}
+                          title="Assigner élève"
+                          className="text-gray-600 hover:text-green-600"
+                        >
+                          <FaUserGraduate className="w-5 h-5" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => askArchive(c.id, c.nom)} title="Archiver">
-                          <FaTrash />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => askArchive(c.id, c.nom)}
+                          title="Archiver"
+                          className="text-gray-600 hover:text-red-600"
+                        >
+                          <FaTrash className="w-5 h-5" />
                         </Button>
                       </div>
                     </td>
