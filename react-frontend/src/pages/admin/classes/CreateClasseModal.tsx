@@ -3,6 +3,7 @@ import { Button } from '../../../components/ui/button';
 import { FaTimes } from 'react-icons/fa';
 import type { ClasseCreate } from '../../../api/classe-service/api';
 import { useCreateClasse } from '../../../hooks/useCreateClasse';
+import toast from 'react-hot-toast';
 
 interface CreateClasseModalProps {
   isOpen: boolean;
@@ -17,7 +18,7 @@ const CreateClasseModal: React.FC<CreateClasseModalProps> = ({ isOpen, onClose, 
     niveau: '',
     annee_scolaire: '',
     etablissement_id: '' as unknown as string,
-    capacity: 0,
+    capacity: undefined as unknown as number,
   });
 
   const createMutation = useCreateClasse();
@@ -32,17 +33,40 @@ const CreateClasseModal: React.FC<CreateClasseModalProps> = ({ isOpen, onClose, 
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'capacity' ? Number(value) || 0 : value,
+      [name]: name === 'capacity'
+        ? (value === '' ? (undefined as unknown as number) : (Number(value) > 0 ? Number(value) : (undefined as unknown as number)))
+        : value.trim(),
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createMutation.mutateAsync(formData);
+      const payload: ClasseCreate = {
+        code: formData.code.trim(),
+        nom: formData.nom.trim(),
+        niveau: formData.niveau.trim(),
+        annee_scolaire: formData.annee_scolaire.trim(),
+        etablissement_id: formData.etablissement_id,
+        ...(typeof formData.capacity === 'number' && formData.capacity > 0 ? { capacity: formData.capacity } : {}),
+      } as ClasseCreate;
+      await createMutation.mutateAsync(payload);
+      toast.success('Classe créée avec succès');
       onClose();
-    } catch (err) {
+    } catch (err: unknown) {
+      let serverMsg = 'Erreur inconnue';
+      if (typeof err === 'object' && err !== null) {
+        const obj = err as Record<string, unknown>;
+        const response = obj['response'] as { data?: unknown } | undefined;
+        const message = (obj['message'] as string | undefined) ?? undefined;
+        const data = response?.data;
+        const detail = (typeof data === 'object' && data !== null && 'detail' in (data as Record<string, unknown>))
+          ? (data as Record<string, unknown>)['detail']
+          : data;
+        serverMsg = typeof detail === 'string' ? detail : (message ?? JSON.stringify(detail ?? {}));
+      }
       console.error('Erreur création classe:', err);
+      toast.error(serverMsg);
     }
   };
 
@@ -75,7 +99,7 @@ const CreateClasseModal: React.FC<CreateClasseModalProps> = ({ isOpen, onClose, 
           </div>
           <div>
             <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacité (optionnel)</label>
-            <input type="number" min={0} id="capacity" name="capacity" value={formData.capacity ?? 0} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
+            <input type="number" min={0} id="capacity" name="capacity" value={formData.capacity ?? ''} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
           </div>
           <div className="flex justify-end pt-6">
             <Button type="button" variant="secondary" onClick={onClose} className="mr-2">Annuler</Button>
