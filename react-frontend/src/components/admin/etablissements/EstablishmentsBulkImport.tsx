@@ -1,8 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import type { EtablissementCreate, PlanEnum, StatusEnum } from '../../../api/establishment-service/api';
-import { useCreateEstablishment } from '../../../hooks/useCreateEstablishment';
+import { useCreateEstablishmentsBulk } from '../../../hooks/useCreateEstablishmentsBulk';
 import toast from 'react-hot-toast';
+import ConfirmDialog from '../../../components/ui/ConfirmDialog';
+
+interface EstablishmentsBulkImportProps {
+  onSuccessClose?: () => void;
+}
 
 type ParsedRow = {
   nom: string;
@@ -21,8 +26,8 @@ type ParsedRow = {
 const expectedHeaders = ['nom', 'adresse', 'email', 'telephone', 'ville', 'pays', 'plan', 'status', 'date_debut', 'date_fin'];
 
 const sampleCsv = `nom,adresse,email,telephone,ville,pays,plan,status,date_debut,date_fin\n` +
-  `Lycée Cheikh Anta Diop,Avenue Blaise Diagne,contact@l-cad.sn,221338000000,Dakar,Sénégal,PRO,ACTIVE,2024-10-01,2025-09-30\n` +
-  `Collège Yoff Route de l’aéroport,Route de l’aéroport,info@college-yoff.sn,221337000000,Dakar,Sénégal,BASIC,TRIAL,2024-10-01,`;
+  `Lycée Cheikh Anta Diop,Avenue Blaise Diagne,contact@l-cad.com,+221338000000,Dakar,Sénégal,PRO,ACTIVE,2024-10-01,2025-09-30\n` +
+  `Collège Yoff Route de l’aéroport,Route de l’aéroport,info@college-yoff.com,0337000000,Dakar,Sénégal,BASIC,TRIAL,2024-10-01,`;
 
 function downloadSample() {
   const blob = new Blob([sampleCsv], { type: 'text/csv;charset=utf-8;' });
@@ -75,6 +80,10 @@ function validateRow(r: ParsedRow): string[] {
   if (!r.email) errs.push('email requis');
   if (!r.telephone) errs.push('telephone requis');
   if (r.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email)) errs.push('email invalide');
+  if (r.email && !/\.com$/i.test(r.email)) errs.push("email doit se terminer par .com");
+  const tel = (r.telephone || '').replace(/\s+/g, '');
+  const phoneOk = /^\+221\d{9}$/.test(tel) || /^0\d{9}$/.test(tel);
+  if (!phoneOk) errs.push('telephone invalide (formats: +221XXXXXXXXX ou 0XXXXXXXXX)');
   if (r.plan && !['BASIC','PRO','ENTREPRISE'].includes(r.plan)) errs.push('plan invalide');
   if (r.status && !['TRIAL','ACTIVE','SUSPENDED','CLOSED'].includes(r.status)) errs.push('status invalide');
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -83,15 +92,16 @@ function validateRow(r: ParsedRow): string[] {
   return errs;
 }
 
-const EstablishmentsBulkImport: React.FC = () => {
+const EstablishmentsBulkImport: React.FC<EstablishmentsBulkImportProps> = ({ onSuccessClose }) => {
   const [fileName, setFileName] = useState<string>('');
   const [parsed, setParsed] = useState<ParsedRow[]>([]);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
   const [rowErrors, setRowErrors] = useState<Record<number, string[]>>({});
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [result, setResult] = useState<{ success: number; failed: number } | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
 
-  const createMutation = useCreateEstablishment();
+  const createBulkMutation = useCreateEstablishmentsBulk();
 
   const isValid = useMemo(() => {
     if (parseErrors.length > 0) return false;
@@ -119,36 +129,50 @@ const EstablishmentsBulkImport: React.FC = () => {
     reader.readAsText(file);
   };
 
-  const handleSubmit = async () => {
+  const doSubmit = async () => {
     if (!isValid) return;
     setSubmitting(true);
-    let success = 0;
-    let failed = 0;
-    for (const r of parsed) {
-      const payload: EtablissementCreate = {
-        nom: r.nom,
-        adresse: r.adresse,
-        email: r.email,
-        telephone: r.telephone,
-        ville: r.ville ?? undefined,
-        pays: r.pays ?? undefined,
-        plan: r.plan,
-        status: r.status,
-        date_debut: r.date_debut ?? undefined,
-        date_fin: r.date_fin ?? undefined,
-      };
-      try {
-        await createMutation.mutateAsync(payload);
-        success += 1;
-      } catch {
-        failed += 1;
-      }
+    const payloads: EtablissementCreate[] = parsed.map((r) => ({
+      nom: r.nom,
+      adresse: r.adresse,
+      email: r.email,
+      telephone: normalizeTelephoneSn(r.telephone),
+      ville: r.ville ?? undefined,
+      pays: r.pays ?? undefined,
+      plan: r.plan,
+      status: r.status,
+      date_debut: r.date_debut ?? undefined,
+      date_fin: r.date_fin ?? undefined,
+    }));
+    try {
+      await createBulkMutation.mutateAsync(payloads);
+      setResult({ success: payloads.length, failed: 0 });
+      toast.success(`${payloads.length} établissement(s) créés`);
+      // Reset local state et fermer le modal si demandé
+      setFileName('');
+      setParsed([]);
+      setParseErrors([]);
+      setRowErrors({});
+      onSuccessClose?.();
+    } catch (error: any) {
+      // si rollback total côté backend, tout échoue
+      setResult({ success: 0, failed: payloads.length });
+      const serverMsg = error?.response?.data?.detail || error?.response?.data || error?.message || 'Erreur inconnue';
+      console.error('Erreur import établissements:', error);
+      toast.error(`Échec de l'import (${payloads.length}) : ${typeof serverMsg === 'string' ? serverMsg : JSON.stringify(serverMsg)}`);
+    } finally {
+      setSubmitting(false);
     }
-    setResult({ success, failed });
-    setSubmitting(false);
-    if (success > 0) toast.success(`${success} établissement(s) créés`);
-    if (failed > 0) toast.error(`${failed} échec(s)`);
   };
+
+function normalizeTelephoneSn(input: string): string {
+  const raw = (input || '').replace(/\s+/g, '');
+  if (/^\+221\d{9}$/.test(raw)) return raw;
+  if (/^0\d{9}$/.test(raw)) return raw; // déjà au format local
+  if (/^221\d{9}$/.test(raw)) return `+${raw}`; // ajouter + si manquant
+  if (/^00221\d{9}$/.test(raw)) return `+221${raw.slice(5)}`; // convertir 00221 -> +221
+  return raw; // laisser tel quel, le validateur affichera l'erreur
+}
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -207,10 +231,17 @@ const EstablishmentsBulkImport: React.FC = () => {
         </div>
       )}
       <div className="flex items-center justify-end">
-        <Button onClick={handleSubmit} disabled={!isValid || submitting}>
+        <Button onClick={() => setIsConfirmOpen(true)} disabled={!isValid || submitting}>
           {submitting ? 'Import en cours…' : 'Importer les établissements'}
         </Button>
       </div>
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={() => { setIsConfirmOpen(false); doSubmit(); }}
+        title={`Confirmer l'import de ${parsed.length} établissement(s)`}
+        description="Cette opération va créer tous les établissements listés. Vérifiez les erreurs éventuelles avant de confirmer."
+      />
     </div>
   );
 };

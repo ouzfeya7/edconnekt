@@ -1,10 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import type { ClasseCreate } from '../../../api/classe-service/api';
-import { useCreateClasse } from '../../../hooks/useCreateClasse';
+import { useCreateClassesBulk } from '../../../hooks/useCreateClassesBulk';
+import toast from 'react-hot-toast';
+import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 
 interface ClassesBulkImportProps {
   etablissementId: string;
+  onSuccessClose?: () => void;
 }
 
 type ParsedRow = {
@@ -82,7 +85,7 @@ function validateRow(r: ParsedRow): string[] {
   return errs;
 }
 
-const ClassesBulkImport: React.FC<ClassesBulkImportProps> = ({ etablissementId }) => {
+const ClassesBulkImport: React.FC<ClassesBulkImportProps> = ({ etablissementId, onSuccessClose }) => {
   const [fileName, setFileName] = useState<string>('');
   const [parsed, setParsed] = useState<ParsedRow[]>([]);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
@@ -90,7 +93,8 @@ const ClassesBulkImport: React.FC<ClassesBulkImportProps> = ({ etablissementId }
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [result, setResult] = useState<{ success: number; failed: number } | null>(null);
 
-  const createMutation = useCreateClasse();
+  const createBulk = useCreateClassesBulk();
+  const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
 
   const isValid = useMemo(() => {
     if (parseErrors.length > 0) return false;
@@ -121,26 +125,27 @@ const ClassesBulkImport: React.FC<ClassesBulkImportProps> = ({ etablissementId }
   const handleSubmit = async () => {
     if (!isValid) return;
     setSubmitting(true);
-    let success = 0;
-    let failed = 0;
-    for (const r of parsed) {
-      const payload: ClasseCreate = {
-        code: r.code,
-        nom: r.nom,
-        niveau: r.niveau,
-        annee_scolaire: r.annee_scolaire,
-        etablissement_id: etablissementId,
-        capacity: r.capacity ?? 0,
-      };
-      try {
-        await createMutation.mutateAsync(payload);
-        success += 1;
-      } catch {
-        failed += 1;
-      }
+    const payloads: ClasseCreate[] = parsed.map((r) => ({
+      code: r.code,
+      nom: r.nom,
+      niveau: r.niveau,
+      annee_scolaire: r.annee_scolaire,
+      etablissement_id: etablissementId,
+      capacity: r.capacity ?? 0,
+    }));
+    try {
+      await createBulk.mutateAsync(payloads);
+      setResult({ success: payloads.length, failed: 0 });
+      toast.success(`${payloads.length} classe(s) créées`);
+      onSuccessClose?.();
+    } catch (error: any) {
+      setResult({ success: 0, failed: payloads.length });
+      const serverMsg = error?.response?.data?.detail || error?.response?.data || error?.message || 'Erreur inconnue';
+      console.error('Erreur import classes:', error);
+      toast.error(`Échec de l'import (${payloads.length}) : ${typeof serverMsg === 'string' ? serverMsg : JSON.stringify(serverMsg)}`);
+    } finally {
+      setSubmitting(false);
     }
-    setResult({ success, failed });
-    setSubmitting(false);
   };
 
   return (
@@ -203,10 +208,17 @@ const ClassesBulkImport: React.FC<ClassesBulkImportProps> = ({ etablissementId }
             </span>
           )}
         </div>
-        <Button onClick={handleSubmit} disabled={!isValid || submitting || !etablissementId}>
+        <Button onClick={() => setIsConfirmOpen(true)} disabled={!isValid || submitting || !etablissementId}>
           {submitting ? 'Import en cours…' : 'Importer les classes'}
         </Button>
       </div>
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onCancel={() => setIsConfirmOpen(false)}
+        onConfirm={() => { setIsConfirmOpen(false); handleSubmit(); }}
+        title={`Confirmer l'import de ${parsed.length} classe(s)`}
+        description="Cette opération va créer toutes les classes listées. Vérifiez les erreurs éventuelles avant de confirmer."
+      />
     </div>
   );
 };

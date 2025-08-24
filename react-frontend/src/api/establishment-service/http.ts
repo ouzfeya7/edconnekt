@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
-// Base URL configurable via Vite env
-const RAW_BASE_URL = (import.meta as any)?.env?.VITE_ESTABLISHMENT_API_BASE_URL;
-const BASE_URL = RAW_BASE_URL ? (RAW_BASE_URL.endsWith('/') ? RAW_BASE_URL : `${RAW_BASE_URL}/`) : undefined;
+// Base URL configurable via Vite env, avec fallback par défaut
+const DEFAULT_BASE_URL = 'https://api.uat1-engy-partners.com/establishment';
+const RAW_BASE_URL = (import.meta as any)?.env?.VITE_ESTABLISHMENT_API_BASE_URL ?? DEFAULT_BASE_URL;
+const BASE_URL = RAW_BASE_URL.endsWith('/') ? RAW_BASE_URL : `${RAW_BASE_URL}/`;
 export const ESTABLISHMENT_API_BASE_URL = BASE_URL;
 
-if (!RAW_BASE_URL && (import.meta as any)?.env?.DEV) {
-	console.warn("[establishment-api] VITE_ESTABLISHMENT_API_BASE_URL n'est pas défini. Le service Establishment peut ne pas fonctionner correctement.");
+if (!((import.meta as any)?.env?.VITE_ESTABLISHMENT_API_BASE_URL) && (import.meta as any)?.env?.DEV) {
+	console.warn('[establishment-api] VITE_ESTABLISHMENT_API_BASE_URL non défini. Fallback utilisé:', BASE_URL);
 }
 
 // Instance Axios dédiée au microservice Establishment Service
@@ -34,5 +35,3 @@ if ((import.meta as any)?.env?.DEV) {
 }
 
 export default establishmentAxios;
-
-

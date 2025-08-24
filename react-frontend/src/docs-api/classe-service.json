@@ -39,26 +39,6 @@
                 }
             }
         },
-        "/api/v1/health": {
-            "get": {
-                "tags": [
-                    "Health"
-                ],
-                "summary": "Health Check",
-                "description": "Vérifie l'état de santé du service.\n\nReturns:\n    dict: État du service",
-                "operationId": "health_check_api_v1_health_get",
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/classes/": {
             "get": {
                 "tags": [
@@ -158,14 +138,14 @@
                     "Classes"
                 ],
                 "summary": "Create Classe",
-                "description": "Crée une nouvelle classe.",
+                "description": "Crée une ou plusieurs classes\n\nAccepte soit une classe unique, soit une liste de classes.\nEn cas d'erreur sur une seule classe, toutes sont annulées (rollback complet).",
                 "operationId": "create_classe_api_v1_classes__post",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/ClasseCreate"
+                                "$ref": "#/components/schemas/ClasseCreateFlexible"
                             }
                         }
                     }
@@ -175,9 +155,7 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ClasseOut"
-                                }
+                                "schema": {}
                             }
                         }
                     },
@@ -272,66 +250,6 @@
                                 "schema": {
                                     "$ref": "#/components/schemas/HTTPValidationError"
                                 }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/classes/keycloak-roles": {
-            "get": {
-                "tags": [
-                    "Classes"
-                ],
-                "summary": "Get Keycloak Roles",
-                "description": "Endpoint de test pour vérifier les rôles Keycloak de l'utilisateur.\nUtilisé pour les tests d'intégration.",
-                "operationId": "get_keycloak_roles_api_v1_classes_keycloak_roles_get",
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/classes/admin-only": {
-            "post": {
-                "tags": [
-                    "Classes"
-                ],
-                "summary": "Admin Only Endpoint",
-                "description": "Endpoint de test réservé aux administrateurs.\nUtilisé pour les tests d'intégration.",
-                "operationId": "admin_only_endpoint_api_v1_classes_admin_only_post",
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/classes/me/permissions": {
-            "get": {
-                "tags": [
-                    "Classes"
-                ],
-                "summary": "Get My Permissions",
-                "description": "Endpoint pour récupérer les permissions de l'utilisateur actuel.\nUtilisé pour les tests d'intégration.",
-                "operationId": "get_my_permissions_api_v1_classes_me_permissions_get",
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
                             }
                         }
                     }
@@ -812,6 +730,31 @@
                     "etablissement_id"
                 ],
                 "title": "ClasseCreate"
+            },
+            "ClasseCreateFlexible": {
+                "properties": {
+                    "data": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ClasseCreate"
+                            },
+                            {
+                                "items": {
+                                    "$ref": "#/components/schemas/ClasseCreate"
+                                },
+                                "type": "array"
+                            }
+                        ],
+                        "title": "Data",
+                        "description": "Une classe unique ou une liste de classes à créer"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "data"
+                ],
+                "title": "ClasseCreateFlexible",
+                "description": "Schéma flexible pour accepter soit une classe unique, soit une liste de classes.\nPermet de créer une ou plusieurs classes avec le même endpoint."
             },
             "ClasseEleveCreate": {
                 "properties": {
