@@ -46,18 +46,17 @@
         "/api/etablissements/": {
             "post": {
                 "tags": [
-                    "Etablissements",
-                    "établissements"
+                    "establishments"
                 ],
                 "summary": "Create Establishment",
-                "description": "Crée un nouvel établissement\n\nRequiert le rôle ROLE_ADMIN.",
+                "description": "Crée un ou plusieurs établissements\n\nAccepte soit un établissement unique, soit une liste d'établissements.\nEn cas d'erreur sur un seul établissement, tous sont annulés (rollback complet).\n\nRequiert le rôle ROLE_ADMIN.",
                 "operationId": "create_establishment_api_etablissements__post",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/EtablissementCreate"
+                                "$ref": "#/components/schemas/EtablissementCreateFlexible"
                             }
                         }
                     }
@@ -68,7 +67,18 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/EtablissementOut"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/EtablissementOut"
+                                        },
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/EtablissementOut"
+                                            }
+                                        }
+                                    ],
+                                    "title": "Response Create Establishment Api Etablissements  Post"
                                 }
                             }
                         }
@@ -87,8 +97,7 @@
             },
             "get": {
                 "tags": [
-                    "Etablissements",
-                    "établissements"
+                    "establishments"
                 ],
                 "summary": "List Establishments",
                 "description": "Liste tous les établissements avec pagination et filtres\n\nRequiert le rôle ROLE_ADMIN.",
@@ -163,8 +172,7 @@
         "/api/etablissements/{establishment_id}": {
             "get": {
                 "tags": [
-                    "Etablissements",
-                    "établissements"
+                    "establishments"
                 ],
                 "summary": "Get Establishment",
                 "description": "Récupère un établissement par son ID\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut accéder qu'à son propre établissement.",
@@ -206,8 +214,7 @@
             },
             "patch": {
                 "tags": [
-                    "Etablissements",
-                    "établissements"
+                    "establishments"
                 ],
                 "summary": "Update Establishment",
                 "description": "Met à jour les informations d'un établissement",
@@ -261,8 +268,7 @@
         "/api/etablissements/{establishment_id}/coordinates": {
             "patch": {
                 "tags": [
-                    "Etablissements",
-                    "établissements"
+                    "establishments"
                 ],
                 "summary": "Update Establishment Coordinates",
                 "description": "Met à jour les coordonnées d'un établissement\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut modifier que son propre établissement.",
@@ -316,8 +322,7 @@
         "/api/etablissements/{establishment_id}/status": {
             "patch": {
                 "tags": [
-                    "Etablissements",
-                    "établissements"
+                    "establishments"
                 ],
                 "summary": "Update Establishment Status",
                 "description": "Met à jour le statut d'un établissement\n\nRequiert le rôle ROLE_ADMIN.",
@@ -378,11 +383,10 @@
         "/api/etablissements/public/": {
             "get": {
                 "tags": [
-                    "Etablissements",
-                    "établissements"
+                    "establishments"
                 ],
                 "summary": "List Public Establishments",
-                "description": "Liste publique des établissements actifs\n\nAucune authentification requise - accessible publiquement.\nRetourne seulement les établissements avec le statut ACTIVE.",
+                "description": "Liste publique des etablissements actifs\n\nAucune authentification requise - accessible publiquement.\nRetourne seulement les etablissements avec le statut ACTIVE.",
                 "operationId": "list_public_establishments_api_etablissements_public__get",
                 "parameters": [
                     {
@@ -393,11 +397,11 @@
                             "type": "integer",
                             "maximum": 100,
                             "minimum": 1,
-                            "description": "Nombre maximum d'éléments",
+                            "description": "Nombre maximum d'elements",
                             "default": 10,
                             "title": "Limit"
                         },
-                        "description": "Nombre maximum d'éléments"
+                        "description": "Nombre maximum d'elements"
                     },
                     {
                         "name": "offset",
@@ -449,9 +453,7 @@
                     "nom": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "maxLength": 100,
-                                "minLength": 2
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -463,9 +465,7 @@
                     "adresse": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "maxLength": 200,
-                                "minLength": 5
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -477,8 +477,7 @@
                     "email": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "format": "email"
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -502,8 +501,7 @@
                     "ville": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "maxLength": 50
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -515,8 +513,7 @@
                     "pays": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "maxLength": 50
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -534,21 +531,16 @@
                 "properties": {
                     "nom": {
                         "type": "string",
-                        "maxLength": 100,
-                        "minLength": 2,
                         "title": "Nom",
                         "description": "Nom de l'établissement"
                     },
                     "adresse": {
                         "type": "string",
-                        "maxLength": 200,
-                        "minLength": 5,
                         "title": "Adresse",
                         "description": "Adresse de l'établissement"
                     },
                     "email": {
                         "type": "string",
-                        "format": "email",
                         "title": "Email",
                         "description": "Email de contact"
                     },
@@ -560,8 +552,7 @@
                     "ville": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "maxLength": 50
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -573,8 +564,7 @@
                     "pays": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "maxLength": 50
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -625,25 +615,45 @@
                 ],
                 "title": "EtablissementCreate"
             },
+            "EtablissementCreateFlexible": {
+                "properties": {
+                    "data": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EtablissementCreate"
+                            },
+                            {
+                                "items": {
+                                    "$ref": "#/components/schemas/EtablissementCreate"
+                                },
+                                "type": "array"
+                            }
+                        ],
+                        "title": "Data",
+                        "description": "Un établissement unique ou une liste d'établissements à créer"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "data"
+                ],
+                "title": "EtablissementCreateFlexible",
+                "description": "Schéma flexible pour accepter soit un établissement unique, soit une liste d'établissements.\nPermet de créer un ou plusieurs établissements avec le même endpoint."
+            },
             "EtablissementOut": {
                 "properties": {
                     "nom": {
                         "type": "string",
-                        "maxLength": 100,
-                        "minLength": 2,
                         "title": "Nom",
                         "description": "Nom de l'établissement"
                     },
                     "adresse": {
                         "type": "string",
-                        "maxLength": 200,
-                        "minLength": 5,
                         "title": "Adresse",
                         "description": "Adresse de l'établissement"
                     },
                     "email": {
                         "type": "string",
-                        "format": "email",
                         "title": "Email",
                         "description": "Email de contact"
                     },
@@ -655,8 +665,7 @@
                     "ville": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "maxLength": 50
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -668,8 +677,7 @@
                     "pays": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "maxLength": 50
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -812,9 +820,7 @@
                     "nom": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "maxLength": 100,
-                                "minLength": 2
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -826,10 +832,7 @@
                     "adresse": {
                         "anyOf": [
                             {
-                                "additionalProperties": {
-                                    "type": "string"
-                                },
-                                "type": "object"
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -841,8 +844,7 @@
                     "email": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "format": "email"
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -866,8 +868,7 @@
                     "ville": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "maxLength": 50
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -879,8 +880,7 @@
                     "pays": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "maxLength": 50
+                                "type": "string"
                             },
                             {
                                 "type": "null"

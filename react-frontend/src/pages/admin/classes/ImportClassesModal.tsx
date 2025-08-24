@@ -20,7 +20,7 @@ const ImportClassesModal: React.FC<ImportClassesModalProps> = ({ isOpen, onClose
             <FaTimes size={20} />
           </button>
         </div>
-        <ClassesBulkImport etablissementId={etablissementId} />
+        <ClassesBulkImport etablissementId={etablissementId} onSuccessClose={onClose} />
       </div>
     </div>
   );

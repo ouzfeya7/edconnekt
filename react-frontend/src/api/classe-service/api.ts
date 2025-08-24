@@ -116,6 +116,19 @@ export interface ClasseCreate {
     'capacity'?: number;
 }
 /**
+ * Schéma flexible pour accepter soit une classe unique, soit une liste de classes. Permet de créer une ou plusieurs classes avec le même endpoint.
+ * @export
+ * @interface ClasseCreateFlexible
+ */
+export interface ClasseCreateFlexible {
+    /**
+     * 
+     * @type {Data}
+     * @memberof ClasseCreateFlexible
+     */
+    'data': Data;
+}
+/**
  * 
  * @export
  * @interface ClasseEleveCreate
@@ -526,6 +539,49 @@ export interface ClasseUpdate {
     'capacity'?: number | null;
 }
 /**
+ * Une classe unique ou une liste de classes à créer
+ * @export
+ * @interface Data
+ */
+export interface Data {
+    /**
+     * 
+     * @type {string}
+     * @memberof Data
+     */
+    'code': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Data
+     */
+    'nom': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Data
+     */
+    'niveau': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Data
+     */
+    'annee_scolaire': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Data
+     */
+    'etablissement_id': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof Data
+     */
+    'capacity'?: number;
+}
+/**
  * 
  * @export
  * @interface HTTPValidationError
@@ -641,36 +697,6 @@ export interface ValidationErrorLocInner {
 export const ClassesApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Endpoint de test réservé aux administrateurs. Utilisé pour les tests d\'intégration.
-         * @summary Admin Only Endpoint
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        adminOnlyEndpointApiV1ClassesAdminOnlyPost: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/classes/admin-only`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
          * Archive une classe (soft delete).
          * @summary Archive Classe
          * @param {string} classeId 
@@ -777,15 +803,15 @@ export const ClassesApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Crée une nouvelle classe.
+         * Crée une ou plusieurs classes  Accepte soit une classe unique, soit une liste de classes. En cas d\'erreur sur une seule classe, toutes sont annulées (rollback complet).
          * @summary Create Classe
-         * @param {ClasseCreate} classeCreate 
+         * @param {ClasseCreateFlexible} classeCreateFlexible 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createClasseApiV1ClassesPost: async (classeCreate: ClasseCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classeCreate' is not null or undefined
-            assertParamExists('createClasseApiV1ClassesPost', 'classeCreate', classeCreate)
+        createClasseApiV1ClassesPost: async (classeCreateFlexible: ClasseCreateFlexible, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'classeCreateFlexible' is not null or undefined
+            assertParamExists('createClasseApiV1ClassesPost', 'classeCreateFlexible', classeCreateFlexible)
             const localVarPath = `/api/v1/classes/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -805,7 +831,7 @@ export const ClassesApiAxiosParamCreator = function (configuration?: Configurati
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(classeCreate, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(classeCreateFlexible, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1045,66 +1071,6 @@ export const ClassesApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Endpoint de test pour vérifier les rôles Keycloak de l\'utilisateur. Utilisé pour les tests d\'intégration.
-         * @summary Get Keycloak Roles
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getKeycloakRolesApiV1ClassesKeycloakRolesGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/classes/keycloak-roles`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Endpoint pour récupérer les permissions de l\'utilisateur actuel. Utilisé pour les tests d\'intégration.
-         * @summary Get My Permissions
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getMyPermissionsApiV1ClassesMePermissionsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/classes/me/permissions`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
          * Récupère les statistiques d\'une classe.
          * @summary Get Statistics
          * @param {string} classeId 
@@ -1189,18 +1155,6 @@ export const ClassesApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = ClassesApiAxiosParamCreator(configuration)
     return {
         /**
-         * Endpoint de test réservé aux administrateurs. Utilisé pour les tests d\'intégration.
-         * @summary Admin Only Endpoint
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async adminOnlyEndpointApiV1ClassesAdminOnlyPost(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOnlyEndpointApiV1ClassesAdminOnlyPost(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ClassesApi.adminOnlyEndpointApiV1ClassesAdminOnlyPost']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
          * Archive une classe (soft delete).
          * @summary Archive Classe
          * @param {string} classeId 
@@ -1240,14 +1194,14 @@ export const ClassesApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Crée une nouvelle classe.
+         * Crée une ou plusieurs classes  Accepte soit une classe unique, soit une liste de classes. En cas d\'erreur sur une seule classe, toutes sont annulées (rollback complet).
          * @summary Create Classe
-         * @param {ClasseCreate} classeCreate 
+         * @param {ClasseCreateFlexible} classeCreateFlexible 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createClasseApiV1ClassesPost(classeCreate: ClasseCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClasseOut>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createClasseApiV1ClassesPost(classeCreate, options);
+        async createClasseApiV1ClassesPost(classeCreateFlexible: ClasseCreateFlexible, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createClasseApiV1ClassesPost(classeCreateFlexible, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ClassesApi.createClasseApiV1ClassesPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1336,30 +1290,6 @@ export const ClassesApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Endpoint de test pour vérifier les rôles Keycloak de l\'utilisateur. Utilisé pour les tests d\'intégration.
-         * @summary Get Keycloak Roles
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getKeycloakRolesApiV1ClassesKeycloakRolesGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getKeycloakRolesApiV1ClassesKeycloakRolesGet(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ClassesApi.getKeycloakRolesApiV1ClassesKeycloakRolesGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Endpoint pour récupérer les permissions de l\'utilisateur actuel. Utilisé pour les tests d\'intégration.
-         * @summary Get My Permissions
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getMyPermissionsApiV1ClassesMePermissionsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getMyPermissionsApiV1ClassesMePermissionsGet(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ClassesApi.getMyPermissionsApiV1ClassesMePermissionsGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
          * Récupère les statistiques d\'une classe.
          * @summary Get Statistics
          * @param {string} classeId 
@@ -1397,15 +1327,6 @@ export const ClassesApiFactory = function (configuration?: Configuration, basePa
     const localVarFp = ClassesApiFp(configuration)
     return {
         /**
-         * Endpoint de test réservé aux administrateurs. Utilisé pour les tests d\'intégration.
-         * @summary Admin Only Endpoint
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        adminOnlyEndpointApiV1ClassesAdminOnlyPost(options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.adminOnlyEndpointApiV1ClassesAdminOnlyPost(options).then((request) => request(axios, basePath));
-        },
-        /**
          * Archive une classe (soft delete).
          * @summary Archive Classe
          * @param {string} classeId 
@@ -1436,14 +1357,14 @@ export const ClassesApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.assignEnseignantApiV1ClassesEnseignantsPost(classeEnseignantCreate, options).then((request) => request(axios, basePath));
         },
         /**
-         * Crée une nouvelle classe.
+         * Crée une ou plusieurs classes  Accepte soit une classe unique, soit une liste de classes. En cas d\'erreur sur une seule classe, toutes sont annulées (rollback complet).
          * @summary Create Classe
-         * @param {ClasseCreate} classeCreate 
+         * @param {ClasseCreateFlexible} classeCreateFlexible 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createClasseApiV1ClassesPost(classeCreate: ClasseCreate, options?: RawAxiosRequestConfig): AxiosPromise<ClasseOut> {
-            return localVarFp.createClasseApiV1ClassesPost(classeCreate, options).then((request) => request(axios, basePath));
+        createClasseApiV1ClassesPost(classeCreateFlexible: ClasseCreateFlexible, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.createClasseApiV1ClassesPost(classeCreateFlexible, options).then((request) => request(axios, basePath));
         },
         /**
          * Récupère l\'historique d\'audit d\'une classe.
@@ -1511,24 +1432,6 @@ export const ClassesApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getHistoryApiV1ClassesClasseIdHistoryGet(classeId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Endpoint de test pour vérifier les rôles Keycloak de l\'utilisateur. Utilisé pour les tests d\'intégration.
-         * @summary Get Keycloak Roles
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getKeycloakRolesApiV1ClassesKeycloakRolesGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getKeycloakRolesApiV1ClassesKeycloakRolesGet(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Endpoint pour récupérer les permissions de l\'utilisateur actuel. Utilisé pour les tests d\'intégration.
-         * @summary Get My Permissions
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getMyPermissionsApiV1ClassesMePermissionsGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getMyPermissionsApiV1ClassesMePermissionsGet(options).then((request) => request(axios, basePath));
-        },
-        /**
          * Récupère les statistiques d\'une classe.
          * @summary Get Statistics
          * @param {string} classeId 
@@ -1559,17 +1462,6 @@ export const ClassesApiFactory = function (configuration?: Configuration, basePa
  * @extends {BaseAPI}
  */
 export class ClassesApi extends BaseAPI {
-    /**
-     * Endpoint de test réservé aux administrateurs. Utilisé pour les tests d\'intégration.
-     * @summary Admin Only Endpoint
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ClassesApi
-     */
-    public adminOnlyEndpointApiV1ClassesAdminOnlyPost(options?: RawAxiosRequestConfig) {
-        return ClassesApiFp(this.configuration).adminOnlyEndpointApiV1ClassesAdminOnlyPost(options).then((request) => request(this.axios, this.basePath));
-    }
-
     /**
      * Archive une classe (soft delete).
      * @summary Archive Classe
@@ -1607,15 +1499,15 @@ export class ClassesApi extends BaseAPI {
     }
 
     /**
-     * Crée une nouvelle classe.
+     * Crée une ou plusieurs classes  Accepte soit une classe unique, soit une liste de classes. En cas d\'erreur sur une seule classe, toutes sont annulées (rollback complet).
      * @summary Create Classe
-     * @param {ClasseCreate} classeCreate 
+     * @param {ClasseCreateFlexible} classeCreateFlexible 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ClassesApi
      */
-    public createClasseApiV1ClassesPost(classeCreate: ClasseCreate, options?: RawAxiosRequestConfig) {
-        return ClassesApiFp(this.configuration).createClasseApiV1ClassesPost(classeCreate, options).then((request) => request(this.axios, this.basePath));
+    public createClasseApiV1ClassesPost(classeCreateFlexible: ClasseCreateFlexible, options?: RawAxiosRequestConfig) {
+        return ClassesApiFp(this.configuration).createClasseApiV1ClassesPost(classeCreateFlexible, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1693,28 +1585,6 @@ export class ClassesApi extends BaseAPI {
      */
     public getHistoryApiV1ClassesClasseIdHistoryGet(classeId: string, options?: RawAxiosRequestConfig) {
         return ClassesApiFp(this.configuration).getHistoryApiV1ClassesClasseIdHistoryGet(classeId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Endpoint de test pour vérifier les rôles Keycloak de l\'utilisateur. Utilisé pour les tests d\'intégration.
-     * @summary Get Keycloak Roles
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ClassesApi
-     */
-    public getKeycloakRolesApiV1ClassesKeycloakRolesGet(options?: RawAxiosRequestConfig) {
-        return ClassesApiFp(this.configuration).getKeycloakRolesApiV1ClassesKeycloakRolesGet(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Endpoint pour récupérer les permissions de l\'utilisateur actuel. Utilisé pour les tests d\'intégration.
-     * @summary Get My Permissions
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ClassesApi
-     */
-    public getMyPermissionsApiV1ClassesMePermissionsGet(options?: RawAxiosRequestConfig) {
-        return ClassesApiFp(this.configuration).getMyPermissionsApiV1ClassesMePermissionsGet(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1903,107 +1773,6 @@ export class DefaultApi extends BaseAPI {
      */
     public rootGet(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).rootGet(options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * HealthApi - axios parameter creator
- * @export
- */
-export const HealthApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * Vérifie l\'état de santé du service.  Returns:     dict: État du service
-         * @summary Health Check
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        healthCheckApiV1HealthGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/health`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * HealthApi - functional programming interface
- * @export
- */
-export const HealthApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = HealthApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * Vérifie l\'état de santé du service.  Returns:     dict: État du service
-         * @summary Health Check
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async healthCheckApiV1HealthGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.healthCheckApiV1HealthGet(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['HealthApi.healthCheckApiV1HealthGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * HealthApi - factory interface
- * @export
- */
-export const HealthApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = HealthApiFp(configuration)
-    return {
-        /**
-         * Vérifie l\'état de santé du service.  Returns:     dict: État du service
-         * @summary Health Check
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        healthCheckApiV1HealthGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.healthCheckApiV1HealthGet(options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * HealthApi - object-oriented interface
- * @export
- * @class HealthApi
- * @extends {BaseAPI}
- */
-export class HealthApi extends BaseAPI {
-    /**
-     * Vérifie l\'état de santé du service.  Returns:     dict: État du service
-     * @summary Health Check
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof HealthApi
-     */
-    public healthCheckApiV1HealthGet(options?: RawAxiosRequestConfig) {
-        return HealthApiFp(this.configuration).healthCheckApiV1HealthGet(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

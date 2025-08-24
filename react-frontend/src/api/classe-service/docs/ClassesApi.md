@@ -4,7 +4,6 @@ All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**adminOnlyEndpointApiV1ClassesAdminOnlyPost**](#adminonlyendpointapiv1classesadminonlypost) | **POST** /api/v1/classes/admin-only | Admin Only Endpoint|
 |[**archiveClasseApiV1ClassesClasseIdDelete**](#archiveclasseapiv1classesclasseiddelete) | **DELETE** /api/v1/classes/{classe_id} | Archive Classe|
 |[**assignEleveApiV1ClassesElevesPost**](#assigneleveapiv1classeselevespost) | **POST** /api/v1/classes/eleves | Assign Eleve|
 |[**assignEnseignantApiV1ClassesEnseignantsPost**](#assignenseignantapiv1classesenseignantspost) | **POST** /api/v1/classes/enseignants | Assign Enseignant|
@@ -15,54 +14,8 @@ All URIs are relative to *http://localhost*
 |[**getElevesApiV1ClassesClasseIdElevesGet**](#getelevesapiv1classesclasseidelevesget) | **GET** /api/v1/classes/{classe_id}/eleves | Get Eleves|
 |[**getEnseignantsApiV1ClassesClasseIdEnseignantsGet**](#getenseignantsapiv1classesclasseidenseignantsget) | **GET** /api/v1/classes/{classe_id}/enseignants | Get Enseignants|
 |[**getHistoryApiV1ClassesClasseIdHistoryGet**](#gethistoryapiv1classesclasseidhistoryget) | **GET** /api/v1/classes/{classe_id}/history | Get History|
-|[**getKeycloakRolesApiV1ClassesKeycloakRolesGet**](#getkeycloakrolesapiv1classeskeycloakrolesget) | **GET** /api/v1/classes/keycloak-roles | Get Keycloak Roles|
-|[**getMyPermissionsApiV1ClassesMePermissionsGet**](#getmypermissionsapiv1classesmepermissionsget) | **GET** /api/v1/classes/me/permissions | Get My Permissions|
 |[**getStatisticsApiV1ClassesClasseIdStatisticsGet**](#getstatisticsapiv1classesclasseidstatisticsget) | **GET** /api/v1/classes/{classe_id}/statistics | Get Statistics|
 |[**updateClasseApiV1ClassesClasseIdPatch**](#updateclasseapiv1classesclasseidpatch) | **PATCH** /api/v1/classes/{classe_id} | Update Classe|
-
-# **adminOnlyEndpointApiV1ClassesAdminOnlyPost**
-> any adminOnlyEndpointApiV1ClassesAdminOnlyPost()
-
-Endpoint de test réservé aux administrateurs. Utilisé pour les tests d\'intégration.
-
-### Example
-
-```typescript
-import {
-    ClassesApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new ClassesApi(configuration);
-
-const { status, data } = await apiInstance.adminOnlyEndpointApiV1ClassesAdminOnlyPost();
-```
-
-### Parameters
-This endpoint does not have any parameters.
-
-
-### Return type
-
-**any**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Successful Response |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **archiveClasseApiV1ClassesClasseIdDelete**
 > any archiveClasseApiV1ClassesClasseIdDelete()
@@ -223,9 +176,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **createClasseApiV1ClassesPost**
-> ClasseOut createClasseApiV1ClassesPost(classeCreate)
+> any createClasseApiV1ClassesPost(classeCreateFlexible)
 
-Crée une nouvelle classe.
+Crée une ou plusieurs classes  Accepte soit une classe unique, soit une liste de classes. En cas d\'erreur sur une seule classe, toutes sont annulées (rollback complet).
 
 ### Example
 
@@ -233,16 +186,16 @@ Crée une nouvelle classe.
 import {
     ClassesApi,
     Configuration,
-    ClasseCreate
+    ClasseCreateFlexible
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ClassesApi(configuration);
 
-let classeCreate: ClasseCreate; //
+let classeCreateFlexible: ClasseCreateFlexible; //
 
 const { status, data } = await apiInstance.createClasseApiV1ClassesPost(
-    classeCreate
+    classeCreateFlexible
 );
 ```
 
@@ -250,12 +203,12 @@ const { status, data } = await apiInstance.createClasseApiV1ClassesPost(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **classeCreate** | **ClasseCreate**|  | |
+| **classeCreateFlexible** | **ClasseCreateFlexible**|  | |
 
 
 ### Return type
 
-**ClasseOut**
+**any**
 
 ### Authorization
 
@@ -599,94 +552,6 @@ No authorization required
 |-------------|-------------|------------------|
 |**200** | Successful Response |  -  |
 |**422** | Validation Error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **getKeycloakRolesApiV1ClassesKeycloakRolesGet**
-> any getKeycloakRolesApiV1ClassesKeycloakRolesGet()
-
-Endpoint de test pour vérifier les rôles Keycloak de l\'utilisateur. Utilisé pour les tests d\'intégration.
-
-### Example
-
-```typescript
-import {
-    ClassesApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new ClassesApi(configuration);
-
-const { status, data } = await apiInstance.getKeycloakRolesApiV1ClassesKeycloakRolesGet();
-```
-
-### Parameters
-This endpoint does not have any parameters.
-
-
-### Return type
-
-**any**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Successful Response |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **getMyPermissionsApiV1ClassesMePermissionsGet**
-> any getMyPermissionsApiV1ClassesMePermissionsGet()
-
-Endpoint pour récupérer les permissions de l\'utilisateur actuel. Utilisé pour les tests d\'intégration.
-
-### Example
-
-```typescript
-import {
-    ClassesApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new ClassesApi(configuration);
-
-const { status, data } = await apiInstance.getMyPermissionsApiV1ClassesMePermissionsGet();
-```
-
-### Parameters
-This endpoint does not have any parameters.
-
-
-### Return type
-
-**any**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Successful Response |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -1,12 +1,12 @@
 .gitignore
 .npmignore
-.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
 configuration.ts
 docs/ClasseAuditOut.md
 docs/ClasseCreate.md
+docs/ClasseCreateFlexible.md
 docs/ClasseEleveCreate.md
 docs/ClasseEleveOut.md
 docs/ClasseEnseignantCreate.md
@@ -16,9 +16,9 @@ docs/ClasseOut.md
 docs/ClasseStatistics.md
 docs/ClasseUpdate.md
 docs/ClassesApi.md
+docs/Data.md
 docs/DefaultApi.md
 docs/HTTPValidationError.md
-docs/HealthApi.md
 docs/Metadata.md
 docs/StandardResponseClasseStatistics.md
 docs/StandardResponseListClasseOut.md

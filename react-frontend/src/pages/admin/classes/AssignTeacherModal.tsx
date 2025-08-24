@@ -13,19 +13,30 @@ interface AssignTeacherModalProps {
 
 const AssignTeacherModal: React.FC<AssignTeacherModalProps> = ({ isOpen, onClose, classeId }) => {
   const [enseignantKcId, setEnseignantKcId] = useState<string>('');
+  const [submitting, setSubmitting] = useState<boolean>(false);
   const assignMutation = useAssignEnseignant();
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Validation simple: Keycloak ID ressemble souvent à un UUID
+    if (!enseignantKcId || !/^[0-9a-fA-F-]{8,}$/.test(enseignantKcId)) {
+      return toast.error("ID Keycloak invalide");
+    }
     const payload: ClasseEnseignantCreate = { classe_id: classeId, enseignant_kc_id: enseignantKcId };
     try {
+      setSubmitting(true);
       await assignMutation.mutateAsync(payload);
       toast.success('Enseignant assigné avec succès');
       onClose();
-    } catch (e) {
-      toast.error("Échec de l'assignation de l'enseignant");
+    } catch (e: any) {
+      const serverMsg = e?.response?.data?.detail || e?.response?.data || e?.message || 'Erreur inconnue';
+      // eslint-disable-next-line no-console
+      console.error('Erreur assignation enseignant:', e);
+      toast.error(`Échec de l'assignation: ${typeof serverMsg === 'string' ? serverMsg : JSON.stringify(serverMsg)}`);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -42,8 +53,8 @@ const AssignTeacherModal: React.FC<AssignTeacherModalProps> = ({ isOpen, onClose
             <input value={enseignantKcId} onChange={(e) => setEnseignantKcId(e.target.value)} required className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3" />
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="secondary" onClick={onClose}>Annuler</Button>
-            <Button type="submit">Assigner</Button>
+            <Button type="button" variant="secondary" onClick={onClose} disabled={submitting}>Annuler</Button>
+            <Button type="submit" disabled={submitting}>{submitting ? 'Assignation…' : 'Assigner'}</Button>
           </div>
         </form>
       </div>

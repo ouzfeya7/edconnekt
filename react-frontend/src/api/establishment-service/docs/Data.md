@@ -1,14 +1,15 @@
-# EtablissementUpdate
+# Data
 
+Un établissement unique ou une liste d\'établissements à créer
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**nom** | **string** |  | [optional] [default to undefined]
-**adresse** | **string** |  | [optional] [default to undefined]
-**email** | **string** |  | [optional] [default to undefined]
-**telephone** | **string** |  | [optional] [default to undefined]
+**nom** | **string** | Nom de l\&#39;établissement | [default to undefined]
+**adresse** | **string** | Adresse de l\&#39;établissement | [default to undefined]
+**email** | **string** | Email de contact | [default to undefined]
+**telephone** | **string** | Numéro de téléphone | [default to undefined]
 **ville** | **string** |  | [optional] [default to undefined]
 **pays** | **string** |  | [optional] [default to undefined]
 **plan** | [**PlanEnum**](PlanEnum.md) |  | [optional] [default to undefined]
@@ -19,9 +20,9 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { EtablissementUpdate } from './api';
+import { Data } from './api';
 
-const instance: EtablissementUpdate = {
+const instance: Data = {
     nom,
     adresse,
     email,

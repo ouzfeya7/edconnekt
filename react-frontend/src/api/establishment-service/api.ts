@@ -24,6 +24,75 @@ import type { RequestArgs } from './base';
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
 /**
+ * Un établissement unique ou une liste d\'établissements à créer
+ * @export
+ * @interface Data
+ */
+export interface Data {
+    /**
+     * Nom de l\'établissement
+     * @type {string}
+     * @memberof Data
+     */
+    'nom': string;
+    /**
+     * Adresse de l\'établissement
+     * @type {string}
+     * @memberof Data
+     */
+    'adresse': string;
+    /**
+     * Email de contact
+     * @type {string}
+     * @memberof Data
+     */
+    'email': string;
+    /**
+     * Numéro de téléphone
+     * @type {string}
+     * @memberof Data
+     */
+    'telephone': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Data
+     */
+    'ville'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Data
+     */
+    'pays'?: string;
+    /**
+     * 
+     * @type {PlanEnum}
+     * @memberof Data
+     */
+    'plan'?: PlanEnum;
+    /**
+     * 
+     * @type {StatusEnum}
+     * @memberof Data
+     */
+    'status'?: StatusEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof Data
+     */
+    'date_debut'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Data
+     */
+    'date_fin'?: string;
+}
+
+
+/**
  * Schéma pour la mise à jour des coordonnées uniquement
  * @export
  * @interface EtablissementCoordinatesUpdate
@@ -135,6 +204,19 @@ export interface EtablissementCreate {
 }
 
 
+/**
+ * Schéma flexible pour accepter soit un établissement unique, soit une liste d\'établissements. Permet de créer un ou plusieurs établissements avec le même endpoint.
+ * @export
+ * @interface EtablissementCreateFlexible
+ */
+export interface EtablissementCreateFlexible {
+    /**
+     * 
+     * @type {Data}
+     * @memberof EtablissementCreateFlexible
+     */
+    'data': Data;
+}
 /**
  * 
  * @export
@@ -266,10 +348,10 @@ export interface EtablissementUpdate {
     'nom'?: string | null;
     /**
      * 
-     * @type {{ [key: string]: string; }}
+     * @type {string}
      * @memberof EtablissementUpdate
      */
-    'adresse'?: { [key: string]: string; } | null;
+    'adresse'?: string | null;
     /**
      * 
      * @type {string}
@@ -347,6 +429,123 @@ export const PlanEnum = {
 } as const;
 
 export type PlanEnum = typeof PlanEnum[keyof typeof PlanEnum];
+
+
+/**
+ * 
+ * @export
+ * @interface ResponseCreateEstablishmentApiEtablissementsPost
+ */
+export interface ResponseCreateEstablishmentApiEtablissementsPost {
+    /**
+     * Nom de l\'établissement
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'nom': string;
+    /**
+     * Adresse de l\'établissement
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'adresse': string;
+    /**
+     * Email de contact
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'email': string;
+    /**
+     * Numéro de téléphone
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'telephone': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'ville'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'pays'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'id': string;
+    /**
+     * 
+     * @type {PlanEnum}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'plan': PlanEnum;
+    /**
+     * 
+     * @type {StatusEnum}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'status': StatusEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'date_debut': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'date_fin': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'subscription_start'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'subscription_end'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'etablissement_group': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'etablissement_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'updated_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'deleted_at'?: string;
+}
 
 
 /**
@@ -500,21 +699,21 @@ export class DefaultApi extends BaseAPI {
 
 
 /**
- * EtablissementsApi - axios parameter creator
+ * EstablishmentsApi - axios parameter creator
  * @export
  */
-export const EtablissementsApiAxiosParamCreator = function (configuration?: Configuration) {
+export const EstablishmentsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Crée un nouvel établissement  Requiert le rôle ROLE_ADMIN.
+         * Crée un ou plusieurs établissements  Accepte soit un établissement unique, soit une liste d\'établissements. En cas d\'erreur sur un seul établissement, tous sont annulés (rollback complet).  Requiert le rôle ROLE_ADMIN.
          * @summary Create Establishment
-         * @param {EtablissementCreate} etablissementCreate 
+         * @param {EtablissementCreateFlexible} etablissementCreateFlexible 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createEstablishmentApiEtablissementsPost: async (etablissementCreate: EtablissementCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'etablissementCreate' is not null or undefined
-            assertParamExists('createEstablishmentApiEtablissementsPost', 'etablissementCreate', etablissementCreate)
+        createEstablishmentApiEtablissementsPost: async (etablissementCreateFlexible: EtablissementCreateFlexible, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'etablissementCreateFlexible' is not null or undefined
+            assertParamExists('createEstablishmentApiEtablissementsPost', 'etablissementCreateFlexible', etablissementCreateFlexible)
             const localVarPath = `/api/etablissements/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -534,7 +733,7 @@ export const EtablissementsApiAxiosParamCreator = function (configuration?: Conf
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(etablissementCreate, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(etablissementCreateFlexible, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -621,9 +820,9 @@ export const EtablissementsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Liste publique des établissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les établissements avec le statut ACTIVE.
+         * Liste publique des etablissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les etablissements avec le statut ACTIVE.
          * @summary List Public Establishments
-         * @param {number} [limit] Nombre maximum d\&#39;éléments
+         * @param {number} [limit] Nombre maximum d\&#39;elements
          * @param {number} [offset] Offset pour la pagination
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -790,23 +989,23 @@ export const EtablissementsApiAxiosParamCreator = function (configuration?: Conf
 };
 
 /**
- * EtablissementsApi - functional programming interface
+ * EstablishmentsApi - functional programming interface
  * @export
  */
-export const EtablissementsApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = EtablissementsApiAxiosParamCreator(configuration)
+export const EstablishmentsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = EstablishmentsApiAxiosParamCreator(configuration)
     return {
         /**
-         * Crée un nouvel établissement  Requiert le rôle ROLE_ADMIN.
+         * Crée un ou plusieurs établissements  Accepte soit un établissement unique, soit une liste d\'établissements. En cas d\'erreur sur un seul établissement, tous sont annulés (rollback complet).  Requiert le rôle ROLE_ADMIN.
          * @summary Create Establishment
-         * @param {EtablissementCreate} etablissementCreate 
+         * @param {EtablissementCreateFlexible} etablissementCreateFlexible 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createEstablishmentApiEtablissementsPost(etablissementCreate: EtablissementCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EtablissementOut>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createEstablishmentApiEtablissementsPost(etablissementCreate, options);
+        async createEstablishmentApiEtablissementsPost(etablissementCreateFlexible: EtablissementCreateFlexible, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseCreateEstablishmentApiEtablissementsPost>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createEstablishmentApiEtablissementsPost(etablissementCreateFlexible, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['EtablissementsApi.createEstablishmentApiEtablissementsPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.createEstablishmentApiEtablissementsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -819,7 +1018,7 @@ export const EtablissementsApiFp = function(configuration?: Configuration) {
         async getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EtablissementOut>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['EtablissementsApi.getEstablishmentApiEtablissementsEstablishmentIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.getEstablishmentApiEtablissementsEstablishmentIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -834,13 +1033,13 @@ export const EtablissementsApiFp = function(configuration?: Configuration) {
         async listEstablishmentsApiEtablissementsGet(status?: StatusEnum, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<EtablissementOut>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listEstablishmentsApiEtablissementsGet(status, limit, offset, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['EtablissementsApi.listEstablishmentsApiEtablissementsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.listEstablishmentsApiEtablissementsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Liste publique des établissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les établissements avec le statut ACTIVE.
+         * Liste publique des etablissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les etablissements avec le statut ACTIVE.
          * @summary List Public Establishments
-         * @param {number} [limit] Nombre maximum d\&#39;éléments
+         * @param {number} [limit] Nombre maximum d\&#39;elements
          * @param {number} [offset] Offset pour la pagination
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -848,7 +1047,7 @@ export const EtablissementsApiFp = function(configuration?: Configuration) {
         async listPublicEstablishmentsApiEtablissementsPublicGet(limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<EtablissementOut>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listPublicEstablishmentsApiEtablissementsPublicGet(limit, offset, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['EtablissementsApi.listPublicEstablishmentsApiEtablissementsPublicGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.listPublicEstablishmentsApiEtablissementsPublicGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -862,7 +1061,7 @@ export const EtablissementsApiFp = function(configuration?: Configuration) {
         async updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId: string, etablissementUpdate: EtablissementUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EtablissementOut>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId, etablissementUpdate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['EtablissementsApi.updateEstablishmentApiEtablissementsEstablishmentIdPatch']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.updateEstablishmentApiEtablissementsEstablishmentIdPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -876,7 +1075,7 @@ export const EtablissementsApiFp = function(configuration?: Configuration) {
         async updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch(establishmentId: string, etablissementCoordinatesUpdate: EtablissementCoordinatesUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EtablissementOut>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch(establishmentId, etablissementCoordinatesUpdate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['EtablissementsApi.updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -891,28 +1090,28 @@ export const EtablissementsApiFp = function(configuration?: Configuration) {
         async updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId: string, status: StatusEnum, motif?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EtablissementOut>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId, status, motif, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['EtablissementsApi.updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
 };
 
 /**
- * EtablissementsApi - factory interface
+ * EstablishmentsApi - factory interface
  * @export
  */
-export const EtablissementsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = EtablissementsApiFp(configuration)
+export const EstablishmentsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = EstablishmentsApiFp(configuration)
     return {
         /**
-         * Crée un nouvel établissement  Requiert le rôle ROLE_ADMIN.
+         * Crée un ou plusieurs établissements  Accepte soit un établissement unique, soit une liste d\'établissements. En cas d\'erreur sur un seul établissement, tous sont annulés (rollback complet).  Requiert le rôle ROLE_ADMIN.
          * @summary Create Establishment
-         * @param {EtablissementCreate} etablissementCreate 
+         * @param {EtablissementCreateFlexible} etablissementCreateFlexible 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createEstablishmentApiEtablissementsPost(etablissementCreate: EtablissementCreate, options?: RawAxiosRequestConfig): AxiosPromise<EtablissementOut> {
-            return localVarFp.createEstablishmentApiEtablissementsPost(etablissementCreate, options).then((request) => request(axios, basePath));
+        createEstablishmentApiEtablissementsPost(etablissementCreateFlexible: EtablissementCreateFlexible, options?: RawAxiosRequestConfig): AxiosPromise<ResponseCreateEstablishmentApiEtablissementsPost> {
+            return localVarFp.createEstablishmentApiEtablissementsPost(etablissementCreateFlexible, options).then((request) => request(axios, basePath));
         },
         /**
          * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
@@ -937,9 +1136,9 @@ export const EtablissementsApiFactory = function (configuration?: Configuration,
             return localVarFp.listEstablishmentsApiEtablissementsGet(status, limit, offset, options).then((request) => request(axios, basePath));
         },
         /**
-         * Liste publique des établissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les établissements avec le statut ACTIVE.
+         * Liste publique des etablissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les etablissements avec le statut ACTIVE.
          * @summary List Public Establishments
-         * @param {number} [limit] Nombre maximum d\&#39;éléments
+         * @param {number} [limit] Nombre maximum d\&#39;elements
          * @param {number} [offset] Offset pour la pagination
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -985,22 +1184,22 @@ export const EtablissementsApiFactory = function (configuration?: Configuration,
 };
 
 /**
- * EtablissementsApi - object-oriented interface
+ * EstablishmentsApi - object-oriented interface
  * @export
- * @class EtablissementsApi
+ * @class EstablishmentsApi
  * @extends {BaseAPI}
  */
-export class EtablissementsApi extends BaseAPI {
+export class EstablishmentsApi extends BaseAPI {
     /**
-     * Crée un nouvel établissement  Requiert le rôle ROLE_ADMIN.
+     * Crée un ou plusieurs établissements  Accepte soit un établissement unique, soit une liste d\'établissements. En cas d\'erreur sur un seul établissement, tous sont annulés (rollback complet).  Requiert le rôle ROLE_ADMIN.
      * @summary Create Establishment
-     * @param {EtablissementCreate} etablissementCreate 
+     * @param {EtablissementCreateFlexible} etablissementCreateFlexible 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EtablissementsApi
+     * @memberof EstablishmentsApi
      */
-    public createEstablishmentApiEtablissementsPost(etablissementCreate: EtablissementCreate, options?: RawAxiosRequestConfig) {
-        return EtablissementsApiFp(this.configuration).createEstablishmentApiEtablissementsPost(etablissementCreate, options).then((request) => request(this.axios, this.basePath));
+    public createEstablishmentApiEtablissementsPost(etablissementCreateFlexible: EtablissementCreateFlexible, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).createEstablishmentApiEtablissementsPost(etablissementCreateFlexible, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1009,10 +1208,10 @@ export class EtablissementsApi extends BaseAPI {
      * @param {string} establishmentId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EtablissementsApi
+     * @memberof EstablishmentsApi
      */
     public getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId: string, options?: RawAxiosRequestConfig) {
-        return EtablissementsApiFp(this.configuration).getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId, options).then((request) => request(this.axios, this.basePath));
+        return EstablishmentsApiFp(this.configuration).getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1023,23 +1222,23 @@ export class EtablissementsApi extends BaseAPI {
      * @param {number} [offset] Offset pour la pagination
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EtablissementsApi
+     * @memberof EstablishmentsApi
      */
     public listEstablishmentsApiEtablissementsGet(status?: StatusEnum, limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return EtablissementsApiFp(this.configuration).listEstablishmentsApiEtablissementsGet(status, limit, offset, options).then((request) => request(this.axios, this.basePath));
+        return EstablishmentsApiFp(this.configuration).listEstablishmentsApiEtablissementsGet(status, limit, offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Liste publique des établissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les établissements avec le statut ACTIVE.
+     * Liste publique des etablissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les etablissements avec le statut ACTIVE.
      * @summary List Public Establishments
-     * @param {number} [limit] Nombre maximum d\&#39;éléments
+     * @param {number} [limit] Nombre maximum d\&#39;elements
      * @param {number} [offset] Offset pour la pagination
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EtablissementsApi
+     * @memberof EstablishmentsApi
      */
     public listPublicEstablishmentsApiEtablissementsPublicGet(limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return EtablissementsApiFp(this.configuration).listPublicEstablishmentsApiEtablissementsPublicGet(limit, offset, options).then((request) => request(this.axios, this.basePath));
+        return EstablishmentsApiFp(this.configuration).listPublicEstablishmentsApiEtablissementsPublicGet(limit, offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1049,10 +1248,10 @@ export class EtablissementsApi extends BaseAPI {
      * @param {EtablissementUpdate} etablissementUpdate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EtablissementsApi
+     * @memberof EstablishmentsApi
      */
     public updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId: string, etablissementUpdate: EtablissementUpdate, options?: RawAxiosRequestConfig) {
-        return EtablissementsApiFp(this.configuration).updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId, etablissementUpdate, options).then((request) => request(this.axios, this.basePath));
+        return EstablishmentsApiFp(this.configuration).updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId, etablissementUpdate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1062,10 +1261,10 @@ export class EtablissementsApi extends BaseAPI {
      * @param {EtablissementCoordinatesUpdate} etablissementCoordinatesUpdate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EtablissementsApi
+     * @memberof EstablishmentsApi
      */
     public updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch(establishmentId: string, etablissementCoordinatesUpdate: EtablissementCoordinatesUpdate, options?: RawAxiosRequestConfig) {
-        return EtablissementsApiFp(this.configuration).updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch(establishmentId, etablissementCoordinatesUpdate, options).then((request) => request(this.axios, this.basePath));
+        return EstablishmentsApiFp(this.configuration).updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch(establishmentId, etablissementCoordinatesUpdate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1076,10 +1275,10 @@ export class EtablissementsApi extends BaseAPI {
      * @param {string} [motif] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EtablissementsApi
+     * @memberof EstablishmentsApi
      */
     public updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId: string, status: StatusEnum, motif?: string, options?: RawAxiosRequestConfig) {
-        return EtablissementsApiFp(this.configuration).updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId, status, motif, options).then((request) => request(this.axios, this.basePath));
+        return EstablishmentsApiFp(this.configuration).updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId, status, motif, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1243,592 +1442,6 @@ export class HealthApi extends BaseAPI {
      */
     public healthCheckApiHealthGet_1(options?: RawAxiosRequestConfig) {
         return HealthApiFp(this.configuration).healthCheckApiHealthGet_1(options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * TablissementsApi - axios parameter creator
- * @export
- */
-export const TablissementsApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * Crée un nouvel établissement  Requiert le rôle ROLE_ADMIN.
-         * @summary Create Establishment
-         * @param {EtablissementCreate} etablissementCreate 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createEstablishmentApiEtablissementsPost: async (etablissementCreate: EtablissementCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'etablissementCreate' is not null or undefined
-            assertParamExists('createEstablishmentApiEtablissementsPost', 'etablissementCreate', etablissementCreate)
-            const localVarPath = `/api/etablissements/`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(etablissementCreate, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
-         * @summary Get Establishment
-         * @param {string} establishmentId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getEstablishmentApiEtablissementsEstablishmentIdGet: async (establishmentId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'establishmentId' is not null or undefined
-            assertParamExists('getEstablishmentApiEtablissementsEstablishmentIdGet', 'establishmentId', establishmentId)
-            const localVarPath = `/api/etablissements/{establishment_id}`
-                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
-         * @summary List Establishments
-         * @param {StatusEnum} [status] Filtrer par statut
-         * @param {number} [limit] Nombre maximum d\&#39;éléments
-         * @param {number} [offset] Offset pour la pagination
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listEstablishmentsApiEtablissementsGet: async (status?: StatusEnum, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/etablissements/`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (status !== undefined) {
-                localVarQueryParameter['status'] = status;
-            }
-
-            if (limit !== undefined) {
-                localVarQueryParameter['limit'] = limit;
-            }
-
-            if (offset !== undefined) {
-                localVarQueryParameter['offset'] = offset;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Liste publique des établissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les établissements avec le statut ACTIVE.
-         * @summary List Public Establishments
-         * @param {number} [limit] Nombre maximum d\&#39;éléments
-         * @param {number} [offset] Offset pour la pagination
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listPublicEstablishmentsApiEtablissementsPublicGet: async (limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/etablissements/public/`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (limit !== undefined) {
-                localVarQueryParameter['limit'] = limit;
-            }
-
-            if (offset !== undefined) {
-                localVarQueryParameter['offset'] = offset;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Met à jour les informations d\'un établissement
-         * @summary Update Establishment
-         * @param {string} establishmentId 
-         * @param {EtablissementUpdate} etablissementUpdate 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateEstablishmentApiEtablissementsEstablishmentIdPatch: async (establishmentId: string, etablissementUpdate: EtablissementUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'establishmentId' is not null or undefined
-            assertParamExists('updateEstablishmentApiEtablissementsEstablishmentIdPatch', 'establishmentId', establishmentId)
-            // verify required parameter 'etablissementUpdate' is not null or undefined
-            assertParamExists('updateEstablishmentApiEtablissementsEstablishmentIdPatch', 'etablissementUpdate', etablissementUpdate)
-            const localVarPath = `/api/etablissements/{establishment_id}`
-                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(etablissementUpdate, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut modifier que son propre établissement.
-         * @summary Update Establishment Coordinates
-         * @param {string} establishmentId 
-         * @param {EtablissementCoordinatesUpdate} etablissementCoordinatesUpdate 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch: async (establishmentId: string, etablissementCoordinatesUpdate: EtablissementCoordinatesUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'establishmentId' is not null or undefined
-            assertParamExists('updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch', 'establishmentId', establishmentId)
-            // verify required parameter 'etablissementCoordinatesUpdate' is not null or undefined
-            assertParamExists('updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch', 'etablissementCoordinatesUpdate', etablissementCoordinatesUpdate)
-            const localVarPath = `/api/etablissements/{establishment_id}/coordinates`
-                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(etablissementCoordinatesUpdate, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Met à jour le statut d\'un établissement  Requiert le rôle ROLE_ADMIN.
-         * @summary Update Establishment Status
-         * @param {string} establishmentId 
-         * @param {StatusEnum} status 
-         * @param {string} [motif] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch: async (establishmentId: string, status: StatusEnum, motif?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'establishmentId' is not null or undefined
-            assertParamExists('updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch', 'establishmentId', establishmentId)
-            // verify required parameter 'status' is not null or undefined
-            assertParamExists('updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch', 'status', status)
-            const localVarPath = `/api/etablissements/{establishment_id}/status`
-                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (status !== undefined) {
-                localVarQueryParameter['status'] = status;
-            }
-
-            if (motif !== undefined) {
-                localVarQueryParameter['motif'] = motif;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * TablissementsApi - functional programming interface
- * @export
- */
-export const TablissementsApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = TablissementsApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * Crée un nouvel établissement  Requiert le rôle ROLE_ADMIN.
-         * @summary Create Establishment
-         * @param {EtablissementCreate} etablissementCreate 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async createEstablishmentApiEtablissementsPost(etablissementCreate: EtablissementCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EtablissementOut>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createEstablishmentApiEtablissementsPost(etablissementCreate, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TablissementsApi.createEstablishmentApiEtablissementsPost']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
-         * @summary Get Establishment
-         * @param {string} establishmentId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EtablissementOut>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TablissementsApi.getEstablishmentApiEtablissementsEstablishmentIdGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
-         * @summary List Establishments
-         * @param {StatusEnum} [status] Filtrer par statut
-         * @param {number} [limit] Nombre maximum d\&#39;éléments
-         * @param {number} [offset] Offset pour la pagination
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async listEstablishmentsApiEtablissementsGet(status?: StatusEnum, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<EtablissementOut>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listEstablishmentsApiEtablissementsGet(status, limit, offset, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TablissementsApi.listEstablishmentsApiEtablissementsGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Liste publique des établissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les établissements avec le statut ACTIVE.
-         * @summary List Public Establishments
-         * @param {number} [limit] Nombre maximum d\&#39;éléments
-         * @param {number} [offset] Offset pour la pagination
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async listPublicEstablishmentsApiEtablissementsPublicGet(limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<EtablissementOut>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listPublicEstablishmentsApiEtablissementsPublicGet(limit, offset, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TablissementsApi.listPublicEstablishmentsApiEtablissementsPublicGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Met à jour les informations d\'un établissement
-         * @summary Update Establishment
-         * @param {string} establishmentId 
-         * @param {EtablissementUpdate} etablissementUpdate 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId: string, etablissementUpdate: EtablissementUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EtablissementOut>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId, etablissementUpdate, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TablissementsApi.updateEstablishmentApiEtablissementsEstablishmentIdPatch']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut modifier que son propre établissement.
-         * @summary Update Establishment Coordinates
-         * @param {string} establishmentId 
-         * @param {EtablissementCoordinatesUpdate} etablissementCoordinatesUpdate 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch(establishmentId: string, etablissementCoordinatesUpdate: EtablissementCoordinatesUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EtablissementOut>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch(establishmentId, etablissementCoordinatesUpdate, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TablissementsApi.updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Met à jour le statut d\'un établissement  Requiert le rôle ROLE_ADMIN.
-         * @summary Update Establishment Status
-         * @param {string} establishmentId 
-         * @param {StatusEnum} status 
-         * @param {string} [motif] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId: string, status: StatusEnum, motif?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EtablissementOut>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId, status, motif, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TablissementsApi.updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * TablissementsApi - factory interface
- * @export
- */
-export const TablissementsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = TablissementsApiFp(configuration)
-    return {
-        /**
-         * Crée un nouvel établissement  Requiert le rôle ROLE_ADMIN.
-         * @summary Create Establishment
-         * @param {EtablissementCreate} etablissementCreate 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createEstablishmentApiEtablissementsPost(etablissementCreate: EtablissementCreate, options?: RawAxiosRequestConfig): AxiosPromise<EtablissementOut> {
-            return localVarFp.createEstablishmentApiEtablissementsPost(etablissementCreate, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
-         * @summary Get Establishment
-         * @param {string} establishmentId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<EtablissementOut> {
-            return localVarFp.getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
-         * @summary List Establishments
-         * @param {StatusEnum} [status] Filtrer par statut
-         * @param {number} [limit] Nombre maximum d\&#39;éléments
-         * @param {number} [offset] Offset pour la pagination
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listEstablishmentsApiEtablissementsGet(status?: StatusEnum, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<EtablissementOut>> {
-            return localVarFp.listEstablishmentsApiEtablissementsGet(status, limit, offset, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Liste publique des établissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les établissements avec le statut ACTIVE.
-         * @summary List Public Establishments
-         * @param {number} [limit] Nombre maximum d\&#39;éléments
-         * @param {number} [offset] Offset pour la pagination
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listPublicEstablishmentsApiEtablissementsPublicGet(limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<EtablissementOut>> {
-            return localVarFp.listPublicEstablishmentsApiEtablissementsPublicGet(limit, offset, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Met à jour les informations d\'un établissement
-         * @summary Update Establishment
-         * @param {string} establishmentId 
-         * @param {EtablissementUpdate} etablissementUpdate 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId: string, etablissementUpdate: EtablissementUpdate, options?: RawAxiosRequestConfig): AxiosPromise<EtablissementOut> {
-            return localVarFp.updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId, etablissementUpdate, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut modifier que son propre établissement.
-         * @summary Update Establishment Coordinates
-         * @param {string} establishmentId 
-         * @param {EtablissementCoordinatesUpdate} etablissementCoordinatesUpdate 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch(establishmentId: string, etablissementCoordinatesUpdate: EtablissementCoordinatesUpdate, options?: RawAxiosRequestConfig): AxiosPromise<EtablissementOut> {
-            return localVarFp.updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch(establishmentId, etablissementCoordinatesUpdate, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Met à jour le statut d\'un établissement  Requiert le rôle ROLE_ADMIN.
-         * @summary Update Establishment Status
-         * @param {string} establishmentId 
-         * @param {StatusEnum} status 
-         * @param {string} [motif] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId: string, status: StatusEnum, motif?: string, options?: RawAxiosRequestConfig): AxiosPromise<EtablissementOut> {
-            return localVarFp.updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId, status, motif, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * TablissementsApi - object-oriented interface
- * @export
- * @class TablissementsApi
- * @extends {BaseAPI}
- */
-export class TablissementsApi extends BaseAPI {
-    /**
-     * Crée un nouvel établissement  Requiert le rôle ROLE_ADMIN.
-     * @summary Create Establishment
-     * @param {EtablissementCreate} etablissementCreate 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof TablissementsApi
-     */
-    public createEstablishmentApiEtablissementsPost(etablissementCreate: EtablissementCreate, options?: RawAxiosRequestConfig) {
-        return TablissementsApiFp(this.configuration).createEstablishmentApiEtablissementsPost(etablissementCreate, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
-     * @summary Get Establishment
-     * @param {string} establishmentId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof TablissementsApi
-     */
-    public getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId: string, options?: RawAxiosRequestConfig) {
-        return TablissementsApiFp(this.configuration).getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
-     * @summary List Establishments
-     * @param {StatusEnum} [status] Filtrer par statut
-     * @param {number} [limit] Nombre maximum d\&#39;éléments
-     * @param {number} [offset] Offset pour la pagination
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof TablissementsApi
-     */
-    public listEstablishmentsApiEtablissementsGet(status?: StatusEnum, limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return TablissementsApiFp(this.configuration).listEstablishmentsApiEtablissementsGet(status, limit, offset, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Liste publique des établissements actifs  Aucune authentification requise - accessible publiquement. Retourne seulement les établissements avec le statut ACTIVE.
-     * @summary List Public Establishments
-     * @param {number} [limit] Nombre maximum d\&#39;éléments
-     * @param {number} [offset] Offset pour la pagination
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof TablissementsApi
-     */
-    public listPublicEstablishmentsApiEtablissementsPublicGet(limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return TablissementsApiFp(this.configuration).listPublicEstablishmentsApiEtablissementsPublicGet(limit, offset, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Met à jour les informations d\'un établissement
-     * @summary Update Establishment
-     * @param {string} establishmentId 
-     * @param {EtablissementUpdate} etablissementUpdate 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof TablissementsApi
-     */
-    public updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId: string, etablissementUpdate: EtablissementUpdate, options?: RawAxiosRequestConfig) {
-        return TablissementsApiFp(this.configuration).updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId, etablissementUpdate, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut modifier que son propre établissement.
-     * @summary Update Establishment Coordinates
-     * @param {string} establishmentId 
-     * @param {EtablissementCoordinatesUpdate} etablissementCoordinatesUpdate 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof TablissementsApi
-     */
-    public updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch(establishmentId: string, etablissementCoordinatesUpdate: EtablissementCoordinatesUpdate, options?: RawAxiosRequestConfig) {
-        return TablissementsApiFp(this.configuration).updateEstablishmentCoordinatesApiEtablissementsEstablishmentIdCoordinatesPatch(establishmentId, etablissementCoordinatesUpdate, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Met à jour le statut d\'un établissement  Requiert le rôle ROLE_ADMIN.
-     * @summary Update Establishment Status
-     * @param {string} establishmentId 
-     * @param {StatusEnum} status 
-     * @param {string} [motif] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof TablissementsApi
-     */
-    public updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId: string, status: StatusEnum, motif?: string, options?: RawAxiosRequestConfig) {
-        return TablissementsApiFp(this.configuration).updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId, status, motif, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

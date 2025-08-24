@@ -17,7 +17,7 @@ const ImportEstablishmentsModal: React.FC<ImportEstablishmentsModalProps> = ({ i
           <h2 className="text-2xl font-bold text-gray-800">Importer des établissements via CSV</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><FaTimes size={20} /></button>
         </div>
-        <EstablishmentsBulkImport />
+        <EstablishmentsBulkImport onSuccessClose={onClose} />
       </div>
     </div>
   );

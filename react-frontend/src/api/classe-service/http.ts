@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
-// Base URL configurable via Vite env
-const RAW_BASE_URL = (import.meta as any)?.env?.VITE_CLASSE_API_BASE_URL;
-const BASE_URL = RAW_BASE_URL ? (RAW_BASE_URL.endsWith('/') ? RAW_BASE_URL : `${RAW_BASE_URL}/`) : undefined;
+// Base URL configurable via Vite env, avec fallback par défaut
+const DEFAULT_BASE_URL = 'https://api.uat1-engy-partners.com/classe';
+const RAW_BASE_URL = (import.meta as any)?.env?.VITE_CLASSE_API_BASE_URL ?? DEFAULT_BASE_URL;
+const BASE_URL = RAW_BASE_URL.endsWith('/') ? RAW_BASE_URL : `${RAW_BASE_URL}/`;
 export const CLASSE_API_BASE_URL = BASE_URL;
 
-if (!RAW_BASE_URL && (import.meta as any)?.env?.DEV) {
-	console.warn("[classe-api] VITE_CLASSE_API_BASE_URL n'est pas défini. Le service Classe peut ne pas fonctionner correctement.");
+if (!((import.meta as any)?.env?.VITE_CLASSE_API_BASE_URL) && (import.meta as any)?.env?.DEV) {
+	console.warn('[classe-api] VITE_CLASSE_API_BASE_URL non défini. Fallback utilisé:', BASE_URL);
 }
 
 // Instance Axios dédiée au microservice Classe Service
