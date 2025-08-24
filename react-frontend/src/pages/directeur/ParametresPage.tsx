@@ -4,11 +4,13 @@ import { Settings, Building, Users, Bell, Shield, Layers } from 'lucide-react';
 import SchoolSettingsForm from '../../components/directeur/parametres/SchoolSettingsForm';
 import CycleManagement from '../../components/directeur/parametres/CycleManagement';
 import ClassesAdminPage from '../admin/classes/ClassesAdminPage';
-import { useAuth } from '../authentification/useAuth';
+import { useAuthContext } from '../authentification/AuthContext';
+import NotificationSettings from '../../components/directeur/parametres/NotificationSettings';
+import SchoolSecurity from '../../components/directeur/parametres/SchoolSecurity';
 
 const ParametresPage = () => {
   const { t } = useTranslation();
-  const { roles } = useAuth();
+  const { roles } = useAuthContext();
   const isDirector = roles.includes('directeur');
   const storedEtablissementId = (typeof window !== 'undefined' && sessionStorage.getItem('etablissement_id')) || '';
   const [activeTab, setActiveTab] = useState('school');
@@ -36,25 +38,18 @@ const ParametresPage = () => {
       available: true
     },
     {
-      id: 'profile',
-      title: t('user_profile', 'Profil Utilisateur'),
-      icon: Users,
-      component: null,
-      available: false
-    },
-    {
       id: 'notifications',
       title: t('notifications', 'Notifications'),
       icon: Bell,
-      component: null,
-      available: false
+      component: NotificationSettings,
+      available: true
     },
     {
       id: 'security',
       title: t('security', 'Sécurité'),
       icon: Shield,
-      component: null,
-      available: false
+      component: SchoolSecurity,
+      available: true
     }
   ];
 

@@ -100,7 +100,10 @@ const NotificationSettings: React.FC = () => {
     const [activeTab, setActiveTab] = useState('channels'); // Onglet actif par défaut
     
     // États pour l'onglet Canaux
-    const [initialChannelState, setInitialChannelState] = useState({ email: true, sms: false, push: true });
+    const [initialChannelState, setInitialChannelState] = useState(() => {
+        const savedChannels = localStorage.getItem('enabledChannels');
+        return savedChannels ? JSON.parse(savedChannels) : { email: true, sms: false, push: true };
+    });
     const [enabledChannels, setEnabledChannels] = useState(initialChannelState);
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -147,6 +150,7 @@ const NotificationSettings: React.FC = () => {
         setIsSaving(true);
         // Simulation d'un appel API
         setTimeout(() => {
+            localStorage.setItem('enabledChannels', JSON.stringify(enabledChannels));
             setInitialChannelState(enabledChannels); // Met à jour l'état initial après sauvegarde
             setIsSaving(false);
             setShowSuccess(true);

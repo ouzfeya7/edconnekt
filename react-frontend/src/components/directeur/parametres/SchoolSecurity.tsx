@@ -106,7 +106,10 @@ const SchoolSecurity: React.FC = () => {
   const [isCircularModalOpen, setIsCircularModalOpen] = useState(false);
   const [editingCircular, setEditingCircular] = useState<Circular | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('All'); // State pour le filtre
-  const [initialRules, setInitialRules] = useState(initialRulesContent);
+  
+  const [initialRules, setInitialRules] = useState(() => {
+    return localStorage.getItem('schoolRulesContent') || initialRulesContent;
+  });
   const [rulesContent, setRulesContent] = useState(initialRules);
   const [isSavingRules, setIsSavingRules] = useState(false);
   const [showRulesSuccess, setShowRulesSuccess] = useState(false);
@@ -217,6 +220,7 @@ const SchoolSecurity: React.FC = () => {
     if (!hasRulesChanged) return;
     setIsSavingRules(true);
     setTimeout(() => {
+      localStorage.setItem('schoolRulesContent', rulesContent);
       setInitialRules(rulesContent);
       setIsSavingRules(false);
       setShowRulesSuccess(true);
