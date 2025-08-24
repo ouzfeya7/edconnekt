@@ -4,7 +4,7 @@ import { useClasses } from '../../../hooks/useClasses';
 import type { StatusEnum } from '../../../api/establishment-service/api';
 import type { ClasseOut } from '../../../api/classe-service/api';
 import { Button } from '../../../components/ui/button';
-import { FaPlus, FaSearch, FaFileImport, FaUserPlus, FaUserEdit, FaTrash, FaUserGraduate, FaChalkboardTeacher, FaInfoCircle } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaFileImport, FaUserEdit, FaTrash, FaUserGraduate, FaChalkboardTeacher, FaInfoCircle, FaFolderOpen } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import CreateClasseModal from './CreateClasseModal';
 import ImportClassesModal from './ImportClassesModal';
@@ -164,6 +164,14 @@ const ClassesAdminPage: React.FC = () => {
           </div>
         ) : isLoadingClasses ? (
           <div className="text-gray-600">Chargement des classes…</div>
+        ) : classes.length === 0 ? (
+          <div className="mt-6 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+            <FaFolderOpen className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-xl font-semibold text-gray-900">Aucune classe trouvée</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Il n'y a pas encore de classe pour cet établissement. Commencez par en créer une ou importez-en plusieurs.
+            </p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
