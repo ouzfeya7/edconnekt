@@ -62,7 +62,7 @@ import PaiementPage from './pages/PaiementPage';
 
 // Import des pages du directeur
 import DirecteurDashboard from './pages/directeur/DirecteurDashboard';
-import OnboardingPage from './pages/directeur/OnboardingPage';
+import UsersPage from './pages/directeur/UsersPage'; // Renommé et mis à jour
 import ReferentielsPage from './pages/directeur/ReferentielsPage';
 import CentreAlertesPage from './pages/directeur/CentreAlertesPage';
 import EmploiDuTempsPage from './pages/directeur/EmploiDuTempsPage';
@@ -123,7 +123,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   ],
   directeur: [
     { path: "/", element: <DirecteurDashboard /> },
-    { path: "/onboarding", element: <OnboardingPage /> },
+    { path: "/utilisateurs", element: <UsersPage /> }, // Mis à jour
     { path: "/referentiels", element: <ReferentielsPage /> },
     { path: "/alertes", element: <CentreAlertesPage /> },
     { path: "/emploi-du-temps", element: <EmploiDuTempsPage /> },
