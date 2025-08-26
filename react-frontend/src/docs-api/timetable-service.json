@@ -531,7 +531,7 @@
                     "Absences"
                 ],
                 "summary": "Validate Absence",
-                "description": "Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.",
+                "description": "Valider une absence (status VALIDATED). Rôle: DIRECTEUR. Propage le status sur les lessons du créneau.",
                 "operationId": "validate_absence_absences__absence_id__validate_post",
                 "parameters": [
                     {
@@ -619,7 +619,7 @@
                     "Replacements"
                 ],
                 "summary": "Create Replacement",
-                "description": "Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTION, ADMIN",
+                "description": "Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTEUR, ADMIN",
                 "operationId": "create_replacement_replacements__post",
                 "requestBody": {
                     "content": {
@@ -705,7 +705,7 @@
                     "Feed"
                 ],
                 "summary": "Get Ics Feed",
-                "description": "Flux iCalendar pour une classe.",
+                "description": "Flux iCalendar pour une classe. Public (aucune authentification).",
                 "operationId": "get_ics_feed_feed__class_id__ics_get",
                 "parameters": [
                     {
@@ -747,7 +747,7 @@
                     "Audit"
                 ],
                 "summary": "Get Lesson Audit",
-                "description": "Journal d'audit pour un cours. Rôle: DIRECTION",
+                "description": "Journal d'audit pour un cours. Rôle: DIRECTEUR",
                 "operationId": "get_lesson_audit_lessons__lesson_id__audit_get",
                 "parameters": [
                     {
