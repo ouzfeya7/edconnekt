@@ -7,9 +7,9 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **classe_id** | **string** |  | [default to undefined]
 **eleve_id** | **string** |  | [default to undefined]
-**id** | **string** |  | [default to undefined]
-**date_entree** | **string** |  | [default to undefined]
-**date_sortie** | **string** |  | [default to undefined]
+**id** | **string** |  | [optional] [default to undefined]
+**date_entree** | **string** |  | [optional] [default to undefined]
+**date_sortie** | **string** |  | [optional] [default to undefined]
 
 ## Example
 

@@ -3,6 +3,7 @@ import { FaTimes } from 'react-icons/fa';
 import { Button } from '../../../components/ui/button';
 import type { ClasseEnseignantCreate } from '../../../api/classe-service/api';
 import { useAssignEnseignant } from '../../../hooks/useAssignEnseignant';
+import { useClasseEnseignants } from '../../../hooks/useClasseEnseignants';
 import toast from 'react-hot-toast';
 
 interface AssignTeacherModalProps {
@@ -15,26 +16,41 @@ const AssignTeacherModal: React.FC<AssignTeacherModalProps> = ({ isOpen, onClose
   const [enseignantKcId, setEnseignantKcId] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const assignMutation = useAssignEnseignant();
+  const { data: enseignantsActuels = [] } = useClasseEnseignants(classeId);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Validation simple: Keycloak ID ressemble souvent à un UUID
     if (!enseignantKcId || !/^[0-9a-fA-F-]{8,}$/.test(enseignantKcId)) {
       return toast.error("ID Keycloak invalide");
     }
+
+    const existeDeja = enseignantsActuels.some((aff) => aff.enseignant_kc_id === enseignantKcId && !aff.date_fin);
+    if (existeDeja) {
+      return toast.error("Cet enseignant est déjà assigné à cette classe");
+    }
+
     const payload: ClasseEnseignantCreate = { classe_id: classeId, enseignant_kc_id: enseignantKcId };
     try {
       setSubmitting(true);
       await assignMutation.mutateAsync(payload);
       toast.success('Enseignant assigné avec succès');
       onClose();
-    } catch (e: any) {
-      const serverMsg = e?.response?.data?.detail || e?.response?.data || e?.message || 'Erreur inconnue';
+    } catch (e: unknown) {
       // eslint-disable-next-line no-console
       console.error('Erreur assignation enseignant:', e);
-      toast.error(`Échec de l'assignation: ${typeof serverMsg === 'string' ? serverMsg : JSON.stringify(serverMsg)}`);
+      const msg = ((): string => {
+        if (typeof e === 'string') return e;
+        if (e && typeof e === 'object') {
+          const anyE = e as any;
+          const raw = anyE?.response?.data?.detail || anyE?.response?.data || anyE?.message;
+          if (typeof raw === 'string') return raw;
+          try { return JSON.stringify(raw); } catch { return 'Erreur inconnue'; }
+        }
+        return 'Erreur inconnue';
+      })();
+      toast.error(`Échec de l'assignation: ${msg}`);
     } finally {
       setSubmitting(false);
     }

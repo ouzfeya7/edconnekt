@@ -1,12 +1,12 @@
 .gitignore
 .npmignore
-.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
 configuration.ts
 docs/AbsenceCreate.md
 docs/AbsenceRead.md
+docs/AbsenceStatus.md
 docs/AbsencesApi.md
 docs/AuditApi.md
 docs/FeedApi.md
@@ -23,7 +23,6 @@ docs/ReplacementsApi.md
 docs/RoomCreate.md
 docs/RoomRead.md
 docs/RoomsApi.md
-docs/TestApi.md
 docs/TimeslotCreate.md
 docs/TimeslotRead.md
 docs/TimeslotsApi.md

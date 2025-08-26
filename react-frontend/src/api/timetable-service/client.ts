@@ -7,7 +7,6 @@ import {
     LessonsApi,
     ReplacementsApi,
     RoomsApi,
-    TestApi,
     TimeslotsApi
 } from './api';
 import { timetableAxios } from './http';
@@ -21,7 +20,6 @@ export const healthApi = new HealthApi(configuration, undefined, timetableAxios)
 export const lessonsApi = new LessonsApi(configuration, undefined, timetableAxios);
 export const replacementsApi = new ReplacementsApi(configuration, undefined, timetableAxios);
 export const roomsApi = new RoomsApi(configuration, undefined, timetableAxios);
-export const testApi = new TestApi(configuration, undefined, timetableAxios);
 export const timeslotsApi = new TimeslotsApi(configuration, undefined, timetableAxios);
 
 // Pour la compatibilité avec le code déjà écrit, nous pouvons créer un alias

@@ -25,26 +25,6 @@
                 }
             }
         },
-        "/message": {
-            "get": {
-                "tags": [
-                    "Test"
-                ],
-                "summary": "Get Message",
-                "description": "Point de terminaison de test pour démontrer la récupération des en-têtes\nselon le guide de l'équipe Infrastructure",
-                "operationId": "get_message_message_get",
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/rooms/": {
             "post": {
                 "tags": [
@@ -414,7 +394,7 @@
                 ],
                 "summary": "Update Lesson",
                 "description": "Mettre à jour salle/timeslot. Vérifie conflit. Rôles: ENSEIGNANT, COORDONNATEUR, ADMIN",
-                "operationId": "update_lesson_lessons_lesson_id_patch",
+                "operationId": "update_lesson_lessons__lesson_id__patch",
                 "parameters": [
                     {
                         "name": "lesson_id",
@@ -466,7 +446,7 @@
                 ],
                 "summary": "Delete Lesson",
                 "description": "Supprimer un cours. Rôles: COORDONNATEUR, ADMIN",
-                "operationId": "delete_lesson_lessons_lesson_id_delete",
+                "operationId": "delete_lesson_lessons__lesson_id__delete",
                 "parameters": [
                     {
                         "name": "lesson_id",
@@ -552,7 +532,7 @@
                 ],
                 "summary": "Validate Absence",
                 "description": "Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.",
-                "operationId": "validate_absence_absences_absence_id_validate_post",
+                "operationId": "validate_absence_absences__absence_id__validate_post",
                 "parameters": [
                     {
                         "name": "absence_id",
@@ -596,7 +576,7 @@
                 ],
                 "summary": "Delete Absence",
                 "description": "Supprimer une absence. Rôles: COORDONNATEUR, ADMIN",
-                "operationId": "delete_absence_absences_absence_id_delete",
+                "operationId": "delete_absence_absences__absence_id__delete",
                 "parameters": [
                     {
                         "name": "absence_id",
@@ -682,7 +662,7 @@
                 ],
                 "summary": "Delete Replacement",
                 "description": "Supprimer un remplacement. Rôles: COORDONNATEUR, ADMIN",
-                "operationId": "delete_replacement_replacements_replacement_id_delete",
+                "operationId": "delete_replacement_replacements__replacement_id__delete",
                 "parameters": [
                     {
                         "name": "replacement_id",
@@ -725,8 +705,8 @@
                     "Feed"
                 ],
                 "summary": "Get Ics Feed",
-                "description": "Flux iCalendar public pour une classe.",
-                "operationId": "get_ics_feed_feed_class_id_ics_get",
+                "description": "Flux iCalendar pour une classe.",
+                "operationId": "get_ics_feed_feed__class_id__ics_get",
                 "parameters": [
                     {
                         "name": "class_id",
@@ -768,7 +748,7 @@
                 ],
                 "summary": "Get Lesson Audit",
                 "description": "Journal d'audit pour un cours. Rôle: DIRECTION",
-                "operationId": "get_lesson_audit_lessons_lesson_id_audit_get",
+                "operationId": "get_lesson_audit_lessons__lesson_id__audit_get",
                 "parameters": [
                     {
                         "name": "lesson_id",
@@ -834,8 +814,7 @@
                         "title": "Reason"
                     },
                     "status": {
-                        "type": "string",
-                        "title": "Status",
+                        "$ref": "#/components/schemas/AbsenceStatus",
                         "default": "REPORTED"
                     }
                 },
@@ -875,8 +854,7 @@
                         "title": "Reason"
                     },
                     "status": {
-                        "type": "string",
-                        "title": "Status"
+                        "$ref": "#/components/schemas/AbsenceStatus"
                     },
                     "created_at": {
                         "type": "string",
@@ -895,6 +873,14 @@
                     "created_at"
                 ],
                 "title": "AbsenceRead"
+            },
+            "AbsenceStatus": {
+                "type": "string",
+                "enum": [
+                    "REPORTED",
+                    "VALIDATED"
+                ],
+                "title": "AbsenceStatus"
             },
             "HTTPValidationError": {
                 "properties": {

@@ -6,9 +6,9 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **code** | **string** |  | [optional] [default to undefined]
-**nom** | **string** |  | [default to undefined]
-**niveau** | **string** |  | [default to undefined]
-**annee_scolaire** | **string** |  | [default to undefined]
+**nom** | **string** |  | [optional] [default to undefined]
+**niveau** | **string** |  | [optional] [default to undefined]
+**annee_scolaire** | **string** |  | [optional] [default to undefined]
 **capacity** | **number** |  | [optional] [default to undefined]
 
 ## Example

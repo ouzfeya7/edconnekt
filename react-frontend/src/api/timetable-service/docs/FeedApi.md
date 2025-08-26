@@ -9,7 +9,7 @@ All URIs are relative to *http://localhost*
 # **getIcsFeedFeedClassIdIcsGet**
 > any getIcsFeedFeedClassIdIcsGet()
 
-Flux iCalendar public pour une classe.
+Flux iCalendar pour une classe.
 
 ### Example
 

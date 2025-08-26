@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **date** | **string** |  | [default to undefined]
 **timeslot_id** | **string** |  | [default to undefined]
 **reason** | **string** |  | [default to undefined]
-**status** | **string** |  | [optional] [default to 'REPORTED']
+**status** | [**AbsenceStatus**](AbsenceStatus.md) |  | [optional] [default to undefined]
 
 ## Example
 
