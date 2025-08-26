@@ -35,7 +35,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
   ],
   directeur: [
     { titleKey: "home", to: "/", icon: <FaHome /> },
-    { titleKey: "onboarding", to: "/onboarding", icon: <FaUpload /> },
+    { titleKey: "utilisateurs", to: "/utilisateurs", icon: <FaUsers /> },
     { titleKey: "referentiels", to: "/referentiels", icon: <FaGraduationCap /> },
     { titleKey: "alertes", to: "/alertes", icon: <FaExclamationTriangle /> },
     { titleKey: "emploi_du_temps", to: "/emploi-du-temps", icon: <FaCalendarAlt /> },
