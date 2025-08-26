@@ -170,19 +170,19 @@ export interface ClasseEleveOut {
      * @type {string}
      * @memberof ClasseEleveOut
      */
-    'id': string;
+    'id'?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ClasseEleveOut
      */
-    'date_entree': string;
+    'date_entree'?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ClasseEleveOut
      */
-    'date_sortie': string | null;
+    'date_sortie'?: string | null;
 }
 /**
  * 
@@ -226,19 +226,19 @@ export interface ClasseEnseignantOut {
      * @type {string}
      * @memberof ClasseEnseignantOut
      */
-    'id': string;
+    'id'?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ClasseEnseignantOut
      */
-    'date_affectation': string;
+    'date_affectation'?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ClasseEnseignantOut
      */
-    'date_fin': string | null;
+    'date_fin'?: string | null;
 }
 /**
  * 
@@ -518,19 +518,19 @@ export interface ClasseUpdate {
      * @type {string}
      * @memberof ClasseUpdate
      */
-    'nom': string | null;
+    'nom'?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ClasseUpdate
      */
-    'niveau': string | null;
+    'niveau'?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ClasseUpdate
      */
-    'annee_scolaire': string | null;
+    'annee_scolaire'?: string | null;
     /**
      * 
      * @type {number}

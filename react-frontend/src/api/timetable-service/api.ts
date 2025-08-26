@@ -55,11 +55,13 @@ export interface AbsenceCreate {
     'reason': string;
     /**
      * 
-     * @type {string}
+     * @type {AbsenceStatus}
      * @memberof AbsenceCreate
      */
-    'status'?: string;
+    'status'?: AbsenceStatus;
 }
+
+
 /**
  * 
  * @export
@@ -98,10 +100,10 @@ export interface AbsenceRead {
     'reason': string;
     /**
      * 
-     * @type {string}
+     * @type {AbsenceStatus}
      * @memberof AbsenceRead
      */
-    'status': string;
+    'status': AbsenceStatus;
     /**
      * 
      * @type {string}
@@ -109,6 +111,22 @@ export interface AbsenceRead {
      */
     'created_at': string;
 }
+
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const AbsenceStatus = {
+    Reported: 'REPORTED',
+    Validated: 'VALIDATED'
+} as const;
+
+export type AbsenceStatus = typeof AbsenceStatus[keyof typeof AbsenceStatus];
+
+
 /**
  * 
  * @export
@@ -858,7 +876,7 @@ export const AuditApiFactory = function (configuration?: Configuration, basePath
         /**
          * Journal d\'audit pour un cours. Rôle: DIRECTION
          * @summary Get Lesson Audit
-         * @param {string} lessonId     
+         * @param {string} lessonId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -897,7 +915,7 @@ export class AuditApi extends BaseAPI {
 export const FeedApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Flux iCalendar public pour une classe.
+         * Flux iCalendar pour une classe.
          * @summary Get Ics Feed
          * @param {string} classId 
          * @param {*} [options] Override http request option.
@@ -941,7 +959,7 @@ export const FeedApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = FeedApiAxiosParamCreator(configuration)
     return {
         /**
-         * Flux iCalendar public pour une classe.
+         * Flux iCalendar pour une classe.
          * @summary Get Ics Feed
          * @param {string} classId 
          * @param {*} [options] Override http request option.
@@ -964,7 +982,7 @@ export const FeedApiFactory = function (configuration?: Configuration, basePath?
     const localVarFp = FeedApiFp(configuration)
     return {
         /**
-         * Flux iCalendar public pour une classe.
+         * Flux iCalendar pour une classe.
          * @summary Get Ics Feed
          * @param {string} classId 
          * @param {*} [options] Override http request option.
@@ -984,7 +1002,7 @@ export const FeedApiFactory = function (configuration?: Configuration, basePath?
  */
 export class FeedApi extends BaseAPI {
     /**
-     * Flux iCalendar public pour une classe.
+     * Flux iCalendar pour une classe.
      * @summary Get Ics Feed
      * @param {string} classId 
      * @param {*} [options] Override http request option.
@@ -1832,107 +1850,6 @@ export class RoomsApi extends BaseAPI {
      */
     public listRoomsRoomsGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig) {
         return RoomsApiFp(this.configuration).listRoomsRoomsGet(skip, limit, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * TestApi - axios parameter creator
- * @export
- */
-export const TestApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * Point de terminaison de test pour démontrer la récupération des en-têtes selon le guide de l\'équipe Infrastructure
-         * @summary Get Message
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getMessageMessageGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/message`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * TestApi - functional programming interface
- * @export
- */
-export const TestApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = TestApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * Point de terminaison de test pour démontrer la récupération des en-têtes selon le guide de l\'équipe Infrastructure
-         * @summary Get Message
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getMessageMessageGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getMessageMessageGet(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TestApi.getMessageMessageGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * TestApi - factory interface
- * @export
- */
-export const TestApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = TestApiFp(configuration)
-    return {
-        /**
-         * Point de terminaison de test pour démontrer la récupération des en-têtes selon le guide de l\'équipe Infrastructure
-         * @summary Get Message
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getMessageMessageGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getMessageMessageGet(options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * TestApi - object-oriented interface
- * @export
- * @class TestApi
- * @extends {BaseAPI}
- */
-export class TestApi extends BaseAPI {
-    /**
-     * Point de terminaison de test pour démontrer la récupération des en-têtes selon le guide de l\'équipe Infrastructure
-     * @summary Get Message
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof TestApi
-     */
-    public getMessageMessageGet(options?: RawAxiosRequestConfig) {
-        return TestApiFp(this.configuration).getMessageMessageGet(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

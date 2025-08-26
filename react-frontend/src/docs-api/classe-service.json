@@ -716,7 +716,7 @@
                     },
                     "capacity": {
                         "type": "integer",
-                        "minimum": 0.0,
+                        "minimum": 0,
                         "title": "Capacity",
                         "default": 0
                     }
@@ -789,13 +789,27 @@
                         "title": "Eleve Id"
                     },
                     "id": {
-                        "type": "string",
-                        "format": "uuid",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Id"
                     },
                     "date_entree": {
-                        "type": "string",
-                        "format": "date-time",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Date Entree"
                     },
                     "date_sortie": {
@@ -814,10 +828,7 @@
                 "type": "object",
                 "required": [
                     "classe_id",
-                    "eleve_id",
-                    "id",
-                    "date_entree",
-                    "date_sortie"
+                    "eleve_id"
                 ],
                 "title": "ClasseEleveOut"
             },
@@ -852,13 +863,27 @@
                         "title": "Enseignant Kc Id"
                     },
                     "id": {
-                        "type": "string",
-                        "format": "uuid",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Id"
                     },
                     "date_affectation": {
-                        "type": "string",
-                        "format": "date-time",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Date Affectation"
                     },
                     "date_fin": {
@@ -877,10 +902,7 @@
                 "type": "object",
                 "required": [
                     "classe_id",
-                    "enseignant_kc_id",
-                    "id",
-                    "date_affectation",
-                    "date_fin"
+                    "enseignant_kc_id"
                 ],
                 "title": "ClasseEnseignantOut"
             },
@@ -1064,7 +1086,7 @@
                     },
                     "capacity": {
                         "type": "integer",
-                        "minimum": 0.0,
+                        "minimum": 0,
                         "title": "Capacity",
                         "default": 0
                     },
@@ -1284,11 +1306,6 @@
                     }
                 },
                 "type": "object",
-                "required": [
-                    "nom",
-                    "niveau",
-                    "annee_scolaire"
-                ],
                 "title": "ClasseUpdate"
             },
             "HTTPValidationError": {

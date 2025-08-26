@@ -9,11 +9,11 @@ import { JSX } from "react/jsx-runtime";
 // Ce fichier centralise la configuration de la navigation pour toute l'application.
 
 export interface MenuItemType {
-titleKey: string;
-to: string;
-icon: JSX.Element;
-hideInNavbar?: boolean; // Nouvelle propriété optionnelle
-activePaths?: string[]; // Chemins pour lesquels l'onglet doit rester actif
+  titleKey: string;
+  to: string;
+  icon: JSX.Element;
+  hideInNavbar?: boolean; // Nouvelle propriété optionnelle
+  activePaths?: string[]; // Chemins pour lesquels l'onglet doit rester actif
 }
 
 export type Role = "enseignant" | "directeur" | "eleve" | "parent" | "administrateur" | "espaceFamille";
@@ -67,7 +67,6 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
   administrateur: [
     { titleKey: "home", to: "/", icon: <FaHome /> },
     { titleKey: "etablissements", to: "/etablissements", icon: <FaBuilding /> },
-    { titleKey: "classes", to: "/admin/classes", icon: <FaUsers /> },
     { titleKey: "utilisateurs", to: "/utilisateurs", icon: <FaUsers /> },
     { titleKey: "abonnements", to: "/abonnements", icon: <FaFileInvoiceDollar /> },
     { titleKey: "plans", to: "/plans", icon: <FaTags /> },

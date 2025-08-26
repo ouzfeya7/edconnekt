@@ -1,11 +1,13 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_TIMETABLE_API_BASE_URL;
+// Base URL configurable via Vite env, avec fallback par défaut
+const DEFAULT_BASE_URL = 'https://api.uat1-engy-partners.com/timetable';
+const RAW_BASE_URL = import.meta.env.VITE_TIMETABLE_API_BASE_URL ?? DEFAULT_BASE_URL;
+const BASE_URL = RAW_BASE_URL.endsWith('/') ? RAW_BASE_URL : `${RAW_BASE_URL}/`;
+export const TIMETABLE_API_BASE_URL = BASE_URL;
 
-if (!BASE_URL) {
-  console.warn(
-    'La variable d\'environnement VITE_TIMETABLE_API_BASE_URL n\'est pas définie. Le service Timetable ne fonctionnera pas correctement.'
-  );
+if (!import.meta.env.VITE_TIMETABLE_API_BASE_URL && import.meta.env.DEV) {
+  console.warn('[timetable-api] VITE_TIMETABLE_API_BASE_URL non défini. Fallback utilisé:', BASE_URL);
 }
 
 export const timetableAxios = axios.create({
@@ -13,6 +15,10 @@ export const timetableAxios = axios.create({
 });
 
 timetableAxios.interceptors.request.use((config) => {
+  // Normalise l'URL pour rester relative au baseURL (évite de perdre le préfixe /timetable)
+  if (config.url && config.url.startsWith('/')) {
+    config.url = config.url.replace(/^\//, '');
+  }
   const token = sessionStorage.getItem('keycloak-token');
   if (token) {
     config.headers = config.headers ?? {};
@@ -22,7 +28,7 @@ timetableAxios.interceptors.request.use((config) => {
 });
 
 if (import.meta.env.DEV) {
-  console.log(`[timetable-api] baseURL = ${timetableAxios.defaults.baseURL}`);
+  console.info('[timetable-api] baseURL =', timetableAxios.defaults.baseURL);
 }
 
 export default timetableAxios;

@@ -7,9 +7,9 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **classe_id** | **string** |  | [default to undefined]
 **enseignant_kc_id** | **string** |  | [default to undefined]
-**id** | **string** |  | [default to undefined]
-**date_affectation** | **string** |  | [default to undefined]
-**date_fin** | **string** |  | [default to undefined]
+**id** | **string** |  | [optional] [default to undefined]
+**date_affectation** | **string** |  | [optional] [default to undefined]
+**date_fin** | **string** |  | [optional] [default to undefined]
 
 ## Example
 

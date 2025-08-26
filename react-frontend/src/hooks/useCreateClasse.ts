@@ -7,7 +7,7 @@ export function useCreateClasse() {
 
   return useMutation({
     mutationFn: (payload: ClasseCreate) => {
-      const body: ClasseCreateFlexible = { data: payload as any };
+      const body: ClasseCreateFlexible = { data: payload as unknown as ClasseCreateFlexible['data'] };
       return classesApi.createClasseApiV1ClassesPost(body);
     },
     onSuccess: () => {
