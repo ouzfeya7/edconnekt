@@ -114,6 +114,12 @@ export interface ClasseCreate {
      * @memberof ClasseCreate
      */
     'capacity'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClasseCreate
+     */
+    'status'?: string | null;
 }
 /**
  * Schéma flexible pour accepter soit une classe unique, soit une liste de classes. Permet de créer une ou plusieurs classes avec le même endpoint.
@@ -408,6 +414,12 @@ export interface ClasseOut {
      * @type {string}
      * @memberof ClasseOut
      */
+    'status'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClasseOut
+     */
     'id': string;
     /**
      * 
@@ -537,6 +549,12 @@ export interface ClasseUpdate {
      * @memberof ClasseUpdate
      */
     'capacity'?: number | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClasseUpdate
+     */
+    'status'?: string | null;
 }
 /**
  * Une classe unique ou une liste de classes à créer
@@ -580,6 +598,12 @@ export interface Data {
      * @memberof Data
      */
     'capacity'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof Data
+     */
+    'status'?: string;
 }
 /**
  * 
@@ -915,10 +939,11 @@ export const ClassesApiAxiosParamCreator = function (configuration?: Configurati
          * @param {string} [nom] 
          * @param {string} [niveau] 
          * @param {boolean} [isArchived] 
+         * @param {string} [status] Filtrer par status: actif, inactif, archive
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getClassesApiV1ClassesGet: async (etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getClassesApiV1ClassesGet: async (etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'etablissementId' is not null or undefined
             assertParamExists('getClassesApiV1ClassesGet', 'etablissementId', etablissementId)
             const localVarPath = `/api/v1/classes/`;
@@ -955,6 +980,10 @@ export const ClassesApiAxiosParamCreator = function (configuration?: Configurati
 
             if (isArchived !== undefined) {
                 localVarQueryParameter['is_archived'] = isArchived;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
             }
 
 
@@ -1241,11 +1270,12 @@ export const ClassesApiFp = function(configuration?: Configuration) {
          * @param {string} [nom] 
          * @param {string} [niveau] 
          * @param {boolean} [isArchived] 
+         * @param {string} [status] Filtrer par status: actif, inactif, archive
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getClassesApiV1ClassesGet(etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardResponseListClasseOut>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getClassesApiV1ClassesGet(etablissementId, skip, limit, nom, niveau, isArchived, options);
+        async getClassesApiV1ClassesGet(etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardResponseListClasseOut>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getClassesApiV1ClassesGet(etablissementId, skip, limit, nom, niveau, isArchived, status, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ClassesApi.getClassesApiV1ClassesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1395,11 +1425,12 @@ export const ClassesApiFactory = function (configuration?: Configuration, basePa
          * @param {string} [nom] 
          * @param {string} [niveau] 
          * @param {boolean} [isArchived] 
+         * @param {string} [status] Filtrer par status: actif, inactif, archive
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getClassesApiV1ClassesGet(etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<StandardResponseListClasseOut> {
-            return localVarFp.getClassesApiV1ClassesGet(etablissementId, skip, limit, nom, niveau, isArchived, options).then((request) => request(axios, basePath));
+        getClassesApiV1ClassesGet(etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options?: RawAxiosRequestConfig): AxiosPromise<StandardResponseListClasseOut> {
+            return localVarFp.getClassesApiV1ClassesGet(etablissementId, skip, limit, nom, niveau, isArchived, status, options).then((request) => request(axios, basePath));
         },
         /**
          * Récupère tous les élèves d\'une classe.
@@ -1543,12 +1574,13 @@ export class ClassesApi extends BaseAPI {
      * @param {string} [nom] 
      * @param {string} [niveau] 
      * @param {boolean} [isArchived] 
+     * @param {string} [status] Filtrer par status: actif, inactif, archive
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ClassesApi
      */
-    public getClassesApiV1ClassesGet(etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, options?: RawAxiosRequestConfig) {
-        return ClassesApiFp(this.configuration).getClassesApiV1ClassesGet(etablissementId, skip, limit, nom, niveau, isArchived, options).then((request) => request(this.axios, this.basePath));
+    public getClassesApiV1ClassesGet(etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options?: RawAxiosRequestConfig) {
+        return ClassesApiFp(this.configuration).getClassesApiV1ClassesGet(etablissementId, skip, limit, nom, niveau, isArchived, status, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

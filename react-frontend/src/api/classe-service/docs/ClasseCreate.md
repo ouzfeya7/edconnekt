@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **annee_scolaire** | **string** |  | [default to undefined]
 **etablissement_id** | **string** |  | [default to undefined]
 **capacity** | **number** |  | [optional] [default to 0]
+**status** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -24,6 +25,7 @@ const instance: ClasseCreate = {
     annee_scolaire,
     etablissement_id,
     capacity,
+    status,
 };
 ```
 

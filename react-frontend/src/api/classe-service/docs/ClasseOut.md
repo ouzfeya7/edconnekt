@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **annee_scolaire** | **string** |  | [default to undefined]
 **etablissement_id** | **string** |  | [default to undefined]
 **capacity** | **number** |  | [optional] [default to 0]
+**status** | **string** |  | [optional] [default to undefined]
 **id** | **string** |  | [default to undefined]
 **createur_id** | **string** |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
@@ -33,6 +34,7 @@ const instance: ClasseOut = {
     annee_scolaire,
     etablissement_id,
     capacity,
+    status,
     id,
     createur_id,
     created_at,

@@ -1,6 +1,5 @@
 # EtablissementCreate
 
-
 ## Properties
 
 Name | Type | Description | Notes

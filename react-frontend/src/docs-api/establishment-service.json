@@ -444,10 +444,619 @@
                     }
                 }
             }
+        },
+        "/api/etablissements/{establishment_id}/audit": {
+            "get": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Get Establishment Audit",
+                "description": "Récupère l'historique d'audit d'un établissement avec filtres et pagination\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut accéder qu'à l'audit de son propre établissement.\n\n**Paramètres de filtrage :**\n- `operation` : Type d'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT)\n- `auteur_id` : ID de l'auteur de l'opération\n- `auteur_nom` : Nom de l'auteur (recherche partielle)\n- `date_from` : Date de début pour le filtrage\n- `date_to` : Date de fin pour le filtrage\n\n**Paramètres de pagination :**\n- `limit` : Nombre maximum d'éléments (1-100)\n- `offset` : Offset pour la pagination\n\n**Paramètres de tri :**\n- `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id)\n- `sort_order` : Ordre de tri (asc/desc)",
+                "operationId": "get_establishment_audit_api_etablissements__establishment_id__audit_get",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "operation",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/AuditOperationEnum"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par type d'opération",
+                            "title": "Operation"
+                        },
+                        "description": "Filtrer par type d'opération"
+                    },
+                    {
+                        "name": "auteur_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par ID de l'auteur",
+                            "title": "Auteur Id"
+                        },
+                        "description": "Filtrer par ID de l'auteur"
+                    },
+                    {
+                        "name": "auteur_nom",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par nom de l'auteur",
+                            "title": "Auteur Nom"
+                        },
+                        "description": "Filtrer par nom de l'auteur"
+                    },
+                    {
+                        "name": "date_from",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Date de début pour le filtrage",
+                            "title": "Date From"
+                        },
+                        "description": "Date de début pour le filtrage"
+                    },
+                    {
+                        "name": "date_to",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Date de fin pour le filtrage",
+                            "title": "Date To"
+                        },
+                        "description": "Date de fin pour le filtrage"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Nombre maximum d'éléments",
+                            "default": 10,
+                            "title": "Limit"
+                        },
+                        "description": "Nombre maximum d'éléments"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Offset pour la pagination",
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Offset pour la pagination"
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Champ de tri",
+                            "default": "date_operation",
+                            "title": "Sort By"
+                        },
+                        "description": "Champ de tri"
+                    },
+                    {
+                        "name": "sort_order",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Ordre de tri (asc/desc)",
+                            "default": "desc",
+                            "title": "Sort Order"
+                        },
+                        "description": "Ordre de tri (asc/desc)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuditListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/{establishment_id}/audit/statistics": {
+            "get": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Get Establishment Audit Statistics",
+                "description": "Récupère les statistiques d'audit pour un établissement\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut accéder qu'aux statistiques de son propre établissement.\n\n**Retourne :**\n- Nombre total d'opérations\n- Nombre d'opérations par type\n- Date de la dernière opération\n- Utilisateur le plus actif\n- Nombre d'opérations ce mois-ci",
+                "operationId": "get_establishment_audit_statistics_api_etablissements__establishment_id__audit_statistics_get",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuditStatistics"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/{establishment_id}/audit/summary": {
+            "get": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Get Establishment Audit Summary",
+                "description": "Récupère un résumé d'audit pour un établissement sur une période donnée\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut accéder qu'au résumé de son propre établissement.\n\n**Paramètres :**\n- `days` : Nombre de jours pour le résumé (1-365, défaut: 30)\n\n**Retourne :**\n- Résumé des opérations par type\n- Activité par utilisateur\n- Activité quotidienne\n- Utilisateur le plus actif\n- Opération la plus courante",
+                "operationId": "get_establishment_audit_summary_api_etablissements__establishment_id__audit_summary_get",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "days",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 365,
+                            "minimum": 1,
+                            "description": "Nombre de jours pour le résumé",
+                            "default": 30,
+                            "title": "Days"
+                        },
+                        "description": "Nombre de jours pour le résumé"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Get Establishment Audit Summary Api Etablissements  Establishment Id  Audit Summary Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/{establishment_id}/audit/export": {
+            "get": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Export Establishment Audit",
+                "description": "Exporte les données d'audit d'un établissement\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut exporter que les données de son propre établissement.\n\n**Paramètres :**\n- `date_from` : Date de début pour l'export (optionnel)\n- `date_to` : Date de fin pour l'export (optionnel)\n- `format` : Format d'export (\"json\" ou \"csv\")\n\n**Retourne :**\n- Fichier JSON ou CSV avec les données d'audit",
+                "operationId": "export_establishment_audit_api_etablissements__establishment_id__audit_export_get",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "date_from",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Date de début pour l'export",
+                            "title": "Date From"
+                        },
+                        "description": "Date de début pour l'export"
+                    },
+                    {
+                        "name": "date_to",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Date de fin pour l'export",
+                            "title": "Date To"
+                        },
+                        "description": "Date de fin pour l'export"
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Format d'export (json ou csv)",
+                            "default": "json",
+                            "title": "Format"
+                        },
+                        "description": "Format d'export (json ou csv)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/{establishment_id}/audit/manual": {
+            "post": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Create Manual Audit Entry",
+                "description": "Crée manuellement une entrée d'audit pour un établissement\n\nRequiert le rôle ROLE_ADMIN.\n\n**Corps de la requête :**\n```json\n{\n    \"operation\": \"CUSTOM_OPERATION\",\n    \"motif\": \"Description de l'opération\",\n    \"auteur_id\": \"user-123\",\n    \"auteur_nom\": \"Nom de l'utilisateur\"\n}\n```\n\n**Retourne :**\n- L'entrée d'audit créée",
+                "operationId": "create_manual_audit_entry_api_etablissements__establishment_id__audit_manual_post",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ManualAuditCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EtablissementAuditResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
         "schemas": {
+            "AuditListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/EtablissementAuditResponse"
+                        },
+                        "type": "array",
+                        "title": "Items",
+                        "description": "Liste des audits"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total",
+                        "description": "Nombre total d'audits"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "title": "Limit",
+                        "description": "Limite utilisée"
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "title": "Offset",
+                        "description": "Offset utilisé"
+                    },
+                    "has_more": {
+                        "type": "boolean",
+                        "title": "Has More",
+                        "description": "Y a-t-il plus d'éléments ?"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "limit",
+                    "offset",
+                    "has_more"
+                ],
+                "title": "AuditListResponse",
+                "description": "Réponse pour la liste des audits avec pagination"
+            },
+            "AuditOperationEnum": {
+                "type": "string",
+                "enum": [
+                    "CREATE",
+                    "UPDATE",
+                    "DELETE",
+                    "STATUS_CHANGE",
+                    "INSERT"
+                ],
+                "title": "AuditOperationEnum",
+                "description": "Types d'opérations d'audit"
+            },
+            "AuditStatistics": {
+                "properties": {
+                    "total_operations": {
+                        "type": "integer",
+                        "title": "Total Operations",
+                        "description": "Nombre total d'opérations"
+                    },
+                    "operations_by_type": {
+                        "additionalProperties": {
+                            "type": "integer"
+                        },
+                        "type": "object",
+                        "title": "Operations By Type",
+                        "description": "Nombre d'opérations par type"
+                    },
+                    "last_operation_date": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Operation Date",
+                        "description": "Date de la dernière opération"
+                    },
+                    "most_active_user": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Most Active User",
+                        "description": "Utilisateur le plus actif"
+                    },
+                    "operations_this_month": {
+                        "type": "integer",
+                        "title": "Operations This Month",
+                        "description": "Nombre d'opérations ce mois-ci"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "total_operations",
+                    "operations_by_type",
+                    "operations_this_month"
+                ],
+                "title": "AuditStatistics",
+                "description": "Statistiques d'audit pour un établissement"
+            },
+            "EtablissementAuditResponse": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "etablissement_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Etablissement Id"
+                    },
+                    "operation": {
+                        "type": "string",
+                        "title": "Operation"
+                    },
+                    "motif": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Motif"
+                    },
+                    "auteur_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Auteur Id"
+                    },
+                    "auteur_nom": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Auteur Nom"
+                    },
+                    "date_operation": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Date Operation"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "etablissement_id",
+                    "operation",
+                    "date_operation"
+                ],
+                "title": "EtablissementAuditResponse"
+            },
             "EtablissementCoordinatesUpdate": {
                 "properties": {
                     "nom": {
@@ -949,6 +1558,61 @@
                 },
                 "type": "object",
                 "title": "HTTPValidationError"
+            },
+            "ManualAuditCreate": {
+                "properties": {
+                    "operation": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "title": "Operation",
+                        "description": "Type d'opération effectuée"
+                    },
+                    "motif": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 500
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Motif",
+                        "description": "Motif de l'opération"
+                    },
+                    "auteur_id": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 100
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Auteur Id",
+                        "description": "ID de l'auteur de l'opération"
+                    },
+                    "auteur_nom": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Auteur Nom",
+                        "description": "Nom de l'auteur de l'opération"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "operation"
+                ],
+                "title": "ManualAuditCreate",
+                "description": "Schéma pour la création manuelle d'une entrée d'audit (sans etablissement_id)"
             },
             "PlanEnum": {
                 "type": "string",

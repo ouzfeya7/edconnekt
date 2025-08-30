@@ -1,0 +1,1161 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Student Service",
+        "description": "API de gestion des élèves et parents pour le système éducatif",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Root",
+                "description": "Endpoint racine de l'application.",
+                "operationId": "root__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Health",
+                "description": "Endpoint de santé de l'application.",
+                "operationId": "health_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/health/": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health Check",
+                "description": "Endpoint de santé pour vérifier l'état du service.\n\nArgs:\n    request: Requête FastAPI\n    \nReturns:\n    Dict[str, Any]: Informations sur l'état du service",
+                "operationId": "health_check_api_health__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Health Check Api Health  Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/scheduler/": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Scheduler Health",
+                "description": "Endpoint de santé du scheduler.\n\nArgs:\n    request: Requête FastAPI\n    \nReturns:\n    Dict[str, Any]: Informations sur l'état du scheduler",
+                "operationId": "scheduler_health_api_scheduler__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Scheduler Health Api Scheduler  Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/messaging/": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Messaging Health",
+                "description": "Endpoint de santé du messaging.\n\nArgs:\n    request: Requête FastAPI\n    \nReturns:\n    Dict[str, Any]: Informations sur l'état du messaging",
+                "operationId": "messaging_health_api_messaging__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Messaging Health Api Messaging  Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Root",
+                "description": "Endpoint racine du service.\n\nArgs:\n    request: Requête FastAPI\n    \nReturns:\n    Dict[str, Any]: Informations de base sur le service",
+                "operationId": "root_api__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Root Api  Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/students/": {
+            "post": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Create Student",
+                "description": "Créer un nouvel élève avec lien parent et classe.",
+                "operationId": "create_student_api_students__post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StudentCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StudentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Get Students",
+                "description": "Récupérer tous les élèves avec pagination et filtres.\nRÈGLE MÉTIER : Les enseignants ne voient pas les élèves ARCHIVED.",
+                "operationId": "get_students_api_students__get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "description": "Taille de la page",
+                            "default": 100,
+                            "title": "Size"
+                        },
+                        "description": "Taille de la page"
+                    },
+                    {
+                        "name": "class_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par classe",
+                            "title": "Class Id"
+                        },
+                        "description": "Filtrer par classe"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/StudentStatusEnum"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par statut",
+                            "title": "Status"
+                        },
+                        "description": "Filtrer par statut"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Recherche par nom/prénom",
+                            "title": "Search"
+                        },
+                        "description": "Recherche par nom/prénom"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StudentPaginatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/students/{student_id}": {
+            "get": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Get Student",
+                "description": "Récupérer un élève par son ID.",
+                "operationId": "get_student_api_students__student_id__get",
+                "parameters": [
+                    {
+                        "name": "student_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Student Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StudentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Update Student",
+                "description": "Mettre à jour un élève (photo, status uniquement).",
+                "operationId": "update_student_api_students__student_id__patch",
+                "parameters": [
+                    {
+                        "name": "student_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Student Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StudentUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StudentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Delete Student",
+                "description": "Suppression logique (archivage, soft delete).",
+                "operationId": "delete_student_api_students__student_id__delete",
+                "parameters": [
+                    {
+                        "name": "student_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Student Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/students/{student_id}/parents": {
+            "post": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Link Parent To Student",
+                "description": "Lier un parent à un élève.",
+                "operationId": "link_parent_to_student_api_students__student_id__parents_post",
+                "parameters": [
+                    {
+                        "name": "student_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Student Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StudentParentCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StudentParentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/students/{student_id}/parents/{parent_id}": {
+            "delete": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Unlink Parent From Student",
+                "description": "Délier un parent d'un élève.",
+                "operationId": "unlink_parent_from_student_api_students__student_id__parents__parent_id__delete",
+                "parameters": [
+                    {
+                        "name": "student_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Student Id"
+                        }
+                    },
+                    {
+                        "name": "parent_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Parent Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/students/{student_id}/class": {
+            "patch": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Transfer Student Class",
+                "description": "Transférer un élève vers une nouvelle classe.",
+                "operationId": "transfer_student_class_api_students__student_id__class_patch",
+                "parameters": [
+                    {
+                        "name": "student_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Student Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClassMembershipUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClassMembershipResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/students/{student_id}/audit": {
+            "get": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Get Student Audit",
+                "description": "Récupérer le journal des modifications d'un élève.",
+                "operationId": "get_student_audit_api_students__student_id__audit_get",
+                "parameters": [
+                    {
+                        "name": "student_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Student Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/StudentAuditResponse"
+                                    },
+                                    "title": "Response Get Student Audit Api Students  Student Id  Audit Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AuditActionEnum": {
+                "type": "string",
+                "enum": [
+                    "CREATE",
+                    "UPDATE",
+                    "TRANSFER",
+                    "STATUS"
+                ],
+                "title": "AuditActionEnum"
+            },
+            "ClassMembershipResponse": {
+                "properties": {
+                    "student_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Student Id",
+                        "description": "ID de l'élève"
+                    },
+                    "class_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Class Id",
+                        "description": "ID de la classe"
+                    },
+                    "school_year": {
+                        "type": "string",
+                        "title": "School Year",
+                        "description": "Année scolaire"
+                    },
+                    "joined_on": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Joined On",
+                        "description": "Date d'entrée en classe"
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "title": "Active"
+                    },
+                    "left_on": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Left On"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "student_id",
+                    "class_id",
+                    "school_year",
+                    "joined_on",
+                    "id",
+                    "active"
+                ],
+                "title": "ClassMembershipResponse"
+            },
+            "ClassMembershipUpdate": {
+                "properties": {
+                    "class_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Class Id",
+                        "description": "Nouvelle classe"
+                    },
+                    "school_year": {
+                        "type": "string",
+                        "title": "School Year",
+                        "description": "Année scolaire"
+                    },
+                    "joined_on": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Joined On",
+                        "description": "Date d'entrée"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "class_id",
+                    "school_year",
+                    "joined_on"
+                ],
+                "title": "ClassMembershipUpdate",
+                "description": "Schéma pour le transfert de classe"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "ParentRelationEnum": {
+                "type": "string",
+                "enum": [
+                    "mother",
+                    "father",
+                    "tutor"
+                ],
+                "title": "ParentRelationEnum"
+            },
+            "StudentAuditResponse": {
+                "properties": {
+                    "student_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Student Id",
+                        "description": "ID de l'élève"
+                    },
+                    "action": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/AuditActionEnum"
+                            }
+                        ],
+                        "description": "Type d'action"
+                    },
+                    "actor_id": {
+                        "type": "string",
+                        "title": "Actor Id",
+                        "description": "ID de l'acteur"
+                    },
+                    "actor_role": {
+                        "type": "string",
+                        "title": "Actor Role",
+                        "description": "Rôle de l'acteur"
+                    },
+                    "diff": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Diff",
+                        "description": "Différences JSON"
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "student_id",
+                    "action",
+                    "actor_id",
+                    "actor_role",
+                    "id",
+                    "created_at"
+                ],
+                "title": "StudentAuditResponse"
+            },
+            "StudentCreate": {
+                "properties": {
+                    "firstname": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Firstname",
+                        "description": "Prénom de l'élève"
+                    },
+                    "lastname": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Lastname",
+                        "description": "Nom de famille de l'élève"
+                    },
+                    "birth_date": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Birth Date",
+                        "description": "Date de naissance"
+                    },
+                    "gender": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 10
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Gender",
+                        "description": "Genre de l'élève"
+                    },
+                    "photo_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Photo Url",
+                        "description": "URL de la photo"
+                    },
+                    "status": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/StudentStatusEnum"
+                            }
+                        ],
+                        "description": "Statut de l'élève",
+                        "default": "ACTIVE"
+                    },
+                    "parent_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Parent Id",
+                        "description": "ID du parent à lier"
+                    },
+                    "parent_relation": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ParentRelationEnum"
+                            }
+                        ],
+                        "description": "Type de relation avec le parent"
+                    },
+                    "class_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Class Id",
+                        "description": "ID de la classe d'affectation"
+                    },
+                    "school_year": {
+                        "type": "string",
+                        "title": "School Year",
+                        "description": "Année scolaire"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "firstname",
+                    "lastname",
+                    "parent_id",
+                    "parent_relation",
+                    "class_id",
+                    "school_year"
+                ],
+                "title": "StudentCreate",
+                "description": "Schéma pour la création d'un élève avec lien parent + classe"
+            },
+            "StudentPaginatedResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/StudentResponse"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "title": "Size"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "size",
+                    "pages"
+                ],
+                "title": "StudentPaginatedResponse"
+            },
+            "StudentParentCreate": {
+                "properties": {
+                    "student_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Student Id",
+                        "description": "ID de l'élève"
+                    },
+                    "parent_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Parent Id",
+                        "description": "ID du parent"
+                    },
+                    "relation": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ParentRelationEnum"
+                            }
+                        ],
+                        "description": "Type de relation"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "student_id",
+                    "parent_id",
+                    "relation"
+                ],
+                "title": "StudentParentCreate"
+            },
+            "StudentParentResponse": {
+                "properties": {
+                    "student_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Student Id",
+                        "description": "ID de l'élève"
+                    },
+                    "parent_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Parent Id",
+                        "description": "ID du parent"
+                    },
+                    "relation": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ParentRelationEnum"
+                            }
+                        ],
+                        "description": "Type de relation"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "student_id",
+                    "parent_id",
+                    "relation"
+                ],
+                "title": "StudentParentResponse"
+            },
+            "StudentResponse": {
+                "properties": {
+                    "firstname": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Firstname",
+                        "description": "Prénom de l'élève"
+                    },
+                    "lastname": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Lastname",
+                        "description": "Nom de famille de l'élève"
+                    },
+                    "birth_date": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Birth Date",
+                        "description": "Date de naissance"
+                    },
+                    "gender": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 10
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Gender",
+                        "description": "Genre de l'élève"
+                    },
+                    "photo_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Photo Url",
+                        "description": "URL de la photo"
+                    },
+                    "status": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/StudentStatusEnum"
+                            }
+                        ],
+                        "description": "Statut de l'élève",
+                        "default": "ACTIVE"
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "firstname",
+                    "lastname",
+                    "id",
+                    "created_at"
+                ],
+                "title": "StudentResponse"
+            },
+            "StudentStatusEnum": {
+                "type": "string",
+                "enum": [
+                    "ACTIVE",
+                    "TRANSFERRED",
+                    "ARCHIVED"
+                ],
+                "title": "StudentStatusEnum"
+            },
+            "StudentUpdate": {
+                "properties": {
+                    "photo_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Photo Url"
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/StudentStatusEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "type": "object",
+                "title": "StudentUpdate",
+                "description": "Schéma pour la mise à jour d'un élève (photo, status uniquement)"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

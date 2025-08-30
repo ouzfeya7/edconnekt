@@ -116,7 +116,7 @@ No authorization required
 # **validateAbsenceAbsencesAbsenceIdValidatePost**
 > AbsenceRead validateAbsenceAbsencesAbsenceIdValidatePost()
 
-Valider une absence (status VALIDATED). Rôle: DIRECTEUR. Propage le status sur les lessons du créneau.
+Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.
 
 ### Example
 

@@ -72,12 +72,12 @@ import RessourcesAuditPage from './pages/directeur/RessourcesAuditPage';
 // Import des pages de l'administrateur
 import AdminDashboard from './pages/admin/dashboard/AdminDashboard';
 import EtablissementsPage from './pages/admin/etablissements/EtablissementsPage';
-import UtilisateursPage from './pages/admin/utilisateurs/UtilisateursPage';
 import AbonnementsPage from './pages/admin/abonnements/AbonnementsPage';
 import PlansPage from './pages/admin/plans/PlansPage';
 import ReferentielsAdminPage from './pages/admin/referentiels/ReferentielsAdminPage';
 import ImportsPage from './pages/admin/imports/ImportsPage';
-import ClassesAdminPage from './pages/admin/classes/ClassesAdminPage';
+import ClasseDetailPage from './pages/admin/classes/ClasseDetailPage';
+import EtablissementDetailPage from './pages/admin/etablissements/EtablissementDetailPage';
 
 
 // Définition des types de rôles pour la clarté
@@ -172,8 +172,9 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   administrateur: [
     { path: "/", element: <AdminDashboard /> },
     { path: "/etablissements", element: <EtablissementsPage /> },
-    { path: "/admin/classes", element: <ClassesAdminPage /> },
-    { path: "/utilisateurs", element: <UtilisateursPage /> },
+    { path: "/etablissements/:etabId", element: <EtablissementDetailPage /> },
+    { path: "/admin/classes/:classeId", element: <ClasseDetailPage /> },
+    { path: "/utilisateurs", element: <UsersPage /> },
     { path: "/abonnements", element: <AbonnementsPage /> },
     { path: "/plans", element: <PlansPage /> },
     { path: "/referentiels", element: <ReferentielsAdminPage /> },

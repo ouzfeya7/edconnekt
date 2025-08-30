@@ -1,0 +1,3403 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Competence Service API",
+        "description": "Service de gestion des référentiels pédagogiques",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Root",
+                "operationId": "root__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Health Check",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ready": {
+            "get": {
+                "summary": "Readiness Check",
+                "operationId": "readiness_check_ready_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Create Referential",
+                "description": "Créer un nouveau référentiel",
+                "operationId": "create_referential_api_competence_referentials_post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReferentialCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Referentials",
+                "description": "Lister les référentiels avec filtres et pagination",
+                "operationId": "list_referentials_api_competence_referentials_get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de page",
+                            "default": 20,
+                            "title": "Size"
+                        },
+                        "description": "Taille de page"
+                    },
+                    {
+                        "name": "cycle",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par cycle",
+                            "title": "Cycle"
+                        },
+                        "description": "Filtrer par cycle"
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par état",
+                            "title": "State"
+                        },
+                        "description": "Filtrer par état"
+                    },
+                    {
+                        "name": "visibility",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par visibilité",
+                            "title": "Visibility"
+                        },
+                        "description": "Filtrer par visibilité"
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Recherche textuelle",
+                            "title": "Q"
+                        },
+                        "description": "Recherche textuelle"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Get Referential",
+                "description": "Récupérer un référentiel par ID et version",
+                "operationId": "get_referential_api_competence_referentials__referential_id__get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    },
+                    {
+                        "name": "include_tree",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "description": "Inclure l'arborescence complète (domaines, matières, compétences)",
+                            "default": false,
+                            "title": "Include Tree"
+                        },
+                        "description": "Inclure l'arborescence complète (domaines, matières, compétences)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ReferentialResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ReferentialTree"
+                                        }
+                                    ],
+                                    "title": "Response Get Referential Api Competence Referentials  Referential Id  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Update Referential",
+                "description": "Mettre à jour un référentiel",
+                "operationId": "update_referential_api_competence_referentials__referential_id__put",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReferentialUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Delete Referential",
+                "description": "Supprimer un référentiel",
+                "operationId": "delete_referential_api_competence_referentials__referential_id__delete",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}/publish": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Publish Referential",
+                "description": "Publier un référentiel",
+                "operationId": "publish_referential_api_competence_referentials__referential_id__publish_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}/clone": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Clone Referential",
+                "description": "Cloner un référentiel en nouvelle version",
+                "operationId": "clone_referential_api_competence_referentials__referential_id__clone_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel à cloner",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel à cloner"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReferentialCloneRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}/domains": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Create Domain",
+                "description": "Créer un nouveau domaine",
+                "operationId": "create_domain_api_competence_referentials__referential_id__domains_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DomainCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DomainResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Domains",
+                "description": "Lister les domaines d'un référentiel",
+                "operationId": "list_domains_api_competence_referentials__referential_id__domains_get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DomainResponse"
+                                    },
+                                    "title": "Response List Domains Api Competence Referentials  Referential Id  Domains Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/domains/{domain_id}": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Get Domain",
+                "description": "Récupérer un domaine par ID",
+                "operationId": "get_domain_api_competence_domains__domain_id__get",
+                "parameters": [
+                    {
+                        "name": "domain_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du domaine",
+                            "title": "Domain Id"
+                        },
+                        "description": "ID du domaine"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DomainResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Update Domain",
+                "description": "Mettre à jour un domaine",
+                "operationId": "update_domain_api_competence_domains__domain_id__put",
+                "parameters": [
+                    {
+                        "name": "domain_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du domaine",
+                            "title": "Domain Id"
+                        },
+                        "description": "ID du domaine"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DomainUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DomainResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Delete Domain",
+                "description": "Supprimer un domaine",
+                "operationId": "delete_domain_api_competence_domains__domain_id__delete",
+                "parameters": [
+                    {
+                        "name": "domain_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du domaine",
+                            "title": "Domain Id"
+                        },
+                        "description": "ID du domaine"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}/subjects": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Create Subject",
+                "description": "Créer une nouvelle matière",
+                "operationId": "create_subject_api_competence_referentials__referential_id__subjects_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubjectCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Subjects",
+                "description": "Lister les matières d'un référentiel avec filtres",
+                "operationId": "list_subjects_api_competence_referentials__referential_id__subjects_get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de page",
+                            "default": 20,
+                            "title": "Size"
+                        },
+                        "description": "Taille de page"
+                    },
+                    {
+                        "name": "domain_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par domaine",
+                            "title": "Domain Id"
+                        },
+                        "description": "Filtrer par domaine"
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Recherche textuelle",
+                            "title": "Q"
+                        },
+                        "description": "Recherche textuelle"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/subjects/{subject_id}": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Get Subject",
+                "description": "Récupérer une matière par ID",
+                "operationId": "get_subject_api_competence_subjects__subject_id__get",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la matière",
+                            "title": "Subject Id"
+                        },
+                        "description": "ID de la matière"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Update Subject",
+                "description": "Mettre à jour une matière",
+                "operationId": "update_subject_api_competence_subjects__subject_id__put",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la matière",
+                            "title": "Subject Id"
+                        },
+                        "description": "ID de la matière"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubjectUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Delete Subject",
+                "description": "Supprimer une matière",
+                "operationId": "delete_subject_api_competence_subjects__subject_id__delete",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la matière",
+                            "title": "Subject Id"
+                        },
+                        "description": "ID de la matière"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}/competencies": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Create Competency",
+                "description": "Créer une nouvelle compétence",
+                "operationId": "create_competency_api_competence_referentials__referential_id__competencies_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompetencyCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompetencyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Competencies",
+                "description": "Lister les compétences d'un référentiel avec filtres",
+                "operationId": "list_competencies_api_competence_referentials__referential_id__competencies_get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de page",
+                            "default": 20,
+                            "title": "Size"
+                        },
+                        "description": "Taille de page"
+                    },
+                    {
+                        "name": "subject_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par matière",
+                            "title": "Subject Id"
+                        },
+                        "description": "Filtrer par matière"
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Recherche textuelle",
+                            "title": "Q"
+                        },
+                        "description": "Recherche textuelle"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompetencyListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/competencies/{competency_id}": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Get Competency",
+                "description": "Récupérer une compétence par ID",
+                "operationId": "get_competency_api_competence_competencies__competency_id__get",
+                "parameters": [
+                    {
+                        "name": "competency_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la compétence",
+                            "title": "Competency Id"
+                        },
+                        "description": "ID de la compétence"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompetencyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Update Competency",
+                "description": "Mettre à jour une compétence",
+                "operationId": "update_competency_api_competence_competencies__competency_id__put",
+                "parameters": [
+                    {
+                        "name": "competency_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la compétence",
+                            "title": "Competency Id"
+                        },
+                        "description": "ID de la compétence"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompetencyUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompetencyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Delete Competency",
+                "description": "Supprimer une compétence",
+                "operationId": "delete_competency_api_competence_competencies__competency_id__delete",
+                "parameters": [
+                    {
+                        "name": "competency_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la compétence",
+                            "title": "Competency Id"
+                        },
+                        "description": "ID de la compétence"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/assignments": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Create Assignment",
+                "description": "Créer une nouvelle affectation",
+                "operationId": "create_assignment_api_competence_assignments_post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AssignmentCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AssignmentResponse"
+                                    },
+                                    "title": "Response Create Assignment Api Competence Assignments Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Assignments",
+                "description": "Lister les affectations d'un référentiel",
+                "operationId": "list_assignments_api_competence_assignments_get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AssignmentResponse"
+                                    },
+                                    "title": "Response List Assignments Api Competence Assignments Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/assignments/{assignment_id}": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Get Assignment",
+                "description": "Récupérer une affectation par ID",
+                "operationId": "get_assignment_api_competence_assignments__assignment_id__get",
+                "parameters": [
+                    {
+                        "name": "assignment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de l'affectation",
+                            "title": "Assignment Id"
+                        },
+                        "description": "ID de l'affectation"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AssignmentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Delete Assignment",
+                "description": "Supprimer une affectation",
+                "operationId": "delete_assignment_api_competence_assignments__assignment_id__delete",
+                "parameters": [
+                    {
+                        "name": "assignment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de l'affectation",
+                            "title": "Assignment Id"
+                        },
+                        "description": "ID de l'affectation"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/public/referentials/{referential_id}/tree": {
+            "get": {
+                "tags": [
+                    "public"
+                ],
+                "summary": "Get Referential Tree",
+                "description": "Récupérer l'arborescence complète d'un référentiel publié",
+                "operationId": "get_referential_tree_api_competence_public_referentials__referential_id__tree_get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialTree"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/public/subjects": {
+            "get": {
+                "tags": [
+                    "public"
+                ],
+                "summary": "List Subjects By Scope",
+                "description": "Lister les matières par cycle et niveau (pour les référentiels publiés)",
+                "operationId": "list_subjects_by_scope_api_competence_public_subjects_get",
+                "parameters": [
+                    {
+                        "name": "cycle",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/CycleEnum"
+                                }
+                            ],
+                            "description": "Filtrer par cycle",
+                            "title": "Cycle"
+                        },
+                        "description": "Filtrer par cycle"
+                    },
+                    {
+                        "name": "level",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "Filtrer par niveau",
+                            "title": "Level"
+                        },
+                        "description": "Filtrer par niveau"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SubjectResponse"
+                                    },
+                                    "title": "Response List Subjects By Scope Api Competence Public Subjects Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/public/subjects/{subject_id}/competencies": {
+            "get": {
+                "tags": [
+                    "public"
+                ],
+                "summary": "Get Competencies For Subject",
+                "description": "Récupérer les compétences d'une matière (pour les référentiels publiés)",
+                "operationId": "get_competencies_for_subject_api_competence_public_subjects__subject_id__competencies_get",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la matière",
+                            "title": "Subject Id"
+                        },
+                        "description": "ID de la matière"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CompetencyResponse"
+                                    },
+                                    "title": "Response Get Competencies For Subject Api Competence Public Subjects  Subject Id  Competencies Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/public/competencies/by-code/{code}": {
+            "get": {
+                "tags": [
+                    "public"
+                ],
+                "summary": "Lookup Competency By Code",
+                "description": "Rechercher une compétence par son code (pour les référentiels publiés)",
+                "operationId": "lookup_competency_by_code_api_competence_public_competencies_by_code__code__get",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "Code de la compétence",
+                            "title": "Code"
+                        },
+                        "description": "Code de la compétence"
+                    },
+                    {
+                        "name": "referential_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Numéro de version",
+                            "title": "Version"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompetencyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/events/events": {
+            "get": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "List Outbox Events",
+                "description": "List outbox events with filters and pagination",
+                "operationId": "list_outbox_events_api_competence_events_events_get",
+                "parameters": [
+                    {
+                        "name": "event_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by event type",
+                            "title": "Event Type"
+                        },
+                        "description": "Filter by event type"
+                    },
+                    {
+                        "name": "aggregate_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by aggregate type",
+                            "title": "Aggregate Type"
+                        },
+                        "description": "Filter by aggregate type"
+                    },
+                    {
+                        "name": "aggregate_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by aggregate ID",
+                            "title": "Aggregate Id"
+                        },
+                        "description": "Filter by aggregate ID"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by status (PENDING, PROCESSED, FAILED)",
+                            "default": "PENDING",
+                            "title": "Status"
+                        },
+                        "description": "Filter by status (PENDING, PROCESSED, FAILED)"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by creation start date",
+                            "title": "Start Date"
+                        },
+                        "description": "Filter by creation start date"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by creation end date",
+                            "title": "End Date"
+                        },
+                        "description": "Filter by creation end date"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Page number",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Page number"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Page size",
+                            "default": 20,
+                            "title": "Size"
+                        },
+                        "description": "Page size"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/OutboxEventResponse"
+                                    },
+                                    "title": "Response List Outbox Events Api Competence Events Events Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/events/events/replay": {
+            "post": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "Replay Events",
+                "description": "Manually trigger processing of pending outbox events",
+                "operationId": "replay_events_api_competence_events_events_replay_post",
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AssignmentCreate": {
+                "properties": {
+                    "referential_id": {
+                        "type": "string",
+                        "title": "Referential Id"
+                    },
+                    "version_number": {
+                        "type": "integer",
+                        "title": "Version Number"
+                    },
+                    "scopes": {
+                        "items": {
+                            "$ref": "#/components/schemas/AssignmentScope"
+                        },
+                        "type": "array",
+                        "title": "Scopes"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "referential_id",
+                    "version_number",
+                    "scopes"
+                ],
+                "title": "AssignmentCreate"
+            },
+            "AssignmentResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "referential_id": {
+                        "type": "string",
+                        "title": "Referential Id"
+                    },
+                    "version_number": {
+                        "type": "integer",
+                        "title": "Version Number"
+                    },
+                    "scope_type": {
+                        "type": "string",
+                        "title": "Scope Type"
+                    },
+                    "scope_value": {
+                        "type": "string",
+                        "title": "Scope Value"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "referential_id",
+                    "version_number",
+                    "scope_type",
+                    "scope_value",
+                    "created_at"
+                ],
+                "title": "AssignmentResponse"
+            },
+            "AssignmentScope": {
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "pattern": "^(LEVEL|CLASS)$",
+                        "title": "Type"
+                    },
+                    "value": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Value"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "type",
+                    "value"
+                ],
+                "title": "AssignmentScope"
+            },
+            "CompetencyCreate": {
+                "properties": {
+                    "subject_id": {
+                        "type": "string",
+                        "title": "Subject Id"
+                    },
+                    "code": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "pattern": "^[A-Z0-9_-]+$",
+                        "title": "Code"
+                    },
+                    "label": {
+                        "type": "string",
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "title": "Label"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 2000
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "levels": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Levels",
+                        "default": [
+                            "NON_ACQUIS",
+                            "EN_COURS",
+                            "ACQUIS",
+                            "AVANCE"
+                        ]
+                    },
+                    "order_index": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Order Index",
+                        "default": 0
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "subject_id",
+                    "code",
+                    "label"
+                ],
+                "title": "CompetencyCreate"
+            },
+            "CompetencyListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/CompetencyResponse"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "title": "Size"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "size",
+                    "pages"
+                ],
+                "title": "CompetencyListResponse"
+            },
+            "CompetencyResponse": {
+                "properties": {
+                    "subject_id": {
+                        "type": "string",
+                        "title": "Subject Id"
+                    },
+                    "code": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "pattern": "^[A-Z0-9_-]+$",
+                        "title": "Code"
+                    },
+                    "label": {
+                        "type": "string",
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "title": "Label"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 2000
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "levels": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Levels",
+                        "default": [
+                            "NON_ACQUIS",
+                            "EN_COURS",
+                            "ACQUIS",
+                            "AVANCE"
+                        ]
+                    },
+                    "order_index": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Order Index",
+                        "default": 0
+                    },
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "referential_id": {
+                        "type": "string",
+                        "title": "Referential Id"
+                    },
+                    "version_number": {
+                        "type": "integer",
+                        "title": "Version Number"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "subject_id",
+                    "code",
+                    "label",
+                    "id",
+                    "referential_id",
+                    "version_number",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "CompetencyResponse"
+            },
+            "CompetencyTree": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "Code"
+                    },
+                    "label": {
+                        "type": "string",
+                        "title": "Label"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "levels": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Levels"
+                    },
+                    "order_index": {
+                        "type": "integer",
+                        "title": "Order Index"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "code",
+                    "label",
+                    "description",
+                    "levels",
+                    "order_index"
+                ],
+                "title": "CompetencyTree"
+            },
+            "CompetencyUpdate": {
+                "properties": {
+                    "subject_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Subject Id"
+                    },
+                    "code": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 64,
+                                "minLength": 1,
+                                "pattern": "^[A-Z0-9_-]+$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Code"
+                    },
+                    "label": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 500,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Label"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 2000
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "levels": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Levels"
+                    },
+                    "order_index": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Order Index"
+                    }
+                },
+                "type": "object",
+                "title": "CompetencyUpdate"
+            },
+            "CycleEnum": {
+                "type": "string",
+                "enum": [
+                    "PRESCOLAIRE",
+                    "PRIMAIRE",
+                    "COLLEGE",
+                    "LYCEE",
+                    "UNIVERSITE"
+                ],
+                "title": "CycleEnum"
+            },
+            "DomainCreate": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name"
+                    },
+                    "order_index": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Order Index",
+                        "default": 0
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "title": "DomainCreate"
+            },
+            "DomainResponse": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name"
+                    },
+                    "order_index": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Order Index",
+                        "default": 0
+                    },
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "referential_id": {
+                        "type": "string",
+                        "title": "Referential Id"
+                    },
+                    "version_number": {
+                        "type": "integer",
+                        "title": "Version Number"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "id",
+                    "referential_id",
+                    "version_number",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "DomainResponse"
+            },
+            "DomainTree": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "order_index": {
+                        "type": "integer",
+                        "title": "Order Index"
+                    },
+                    "subjects": {
+                        "items": {
+                            "$ref": "#/components/schemas/SubjectTree"
+                        },
+                        "type": "array",
+                        "title": "Subjects"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "order_index",
+                    "subjects"
+                ],
+                "title": "DomainTree"
+            },
+            "DomainUpdate": {
+                "properties": {
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "order_index": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Order Index"
+                    }
+                },
+                "type": "object",
+                "title": "DomainUpdate"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "OutboxEventResponse": {
+                "properties": {
+                    "event_type": {
+                        "type": "string",
+                        "title": "Event Type",
+                        "description": "Type of the event"
+                    },
+                    "aggregate_type": {
+                        "type": "string",
+                        "title": "Aggregate Type",
+                        "description": "Type of the aggregate (e.g., Referential, Subject)"
+                    },
+                    "aggregate_id": {
+                        "type": "string",
+                        "title": "Aggregate Id",
+                        "description": "ID of the aggregate instance"
+                    },
+                    "payload": {
+                        "type": "object",
+                        "title": "Payload",
+                        "description": "Event payload as a dictionary"
+                    },
+                    "tenant_id": {
+                        "type": "string",
+                        "title": "Tenant Id",
+                        "description": "Tenant ID associated with the event"
+                    },
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "processed_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Processed At"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status",
+                        "description": "Processing status (PENDING, PROCESSED, FAILED)",
+                        "default": "PENDING"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "event_type",
+                    "aggregate_type",
+                    "aggregate_id",
+                    "payload",
+                    "tenant_id",
+                    "id",
+                    "created_at"
+                ],
+                "title": "OutboxEventResponse"
+            },
+            "RefStateEnum": {
+                "type": "string",
+                "enum": [
+                    "DRAFT",
+                    "PUBLISHED"
+                ],
+                "title": "RefStateEnum"
+            },
+            "ReferentialCloneRequest": {
+                "properties": {
+                    "new_name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "New Name",
+                        "description": "Nouveau nom pour la version clonée"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "new_name"
+                ],
+                "title": "ReferentialCloneRequest"
+            },
+            "ReferentialCreate": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name",
+                        "description": "Nom du référentiel"
+                    },
+                    "cycle": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/CycleEnum"
+                            }
+                        ],
+                        "description": "Cycle d'enseignement"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 1000
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description",
+                        "description": "Description du référentiel"
+                    },
+                    "visibility": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/VisibilityEnum"
+                            }
+                        ],
+                        "description": "Visibilité du référentiel",
+                        "default": "TENANT"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "cycle"
+                ],
+                "title": "ReferentialCreate"
+            },
+            "ReferentialListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/ReferentialResponse"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "title": "Size"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "size",
+                    "pages"
+                ],
+                "title": "ReferentialListResponse"
+            },
+            "ReferentialResponse": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name",
+                        "description": "Nom du référentiel"
+                    },
+                    "cycle": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/CycleEnum"
+                            }
+                        ],
+                        "description": "Cycle d'enseignement"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 1000
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description",
+                        "description": "Description du référentiel"
+                    },
+                    "visibility": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/VisibilityEnum"
+                            }
+                        ],
+                        "description": "Visibilité du référentiel",
+                        "default": "TENANT"
+                    },
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "tenant_id": {
+                        "type": "string",
+                        "title": "Tenant Id"
+                    },
+                    "version_number": {
+                        "type": "integer",
+                        "title": "Version Number"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/RefStateEnum"
+                    },
+                    "created_by": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created By"
+                    },
+                    "updated_by": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated By"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    },
+                    "published_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Published At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "cycle",
+                    "id",
+                    "tenant_id",
+                    "version_number",
+                    "state",
+                    "created_by",
+                    "updated_by",
+                    "created_at",
+                    "updated_at",
+                    "published_at"
+                ],
+                "title": "ReferentialResponse"
+            },
+            "ReferentialTree": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "cycle": {
+                        "$ref": "#/components/schemas/CycleEnum"
+                    },
+                    "version_number": {
+                        "type": "integer",
+                        "title": "Version Number"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/RefStateEnum"
+                    },
+                    "visibility": {
+                        "$ref": "#/components/schemas/VisibilityEnum"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "domains": {
+                        "items": {
+                            "$ref": "#/components/schemas/DomainTree"
+                        },
+                        "type": "array",
+                        "title": "Domains"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "cycle",
+                    "version_number",
+                    "state",
+                    "visibility",
+                    "description",
+                    "domains"
+                ],
+                "title": "ReferentialTree"
+            },
+            "ReferentialUpdate": {
+                "properties": {
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 1000
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    }
+                },
+                "type": "object",
+                "title": "ReferentialUpdate"
+            },
+            "SubjectCreate": {
+                "properties": {
+                    "domain_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Domain Id"
+                    },
+                    "code": {
+                        "type": "string",
+                        "maxLength": 32,
+                        "minLength": 1,
+                        "pattern": "^[A-Z0-9_-]+$",
+                        "title": "Code"
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name"
+                    },
+                    "coefficient": {
+                        "anyOf": [
+                            {
+                                "type": "number",
+                                "exclusiveMinimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Coefficient"
+                    },
+                    "credit": {
+                        "anyOf": [
+                            {
+                                "type": "number",
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Credit"
+                    },
+                    "color": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^#[0-9A-Fa-f]{6}$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Color"
+                    },
+                    "order_index": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Order Index",
+                        "default": 0
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "code",
+                    "name"
+                ],
+                "title": "SubjectCreate"
+            },
+            "SubjectListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/SubjectResponse"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "title": "Size"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "size",
+                    "pages"
+                ],
+                "title": "SubjectListResponse"
+            },
+            "SubjectResponse": {
+                "properties": {
+                    "domain_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Domain Id"
+                    },
+                    "code": {
+                        "type": "string",
+                        "maxLength": 32,
+                        "minLength": 1,
+                        "pattern": "^[A-Z0-9_-]+$",
+                        "title": "Code"
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name"
+                    },
+                    "coefficient": {
+                        "anyOf": [
+                            {
+                                "type": "number",
+                                "exclusiveMinimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Coefficient"
+                    },
+                    "credit": {
+                        "anyOf": [
+                            {
+                                "type": "number",
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Credit"
+                    },
+                    "color": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^#[0-9A-Fa-f]{6}$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Color"
+                    },
+                    "order_index": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Order Index",
+                        "default": 0
+                    },
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "referential_id": {
+                        "type": "string",
+                        "title": "Referential Id"
+                    },
+                    "version_number": {
+                        "type": "integer",
+                        "title": "Version Number"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "code",
+                    "name",
+                    "id",
+                    "referential_id",
+                    "version_number",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "SubjectResponse"
+            },
+            "SubjectTree": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "Code"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "coefficient": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Coefficient"
+                    },
+                    "credit": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Credit"
+                    },
+                    "color": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Color"
+                    },
+                    "order_index": {
+                        "type": "integer",
+                        "title": "Order Index"
+                    },
+                    "competencies": {
+                        "items": {
+                            "$ref": "#/components/schemas/CompetencyTree"
+                        },
+                        "type": "array",
+                        "title": "Competencies"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "code",
+                    "name",
+                    "coefficient",
+                    "credit",
+                    "color",
+                    "order_index",
+                    "competencies"
+                ],
+                "title": "SubjectTree"
+            },
+            "SubjectUpdate": {
+                "properties": {
+                    "domain_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Domain Id"
+                    },
+                    "code": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 32,
+                                "minLength": 1,
+                                "pattern": "^[A-Z0-9_-]+$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Code"
+                    },
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "coefficient": {
+                        "anyOf": [
+                            {
+                                "type": "number",
+                                "exclusiveMinimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Coefficient"
+                    },
+                    "credit": {
+                        "anyOf": [
+                            {
+                                "type": "number",
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Credit"
+                    },
+                    "color": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^#[0-9A-Fa-f]{6}$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Color"
+                    },
+                    "order_index": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Order Index"
+                    }
+                },
+                "type": "object",
+                "title": "SubjectUpdate"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            },
+            "VisibilityEnum": {
+                "type": "string",
+                "enum": [
+                    "TENANT",
+                    "GLOBAL"
+                ],
+                "title": "VisibilityEnum"
+            }
+        }
+    }
+}

@@ -35,7 +35,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
   ],
   directeur: [
     { titleKey: "home", to: "/", icon: <FaHome /> },
-    { titleKey: "utilisateurs", to: "/utilisateurs", icon: <FaUsers /> },
+    { titleKey: "onboarding", to: "/utilisateurs", icon: <FaUsers /> },
     { titleKey: "referentiels", to: "/referentiels", icon: <FaGraduationCap /> },
     { titleKey: "alertes", to: "/alertes", icon: <FaExclamationTriangle /> },
     { titleKey: "emploi_du_temps", to: "/emploi-du-temps", icon: <FaCalendarAlt /> },
@@ -66,8 +66,8 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
   ],
   administrateur: [
     { titleKey: "home", to: "/", icon: <FaHome /> },
-    { titleKey: "etablissements", to: "/etablissements", icon: <FaBuilding /> },
-    { titleKey: "utilisateurs", to: "/utilisateurs", icon: <FaUsers /> },
+    { titleKey: "etablissements", to: "/etablissements", icon: <FaBuilding />, activePaths: ["/etablissements", "/etablissements/:etabId"] },
+    { titleKey: "onboarding", to: "/utilisateurs", icon: <FaUsers /> },
     { titleKey: "abonnements", to: "/abonnements", icon: <FaFileInvoiceDollar /> },
     { titleKey: "plans", to: "/plans", icon: <FaTags /> },
     { titleKey: "referentiels", to: "/referentiels", icon: <FaGraduationCap /> },

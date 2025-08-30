@@ -1,0 +1,746 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "identity-service",
+        "description": "Service de gestion des identités - Bulk Import et Traçabilité",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Root",
+                "description": "Endpoint racine pour vérifier que le service fonctionne.",
+                "operationId": "root__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Health Check",
+                "description": "Endpoint de vérification de santé du service.",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/batches": {
+            "get": {
+                "tags": [
+                    "batches"
+                ],
+                "summary": "List Batches",
+                "description": "Lister les batches d'identités avec pagination et filtres.\n\nArgs:\n    establishment_id: ID de l'établissement pour filtrer\n    uploaded_by: ID de l'uploader pour filtrer\n    pagination: Paramètres de pagination et tri\n    batch_service: Service de gestion des batches\n    current_user: Utilisateur authentifié\n\nReturns:\n    dict: Liste paginée des batches",
+                "operationId": "list_batches_api_v1_identity_batches_get",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "uploaded_by",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Uploaded By"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de page",
+                            "default": 10,
+                            "title": "Size"
+                        },
+                        "description": "Taille de page"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Colonne de tri",
+                            "title": "Order By"
+                        },
+                        "description": "Colonne de tri"
+                    },
+                    {
+                        "name": "order_dir",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Sens de tri (asc/desc)",
+                            "default": "desc",
+                            "title": "Order Dir"
+                        },
+                        "description": "Sens de tri (asc/desc)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/batches/{batch_id}": {
+            "get": {
+                "tags": [
+                    "batches"
+                ],
+                "summary": "Get Batch",
+                "description": "Récupérer un batch par son ID.\n\nArgs:\n    batch_id: ID du batch\n    batch_service: Service de gestion des batches\n    current_user: Utilisateur authentifié\n\nReturns:\n    BatchRead: Détails du batch\n\nRaises:\n    404: Batch non trouvé",
+                "operationId": "get_batch_api_v1_identity_batches__batch_id__get",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Batch Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BatchRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/batches/{batch_id}/items": {
+            "get": {
+                "tags": [
+                    "batches"
+                ],
+                "summary": "Get Batch Items",
+                "description": "Lister les items d'un batch avec pagination et filtres.\n\nArgs:\n    batch_id: ID du batch\n    item_status: Statut des items pour filtrer (NEW, UPDATED, SKIPPED, INVALID)\n    domain: Domaine des items pour filtrer (student, parent, teacher, admin_staff)\n    pagination: Paramètres de pagination et tri\n    identity_service: Service d'identité\n    current_user: Utilisateur authentifié\n\nReturns:\n    dict: Liste paginée des items du batch\n\nRaises:\n    404: Batch non trouvé",
+                "operationId": "get_batch_items_api_v1_identity_batches__batch_id__items_get",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Batch Id"
+                        }
+                    },
+                    {
+                        "name": "item_status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Item Status"
+                        }
+                    },
+                    {
+                        "name": "domain",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Domain"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de page",
+                            "default": 10,
+                            "title": "Size"
+                        },
+                        "description": "Taille de page"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Colonne de tri",
+                            "title": "Order By"
+                        },
+                        "description": "Colonne de tri"
+                    },
+                    {
+                        "name": "order_dir",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Sens de tri (asc/desc)",
+                            "default": "desc",
+                            "title": "Order Dir"
+                        },
+                        "description": "Sens de tri (asc/desc)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/batches/{batch_id}/commit": {
+            "post": {
+                "tags": [
+                    "batches"
+                ],
+                "summary": "Commit Batch",
+                "description": "Marquer un batch comme COMMITTED (optionnel).\n\nArgs:\n    batch_id: ID du batch\n    identity_service: Service d'identité\n    current_user: Utilisateur authentifié\n\nReturns:\n    dict: Message de confirmation\n\nRaises:\n    404: Batch non trouvé\n    400: Erreur lors du commit",
+                "operationId": "commit_batch_api_v1_identity_batches__batch_id__commit_post",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Batch Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport": {
+            "post": {
+                "summary": "Bulk Import Identities",
+                "description": "Import en masse d'identités via fichier CSV.\n\n     Accepte les formats CSV avec les schémas suivants :\n - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone\n - **parents.csv** : establishment_id;firstname;lastname;email;phone\n - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date\n - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date\n \n Note: L'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.\n \n Le domaine est automatiquement détecté à partir des en-têtes du CSV.",
+                "operationId": "bulk_import_identities_api_v1_identity_bulkimport_post",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_bulk_import_identities_api_v1_identity_bulkimport_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BulkImportResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/template/{domain}": {
+            "get": {
+                "summary": "Get Csv Template",
+                "description": "Récupère un template CSV pour un domaine donné.\n\nArgs:\n    domain: Domaine (student, parent, teacher, admin_staff)",
+                "operationId": "get_csv_template_api_v1_identity_bulkimport_template__domain__get",
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Domain"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/audit": {
+            "get": {
+                "summary": "Get Audit History",
+                "description": "Récupère l'historique d'audit des opérations de bulk import.\n\nArgs:\n    user_id: Filtrer par utilisateur\n    establishment_id: Filtrer par établissement\n    batch_id: Filtrer par batch\n    limit: Limite du nombre de résultats",
+                "operationId": "get_audit_history_api_v1_identity_bulkimport_audit_get",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "User Id"
+                        }
+                    },
+                    {
+                        "name": "establishment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "batch_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Batch Id"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "BatchRead": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id",
+                        "description": "ID du batch"
+                    },
+                    "establishment_id": {
+                        "type": "string",
+                        "title": "Establishment Id",
+                        "description": "ID de l'établissement"
+                    },
+                    "uploaded_by": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Uploaded By",
+                        "description": "ID de l'uploader"
+                    },
+                    "source_file_url": {
+                        "type": "string",
+                        "title": "Source File Url",
+                        "description": "URL du fichier source"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At",
+                        "description": "Date de création"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "establishment_id",
+                    "uploaded_by",
+                    "source_file_url",
+                    "created_at"
+                ],
+                "title": "BatchRead",
+                "description": "Schéma pour lire un batch d'identités.",
+                "example": {
+                    "created_at": "2024-01-01T00:00:00",
+                    "establishment_id": "EST001",
+                    "id": "123e4567-e89b-12d3-a456-426614174000",
+                    "source_file_url": "https://example.com/batch_2024_01.csv",
+                    "uploaded_by": "789e0123-e89b-12d3-a456-426614174002"
+                }
+            },
+            "Body_bulk_import_identities_api_v1_identity_bulkimport_post": {
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "title": "File",
+                        "description": "Fichier CSV à importer"
+                    },
+                    "establishment_id": {
+                        "type": "string",
+                        "title": "Establishment Id",
+                        "description": "ID de l'établissement"
+                    },
+                    "source_file_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Source File Url",
+                        "description": "URL du fichier source (optionnel)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "file",
+                    "establishment_id"
+                ],
+                "title": "Body_bulk_import_identities_api_v1_identity_bulkimport_post"
+            },
+            "BulkImportResponse": {
+                "properties": {
+                    "batch_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Batch Id",
+                        "description": "ID du batch créé"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status",
+                        "description": "Statut de l'import"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "Message d'information"
+                    },
+                    "total_items": {
+                        "type": "integer",
+                        "title": "Total Items",
+                        "description": "Nombre total d'éléments traités"
+                    },
+                    "new_count": {
+                        "type": "integer",
+                        "title": "New Count",
+                        "description": "Nombre d'éléments créés"
+                    },
+                    "updated_count": {
+                        "type": "integer",
+                        "title": "Updated Count",
+                        "description": "Nombre d'éléments mis à jour"
+                    },
+                    "skipped_count": {
+                        "type": "integer",
+                        "title": "Skipped Count",
+                        "description": "Nombre d'éléments ignorés"
+                    },
+                    "invalid_count": {
+                        "type": "integer",
+                        "title": "Invalid Count",
+                        "description": "Nombre d'éléments invalides"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "batch_id",
+                    "status",
+                    "message",
+                    "total_items",
+                    "new_count",
+                    "updated_count",
+                    "skipped_count",
+                    "invalid_count"
+                ],
+                "title": "BulkImportResponse",
+                "description": "Schéma pour la réponse de bulk import.",
+                "example": {
+                    "batch_id": "123e4567-e89b-12d3-a456-426614174000",
+                    "invalid_count": 5,
+                    "message": "Import terminé avec succès",
+                    "new_count": 50,
+                    "skipped_count": 15,
+                    "status": "COMPLETED",
+                    "total_items": 100,
+                    "updated_count": 30
+                }
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

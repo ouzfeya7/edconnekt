@@ -24,6 +24,97 @@ import type { RequestArgs } from './base';
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
 /**
+ * Réponse pour la liste des audits avec pagination
+ * @export
+ * @interface AuditListResponse
+ */
+export interface AuditListResponse {
+    /**
+     * Liste des audits
+     * @type {Array<EtablissementAuditResponse>}
+     * @memberof AuditListResponse
+     */
+    'items': Array<EtablissementAuditResponse>;
+    /**
+     * Nombre total d\'audits
+     * @type {number}
+     * @memberof AuditListResponse
+     */
+    'total': number;
+    /**
+     * Limite utilisée
+     * @type {number}
+     * @memberof AuditListResponse
+     */
+    'limit': number;
+    /**
+     * Offset utilisé
+     * @type {number}
+     * @memberof AuditListResponse
+     */
+    'offset': number;
+    /**
+     * Y a-t-il plus d\'éléments ?
+     * @type {boolean}
+     * @memberof AuditListResponse
+     */
+    'has_more': boolean;
+}
+/**
+ * Types d\'opérations d\'audit
+ * @export
+ * @enum {string}
+ */
+
+export const AuditOperationEnum = {
+    Create: 'CREATE',
+    Update: 'UPDATE',
+    Delete: 'DELETE',
+    StatusChange: 'STATUS_CHANGE',
+    Insert: 'INSERT'
+} as const;
+
+export type AuditOperationEnum = typeof AuditOperationEnum[keyof typeof AuditOperationEnum];
+
+
+/**
+ * Statistiques d\'audit pour un établissement
+ * @export
+ * @interface AuditStatistics
+ */
+export interface AuditStatistics {
+    /**
+     * Nombre total d\'opérations
+     * @type {number}
+     * @memberof AuditStatistics
+     */
+    'total_operations': number;
+    /**
+     * Nombre d\'opérations par type
+     * @type {{ [key: string]: number; }}
+     * @memberof AuditStatistics
+     */
+    'operations_by_type': { [key: string]: number; };
+    /**
+     * 
+     * @type {string}
+     * @memberof AuditStatistics
+     */
+    'last_operation_date'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuditStatistics
+     */
+    'most_active_user'?: string | null;
+    /**
+     * Nombre d\'opérations ce mois-ci
+     * @type {number}
+     * @memberof AuditStatistics
+     */
+    'operations_this_month': number;
+}
+/**
  * Un établissement unique ou une liste d\'établissements à créer
  * @export
  * @interface Data
@@ -92,6 +183,55 @@ export interface Data {
 }
 
 
+/**
+ * 
+ * @export
+ * @interface EtablissementAuditResponse
+ */
+export interface EtablissementAuditResponse {
+    /**
+     * 
+     * @type {number}
+     * @memberof EtablissementAuditResponse
+     */
+    'id': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementAuditResponse
+     */
+    'etablissement_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementAuditResponse
+     */
+    'operation': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementAuditResponse
+     */
+    'motif'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementAuditResponse
+     */
+    'auteur_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementAuditResponse
+     */
+    'auteur_nom'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementAuditResponse
+     */
+    'date_operation': string;
+}
 /**
  * Schéma pour la mise à jour des coordonnées uniquement
  * @export
@@ -415,6 +555,37 @@ export interface HTTPValidationError {
      * @memberof HTTPValidationError
      */
     'detail'?: Array<ValidationError>;
+}
+/**
+ * Schéma pour la création manuelle d\'une entrée d\'audit (sans etablissement_id)
+ * @export
+ * @interface ManualAuditCreate
+ */
+export interface ManualAuditCreate {
+    /**
+     * Type d\'opération effectuée
+     * @type {string}
+     * @memberof ManualAuditCreate
+     */
+    'operation': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ManualAuditCreate
+     */
+    'motif'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ManualAuditCreate
+     */
+    'auteur_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ManualAuditCreate
+     */
+    'auteur_nom'?: string | null;
 }
 /**
  * 
@@ -741,6 +912,99 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
+         * Crée manuellement une entrée d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN.  **Corps de la requête :** ```json {     \"operation\": \"CUSTOM_OPERATION\",     \"motif\": \"Description de l\'opération\",     \"auteur_id\": \"user-123\",     \"auteur_nom\": \"Nom de l\'utilisateur\" } ```  **Retourne :** - L\'entrée d\'audit créée
+         * @summary Create Manual Audit Entry
+         * @param {string} establishmentId 
+         * @param {ManualAuditCreate} manualAuditCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createManualAuditEntryApiEtablissementsEstablishmentIdAuditManualPost: async (establishmentId: string, manualAuditCreate: ManualAuditCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('createManualAuditEntryApiEtablissementsEstablishmentIdAuditManualPost', 'establishmentId', establishmentId)
+            // verify required parameter 'manualAuditCreate' is not null or undefined
+            assertParamExists('createManualAuditEntryApiEtablissementsEstablishmentIdAuditManualPost', 'manualAuditCreate', manualAuditCreate)
+            const localVarPath = `/api/etablissements/{establishment_id}/audit/manual`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(manualAuditCreate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
+         * @summary Export Establishment Audit
+         * @param {string} establishmentId 
+         * @param {string | null} [dateFrom] Date de début pour l\&#39;export
+         * @param {string | null} [dateTo] Date de fin pour l\&#39;export
+         * @param {string} [format] Format d\&#39;export (json ou csv)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        exportEstablishmentAuditApiEtablissementsEstablishmentIdAuditExportGet: async (establishmentId: string, dateFrom?: string | null, dateTo?: string | null, format?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('exportEstablishmentAuditApiEtablissementsEstablishmentIdAuditExportGet', 'establishmentId', establishmentId)
+            const localVarPath = `/api/etablissements/{establishment_id}/audit/export`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (dateFrom !== undefined) {
+                localVarQueryParameter['date_from'] = (dateFrom as any instanceof Date) ?
+                    (dateFrom as any).toISOString() :
+                    dateFrom;
+            }
+
+            if (dateTo !== undefined) {
+                localVarQueryParameter['date_to'] = (dateTo as any instanceof Date) ?
+                    (dateTo as any).toISOString() :
+                    dateTo;
+            }
+
+            if (format !== undefined) {
+                localVarQueryParameter['format'] = format;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
          * @summary Get Establishment
          * @param {string} establishmentId 
@@ -762,6 +1026,162 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+         * @summary Get Establishment Audit
+         * @param {string} establishmentId 
+         * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
+         * @param {string | null} [auteurId] Filtrer par ID de l\&#39;auteur
+         * @param {string | null} [auteurNom] Filtrer par nom de l\&#39;auteur
+         * @param {string | null} [dateFrom] Date de début pour le filtrage
+         * @param {string | null} [dateTo] Date de fin pour le filtrage
+         * @param {number} [limit] Nombre maximum d\&#39;éléments
+         * @param {number} [offset] Offset pour la pagination
+         * @param {string} [sortBy] Champ de tri
+         * @param {string} [sortOrder] Ordre de tri (asc/desc)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet: async (establishmentId: string, operation?: AuditOperationEnum | null, auteurId?: string | null, auteurNom?: string | null, dateFrom?: string | null, dateTo?: string | null, limit?: number, offset?: number, sortBy?: string, sortOrder?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet', 'establishmentId', establishmentId)
+            const localVarPath = `/api/etablissements/{establishment_id}/audit`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (operation !== undefined) {
+                localVarQueryParameter['operation'] = operation;
+            }
+
+            if (auteurId !== undefined) {
+                localVarQueryParameter['auteur_id'] = auteurId;
+            }
+
+            if (auteurNom !== undefined) {
+                localVarQueryParameter['auteur_nom'] = auteurNom;
+            }
+
+            if (dateFrom !== undefined) {
+                localVarQueryParameter['date_from'] = (dateFrom as any instanceof Date) ?
+                    (dateFrom as any).toISOString() :
+                    dateFrom;
+            }
+
+            if (dateTo !== undefined) {
+                localVarQueryParameter['date_to'] = (dateTo as any instanceof Date) ?
+                    (dateTo as any).toISOString() :
+                    dateTo;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sort_by'] = sortBy;
+            }
+
+            if (sortOrder !== undefined) {
+                localVarQueryParameter['sort_order'] = sortOrder;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
+         * @summary Get Establishment Audit Statistics
+         * @param {string} establishmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEstablishmentAuditStatisticsApiEtablissementsEstablishmentIdAuditStatisticsGet: async (establishmentId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('getEstablishmentAuditStatisticsApiEtablissementsEstablishmentIdAuditStatisticsGet', 'establishmentId', establishmentId)
+            const localVarPath = `/api/etablissements/{establishment_id}/audit/statistics`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
+         * @summary Get Establishment Audit Summary
+         * @param {string} establishmentId 
+         * @param {number} [days] Nombre de jours pour le résumé
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEstablishmentAuditSummaryApiEtablissementsEstablishmentIdAuditSummaryGet: async (establishmentId: string, days?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('getEstablishmentAuditSummaryApiEtablissementsEstablishmentIdAuditSummaryGet', 'establishmentId', establishmentId)
+            const localVarPath = `/api/etablissements/{establishment_id}/audit/summary`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (days !== undefined) {
+                localVarQueryParameter['days'] = days;
+            }
 
 
     
@@ -1009,6 +1429,36 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Crée manuellement une entrée d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN.  **Corps de la requête :** ```json {     \"operation\": \"CUSTOM_OPERATION\",     \"motif\": \"Description de l\'opération\",     \"auteur_id\": \"user-123\",     \"auteur_nom\": \"Nom de l\'utilisateur\" } ```  **Retourne :** - L\'entrée d\'audit créée
+         * @summary Create Manual Audit Entry
+         * @param {string} establishmentId 
+         * @param {ManualAuditCreate} manualAuditCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createManualAuditEntryApiEtablissementsEstablishmentIdAuditManualPost(establishmentId: string, manualAuditCreate: ManualAuditCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EtablissementAuditResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createManualAuditEntryApiEtablissementsEstablishmentIdAuditManualPost(establishmentId, manualAuditCreate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.createManualAuditEntryApiEtablissementsEstablishmentIdAuditManualPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
+         * @summary Export Establishment Audit
+         * @param {string} establishmentId 
+         * @param {string | null} [dateFrom] Date de début pour l\&#39;export
+         * @param {string | null} [dateTo] Date de fin pour l\&#39;export
+         * @param {string} [format] Format d\&#39;export (json ou csv)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async exportEstablishmentAuditApiEtablissementsEstablishmentIdAuditExportGet(establishmentId: string, dateFrom?: string | null, dateTo?: string | null, format?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.exportEstablishmentAuditApiEtablissementsEstablishmentIdAuditExportGet(establishmentId, dateFrom, dateTo, format, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.exportEstablishmentAuditApiEtablissementsEstablishmentIdAuditExportGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
          * @summary Get Establishment
          * @param {string} establishmentId 
@@ -1019,6 +1469,55 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.getEstablishmentApiEtablissementsEstablishmentIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+         * @summary Get Establishment Audit
+         * @param {string} establishmentId 
+         * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
+         * @param {string | null} [auteurId] Filtrer par ID de l\&#39;auteur
+         * @param {string | null} [auteurNom] Filtrer par nom de l\&#39;auteur
+         * @param {string | null} [dateFrom] Date de début pour le filtrage
+         * @param {string | null} [dateTo] Date de fin pour le filtrage
+         * @param {number} [limit] Nombre maximum d\&#39;éléments
+         * @param {number} [offset] Offset pour la pagination
+         * @param {string} [sortBy] Champ de tri
+         * @param {string} [sortOrder] Ordre de tri (asc/desc)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet(establishmentId: string, operation?: AuditOperationEnum | null, auteurId?: string | null, auteurNom?: string | null, dateFrom?: string | null, dateTo?: string | null, limit?: number, offset?: number, sortBy?: string, sortOrder?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuditListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet(establishmentId, operation, auteurId, auteurNom, dateFrom, dateTo, limit, offset, sortBy, sortOrder, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
+         * @summary Get Establishment Audit Statistics
+         * @param {string} establishmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getEstablishmentAuditStatisticsApiEtablissementsEstablishmentIdAuditStatisticsGet(establishmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuditStatistics>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getEstablishmentAuditStatisticsApiEtablissementsEstablishmentIdAuditStatisticsGet(establishmentId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.getEstablishmentAuditStatisticsApiEtablissementsEstablishmentIdAuditStatisticsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
+         * @summary Get Establishment Audit Summary
+         * @param {string} establishmentId 
+         * @param {number} [days] Nombre de jours pour le résumé
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getEstablishmentAuditSummaryApiEtablissementsEstablishmentIdAuditSummaryGet(establishmentId: string, days?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<{ [key: string]: any; }>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getEstablishmentAuditSummaryApiEtablissementsEstablishmentIdAuditSummaryGet(establishmentId, days, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.getEstablishmentAuditSummaryApiEtablissementsEstablishmentIdAuditSummaryGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1114,6 +1613,30 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.createEstablishmentApiEtablissementsPost(etablissementCreateFlexible, options).then((request) => request(axios, basePath));
         },
         /**
+         * Crée manuellement une entrée d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN.  **Corps de la requête :** ```json {     \"operation\": \"CUSTOM_OPERATION\",     \"motif\": \"Description de l\'opération\",     \"auteur_id\": \"user-123\",     \"auteur_nom\": \"Nom de l\'utilisateur\" } ```  **Retourne :** - L\'entrée d\'audit créée
+         * @summary Create Manual Audit Entry
+         * @param {string} establishmentId 
+         * @param {ManualAuditCreate} manualAuditCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createManualAuditEntryApiEtablissementsEstablishmentIdAuditManualPost(establishmentId: string, manualAuditCreate: ManualAuditCreate, options?: RawAxiosRequestConfig): AxiosPromise<EtablissementAuditResponse> {
+            return localVarFp.createManualAuditEntryApiEtablissementsEstablishmentIdAuditManualPost(establishmentId, manualAuditCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
+         * @summary Export Establishment Audit
+         * @param {string} establishmentId 
+         * @param {string | null} [dateFrom] Date de début pour l\&#39;export
+         * @param {string | null} [dateTo] Date de fin pour l\&#39;export
+         * @param {string} [format] Format d\&#39;export (json ou csv)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        exportEstablishmentAuditApiEtablissementsEstablishmentIdAuditExportGet(establishmentId: string, dateFrom?: string | null, dateTo?: string | null, format?: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.exportEstablishmentAuditApiEtablissementsEstablishmentIdAuditExportGet(establishmentId, dateFrom, dateTo, format, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
          * @summary Get Establishment
          * @param {string} establishmentId 
@@ -1122,6 +1645,46 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
          */
         getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<EtablissementOut> {
             return localVarFp.getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+         * @summary Get Establishment Audit
+         * @param {string} establishmentId 
+         * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
+         * @param {string | null} [auteurId] Filtrer par ID de l\&#39;auteur
+         * @param {string | null} [auteurNom] Filtrer par nom de l\&#39;auteur
+         * @param {string | null} [dateFrom] Date de début pour le filtrage
+         * @param {string | null} [dateTo] Date de fin pour le filtrage
+         * @param {number} [limit] Nombre maximum d\&#39;éléments
+         * @param {number} [offset] Offset pour la pagination
+         * @param {string} [sortBy] Champ de tri
+         * @param {string} [sortOrder] Ordre de tri (asc/desc)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet(establishmentId: string, operation?: AuditOperationEnum | null, auteurId?: string | null, auteurNom?: string | null, dateFrom?: string | null, dateTo?: string | null, limit?: number, offset?: number, sortBy?: string, sortOrder?: string, options?: RawAxiosRequestConfig): AxiosPromise<AuditListResponse> {
+            return localVarFp.getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet(establishmentId, operation, auteurId, auteurNom, dateFrom, dateTo, limit, offset, sortBy, sortOrder, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
+         * @summary Get Establishment Audit Statistics
+         * @param {string} establishmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEstablishmentAuditStatisticsApiEtablissementsEstablishmentIdAuditStatisticsGet(establishmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<AuditStatistics> {
+            return localVarFp.getEstablishmentAuditStatisticsApiEtablissementsEstablishmentIdAuditStatisticsGet(establishmentId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
+         * @summary Get Establishment Audit Summary
+         * @param {string} establishmentId 
+         * @param {number} [days] Nombre de jours pour le résumé
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEstablishmentAuditSummaryApiEtablissementsEstablishmentIdAuditSummaryGet(establishmentId: string, days?: number, options?: RawAxiosRequestConfig): AxiosPromise<{ [key: string]: any; }> {
+            return localVarFp.getEstablishmentAuditSummaryApiEtablissementsEstablishmentIdAuditSummaryGet(establishmentId, days, options).then((request) => request(axios, basePath));
         },
         /**
          * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
@@ -1203,6 +1766,34 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
+     * Crée manuellement une entrée d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN.  **Corps de la requête :** ```json {     \"operation\": \"CUSTOM_OPERATION\",     \"motif\": \"Description de l\'opération\",     \"auteur_id\": \"user-123\",     \"auteur_nom\": \"Nom de l\'utilisateur\" } ```  **Retourne :** - L\'entrée d\'audit créée
+     * @summary Create Manual Audit Entry
+     * @param {string} establishmentId 
+     * @param {ManualAuditCreate} manualAuditCreate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public createManualAuditEntryApiEtablissementsEstablishmentIdAuditManualPost(establishmentId: string, manualAuditCreate: ManualAuditCreate, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).createManualAuditEntryApiEtablissementsEstablishmentIdAuditManualPost(establishmentId, manualAuditCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
+     * @summary Export Establishment Audit
+     * @param {string} establishmentId 
+     * @param {string | null} [dateFrom] Date de début pour l\&#39;export
+     * @param {string | null} [dateTo] Date de fin pour l\&#39;export
+     * @param {string} [format] Format d\&#39;export (json ou csv)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public exportEstablishmentAuditApiEtablissementsEstablishmentIdAuditExportGet(establishmentId: string, dateFrom?: string | null, dateTo?: string | null, format?: string, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).exportEstablishmentAuditApiEtablissementsEstablishmentIdAuditExportGet(establishmentId, dateFrom, dateTo, format, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
      * @summary Get Establishment
      * @param {string} establishmentId 
@@ -1212,6 +1803,52 @@ export class EstablishmentsApi extends BaseAPI {
      */
     public getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId: string, options?: RawAxiosRequestConfig) {
         return EstablishmentsApiFp(this.configuration).getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+     * @summary Get Establishment Audit
+     * @param {string} establishmentId 
+     * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
+     * @param {string | null} [auteurId] Filtrer par ID de l\&#39;auteur
+     * @param {string | null} [auteurNom] Filtrer par nom de l\&#39;auteur
+     * @param {string | null} [dateFrom] Date de début pour le filtrage
+     * @param {string | null} [dateTo] Date de fin pour le filtrage
+     * @param {number} [limit] Nombre maximum d\&#39;éléments
+     * @param {number} [offset] Offset pour la pagination
+     * @param {string} [sortBy] Champ de tri
+     * @param {string} [sortOrder] Ordre de tri (asc/desc)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet(establishmentId: string, operation?: AuditOperationEnum | null, auteurId?: string | null, auteurNom?: string | null, dateFrom?: string | null, dateTo?: string | null, limit?: number, offset?: number, sortBy?: string, sortOrder?: string, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet(establishmentId, operation, auteurId, auteurNom, dateFrom, dateTo, limit, offset, sortBy, sortOrder, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
+     * @summary Get Establishment Audit Statistics
+     * @param {string} establishmentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public getEstablishmentAuditStatisticsApiEtablissementsEstablishmentIdAuditStatisticsGet(establishmentId: string, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).getEstablishmentAuditStatisticsApiEtablissementsEstablishmentIdAuditStatisticsGet(establishmentId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
+     * @summary Get Establishment Audit Summary
+     * @param {string} establishmentId 
+     * @param {number} [days] Nombre de jours pour le résumé
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public getEstablishmentAuditSummaryApiEtablissementsEstablishmentIdAuditSummaryGet(establishmentId: string, days?: number, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).getEstablishmentAuditSummaryApiEtablissementsEstablishmentIdAuditSummaryGet(establishmentId, days, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

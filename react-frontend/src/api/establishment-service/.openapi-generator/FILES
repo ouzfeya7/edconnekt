@@ -4,9 +4,13 @@ api.ts
 base.ts
 common.ts
 configuration.ts
+docs/AuditListResponse.md
+docs/AuditOperationEnum.md
+docs/AuditStatistics.md
 docs/Data.md
 docs/DefaultApi.md
 docs/EstablishmentsApi.md
+docs/EtablissementAuditResponse.md
 docs/EtablissementCoordinatesUpdate.md
 docs/EtablissementCreate.md
 docs/EtablissementCreateFlexible.md
@@ -14,6 +18,7 @@ docs/EtablissementOut.md
 docs/EtablissementUpdate.md
 docs/HTTPValidationError.md
 docs/HealthApi.md
+docs/ManualAuditCreate.md
 docs/PlanEnum.md
 docs/ResponseCreateEstablishmentApiEtablissementsPost.md
 docs/StatusEnum.md

@@ -10,7 +10,7 @@ All URIs are relative to *http://localhost*
 # **createReplacementReplacementsPost**
 > ReplacementRead createReplacementReplacementsPost(replacementCreate)
 
-Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTEUR, ADMIN
+Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTION, ADMIN
 
 ### Example
 

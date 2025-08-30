@@ -629,7 +629,7 @@ export const AbsencesApiAxiosParamCreator = function (configuration?: Configurat
             };
         },
         /**
-         * Valider une absence (status VALIDATED). Rôle: DIRECTEUR. Propage le status sur les lessons du créneau.
+         * Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.
          * @summary Validate Absence
          * @param {string} absenceId 
          * @param {*} [options] Override http request option.
@@ -699,7 +699,7 @@ export const AbsencesApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Valider une absence (status VALIDATED). Rôle: DIRECTEUR. Propage le status sur les lessons du créneau.
+         * Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.
          * @summary Validate Absence
          * @param {string} absenceId 
          * @param {*} [options] Override http request option.
@@ -742,7 +742,7 @@ export const AbsencesApiFactory = function (configuration?: Configuration, baseP
             return localVarFp.deleteAbsenceAbsencesAbsenceIdDelete(absenceId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Valider une absence (status VALIDATED). Rôle: DIRECTEUR. Propage le status sur les lessons du créneau.
+         * Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.
          * @summary Validate Absence
          * @param {string} absenceId 
          * @param {*} [options] Override http request option.
@@ -786,7 +786,7 @@ export class AbsencesApi extends BaseAPI {
     }
 
     /**
-     * Valider une absence (status VALIDATED). Rôle: DIRECTEUR. Propage le status sur les lessons du créneau.
+     * Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.
      * @summary Validate Absence
      * @param {string} absenceId 
      * @param {*} [options] Override http request option.
@@ -807,7 +807,7 @@ export class AbsencesApi extends BaseAPI {
 export const AuditApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Journal d\'audit pour un cours. Rôle: DIRECTEUR
+         * Journal d\'audit pour un cours. Rôle: DIRECTION
          * @summary Get Lesson Audit
          * @param {string} lessonId 
          * @param {*} [options] Override http request option.
@@ -851,7 +851,7 @@ export const AuditApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = AuditApiAxiosParamCreator(configuration)
     return {
         /**
-         * Journal d\'audit pour un cours. Rôle: DIRECTEUR
+         * Journal d\'audit pour un cours. Rôle: DIRECTION
          * @summary Get Lesson Audit
          * @param {string} lessonId 
          * @param {*} [options] Override http request option.
@@ -874,7 +874,7 @@ export const AuditApiFactory = function (configuration?: Configuration, basePath
     const localVarFp = AuditApiFp(configuration)
     return {
         /**
-         * Journal d\'audit pour un cours. Rôle: DIRECTEUR
+         * Journal d\'audit pour un cours. Rôle: DIRECTION
          * @summary Get Lesson Audit
          * @param {string} lessonId 
          * @param {*} [options] Override http request option.
@@ -894,7 +894,7 @@ export const AuditApiFactory = function (configuration?: Configuration, basePath
  */
 export class AuditApi extends BaseAPI {
     /**
-     * Journal d\'audit pour un cours. Rôle: DIRECTEUR
+     * Journal d\'audit pour un cours. Rôle: DIRECTION
      * @summary Get Lesson Audit
      * @param {string} lessonId 
      * @param {*} [options] Override http request option.
@@ -915,7 +915,7 @@ export class AuditApi extends BaseAPI {
 export const FeedApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Flux iCalendar pour une classe. Public (aucune authentification).
+         * Flux iCalendar pour une classe.
          * @summary Get Ics Feed
          * @param {string} classId 
          * @param {*} [options] Override http request option.
@@ -959,7 +959,7 @@ export const FeedApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = FeedApiAxiosParamCreator(configuration)
     return {
         /**
-         * Flux iCalendar pour une classe. Public (aucune authentification).
+         * Flux iCalendar pour une classe.
          * @summary Get Ics Feed
          * @param {string} classId 
          * @param {*} [options] Override http request option.
@@ -982,7 +982,7 @@ export const FeedApiFactory = function (configuration?: Configuration, basePath?
     const localVarFp = FeedApiFp(configuration)
     return {
         /**
-         * Flux iCalendar pour une classe. Public (aucune authentification).
+         * Flux iCalendar pour une classe.
          * @summary Get Ics Feed
          * @param {string} classId 
          * @param {*} [options] Override http request option.
@@ -1002,7 +1002,7 @@ export const FeedApiFactory = function (configuration?: Configuration, basePath?
  */
 export class FeedApi extends BaseAPI {
     /**
-     * Flux iCalendar pour une classe. Public (aucune authentification).
+     * Flux iCalendar pour une classe.
      * @summary Get Ics Feed
      * @param {string} classId 
      * @param {*} [options] Override http request option.
@@ -1495,7 +1495,7 @@ export class LessonsApi extends BaseAPI {
 export const ReplacementsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTEUR, ADMIN
+         * Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTION, ADMIN
          * @summary Create Replacement
          * @param {ReplacementCreate} replacementCreate 
          * @param {*} [options] Override http request option.
@@ -1575,7 +1575,7 @@ export const ReplacementsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = ReplacementsApiAxiosParamCreator(configuration)
     return {
         /**
-         * Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTEUR, ADMIN
+         * Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTION, ADMIN
          * @summary Create Replacement
          * @param {ReplacementCreate} replacementCreate 
          * @param {*} [options] Override http request option.
@@ -1611,7 +1611,7 @@ export const ReplacementsApiFactory = function (configuration?: Configuration, b
     const localVarFp = ReplacementsApiFp(configuration)
     return {
         /**
-         * Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTEUR, ADMIN
+         * Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTION, ADMIN
          * @summary Create Replacement
          * @param {ReplacementCreate} replacementCreate 
          * @param {*} [options] Override http request option.
@@ -1641,7 +1641,7 @@ export const ReplacementsApiFactory = function (configuration?: Configuration, b
  */
 export class ReplacementsApi extends BaseAPI {
     /**
-     * Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTEUR, ADMIN
+     * Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTION, ADMIN
      * @summary Create Replacement
      * @param {ReplacementCreate} replacementCreate 
      * @param {*} [options] Override http request option.

@@ -9,7 +9,7 @@ All URIs are relative to *http://localhost*
 # **getLessonAuditLessonsLessonIdAuditGet**
 > Array<TimetableAuditRead> getLessonAuditLessonsLessonIdAuditGet()
 
-Journal d\'audit pour un cours. Rôle: DIRECTEUR
+Journal d\'audit pour un cours. Rôle: DIRECTION
 
 ### Example
 

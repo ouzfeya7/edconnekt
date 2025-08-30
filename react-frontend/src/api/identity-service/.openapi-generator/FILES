@@ -1,0 +1,15 @@
+.gitignore
+.npmignore
+api.ts
+base.ts
+common.ts
+configuration.ts
+docs/BatchRead.md
+docs/BatchesApi.md
+docs/BulkImportResponse.md
+docs/DefaultApi.md
+docs/HTTPValidationError.md
+docs/ValidationError.md
+docs/ValidationErrorLocInner.md
+git_push.sh
+index.ts

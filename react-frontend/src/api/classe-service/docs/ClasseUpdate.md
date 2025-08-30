@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **niveau** | **string** |  | [optional] [default to undefined]
 **annee_scolaire** | **string** |  | [optional] [default to undefined]
 **capacity** | **number** |  | [optional] [default to undefined]
+**status** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -22,6 +23,7 @@ const instance: ClasseUpdate = {
     niveau,
     annee_scolaire,
     capacity,
+    status,
 };
 ```
 

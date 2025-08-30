@@ -7,14 +7,15 @@ export function useCreateEstablishment() {
 
   return useMutation({
     mutationFn: (payload: EtablissementCreate) => {
-      const body: EtablissementCreateFlexible = { data: payload as any };
+      const body: EtablissementCreateFlexible = { data: payload as unknown as EtablissementCreateFlexible['data'] };
       return etablissementsApi.createEstablishmentApiEtablissementsPost(body);
     },
     onSuccess: (res) => {
       const created: ResponseCreateEstablishmentApiEtablissementsPost = res.data;
       queryClient.invalidateQueries({ queryKey: ['establishments'] });
-      if ((created as any)?.id) {
-        queryClient.invalidateQueries({ queryKey: ['establishment', (created as any).id] });
+      const createdId = (created as unknown as { id?: string })?.id;
+      if (createdId) {
+        queryClient.invalidateQueries({ queryKey: ['establishment', createdId] });
       }
     },
   });

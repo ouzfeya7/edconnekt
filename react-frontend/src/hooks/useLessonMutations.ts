@@ -1,10 +1,24 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { lessonsApi } from '../api/timetable-service/client';
-import type { LessonRead, LessonUpdate } from '../api/timetable-service/api';
+import type { LessonRead, LessonUpdate, LessonCreate } from '../api/timetable-service/api';
 
 interface UpdateLessonVariables {
   lessonId: string;
   update: LessonUpdate;
+}
+
+export function useCreateLesson() {
+  const queryClient = useQueryClient();
+  return useMutation<LessonRead, Error, LessonCreate>({
+    mutationKey: ['lesson:create'],
+    mutationFn: async (payload: LessonCreate) => {
+      const res = await lessonsApi.createLessonsLessonsPost(payload);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+    },
+  });
 }
 
 export function useUpdateLesson() {
