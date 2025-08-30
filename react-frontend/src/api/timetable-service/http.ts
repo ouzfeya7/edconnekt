@@ -24,6 +24,13 @@ timetableAxios.interceptors.request.use((config) => {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
+  // Mapping établissement temporaire (en attendant Identity Service)
+  const viteEnv = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
+  const etabId = localStorage.getItem('current-etab-id') || viteEnv?.VITE_DEFAULT_ETAB_ID;
+  if (etabId) {
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>)['X-Establishment-Id'] = etabId;
+  }
   return config;
 });
 

@@ -1,5 +1,5 @@
 /* tslint:disable */
-/* eslint-disable */
+ 
 /**
  * Timetable Service
  * API REST conforme au cahier des charges avec authentification par en-têtes

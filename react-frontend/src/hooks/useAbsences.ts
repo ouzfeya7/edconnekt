@@ -45,4 +45,20 @@ export function useValidateAbsence() {
   });
 }
 
+export function useDeleteAbsence() {
+  const queryClient = useQueryClient();
+  return useMutation<AbsenceRead, Error, string>({
+    mutationKey: ['absence:delete'],
+    mutationFn: async (absenceId: string) => {
+      const res = await absencesApi.deleteAbsenceAbsencesAbsenceIdDelete(absenceId);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['absences'] });
+      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+      queryClient.invalidateQueries({ queryKey: ['timetable:audit'] });
+    },
+  });
+}
+
 

@@ -17,4 +17,19 @@ export function useCreateReplacement() {
   });
 }
 
+export function useDeleteReplacement() {
+  const queryClient = useQueryClient();
+  return useMutation<ReplacementRead, Error, string>({
+    mutationKey: ['replacement:delete'],
+    mutationFn: async (replacementId: string) => {
+      const res = await replacementsApi.deleteReplacementReplacementsReplacementIdDelete(replacementId);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['replacements'] });
+      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+    },
+  });
+}
+
 

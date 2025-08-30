@@ -7,7 +7,12 @@ import { useTimeslots } from '../../hooks/useTimeslots';
 import { useCreateReplacement } from '../../hooks/useReplacements';
 import { TIMETABLE_API_BASE_URL } from '../../api/timetable-service/http';
 import toast from 'react-hot-toast';
-import { useUpdateLesson, useDeleteLesson } from '../../hooks/useLessonMutations';
+import { useUpdateLesson, useDeleteLesson, useCreateLesson } from '../../hooks/useLessonMutations';
+import { useRooms } from '../../hooks/useRooms';
+import { useEstablishments } from '../../hooks/useEstablishments';
+import { useClasses } from '../../hooks/useClasses';
+import { useClasseEnseignants } from '../../hooks/useClasseEnseignants';
+import { useDirector } from '../../contexts/DirectorContext';
 
 interface NormalizedCourse {
   id: string | number;
@@ -30,6 +35,7 @@ interface Conflict {
 
 const EmploiDuTempsPage = () => {
   const { t } = useTranslation();
+  const { currentEtablissementId } = useDirector();
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [selectedView, setSelectedView] = useState('global');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,12 +45,30 @@ const EmploiDuTempsPage = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<NormalizedCourse | null>(null);
 
+  // Nouveaux états pour le formulaire d'ajout
+  const [selectedEtabId, setSelectedEtabId] = useState<string>(currentEtablissementId || '');
+  const [selectedClasseId, setSelectedClasseId] = useState<string>('');
+
+  // Suit le contexte: l'établissement est figé pour le directeur
+  React.useEffect(() => {
+    if (currentEtablissementId) {
+      setSelectedEtabId(currentEtablissementId);
+    }
+  }, [currentEtablissementId]);
+
   // Données API: leçons, créneaux, salles
   const { data: lessons, isLoading: lessonsLoading, isError: lessonsError } = useLessons();
   const { data: timeslots, isLoading: tsLoading, isError: tsError } = useTimeslots();
+  const { data: rooms } = useRooms();
+  const { data: establishments } = useEstablishments({ limit: 100 });
+  const { data: classesResp } = useClasses({ etablissementId: selectedEtabId, limit: 100 });
+  const classes = classesResp?.data ?? [];
+  const { data: enseignants } = useClasseEnseignants(selectedClasseId || undefined);
+
   const createReplacement = useCreateReplacement();
   const updateLesson = useUpdateLesson();
   const deleteLesson = useDeleteLesson();
+  const createLesson = useCreateLesson();
 
   // utilitaires
   const dayNames = useMemo(() => (['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'] as const), []);
@@ -120,9 +144,9 @@ const EmploiDuTempsPage = () => {
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      day: 'numeric',
+    return date.toLocaleDateString('fr-FR', { 
+      weekday: 'long', 
+      day: 'numeric', 
       month: 'long',
     });
   };
@@ -264,53 +288,117 @@ const EmploiDuTempsPage = () => {
             </div>
           </div>
 
-          {/* Modal d'ajout de cours (démo) */}
+          {/* Modal d'ajout de cours avec listes déroulantes */}
           {isModalOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <div className="bg-white rounded-lg p-6 w-full max-w-xl">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('add_course', 'Ajouter un cours')}</h3>
-                <form onSubmit={(e) => {
+                <form onSubmit={async (e) => {
                   e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  const newCourse: NormalizedCourse = {
-                    id: Date.now(),
-                    matiere: String(formData.get('matiere') || ''),
-                    enseignant: String(formData.get('enseignant') || ''),
-                    classe: String(formData.get('classe') || ''),
-                    salle: String(formData.get('salle') || ''),
-                    jour: String(formData.get('jour') || ''),
-                    heure: String(formData.get('heure') || ''),
-                    duree: 1,
-                    couleur: 'bg-gray-500',
-                  };
-                  const detected = detectConflicts(newCourse);
-                  setConflicts(detected);
-                  if (detected.length > 0) {
-                    setActiveTab('conflicts');
+                  const form = e.currentTarget as HTMLFormElement;
+                  const data = new FormData(form);
+                  const subject_id = String(data.get('subject_id') || '').trim();
+                  const teacher_id = String(data.get('teacher_id') || '').trim();
+                  const class_id = String(data.get('class_id') || '').trim();
+                  const timeslot_id = String(data.get('timeslot_id') || '').trim();
+                  const room_id = String(data.get('room_id') || '').trim();
+                  const date = String(data.get('date') || '').trim();
+
+                  if (!class_id || !teacher_id || !subject_id || !date || !timeslot_id || !room_id) {
+                    toast.error(t('fill_required_fields', 'Veuillez remplir les champs obligatoires'));
+                    return;
+                  }
+
+                  try {
+                    await createLesson.mutateAsync({ class_id, subject_id, teacher_id, date, timeslot_id, room_id });
+                    toast.success(t('course_created', 'Cours créé'));
                     setIsModalOpen(false);
-                    toast.error(t('conflicts_detected', 'Conflits détectés !'));
-                  } else {
-                    setIsModalOpen(false);
+                    form.reset();
+                  } catch (err: unknown) {
+                    const msg = (err as { response?: { data?: unknown }; message?: string })?.response?.data || (err as { message?: string })?.message || 'Erreur inconnue';
+                    toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
                   }
                 }}>
-                  <div className="space-y-4">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">{t('subject', 'Matière')} *</label><input name="matiere" type="text" required className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">{t('teacher', 'Enseignant')} *</label><input name="enseignant" type="text" required className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">{t('class', 'Classe')} *</label><input name="classe" type="text" required className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">{t('room', 'Salle')} *</label><input name="salle" type="text" required className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div><label className="block text-sm font-medium text-gray-700 mb-1">{t('day', 'Jour')} *</label><select name="jour" className="w-full border border-gray-300 rounded-lg px-3 py-2">{[...jours].map((jour) => (<option key={jour} value={jour}>{t(jour, jour)}</option>))}</select></div>
-                      <div><label className="block text-sm font-medium text-gray-700 mb-1">{t('time', 'Heure')} *</label><select name="heure" className="w-full border border-gray-300 rounded-lg px-3 py-2">{[...heures].map((heure) => (<option key={heure} value={heure}>{heure}</option>))}</select></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('establishment', 'Établissement')} *</label>
+                      <input
+                        value={establishments?.find((etab) => etab.id === selectedEtabId)?.nom || selectedEtabId}
+                        readOnly
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-700"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('class', 'Classe')} *</label>
+                      <select
+                        name="class_id"
+                        value={selectedClasseId}
+                        onChange={(e) => setSelectedClasseId(e.target.value)}
+                        disabled={!selectedEtabId || !classes?.length}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                      >
+                        <option value="">{t('select_class', 'Sélectionnez une classe')}</option>
+                        {classes?.map((c) => (
+                          <option key={c.id} value={c.id}>{c.nom}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('teacher', 'Enseignant')} *</label>
+                      <select
+                        name="teacher_id"
+                        disabled={!selectedClasseId || !enseignants?.length}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                      >
+                        <option value="">{t('select_teacher', 'Sélectionnez un enseignant')}</option>
+                        {enseignants?.map((e) => (
+                          <option key={e.enseignant_kc_id} value={e.enseignant_kc_id}>{e.enseignant_kc_id}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('subject', 'Matière')} *</label>
+                      <input name="subject_id" placeholder={t('enter_subject_id', 'ID matière')} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('date', 'Date')} *</label>
+                      <input name="date" type="date" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                    </div>
+                    
+                      <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('timeslot', 'Créneau')} *</label>
+                      <select name="timeslot_id" className="w-full border border-gray-300 rounded-lg px-3 py-2" disabled={!timeslots?.length}>
+                        <option value="">{t('select_timeslot', 'Sélectionnez un créneau')}</option>
+                        {timeslots?.map((s) => (
+                          <option key={s.id} value={s.id}>{s.start_time} – {s.end_time}</option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('room', 'Salle')} *</label>
+                      <select name="room_id" className="w-full border border-gray-300 rounded-lg px-3 py-2" disabled={!rooms?.length}>
+                        <option value="">{t('select_room', 'Sélectionnez une salle')}</option>
+                        {rooms?.map((r) => (
+                          <option key={r.id} value={r.id}>{r.name} ({r.capacity})</option>
+                          ))}
+                        </select>
                     </div>
                   </div>
+                  
                   <div className="flex justify-end space-x-3 mt-6">
                     <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg">{t('cancel', 'Annuler')}</button>
-                    <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg">{t('add', 'Ajouter')}</button>
+                    <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg" disabled={createLesson.isPending || !selectedClasseId}>{createLesson.isPending ? t('saving', 'Enregistrement...') : t('add', 'Ajouter')}</button>
                   </div>
                 </form>
               </div>
             </div>
           )}
+
           {/* Modal d'édition de cours */}
           {editModalOpen && editingCourse && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -449,7 +537,7 @@ const EmploiDuTempsPage = () => {
                       <AlertTriangle className="w-5 h-5 text-red-500" />
                       <span className="font-medium text-red-700 text-lg">{conflict.message}</span>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${conflict.type === 'enseignant' ? 'bg-blue-100 text-blue-800' : conflict.type === 'salle' ? 'bg-orange-100 text-orange-800' : 'bg-purple-100 text-purple-800'}`}>
+                    <span className={`${conflict.type === 'enseignant' ? 'bg-blue-100 text-blue-800' : conflict.type === 'salle' ? 'bg-orange-100 text-orange-800' : 'bg-purple-100 text-purple-800'} px-3 py-1 rounded-full text-sm font-medium`}>
                       {conflict.type === 'enseignant' ? t('teacher', 'Enseignant') : conflict.type === 'salle' ? t('room', 'Salle') : t('class', 'Classe')}
                     </span>
                   </div>
@@ -490,7 +578,7 @@ const EmploiDuTempsPage = () => {
 
       {activeTab === 'audit' && (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center space-x-2 mb-4"><History className="w-5 h-5 text-blue-500" /><h3 className="text-lg font-semibold text-gray-900">{t('audit_trail', "Journal d'\u0041udit")}</h3></div>
+          <div className="flex items-center space-x-2 mb-4"><History className="w-5 h-5 text-blue-500" /><h3 className="text-lg font-semibold text-gray-900">{t('audit_trail', "Journal d'Audit")}</h3></div>
           <p className="text-gray-500 text-center py-8">{t('audit_description', "Historique des modifications de l'emploi du temps")}</p>
         </div>
       )}

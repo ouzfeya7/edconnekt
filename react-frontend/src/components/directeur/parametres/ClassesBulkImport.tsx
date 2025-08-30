@@ -138,10 +138,20 @@ const ClassesBulkImport: React.FC<ClassesBulkImportProps> = ({ etablissementId, 
       setResult({ success: payloads.length, failed: 0 });
       toast.success(`${payloads.length} classe(s) créées`);
       onSuccessClose?.();
-    } catch (error: any) {
+    } catch (err: unknown) {
       setResult({ success: 0, failed: payloads.length });
-      const serverMsg = error?.response?.data?.detail || error?.response?.data || error?.message || 'Erreur inconnue';
-      console.error('Erreur import classes:', error);
+      let serverMsg: unknown = 'Erreur inconnue';
+      if (typeof err === 'object' && err !== null) {
+        const e = err as { response?: { data?: unknown }; message?: string };
+        const data = e.response?.data;
+        if (typeof data === 'object' && data !== null) {
+          const maybeDetail = (data as { detail?: unknown }).detail;
+          serverMsg = maybeDetail ?? data;
+        } else {
+          serverMsg = e.message ?? 'Erreur inconnue';
+        }
+      }
+      console.error('Erreur import classes:', err);
       toast.error(`Échec de l'import (${payloads.length}) : ${typeof serverMsg === 'string' ? serverMsg : JSON.stringify(serverMsg)}`);
     } finally {
       setSubmitting(false);

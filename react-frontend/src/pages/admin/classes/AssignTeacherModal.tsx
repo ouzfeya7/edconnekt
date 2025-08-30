@@ -38,7 +38,7 @@ const AssignTeacherModal: React.FC<AssignTeacherModalProps> = ({ isOpen, onClose
       toast.success('Enseignant assigné avec succès');
       onClose();
     } catch (e: unknown) {
-      // eslint-disable-next-line no-console
+       
       console.error('Erreur assignation enseignant:', e);
       const msg = ((): string => {
         if (typeof e === 'string') return e;

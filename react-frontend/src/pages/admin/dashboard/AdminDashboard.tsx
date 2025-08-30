@@ -1,10 +1,9 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaBuilding, FaUsers, FaFileInvoiceDollar, FaTags, FaGraduationCap, FaUpload, FaSchool } from 'react-icons/fa';
+import { FaBuilding, FaUsers, FaFileInvoiceDollar, FaTags, FaGraduationCap, FaUpload } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useEstablishments } from '../../../hooks/useEstablishments';
-import { useClasses } from '../../../hooks/useClasses';
 
 interface DashboardCardProps {
   to: string;
@@ -35,12 +34,9 @@ const AdminDashboard: React.FC = () => {
   const { t } = useTranslation();
   const { data: establishments, isLoading: isLoadingEtabs } = useEstablishments({ limit: 100 });
   const establishmentCount = establishments?.length ?? 0;
-  const { data: classesResponse, isLoading: isLoadingClasses } = useClasses({ limit: 100, etablissementId: establishments?.[0]?.id ?? '' });
-  const classCount = classesResponse?.data?.length ?? 0;
   
   const dashboardItems = [
     { to: "/etablissements", icon: <FaBuilding />, title: t('etablissements'), stats: isLoadingEtabs ? '...' : `${establishmentCount}`, description: "Gérer les fiches des établissements", colorClasses: "bg-blue-100 text-blue-600" },
-    { to: "/admin/classes", icon: <FaSchool />, title: t('classes'), stats: isLoadingClasses ? '...' : `${classCount}`, description: "Gérer les classes par établissement", colorClasses: "bg-teal-100 text-teal-600" },
     { to: "/utilisateurs", icon: <FaUsers />, title: t('utilisateurs'), stats: "452", description: "Gérer tous les comptes utilisateurs", colorClasses: "bg-green-100 text-green-600" },
     { to: "/abonnements", icon: <FaFileInvoiceDollar />, title: t('abonnements'), stats: "9", description: "Suivre les abonnements clients", colorClasses: "bg-yellow-100 text-yellow-600" },
     { to: "/plans", icon: <FaTags />, title: t('plans'), stats: "4", description: "Configurer les offres commerciales", colorClasses: "bg-purple-100 text-purple-600" },

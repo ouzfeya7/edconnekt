@@ -108,6 +108,17 @@
                             "default": false,
                             "title": "Is Archived"
                         }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Filtrer par status: actif, inactif, archive",
+                            "title": "Status"
+                        },
+                        "description": "Filtrer par status: actif, inactif, archive"
                     }
                 ],
                 "responses": {
@@ -716,9 +727,22 @@
                     },
                     "capacity": {
                         "type": "integer",
-                        "minimum": 0,
+                        "minimum": 0.0,
                         "title": "Capacity",
                         "default": 0
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^(actif|inactif|archive)$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Status",
+                        "default": "actif"
                     }
                 },
                 "type": "object",
@@ -1086,9 +1110,22 @@
                     },
                     "capacity": {
                         "type": "integer",
-                        "minimum": 0,
+                        "minimum": 0.0,
                         "title": "Capacity",
                         "default": 0
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^(actif|inactif|archive)$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Status",
+                        "default": "actif"
                     },
                     "id": {
                         "type": "string",
@@ -1303,6 +1340,18 @@
                             }
                         ],
                         "title": "Capacity"
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^(actif|inactif|archive)$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Status"
                     }
                 },
                 "type": "object",

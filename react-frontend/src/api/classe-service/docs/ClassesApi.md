@@ -354,6 +354,7 @@ let limit: number; // (optional) (default to 100)
 let nom: string; // (optional) (default to undefined)
 let niveau: string; // (optional) (default to undefined)
 let isArchived: boolean; // (optional) (default to false)
+let status: string; //Filtrer par status: actif, inactif, archive (optional) (default to undefined)
 
 const { status, data } = await apiInstance.getClassesApiV1ClassesGet(
     etablissementId,
@@ -361,7 +362,8 @@ const { status, data } = await apiInstance.getClassesApiV1ClassesGet(
     limit,
     nom,
     niveau,
-    isArchived
+    isArchived,
+    status
 );
 ```
 
@@ -375,6 +377,7 @@ const { status, data } = await apiInstance.getClassesApiV1ClassesGet(
 | **nom** | [**string**] |  | (optional) defaults to undefined|
 | **niveau** | [**string**] |  | (optional) defaults to undefined|
 | **isArchived** | [**boolean**] |  | (optional) defaults to false|
+| **status** | [**string**] | Filtrer par status: actif, inactif, archive | (optional) defaults to undefined|
 
 
 ### Return type

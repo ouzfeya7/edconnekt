@@ -29,6 +29,10 @@ interface DirectorContextType {
   levelStats: LevelStats[];
   isRefreshing: boolean;
   lastUpdate: Date;
+
+  // Sélection d'établissement
+  currentEtablissementId: string | undefined;
+  setCurrentEtablissementId: (id: string | undefined) => void;
   
   // Actions
   refreshData: () => void;
@@ -110,6 +114,24 @@ export const DirectorProvider: React.FC<DirectorProviderProps> = ({ children }) 
   const [levelStats, setLevelStats] = useState<LevelStats[]>(mockLevelStats);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [currentEtablissementId, setCurrentEtablissementIdState] = useState<string | undefined>(() => {
+    const stored = localStorage.getItem('current-etab-id') || '';
+    if (stored) return stored;
+    const fromEnv = (import.meta as any).env?.VITE_DEFAULT_ETAB_ID as string | undefined;
+    if (fromEnv) {
+      // Persist for axios interceptors and consumers without context
+      localStorage.setItem('current-etab-id', fromEnv);
+    }
+    return fromEnv;
+  });
+
+  useEffect(() => {
+    if (currentEtablissementId) {
+      localStorage.setItem('current-etab-id', currentEtablissementId);
+    } else {
+      localStorage.removeItem('current-etab-id');
+    }
+  }, [currentEtablissementId]);
 
   // Actualisation automatique toutes les 5 minutes
   useEffect(() => {
@@ -123,11 +145,8 @@ export const DirectorProvider: React.FC<DirectorProviderProps> = ({ children }) 
   // Fonction pour actualiser les données
   const refreshData = () => {
     setIsRefreshing(true);
-    
     // Simulation d'une actualisation des données
     setTimeout(() => {
-      // Ici, on pourrait appeler une API pour récupérer les vraies données
-      // Pour l'instant, on garde les données mockées
       setKpiData(mockKPIData);
       setLevelStats(mockLevelStats);
       setIsRefreshing(false);
@@ -149,11 +168,17 @@ export const DirectorProvider: React.FC<DirectorProviderProps> = ({ children }) 
     }
   };
 
+  const setCurrentEtablissementId = (id: string | undefined) => {
+    setCurrentEtablissementIdState(id);
+  };
+
   const value: DirectorContextType = {
     kpiData,
     levelStats,
     isRefreshing,
     lastUpdate,
+    currentEtablissementId,
+    setCurrentEtablissementId,
     refreshData,
     isKPICritical
   };

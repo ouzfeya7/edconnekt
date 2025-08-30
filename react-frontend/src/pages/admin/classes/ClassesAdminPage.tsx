@@ -5,6 +5,7 @@ import type { StatusEnum } from '../../../api/establishment-service/api';
 import type { ClasseOut } from '../../../api/classe-service/api';
 import { Button } from '../../../components/ui/button';
 import { FaPlus, FaSearch, FaFileImport, FaUserEdit, FaTrash, FaUserGraduate, FaChalkboardTeacher, FaInfoCircle, FaFolderOpen } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import CreateClasseModal from './CreateClasseModal';
 import ImportClassesModal from './ImportClassesModal';
@@ -18,10 +19,11 @@ import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 interface ClassesAdminPageProps {
   embedded?: boolean;
   onSelectedEtablissementChange?: (etablissementId: string) => void;
+  forcedEtablissementId?: string;
 }
 
-const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, onSelectedEtablissementChange }) => {
-  const [selectedEtablissementId, setSelectedEtablissementId] = useState<string>('');
+const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, onSelectedEtablissementChange, forcedEtablissementId }) => {
+  const [selectedEtablissementId, setSelectedEtablissementId] = useState<string>(forcedEtablissementId || '');
   const [nomFilter, setNomFilter] = useState<string>('');
   const [niveauFilter, setNiveauFilter] = useState<string>('');
   const [isArchived, setIsArchived] = useState<string>('false');
@@ -35,15 +37,22 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
 
   const { roles } = useAuth();
   const isDirector = roles.includes('directeur');
+  const navigate = useNavigate();
 
   const { data: establishments, isLoading: isLoadingEtab } = useEstablishments({ status: 'ACTIVE' as StatusEnum, limit: 100, offset: 0 });
 
   useEffect(() => {
-    if (isDirector && !selectedEtablissementId) {
+    if (forcedEtablissementId && forcedEtablissementId !== selectedEtablissementId) {
+      setSelectedEtablissementId(forcedEtablissementId);
+    }
+  }, [forcedEtablissementId, selectedEtablissementId]);
+
+  useEffect(() => {
+    if (isDirector && !forcedEtablissementId && !selectedEtablissementId) {
       const stored = sessionStorage.getItem('etablissement_id') || '';
       if (stored) setSelectedEtablissementId(stored);
     }
-  }, [isDirector, selectedEtablissementId]);
+  }, [isDirector, forcedEtablissementId, selectedEtablissementId]);
 
   useEffect(() => {
     if (onSelectedEtablissementChange) {
@@ -80,6 +89,10 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingArchive, setPendingArchive] = useState<{ id: string; nom: string } | null>(null);
 
+  const handleRowClick = (classeId: string) => {
+    navigate(`/admin/classes/${classeId}`);
+  };
+
   const askArchive = (id: string, nom: string) => {
     setPendingArchive({ id, nom });
     setConfirmOpen(true);
@@ -108,7 +121,7 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
             className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
             value={selectedEtablissementId}
             onChange={(e) => setSelectedEtablissementId(e.target.value)}
-            disabled={isLoadingEtab || isDirector}
+            disabled={isLoadingEtab || isDirector || Boolean(forcedEtablissementId)}
           >
             <option value="">Sélectionner…</option>
             {(establishments ?? []).map((etab) => (
@@ -117,7 +130,7 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
               </option>
             ))}
           </select>
-          {isDirector && !selectedEtablissementId && (
+          {isDirector && !selectedEtablissementId && !forcedEtablissementId && (
             <p className="text-xs text-gray-500 mt-1">Sélection automatique en attente de l'ID établissement côté Keycloak.</p>
           )}
         </div>
@@ -192,7 +205,7 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
             </thead>
             <tbody>
               {classes.map((c) => (
-                <tr key={c.id} className="border-b border-gray-200 hover:bg-gray-50">
+                <tr key={c.id} className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer" onClick={() => handleRowClick(c.id)}>
                   <td className="p-4">{c.code}</td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
@@ -211,7 +224,7 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setEditTarget(c)}
+                        onClick={(e) => { e.stopPropagation(); setEditTarget(c); }}
                         title={c.archived_at ? 'Classe archivée' : 'Modifier'}
                         disabled={Boolean(c.archived_at)}
                         className="text-gray-600 hover:text-blue-600"
@@ -221,7 +234,7 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setAssignTeacherTarget(c.id)}
+                        onClick={(e) => { e.stopPropagation(); setAssignTeacherTarget(c.id); }}
                         title={c.archived_at ? 'Classe archivée' : 'Assigner enseignant'}
                         disabled={Boolean(c.archived_at)}
                         className="text-gray-600 hover:text-green-600"
@@ -231,7 +244,7 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setAssignStudentTarget(c.id)}
+                        onClick={(e) => { e.stopPropagation(); setAssignStudentTarget(c.id); }}
                         title={c.archived_at ? 'Classe archivée' : 'Assigner élève'}
                         disabled={Boolean(c.archived_at)}
                         className="text-gray-600 hover:text-green-600"
@@ -242,7 +255,7 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => askArchive(c.id, c.nom)}
+                          onClick={(e) => { e.stopPropagation(); askArchive(c.id, c.nom); }}
                           title="Archiver"
                           className="text-gray-600 hover:text-red-600"
                         >

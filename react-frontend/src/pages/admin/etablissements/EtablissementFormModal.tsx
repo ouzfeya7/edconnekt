@@ -22,6 +22,10 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
     adresse: string;
     email: string;
     telephone: string;
+    ville?: string;
+    pays?: string;
+    date_debut?: string;
+    date_fin?: string;
     plan: PlanEnum;
     status: StatusEnum;
   }>({
@@ -29,6 +33,10 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
     adresse: '',
     email: '',
     telephone: '',
+    ville: '',
+    pays: '',
+    date_debut: '',
+    date_fin: '',
     plan: 'BASIC',
     status: 'TRIAL',
   });
@@ -46,6 +54,10 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
         adresse: (current as any).adresse ?? '',
         email: current.email ?? '',
         telephone: current.telephone ?? '',
+        ville: (current as any).ville ?? '',
+        pays: (current as any).pays ?? '',
+        date_debut: (current as any).date_debut ?? '',
+        date_fin: (current as any).date_fin ?? '',
         plan: current.plan,
         status: current.status,
       });
@@ -55,11 +67,15 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
         adresse: (etablissementToEdit as any).adresse ?? '',
         email: etablissementToEdit.email ?? '',
         telephone: etablissementToEdit.telephone ?? '',
+        ville: (etablissementToEdit as any).ville ?? '',
+        pays: (etablissementToEdit as any).pays ?? '',
+        date_debut: (etablissementToEdit as any).date_debut ?? '',
+        date_fin: (etablissementToEdit as any).date_fin ?? '',
         plan: etablissementToEdit.plan,
         status: etablissementToEdit.status,
       });
     } else {
-      setFormData({ nom: '', adresse: '', email: '', telephone: '', plan: 'BASIC', status: 'TRIAL' });
+      setFormData({ nom: '', adresse: '', email: '', telephone: '', ville: '', pays: '', date_debut: '', date_fin: '', plan: 'BASIC', status: 'TRIAL' });
     }
   }, [current, etablissementToEdit, isOpen]);
 
@@ -104,11 +120,15 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
           adresse: formData.adresse,
           email: formData.email,
           telephone: formData.telephone,
+          ville: formData.ville || undefined,
+          pays: formData.pays || undefined,
+          date_debut: formData.date_debut || undefined,
+          date_fin: formData.date_fin || undefined,
           plan: formData.plan,
           status: formData.status,
         });
         onSave(null);
-        onClose();
+    onClose();
       }
     } catch (err) {
       console.error('Erreur soumission établissement:', err);
@@ -118,8 +138,8 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-lg p-8 relative shadow-xl">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
+      <div className="bg-white rounded-lg w-full max-w-2xl p-6 md:p-8 relative shadow-xl max-h-[85vh] overflow-y-auto">
         <h2 className="text-2xl font-bold mb-2 text-gray-800">{etablissementToEdit ? 'Modifier' : 'Ajouter'} un établissement</h2>
         {etablissementToEdit && (
           <p className="text-sm text-gray-500 mb-4">{isLoadingCurrent ? 'Chargement des données…' : ''}</p>
@@ -128,7 +148,7 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
           <FaTimes size={20} />
         </button>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="nom" className="block text-sm font-medium text-gray-700">Nom de l'établissement</label>
             <input type="text" name="nom" id="nom" value={formData.nom} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
@@ -137,13 +157,35 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
             <label htmlFor="adresse" className="block text-sm font-medium text-gray-700">Adresse</label>
             <input type="text" name="adresse" id="adresse" value={formData.adresse} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
           </div>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-            <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="ville" className="block text-sm font-medium text-gray-700">Ville</label>
+              <input type="text" name="ville" id="ville" value={formData.ville} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
+            </div>
+            <div>
+              <label htmlFor="pays" className="block text-sm font-medium text-gray-700">Pays</label>
+              <input type="text" name="pays" id="pays" value={formData.pays} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
+            </div>
           </div>
-          <div>
-            <label htmlFor="telephone" className="block text-sm font-medium text-gray-700">Téléphone</label>
-            <input type="text" name="telephone" id="telephone" value={formData.telephone} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+              <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
+            </div>
+            <div>
+              <label htmlFor="telephone" className="block text-sm font-medium text-gray-700">Téléphone</label>
+              <input type="text" name="telephone" id="telephone" value={formData.telephone} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="date_debut" className="block text-sm font-medium text-gray-700">Date début</label>
+              <input type="date" name="date_debut" id="date_debut" value={formData.date_debut || ''} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
+            </div>
+            <div>
+              <label htmlFor="date_fin" className="block text-sm font-medium text-gray-700">Date fin</label>
+              <input type="date" name="date_fin" id="date_fin" value={formData.date_fin || ''} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>

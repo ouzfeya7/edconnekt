@@ -1,0 +1,14 @@
+# AuditActionEnum
+
+
+## Enum
+
+* `Create` (value: `'CREATE'`)
+
+* `Update` (value: `'UPDATE'`)
+
+* `Transfer` (value: `'TRANSFER'`)
+
+* `Status` (value: `'STATUS'`)
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
