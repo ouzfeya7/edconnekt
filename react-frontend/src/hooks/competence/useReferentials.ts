@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { competenceReferentialsApi } from '../../api/competence-service/client';
-import type { ReferentialListResponse } from '../../api/competence-service/api';
+import type { ReferentialListResponse, ReferentialResponse, ReferentialTree } from '../../api/competence-service/api';
 
 export interface UseReferentialsParams {
   page?: number;
@@ -20,14 +20,46 @@ export function useReferentials(params: UseReferentialsParams = {}) {
       const { data } = await competenceReferentialsApi.listReferentialsApiCompetenceReferentialsGet(
         page,
         size,
-        cycle,
-        state,
-        visibility,
-        q
+        cycle ?? undefined,
+        state ?? undefined,
+        visibility ?? undefined,
+        q ?? undefined
       );
       return data;
     },
     placeholderData: (prev: ReferentialListResponse | undefined) => prev,
+    staleTime: 60_000,
+  });
+}
+
+export function useReferential(referentialId: string, versionNumber?: number, includeTree: boolean = false) {
+  return useQuery<ReferentialResponse | ReferentialTree, Error>({
+    queryKey: ['competence:referential', { referentialId, versionNumber, includeTree }],
+    queryFn: async () => {
+      const { data } = await competenceReferentialsApi.getReferentialApiCompetenceReferentialsReferentialIdGet(
+        referentialId,
+        versionNumber ?? undefined,
+        includeTree
+      );
+      return data;
+    },
+    enabled: !!referentialId,
+    staleTime: 60_000,
+  });
+}
+
+export function useReferentialTree(referentialId: string, versionNumber?: number) {
+  return useQuery<ReferentialTree, Error>({
+    queryKey: ['competence:referential:tree', { referentialId, versionNumber }],
+    queryFn: async () => {
+      const { data } = await competenceReferentialsApi.getReferentialApiCompetenceReferentialsReferentialIdGet(
+        referentialId,
+        versionNumber ?? undefined,
+        true
+      );
+      return data as ReferentialTree;
+    },
+    enabled: !!referentialId,
     staleTime: 60_000,
   });
 }

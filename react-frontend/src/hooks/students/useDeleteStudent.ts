@@ -3,10 +3,13 @@ import { studentsApi } from '../../api/student-service/client';
 
 export function useDeleteStudent() {
   const qc = useQueryClient();
-  return useMutation<void, Error, { studentId: string }>({
+  return useMutation<void, Error, { studentId: string; etabId?: string }>({
     mutationKey: ['student:delete'],
-    mutationFn: async ({ studentId }) => {
-      await studentsApi.deleteStudentApiStudentsStudentIdDelete(studentId);
+    mutationFn: async ({ studentId, etabId }) => {
+      await studentsApi.deleteStudentApiStudentsStudentIdDelete(
+        studentId,
+        etabId ? { headers: { 'X-Establishment-Id': etabId } } : undefined
+      );
     },
     onSuccess: (_data, vars) => {
       qc.invalidateQueries({ queryKey: ['students'] });

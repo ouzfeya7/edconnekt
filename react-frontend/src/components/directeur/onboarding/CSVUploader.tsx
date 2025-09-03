@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Upload, XCircle, FileDown } from 'lucide-react';
+
+import { Upload, XCircle, FileDown, User, Users, UserCog, Shield, CheckCircle, AlertTriangle, FileText, Loader2, CheckCircle2 } from 'lucide-react';
 import { useOnboarding } from '../../../contexts/OnboardingContext';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
-import { useAuth } from '../../../pages/authentification/useAuth';
-import { useEstablishments } from '../../../hooks/useEstablishments';
+
 
 type Domain = 'student' | 'parent' | 'teacher' | 'admin_staff';
 
@@ -97,10 +96,25 @@ function validateRows(fileText: string, domain: Domain): string[] {
       if (bd && !dateRe.test(bd)) push(lineNum, 'birth_date doit être au format YYYY-MM-DD');
       if (g && !['m', 'f', 'male', 'female'].includes(g)) push(lineNum, "gender doit être 'M'/'F' ou 'male'/'female'");
       if (ar && !boolValues.has(ar)) push(lineNum, "account_required doit être l'un de: true/false/1/0/yes/no");
+      // Si un compte doit être créé, l'email est requis pour l'invitation Keycloak
+      const emailVal = cells[indexOf('email')]?.trim?.() ?? '';
+      const requiresAccount = ['true', '1', 'yes'].includes(ar);
+      if (requiresAccount && !emailVal) push(lineNum, "email requis lorsque account_required est à 'true'");
+      if (requiresAccount && emailVal && !emailRe.test(emailVal)) push(lineNum, 'email invalide');
     }
     if (domain === 'teacher' || domain === 'admin_staff') {
       const hd = cells[indexOf('hire_date')]?.trim?.() ?? '';
       if (hd && !dateRe.test(hd)) push(lineNum, 'hire_date doit être au format YYYY-MM-DD');
+      // Email requis pour l'envoi d'invitations Keycloak
+      const emailVal = cells[indexOf('email')]?.trim?.() ?? '';
+      if (!emailVal) push(lineNum, 'email requis');
+      if (emailVal && !emailRe.test(emailVal)) push(lineNum, 'email invalide');
+    }
+    if (domain === 'parent') {
+      // Email requis pour l'envoi d'invitations Keycloak
+      const emailVal = cells[indexOf('email')]?.trim?.() ?? '';
+      if (!emailVal) push(lineNum, 'email requis');
+      if (emailVal && !emailRe.test(emailVal)) push(lineNum, 'email invalide');
     }
 
     // Contrôles génériques optionnels
@@ -114,8 +128,7 @@ function validateRows(fileText: string, domain: Domain): string[] {
 }
 
 const Section: React.FC<{ title: string; domain: Domain; description: string; }> = ({ title, domain, description }) => {
-  const { t } = useTranslation();
-  const { handleUpload, isUploading } = useOnboarding();
+  const { handleUpload, isUploading, uploadProgress, currentUploadDomain } = useOnboarding();
   const [file, setFile] = useState<File | null>(null);
   const [headerError, setHeaderError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -203,6 +216,7 @@ const Section: React.FC<{ title: string; domain: Domain; description: string; }>
       toast.error('Impossible de générer le template');
     }
   };
+
   const onUploadClick = async () => {
     if (!file) return;
     // Re-validate at submit time as a safeguard
@@ -219,79 +233,208 @@ const Section: React.FC<{ title: string; domain: Domain; description: string; }>
       toast.error('Erreurs détectées dans le fichier. Corrigez puis réessayez.');
       return;
     }
-    const success = await handleUpload(file);
+    const success = await handleUpload(file, domain);
     if (success) {
       setFile(null);
       setShowSuccess(true);
     }
   };
 
+  // Icône selon le domaine
+  const getDomainIcon = () => {
+    switch (domain) {
+      case 'student': return <User className="w-5 h-5 text-blue-600" />;
+      case 'parent': return <Users className="w-5 h-5 text-green-600" />;
+      case 'teacher': return <UserCog className="w-5 h-5 text-purple-600" />;
+      case 'admin_staff': return <Shield className="w-5 h-5 text-orange-600" />;
+      default: return <User className="w-5 h-5 text-gray-600" />;
+    }
+  };
+
+  // Nom du domaine en français
+  const getDomainName = () => {
+    switch (domain) {
+      case 'student': return 'élèves';
+      case 'parent': return 'parents';
+      case 'teacher': return 'enseignants';
+      case 'admin_staff': return 'utilisateurs';
+      default: return 'utilisateurs';
+    }
+  };
+
   return (
-    <div className="border rounded-lg p-4 space-y-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="text-md font-semibold">{title}</h3>
-          <p className="text-sm text-gray-600 mt-1 whitespace-normal break-all leading-5">
+    <div className="border border-gray-200 rounded-lg p-6 space-y-4 hover:shadow-md transition-shadow">
+      {/* Header de section amélioré */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-3 mb-2">
+            {getDomainIcon()}
+            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          </div>
+          
+          <p className="text-sm text-gray-600 leading-relaxed">
             {description}
           </p>
+          
+          {/* Indicateur de statut */}
+          {file && (
+            <div className="flex items-center gap-2 mt-2 text-sm text-green-600">
+              <CheckCircle className="w-4 h-4" />
+              Fichier prêt pour l'import
+            </div>
+          )}
         </div>
-        <button onClick={handleDownloadTemplate} className="shrink-0 flex items-center gap-2 px-3 py-2 border rounded hover:bg-gray-50 text-sm">
-          <FileDown className="w-4 h-4" /> {t('download_template', 'Télécharger le template')}
+        
+        <button 
+          onClick={handleDownloadTemplate} 
+          className="shrink-0 flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-sm font-medium transition-colors"
+        >
+          <FileDown className="w-4 h-4" /> 
+          Template
         </button>
       </div>
 
+      {/* Zone de drop améliorée */}
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-6 text-center ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300'}`}
+        className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
+          isDragActive 
+            ? 'border-blue-400 bg-blue-50 scale-105' 
+            : file 
+              ? 'border-green-400 bg-green-50' 
+              : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+        }`}
       >
-        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
-        <p className="text-sm text-gray-600 mb-2">
-          {t('drag_drop_csv', 'Glissez-déposez votre fichier CSV ici')}
-        </p>
+        {!file ? (
+          <>
+            <Upload className={`w-12 h-12 mx-auto mb-4 ${isDragActive ? 'text-blue-500' : 'text-gray-400'}`} />
+            <p className="text-lg font-medium text-gray-700 mb-2">
+              {isDragActive ? 'Déposez votre fichier ici' : 'Glissez-déposez votre fichier CSV'}
+            </p>
+            <p className="text-sm text-gray-500 mb-4">
+              ou cliquez pour sélectionner un fichier
+            </p>
+            <button 
+              type="button" 
+              onClick={open} 
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Sélectionner un fichier
+            </button>
+          </>
+        ) : (
+          <div className="text-center">
+            <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
+            <p className="text-lg font-medium text-green-700 mb-2">Fichier sélectionné !</p>
+            <p className="text-sm text-green-600">{file.name}</p>
+          </div>
+        )}
         <input {...getInputProps()} />
-        <button type="button" onClick={open} className="bg-blue-500 text-white px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors text-sm">
-          {t('select_file', 'Sélectionner un fichier')}
-        </button>
       </div>
 
+      {/* Gestion des erreurs améliorée */}
       {headerError && (
-        <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800 whitespace-pre-wrap break-all">
-          {headerError}
-              </div>
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-red-800">
+              <div className="font-medium mb-1">Erreur de format CSV</div>
+              <div className="whitespace-pre-wrap break-words">{headerError}</div>
+            </div>
+          </div>
+        </div>
       )}
 
       {validationErrors.length > 0 && (
-        <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800 max-h-40 overflow-auto space-y-1">
-          <div className="font-semibold">Erreurs détectées ({validationErrors.length})</div>
-          <ul className="list-disc pl-5">
-            {validationErrors.map((e, i) => (
-              <li key={i} className="break-all">{e}</li>
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start gap-3 mb-3">
+            <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-red-800">
+              <div className="font-medium">Erreurs de validation détectées</div>
+              <div className="text-red-600">({validationErrors.length} erreur(s))</div>
+            </div>
+          </div>
+          
+          <div className="max-h-48 overflow-auto space-y-2">
+            {validationErrors.map((error, index) => (
+              <div key={index} className="flex items-start gap-2 text-sm">
+                <span className="text-red-500 font-mono text-xs">L{Math.floor(index / 10) + 2}</span>
+                <span className="text-red-700">{error}</span>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       )}
 
+      {/* Actions améliorées */}
       {file && (
-        <div className="flex items-center justify-between bg-gray-50 p-3 rounded">
-          <div className="text-sm">
-            <div className="font-medium text-gray-900 break-all">{file.name}</div>
-            <div className="text-gray-500">{(file.size / 1024).toFixed(2)} KB</div>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
+            <div className="flex items-center gap-3">
+              <FileText className="w-5 h-5 text-gray-500" />
+              <div>
+                <div className="font-medium text-gray-900">{file.name}</div>
+                <div className="text-sm text-gray-500">
+                  {(file.size / 1024).toFixed(1)} KB • 
+                  {domain === 'student' ? ' Données élèves' : 
+                   domain === 'parent' ? ' Données parents' :
+                   domain === 'teacher' ? ' Données enseignants' : ' Données personnel'}
+                </div>
+              </div>
             </div>
-          <button onClick={() => setFile(null)} className="text-red-500 hover:text-red-700">
+            <button 
+              onClick={() => setFile(null)} 
+              className="text-red-500 hover:text-red-700 p-1 rounded"
+              title="Supprimer le fichier"
+            >
               <XCircle className="w-5 h-5" />
             </button>
+          </div>
+
+          {/* Barre de progression si upload en cours */}
+          {isUploading && currentUploadDomain === domain && (
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+          )}
+
+          <button 
+            onClick={onUploadClick} 
+            disabled={isUploading} 
+            className={`w-full py-3 rounded-lg font-medium transition-all ${
+              isUploading 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-blue-500 hover:bg-blue-600 hover:shadow-md'
+            }`}
+          >
+            {isUploading ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Import en cours...
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                <Upload className="w-5 h-5" />
+                Importer les {getDomainName()}
+              </div>
+            )}
+          </button>
         </div>
       )}
 
-      {file && (
-        <button onClick={onUploadClick} disabled={isUploading} className={`w-full py-2 rounded text-white ${isUploading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}>
-          {isUploading ? t('importing', 'Import en cours...') : t('import_users', 'Importer les utilisateurs')}
-        </button>
-      )}
-
+      {/* Message de succès amélioré */}
       {showSuccess && (
-        <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800">
-              {t('import_success', 'Import réussi ! Les invitations ont été envoyées.')}
+        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-green-500" />
+            <div className="text-sm text-green-800">
+              <div className="font-medium">Import réussi !</div>
+              <div>Les invitations ont été envoyées aux utilisateurs.</div>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -299,34 +442,46 @@ const Section: React.FC<{ title: string; domain: Domain; description: string; }>
 };
 
 const CSVUploader: React.FC = () => {
-  const { roles } = useAuth();
-  const isAdmin = roles.includes('administrateur');
-  const { data: establishments } = useEstablishments({ limit: 100, offset: 0 });
-  const [adminEtabId, setAdminEtabId] = useState<string>('');
-  const { t } = useTranslation();
+  const { getUploadStats } = useOnboarding();
+  
+  const stats = getUploadStats();
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900">{t('upload_validation', 'Upload & Validation')}</h2>
-      {isAdmin && (
+      {/* Header amélioré avec statistiques */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{t('target_establishment', 'Établissement cible')}</label>
-          <select
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-            value={adminEtabId}
-            onChange={(e) => {
-              const selected = e.target.value;
-              setAdminEtabId(selected);
-              if (selected) localStorage.setItem('current-etab-id', selected);
-            }}
-          >
-            <option value="">{t('select', 'Sélectionner…')}</option>
-            {(establishments ?? []).map((etab) => (
-              <option key={etab.id} value={etab.id}>{etab.nom}</option>
-            ))}
-          </select>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Upload & Validation
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Importez des lots d'identités pour automatiser l'onboarding des utilisateurs
+          </p>
         </div>
-      )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        {/* Statistiques rapides */}
+        <div className="flex gap-4 text-sm">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-blue-600">4</div>
+            <div className="text-gray-500">Types d'utilisateurs</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">✓</div>
+            <div className="text-gray-500">Validation automatique</div>
+          </div>
+          {stats.totalUploads > 0 && (
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">{stats.successfulUploads}</div>
+              <div className="text-gray-500">Imports réussis</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+
+
+      {/* Grille des sections améliorée */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Section title="Élèves" domain="student" description="Fichier students.csv: establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone" />
         <Section title="Parents" domain="parent" description="Fichier parents.csv: establishment_id;firstname;lastname;email;phone" />
         <Section title="Enseignants" domain="teacher" description="Fichier teachers.csv: establishment_id;firstname;lastname;email;phone;subject;hire_date" />

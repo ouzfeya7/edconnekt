@@ -16,6 +16,11 @@ export const studentAxios = axios.create({
   baseURL: BASE_URL,
 });
 
+let inMemoryEstablishmentId: string | undefined;
+export function setStudentServiceEstablishmentId(id?: string) {
+  inMemoryEstablishmentId = id || undefined;
+}
+
 // Intercepteur: normalise l'URL, injecte le token et l'établissement
 studentAxios.interceptors.request.use((config) => {
   if (config.url && config.url.startsWith('/')) {
@@ -27,8 +32,9 @@ studentAxios.interceptors.request.use((config) => {
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
   const viteEnv = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
-  const etabId = localStorage.getItem('current-etab-id') || viteEnv?.VITE_DEFAULT_ETAB_ID;
-  if (etabId) {
+  const etabId = inMemoryEstablishmentId ?? viteEnv?.VITE_DEFAULT_ETAB_ID;
+  const hasScopedHeader = Boolean((config.headers as Record<string, string | undefined>)?.['X-Establishment-Id']);
+  if (etabId && !hasScopedHeader) {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>)['X-Establishment-Id'] = etabId;
   }

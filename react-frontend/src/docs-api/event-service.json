@@ -1,0 +1,1008 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Event Service",
+        "description": "FastAPI microservice for event management",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/v1/events/": {
+            "post": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "Create Event",
+                "description": "Créer un nouvel événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)",
+                "operationId": "create_event_api_v1_events__post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EventCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "List Events",
+                "description": "Lister tous les événements avec pagination et filtrage (accès public)",
+                "operationId": "list_events_api_v1_events__get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Page number (minimum 1)",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Page number (minimum 1)"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Items per page (1-100)",
+                            "default": 20,
+                            "title": "Size"
+                        },
+                        "description": "Items per page (1-100)"
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by event category",
+                            "title": "Category"
+                        },
+                        "description": "Filter by event category"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter events starting after this date",
+                            "title": "Start Date"
+                        },
+                        "description": "Filter events starting after this date"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter events ending before this date",
+                            "title": "End Date"
+                        },
+                        "description": "Filter events ending before this date"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response List Events Api V1 Events  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/events/{event_id}": {
+            "get": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get Event By Id",
+                "description": "Récupérer un événement spécifique par ID (accès public)",
+                "operationId": "get_event_by_id_api_v1_events__event_id__get",
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Event Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "Update Event",
+                "description": "Modifier un événement existant (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)",
+                "operationId": "update_event_api_v1_events__event_id__patch",
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Event Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EventUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/events/{event_id}/publish": {
+            "post": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "Publish Event",
+                "description": "Publier un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)",
+                "operationId": "publish_event_api_v1_events__event_id__publish_post",
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Event Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/events/{event_id}/register": {
+            "post": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "Register Participant",
+                "description": "S'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)",
+                "operationId": "register_participant_api_v1_events__event_id__register_post",
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Event Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegistrationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RegistrationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/events/{event_id}/register/{registration_id}": {
+            "delete": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "Cancel Registration",
+                "description": "Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)",
+                "operationId": "cancel_registration_api_v1_events__event_id__register__registration_id__delete",
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Event Id"
+                        }
+                    },
+                    {
+                        "name": "registration_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Registration Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CancellationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/events/{event_id}/participants": {
+            "get": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get Participants",
+                "description": "Récupère tous les participants à un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)",
+                "operationId": "get_participants_api_v1_events__event_id__participants_get",
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Event Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Get Participants Api V1 Events  Event Id  Participants Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/events/{event_id}/export": {
+            "get": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "Export Attendance",
+                "description": "Télécharger la feuille de présence d'un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)",
+                "operationId": "export_attendance_api_v1_events__event_id__export_get",
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Event Id"
+                        }
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Format d'export (pdf ou csv)",
+                            "default": "pdf",
+                            "title": "Format"
+                        },
+                        "description": "Format d'export (pdf ou csv)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Health Check",
+                "description": "Health check endpoint",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/": {
+            "get": {
+                "summary": "Root",
+                "description": "Root endpoint",
+                "operationId": "root__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CancellationResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "Cancellation status message"
+                    },
+                    "registration_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Registration Id",
+                        "description": "Registration ID"
+                    },
+                    "event_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Event Id",
+                        "description": "Event ID"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message",
+                    "registration_id",
+                    "event_id"
+                ],
+                "title": "CancellationResponse",
+                "description": "Schema for cancellation response"
+            },
+            "EventCreate": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 120,
+                        "minLength": 1,
+                        "title": "Title",
+                        "description": "Event title"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description",
+                        "description": "Event description"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "Sortie",
+                            "Cérémonie",
+                            "Club",
+                            "Autre"
+                        ],
+                        "title": "Category",
+                        "description": "Event category"
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Start Time",
+                        "description": "Event start time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "End Time",
+                        "description": "Event end time"
+                    },
+                    "location": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 120
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Location",
+                        "description": "Event location"
+                    },
+                    "capacity": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "exclusiveMinimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Capacity",
+                        "description": "Event capacity (must be positive)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "title",
+                    "category",
+                    "start_time",
+                    "end_time"
+                ],
+                "title": "EventCreate",
+                "description": "Schema for creating a new event"
+            },
+            "EventOut": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 120,
+                        "minLength": 1,
+                        "title": "Title",
+                        "description": "Event title"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description",
+                        "description": "Event description"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "Sortie",
+                            "Cérémonie",
+                            "Club",
+                            "Autre"
+                        ],
+                        "title": "Category",
+                        "description": "Event category"
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Start Time",
+                        "description": "Event start time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "End Time",
+                        "description": "Event end time"
+                    },
+                    "location": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 120
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Location",
+                        "description": "Event location"
+                    },
+                    "capacity": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "exclusiveMinimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Capacity",
+                        "description": "Event capacity (must be positive)"
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id",
+                        "description": "Event ID"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "DRAFT",
+                            "PUBLISHED",
+                            "ARCHIVED"
+                        ],
+                        "title": "Status",
+                        "description": "Event status"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At",
+                        "description": "Creation timestamp"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At",
+                        "description": "Last update timestamp"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "title",
+                    "category",
+                    "start_time",
+                    "end_time",
+                    "id",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "EventOut",
+                "description": "Schema for event response"
+            },
+            "EventUpdate": {
+                "properties": {
+                    "title": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 120,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Title",
+                        "description": "Event title"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description",
+                        "description": "Event description"
+                    },
+                    "category": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "Sortie",
+                                    "Cérémonie",
+                                    "Club",
+                                    "Autre"
+                                ]
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Category",
+                        "description": "Event category"
+                    },
+                    "start_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Start Time",
+                        "description": "Event start time"
+                    },
+                    "end_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "End Time",
+                        "description": "Event end time"
+                    },
+                    "location": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 120
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Location",
+                        "description": "Event location"
+                    },
+                    "capacity": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "exclusiveMinimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Capacity",
+                        "description": "Event capacity (must be positive)"
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "DRAFT",
+                                    "PUBLISHED",
+                                    "ARCHIVED"
+                                ]
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Status",
+                        "description": "Event status"
+                    }
+                },
+                "type": "object",
+                "title": "EventUpdate",
+                "description": "Schema for updating an event (all fields optional)"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "RegistrationRequest": {
+                "properties": {
+                    "participant_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Participant Id",
+                        "description": "ID du participant à inscrire (optionnel, par défaut l'utilisateur connecté)"
+                    },
+                    "participant_role": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Participant Role",
+                        "description": "Rôle du participant (optionnel, par défaut 'ELEVE')"
+                    }
+                },
+                "type": "object",
+                "title": "RegistrationRequest",
+                "description": "Schema for registration request"
+            },
+            "RegistrationResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "Registration status message"
+                    },
+                    "registration_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Registration Id",
+                        "description": "Registration ID"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status",
+                        "description": "Registration status (CONFIRMED or WAITING)"
+                    },
+                    "event_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Event Id",
+                        "description": "Event ID"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message",
+                    "registration_id",
+                    "status",
+                    "event_id"
+                ],
+                "title": "RegistrationResponse",
+                "description": "Schema for registration response"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

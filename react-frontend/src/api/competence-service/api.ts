@@ -487,6 +487,106 @@ export interface DomainUpdate {
 /**
  * 
  * @export
+ * @interface GlobalReferentialListResponse
+ */
+export interface GlobalReferentialListResponse {
+    /**
+     * 
+     * @type {Array<GlobalReferentialResponse>}
+     * @memberof GlobalReferentialListResponse
+     */
+    'items': Array<GlobalReferentialResponse>;
+    /**
+     * 
+     * @type {number}
+     * @memberof GlobalReferentialListResponse
+     */
+    'total': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GlobalReferentialListResponse
+     */
+    'page': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GlobalReferentialListResponse
+     */
+    'size': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GlobalReferentialListResponse
+     */
+    'pages': number;
+}
+/**
+ * 
+ * @export
+ * @interface GlobalReferentialResponse
+ */
+export interface GlobalReferentialResponse {
+    /**
+     * 
+     * @type {string}
+     * @memberof GlobalReferentialResponse
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GlobalReferentialResponse
+     */
+    'name': string;
+    /**
+     * 
+     * @type {CycleEnum}
+     * @memberof GlobalReferentialResponse
+     */
+    'cycle': CycleEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof GlobalReferentialResponse
+     */
+    'version_number': number;
+    /**
+     * 
+     * @type {RefStateEnum}
+     * @memberof GlobalReferentialResponse
+     */
+    'state': RefStateEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof GlobalReferentialResponse
+     */
+    'description': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof GlobalReferentialResponse
+     */
+    'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GlobalReferentialResponse
+     */
+    'published_at': string | null;
+    /**
+     * 
+     * @type {object}
+     * @memberof GlobalReferentialResponse
+     */
+    'stats': object;
+}
+
+
+/**
+ * 
+ * @export
  * @interface HTTPValidationError
  */
 export interface HTTPValidationError {
@@ -570,6 +670,39 @@ export const RefStateEnum = {
 } as const;
 
 export type RefStateEnum = typeof RefStateEnum[keyof typeof RefStateEnum];
+
+
+/**
+ * 
+ * @export
+ * @interface ReferentialCloneFromGlobalRequest
+ */
+export interface ReferentialCloneFromGlobalRequest {
+    /**
+     * ID du référentiel global à cloner
+     * @type {string}
+     * @memberof ReferentialCloneFromGlobalRequest
+     */
+    'global_referential_id': string;
+    /**
+     * Nouveau nom pour le référentiel cloné
+     * @type {string}
+     * @memberof ReferentialCloneFromGlobalRequest
+     */
+    'new_name': string;
+    /**
+     * Cycle d\'enseignement
+     * @type {CycleEnum}
+     * @memberof ReferentialCloneFromGlobalRequest
+     */
+    'cycle': CycleEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ReferentialCloneFromGlobalRequest
+     */
+    'description'?: string | null;
+}
 
 
 /**
@@ -1234,6 +1367,36 @@ export type VisibilityEnum = typeof VisibilityEnum[keyof typeof VisibilityEnum];
 export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
+         * Endpoint de diagnostic pour vérifier les en-têtes d\'authentification
+         * @summary Debug Headers
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        debugHeadersDebugHeadersGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/debug/headers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary Health Check
          * @param {*} [options] Override http request option.
@@ -1334,6 +1497,18 @@ export const DefaultApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = DefaultApiAxiosParamCreator(configuration)
     return {
         /**
+         * Endpoint de diagnostic pour vérifier les en-têtes d\'authentification
+         * @summary Debug Headers
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async debugHeadersDebugHeadersGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.debugHeadersDebugHeadersGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.debugHeadersDebugHeadersGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @summary Health Check
          * @param {*} [options] Override http request option.
@@ -1380,6 +1555,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
     const localVarFp = DefaultApiFp(configuration)
     return {
         /**
+         * Endpoint de diagnostic pour vérifier les en-têtes d\'authentification
+         * @summary Debug Headers
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        debugHeadersDebugHeadersGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.debugHeadersDebugHeadersGet(options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary Health Check
          * @param {*} [options] Override http request option.
@@ -1416,6 +1600,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
  * @extends {BaseAPI}
  */
 export class DefaultApi extends BaseAPI {
+    /**
+     * Endpoint de diagnostic pour vérifier les en-têtes d\'authentification
+     * @summary Debug Headers
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public debugHeadersDebugHeadersGet(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).debugHeadersDebugHeadersGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @summary Health Check
@@ -2043,6 +2238,46 @@ export class PublicApi extends BaseAPI {
  */
 export const ReferentialsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * Cloner un référentiel global dans le tenant courant
+         * @summary Clone From Global Referential
+         * @param {string} globalReferentialId ID du référentiel global à cloner
+         * @param {ReferentialCloneFromGlobalRequest} referentialCloneFromGlobalRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost: async (globalReferentialId: string, referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'globalReferentialId' is not null or undefined
+            assertParamExists('cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost', 'globalReferentialId', globalReferentialId)
+            // verify required parameter 'referentialCloneFromGlobalRequest' is not null or undefined
+            assertParamExists('cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost', 'referentialCloneFromGlobalRequest', referentialCloneFromGlobalRequest)
+            const localVarPath = `/api/competence/global/referentials/{global_referential_id}/clone`
+                .replace(`{${"global_referential_id"}}`, encodeURIComponent(String(globalReferentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(referentialCloneFromGlobalRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * Cloner un référentiel en nouvelle version
          * @summary Clone Referential
@@ -2800,6 +3035,56 @@ export const ReferentialsApiAxiosParamCreator = function (configuration?: Config
             };
         },
         /**
+         * Lister les référentiels globaux (catalogue EdConnect)
+         * @summary List Global Referentials
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [cycle] Filtrer par cycle
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listGlobalReferentialsApiCompetenceGlobalReferentialsGet: async (page?: number, size?: number, cycle?: string | null, q?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/competence/global/referentials`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (cycle !== undefined) {
+                localVarQueryParameter['cycle'] = cycle;
+            }
+
+            if (q !== undefined) {
+                localVarQueryParameter['q'] = q;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Lister les référentiels avec filtres et pagination
          * @summary List Referentials
          * @param {number} [page] Numéro de page
@@ -3139,6 +3424,20 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = ReferentialsApiAxiosParamCreator(configuration)
     return {
         /**
+         * Cloner un référentiel global dans le tenant courant
+         * @summary Clone From Global Referential
+         * @param {string} globalReferentialId ID du référentiel global à cloner
+         * @param {ReferentialCloneFromGlobalRequest} referentialCloneFromGlobalRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId: string, referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId, referentialCloneFromGlobalRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Cloner un référentiel en nouvelle version
          * @summary Clone Referential
          * @param {string} referentialId ID du référentiel à cloner
@@ -3403,6 +3702,22 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Lister les référentiels globaux (catalogue EdConnect)
+         * @summary List Global Referentials
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [cycle] Filtrer par cycle
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page?: number, size?: number, cycle?: string | null, q?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlobalReferentialListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page, size, cycle, q, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listGlobalReferentialsApiCompetenceGlobalReferentialsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Lister les référentiels avec filtres et pagination
          * @summary List Referentials
          * @param {number} [page] Numéro de page
@@ -3519,6 +3834,17 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
 export const ReferentialsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = ReferentialsApiFp(configuration)
     return {
+        /**
+         * Cloner un référentiel global dans le tenant courant
+         * @summary Clone From Global Referential
+         * @param {string} globalReferentialId ID du référentiel global à cloner
+         * @param {ReferentialCloneFromGlobalRequest} referentialCloneFromGlobalRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId: string, referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest, options?: RawAxiosRequestConfig): AxiosPromise<ReferentialResponse> {
+            return localVarFp.cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId, referentialCloneFromGlobalRequest, options).then((request) => request(axios, basePath));
+        },
         /**
          * Cloner un référentiel en nouvelle version
          * @summary Clone Referential
@@ -3727,6 +4053,19 @@ export const ReferentialsApiFactory = function (configuration?: Configuration, b
             return localVarFp.listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(referentialId, versionNumber, options).then((request) => request(axios, basePath));
         },
         /**
+         * Lister les référentiels globaux (catalogue EdConnect)
+         * @summary List Global Referentials
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [cycle] Filtrer par cycle
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page?: number, size?: number, cycle?: string | null, q?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<GlobalReferentialListResponse> {
+            return localVarFp.listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page, size, cycle, q, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Lister les référentiels avec filtres et pagination
          * @summary List Referentials
          * @param {number} [page] Numéro de page
@@ -3822,6 +4161,19 @@ export const ReferentialsApiFactory = function (configuration?: Configuration, b
  * @extends {BaseAPI}
  */
 export class ReferentialsApi extends BaseAPI {
+    /**
+     * Cloner un référentiel global dans le tenant courant
+     * @summary Clone From Global Referential
+     * @param {string} globalReferentialId ID du référentiel global à cloner
+     * @param {ReferentialCloneFromGlobalRequest} referentialCloneFromGlobalRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId: string, referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId, referentialCloneFromGlobalRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * Cloner un référentiel en nouvelle version
      * @summary Clone Referential
@@ -4065,6 +4417,21 @@ export class ReferentialsApi extends BaseAPI {
      */
     public listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig) {
         return ReferentialsApiFp(this.configuration).listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Lister les référentiels globaux (catalogue EdConnect)
+     * @summary List Global Referentials
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de page
+     * @param {string | null} [cycle] Filtrer par cycle
+     * @param {string | null} [q] Recherche textuelle
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page?: number, size?: number, cycle?: string | null, q?: string | null, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page, size, cycle, q, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

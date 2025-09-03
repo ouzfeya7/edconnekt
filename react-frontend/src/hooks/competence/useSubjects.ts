@@ -23,8 +23,8 @@ export function useSubjects(params: UseSubjectsParams) {
         versionNumber,
         page,
         size,
-        domainId,
-        q
+        domainId ?? undefined,
+        q ?? undefined
       );
       return data;
     },

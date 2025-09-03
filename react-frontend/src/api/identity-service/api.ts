@@ -116,6 +116,43 @@ export interface BulkImportResponse {
     'invalid_count': number;
 }
 /**
+ * Schéma pour la création d\'un lien avec un établissement.
+ * @export
+ * @interface EstablishmentLinkCreate
+ */
+export interface EstablishmentLinkCreate {
+    /**
+     * ID de l\'établissement
+     * @type {string}
+     * @memberof EstablishmentLinkCreate
+     */
+    'establishment_id': string;
+    /**
+     * Rôle dans l\'établissement
+     * @type {EstablishmentRole}
+     * @memberof EstablishmentLinkCreate
+     */
+    'role': EstablishmentRole;
+}
+
+
+/**
+ * Énumération des rôles possibles dans un établissement.
+ * @export
+ * @enum {string}
+ */
+
+export const EstablishmentRole = {
+    Student: 'student',
+    Parent: 'parent',
+    Teacher: 'teacher',
+    AdminStaff: 'admin_staff'
+} as const;
+
+export type EstablishmentRole = typeof EstablishmentRole[keyof typeof EstablishmentRole];
+
+
+/**
  * 
  * @export
  * @interface HTTPValidationError
@@ -128,6 +165,205 @@ export interface HTTPValidationError {
      */
     'detail'?: Array<ValidationError>;
 }
+/**
+ * Schéma pour la création d\'une identité.
+ * @export
+ * @interface IdentityCreate
+ */
+export interface IdentityCreate {
+    /**
+     * Prénom
+     * @type {string}
+     * @memberof IdentityCreate
+     */
+    'firstname': string;
+    /**
+     * Nom de famille
+     * @type {string}
+     * @memberof IdentityCreate
+     */
+    'lastname': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityCreate
+     */
+    'email'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityCreate
+     */
+    'phone'?: string | null;
+    /**
+     * Statut de l\'identité
+     * @type {IdentityStatus}
+     * @memberof IdentityCreate
+     */
+    'status'?: IdentityStatus;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityCreate
+     */
+    'external_id'?: string | null;
+}
+
+
+/**
+ * Schéma pour la liste des identités.
+ * @export
+ * @interface IdentityListResponse
+ */
+export interface IdentityListResponse {
+    /**
+     * Liste des identités
+     * @type {Array<IdentityResponse>}
+     * @memberof IdentityListResponse
+     */
+    'items': Array<IdentityResponse>;
+    /**
+     * Nombre total d\'identités
+     * @type {number}
+     * @memberof IdentityListResponse
+     */
+    'total': number;
+    /**
+     * Page actuelle
+     * @type {number}
+     * @memberof IdentityListResponse
+     */
+    'page': number;
+    /**
+     * Taille de la page
+     * @type {number}
+     * @memberof IdentityListResponse
+     */
+    'size': number;
+    /**
+     * Nombre total de pages
+     * @type {number}
+     * @memberof IdentityListResponse
+     */
+    'pages': number;
+}
+/**
+ * Schéma pour la réponse d\'une identité.
+ * @export
+ * @interface IdentityResponse
+ */
+export interface IdentityResponse {
+    /**
+     * Prénom
+     * @type {string}
+     * @memberof IdentityResponse
+     */
+    'firstname': string;
+    /**
+     * Nom de famille
+     * @type {string}
+     * @memberof IdentityResponse
+     */
+    'lastname': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityResponse
+     */
+    'email'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityResponse
+     */
+    'phone'?: string | null;
+    /**
+     * Statut de l\'identité
+     * @type {IdentityStatus}
+     * @memberof IdentityResponse
+     */
+    'status'?: IdentityStatus;
+    /**
+     * ID unique de l\'identité
+     * @type {string}
+     * @memberof IdentityResponse
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityResponse
+     */
+    'external_id'?: string | null;
+    /**
+     * Date de création
+     * @type {string}
+     * @memberof IdentityResponse
+     */
+    'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityResponse
+     */
+    'updated_at'?: string | null;
+}
+
+
+/**
+ * Énumération des statuts possibles pour une identité.
+ * @export
+ * @enum {string}
+ */
+
+export const IdentityStatus = {
+    Active: 'ACTIVE',
+    Archived: 'ARCHIVED',
+    Transferred: 'TRANSFERRED'
+} as const;
+
+export type IdentityStatus = typeof IdentityStatus[keyof typeof IdentityStatus];
+
+
+/**
+ * Schéma pour la modification d\'une identité.
+ * @export
+ * @interface IdentityUpdate
+ */
+export interface IdentityUpdate {
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityUpdate
+     */
+    'firstname'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityUpdate
+     */
+    'lastname'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityUpdate
+     */
+    'email'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityUpdate
+     */
+    'phone'?: string | null;
+    /**
+     * 
+     * @type {IdentityStatus}
+     * @memberof IdentityUpdate
+     */
+    'status'?: IdentityStatus | null;
+}
+
+
 /**
  * 
  * @export
@@ -572,7 +808,7 @@ export class BatchesApi extends BaseAPI {
 export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Import en masse d\'identités via fichier CSV.       Accepte les formats CSV avec les schémas suivants :  - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone  - **parents.csv** : establishment_id;firstname;lastname;email;phone  - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date  - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date    Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.    Le domaine est automatiquement détecté à partir des en-têtes du CSV.
+         * Import en masse d\'identités via fichier CSV.  Accepte les formats CSV avec les schémas suivants : - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone - **parents.csv** : establishment_id;firstname;lastname;email;phone - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date  Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.  Le domaine est automatiquement détecté à partir des en-têtes du CSV.
          * @summary Bulk Import Identities
          * @param {File} file Fichier CSV à importer
          * @param {string} establishmentId ID de l\\\&#39;établissement
@@ -618,6 +854,110 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = localVarFormParams;
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Annule un batch d\'import en cours.  Args:     batch_id: ID du batch
+         * @summary Cancel Bulk Import
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost: async (batchId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchId' is not null or undefined
+            assertParamExists('cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost', 'batchId', batchId)
+            const localVarPath = `/api/v1/identity/bulkimport/cancel/{batch_id}`
+                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité créée
+         * @summary Create Identity
+         * @param {IdentityCreate} identityCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createIdentityApiV1IdentityIdentitiesPost: async (identityCreate: IdentityCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityCreate' is not null or undefined
+            assertParamExists('createIdentityApiV1IdentityIdentitiesPost', 'identityCreate', identityCreate)
+            const localVarPath = `/api/v1/identity/identities`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(identityCreate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * @summary Delete Identity
+         * @param {string} identityId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete: async (identityId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityId' is not null or undefined
+            assertParamExists('deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete', 'identityId', identityId)
+            const localVarPath = `/api/v1/identity/identities/{identity_id}`
+                .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -675,6 +1015,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * Récupère la progression d\'un batch d\'import.  Args:     batch_id: ID du batch
+         * @summary Get Bulk Import Progress
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet: async (batchId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchId' is not null or undefined
+            assertParamExists('getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet', 'batchId', batchId)
+            const localVarPath = `/api/v1/identity/bulkimport/progress/{batch_id}`
+                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Récupère un template CSV pour un domaine donné.  Args:     domain: Domaine (student, parent, teacher, admin_staff)
          * @summary Get Csv Template
          * @param {string} domain 
@@ -686,6 +1060,70 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet', 'domain', domain)
             const localVarPath = `/api/v1/identity/bulkimport/template/{domain}`
                 .replace(`{${"domain"}}`, encodeURIComponent(String(domain)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité trouvée
+         * @summary Get Identity
+         * @param {string} identityId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getIdentityApiV1IdentityIdentitiesIdentityIdGet: async (identityId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityId' is not null or undefined
+            assertParamExists('getIdentityApiV1IdentityIdentitiesIdentityIdGet', 'identityId', identityId)
+            const localVarPath = `/api/v1/identity/identities/{identity_id}`
+                .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère les statistiques des connexions SSE.  Returns:     Dict: Statistiques des connexions
+         * @summary Get Sse Stats
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSseStatsApiV1IdentityBulkimportSseStatsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/bulkimport/sse/stats`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -739,6 +1177,131 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * @summary Link Identity To Establishment
+         * @param {string} identityId 
+         * @param {EstablishmentLinkCreate} establishmentLinkCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost: async (identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityId' is not null or undefined
+            assertParamExists('linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost', 'identityId', identityId)
+            // verify required parameter 'establishmentLinkCreate' is not null or undefined
+            assertParamExists('linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost', 'establishmentLinkCreate', establishmentLinkCreate)
+            const localVarPath = `/api/v1/identity/identities/{identity_id}/establishments`
+                .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(establishmentLinkCreate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityListResponse: Liste paginée des identités
+         * @summary List Identities
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche global
+         * @param {string | null} [sortBy] Champ de tri
+         * @param {string | null} [sortOrder] Ordre de tri
+         * @param {string | null} [firstname] Filtrer par prénom
+         * @param {string | null} [lastname] Filtrer par nom
+         * @param {string | null} [email] Filtrer par email
+         * @param {string | null} [status] Filtrer par statut
+         * @param {string | null} [establishmentId] Filtrer par établissement
+         * @param {string | null} [role] Filtrer par rôle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listIdentitiesApiV1IdentityIdentitiesGet: async (page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/identities`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sort_by'] = sortBy;
+            }
+
+            if (sortOrder !== undefined) {
+                localVarQueryParameter['sort_order'] = sortOrder;
+            }
+
+            if (firstname !== undefined) {
+                localVarQueryParameter['firstname'] = firstname;
+            }
+
+            if (lastname !== undefined) {
+                localVarQueryParameter['lastname'] = lastname;
+            }
+
+            if (email !== undefined) {
+                localVarQueryParameter['email'] = email;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (establishmentId !== undefined) {
+                localVarQueryParameter['establishment_id'] = establishmentId;
+            }
+
+            if (role !== undefined) {
+                localVarQueryParameter['role'] = role;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Endpoint racine pour vérifier que le service fonctionne.
          * @summary Root
          * @param {*} [options] Override http request option.
@@ -768,6 +1331,157 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Gestion des requêtes OPTIONS pour CORS.  Args:     batch_id: ID du batch      Returns:     Response: Headers CORS
+         * @summary Sse Options
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions: async (batchId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchId' is not null or undefined
+            assertParamExists('sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions', 'batchId', batchId)
+            const localVarPath = `/api/v1/identity/bulkimport/stream/{batch_id}`
+                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'OPTIONS', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Stream Server-Sent Events pour la progression d\'un batch.  Args:     batch_id: ID du batch à suivre     timeout: Timeout en secondes (5 minutes par défaut)     request: Requête HTTP     bulk_import_service: Service de bulk import      Returns:     StreamingResponse: Flux SSE de la progression
+         * @summary Stream Batch Progress
+         * @param {string} batchId 
+         * @param {number | null} [timeout] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet: async (batchId: string, timeout?: number | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchId' is not null or undefined
+            assertParamExists('streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet', 'batchId', batchId)
+            const localVarPath = `/api/v1/identity/bulkimport/stream/{batch_id}`
+                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (timeout !== undefined) {
+                localVarQueryParameter['timeout'] = timeout;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * @summary Unlink Identity From Establishment
+         * @param {string} identityId 
+         * @param {string} establishmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete: async (identityId: string, establishmentId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityId' is not null or undefined
+            assertParamExists('unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete', 'identityId', identityId)
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete', 'establishmentId', establishmentId)
+            const localVarPath = `/api/v1/identity/identities/{identity_id}/establishments/{establishment_id}`
+                .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)))
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité mise à jour
+         * @summary Update Identity
+         * @param {string} identityId 
+         * @param {IdentityUpdate} identityUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateIdentityApiV1IdentityIdentitiesIdentityIdPut: async (identityId: string, identityUpdate: IdentityUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityId' is not null or undefined
+            assertParamExists('updateIdentityApiV1IdentityIdentitiesIdentityIdPut', 'identityId', identityId)
+            // verify required parameter 'identityUpdate' is not null or undefined
+            assertParamExists('updateIdentityApiV1IdentityIdentitiesIdentityIdPut', 'identityUpdate', identityUpdate)
+            const localVarPath = `/api/v1/identity/identities/{identity_id}`
+                .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(identityUpdate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -779,7 +1493,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = DefaultApiAxiosParamCreator(configuration)
     return {
         /**
-         * Import en masse d\'identités via fichier CSV.       Accepte les formats CSV avec les schémas suivants :  - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone  - **parents.csv** : establishment_id;firstname;lastname;email;phone  - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date  - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date    Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.    Le domaine est automatiquement détecté à partir des en-têtes du CSV.
+         * Import en masse d\'identités via fichier CSV.  Accepte les formats CSV avec les schémas suivants : - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone - **parents.csv** : establishment_id;firstname;lastname;email;phone - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date  Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.  Le domaine est automatiquement détecté à partir des en-têtes du CSV.
          * @summary Bulk Import Identities
          * @param {File} file Fichier CSV à importer
          * @param {string} establishmentId ID de l\\\&#39;établissement
@@ -791,6 +1505,45 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, sourceFileUrl, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.bulkImportIdentitiesApiV1IdentityBulkimportPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Annule un batch d\'import en cours.  Args:     batch_id: ID du batch
+         * @summary Cancel Bulk Import
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité créée
+         * @summary Create Identity
+         * @param {IdentityCreate} identityCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createIdentityApiV1IdentityIdentitiesPost(identityCreate: IdentityCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<IdentityResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createIdentityApiV1IdentityIdentitiesPost(identityCreate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createIdentityApiV1IdentityIdentitiesPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * @summary Delete Identity
+         * @param {string} identityId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -810,6 +1563,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Récupère la progression d\'un batch d\'import.  Args:     batch_id: ID du batch
+         * @summary Get Bulk Import Progress
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Récupère un template CSV pour un domaine donné.  Args:     domain: Domaine (student, parent, teacher, admin_staff)
          * @summary Get Csv Template
          * @param {string} domain 
@@ -820,6 +1586,31 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(domain, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité trouvée
+         * @summary Get Identity
+         * @param {string} identityId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<IdentityResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getIdentityApiV1IdentityIdentitiesIdentityIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère les statistiques des connexions SSE.  Returns:     Dict: Statistiques des connexions
+         * @summary Get Sse Stats
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getSseStatsApiV1IdentityBulkimportSseStatsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSseStatsApiV1IdentityBulkimportSseStatsGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getSseStatsApiV1IdentityBulkimportSseStatsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -835,6 +1626,43 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * @summary Link Identity To Establishment
+         * @param {string} identityId 
+         * @param {EstablishmentLinkCreate} establishmentLinkCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId, establishmentLinkCreate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityListResponse: Liste paginée des identités
+         * @summary List Identities
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche global
+         * @param {string | null} [sortBy] Champ de tri
+         * @param {string | null} [sortOrder] Ordre de tri
+         * @param {string | null} [firstname] Filtrer par prénom
+         * @param {string | null} [lastname] Filtrer par nom
+         * @param {string | null} [email] Filtrer par email
+         * @param {string | null} [status] Filtrer par statut
+         * @param {string | null} [establishmentId] Filtrer par établissement
+         * @param {string | null} [role] Filtrer par rôle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listIdentitiesApiV1IdentityIdentitiesGet(page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<IdentityListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listIdentitiesApiV1IdentityIdentitiesGet(page, size, search, sortBy, sortOrder, firstname, lastname, email, status, establishmentId, role, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listIdentitiesApiV1IdentityIdentitiesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Endpoint racine pour vérifier que le service fonctionne.
          * @summary Root
          * @param {*} [options] Override http request option.
@@ -844,6 +1672,61 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.rootGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.rootGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Gestion des requêtes OPTIONS pour CORS.  Args:     batch_id: ID du batch      Returns:     Response: Headers CORS
+         * @summary Sse Options
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Stream Server-Sent Events pour la progression d\'un batch.  Args:     batch_id: ID du batch à suivre     timeout: Timeout en secondes (5 minutes par défaut)     request: Requête HTTP     bulk_import_service: Service de bulk import      Returns:     StreamingResponse: Flux SSE de la progression
+         * @summary Stream Batch Progress
+         * @param {string} batchId 
+         * @param {number | null} [timeout] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId: string, timeout?: number | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId, timeout, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * @summary Unlink Identity From Establishment
+         * @param {string} identityId 
+         * @param {string} establishmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId: string, establishmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId, establishmentId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité mise à jour
+         * @summary Update Identity
+         * @param {string} identityId 
+         * @param {IdentityUpdate} identityUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId: string, identityUpdate: IdentityUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<IdentityResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId, identityUpdate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateIdentityApiV1IdentityIdentitiesIdentityIdPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -857,7 +1740,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
     const localVarFp = DefaultApiFp(configuration)
     return {
         /**
-         * Import en masse d\'identités via fichier CSV.       Accepte les formats CSV avec les schémas suivants :  - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone  - **parents.csv** : establishment_id;firstname;lastname;email;phone  - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date  - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date    Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.    Le domaine est automatiquement détecté à partir des en-têtes du CSV.
+         * Import en masse d\'identités via fichier CSV.  Accepte les formats CSV avec les schémas suivants : - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone - **parents.csv** : establishment_id;firstname;lastname;email;phone - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date  Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.  Le domaine est automatiquement détecté à partir des en-têtes du CSV.
          * @summary Bulk Import Identities
          * @param {File} file Fichier CSV à importer
          * @param {string} establishmentId ID de l\\\&#39;établissement
@@ -867,6 +1750,36 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId: string, sourceFileUrl?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<BulkImportResponse> {
             return localVarFp.bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, sourceFileUrl, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Annule un batch d\'import en cours.  Args:     batch_id: ID du batch
+         * @summary Cancel Bulk Import
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité créée
+         * @summary Create Identity
+         * @param {IdentityCreate} identityCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createIdentityApiV1IdentityIdentitiesPost(identityCreate: IdentityCreate, options?: RawAxiosRequestConfig): AxiosPromise<IdentityResponse> {
+            return localVarFp.createIdentityApiV1IdentityIdentitiesPost(identityCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * @summary Delete Identity
+         * @param {string} identityId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId, options).then((request) => request(axios, basePath));
         },
         /**
          * Récupère l\'historique d\'audit des opérations de bulk import.  Args:     user_id: Filtrer par utilisateur     establishment_id: Filtrer par établissement     batch_id: Filtrer par batch     limit: Limite du nombre de résultats
@@ -882,6 +1795,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getAuditHistoryApiV1IdentityBulkimportAuditGet(userId, establishmentId, batchId, limit, options).then((request) => request(axios, basePath));
         },
         /**
+         * Récupère la progression d\'un batch d\'import.  Args:     batch_id: ID du batch
+         * @summary Get Bulk Import Progress
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Récupère un template CSV pour un domaine donné.  Args:     domain: Domaine (student, parent, teacher, admin_staff)
          * @summary Get Csv Template
          * @param {string} domain 
@@ -890,6 +1813,25 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(domain: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
             return localVarFp.getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(domain, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité trouvée
+         * @summary Get Identity
+         * @param {string} identityId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId: string, options?: RawAxiosRequestConfig): AxiosPromise<IdentityResponse> {
+            return localVarFp.getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère les statistiques des connexions SSE.  Returns:     Dict: Statistiques des connexions
+         * @summary Get Sse Stats
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSseStatsApiV1IdentityBulkimportSseStatsGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getSseStatsApiV1IdentityBulkimportSseStatsGet(options).then((request) => request(axios, basePath));
         },
         /**
          * Endpoint de vérification de santé du service.
@@ -901,6 +1843,37 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.healthCheckHealthGet(options).then((request) => request(axios, basePath));
         },
         /**
+         * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * @summary Link Identity To Establishment
+         * @param {string} identityId 
+         * @param {EstablishmentLinkCreate} establishmentLinkCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId, establishmentLinkCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityListResponse: Liste paginée des identités
+         * @summary List Identities
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche global
+         * @param {string | null} [sortBy] Champ de tri
+         * @param {string | null} [sortOrder] Ordre de tri
+         * @param {string | null} [firstname] Filtrer par prénom
+         * @param {string | null} [lastname] Filtrer par nom
+         * @param {string | null} [email] Filtrer par email
+         * @param {string | null} [status] Filtrer par statut
+         * @param {string | null} [establishmentId] Filtrer par établissement
+         * @param {string | null} [role] Filtrer par rôle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listIdentitiesApiV1IdentityIdentitiesGet(page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<IdentityListResponse> {
+            return localVarFp.listIdentitiesApiV1IdentityIdentitiesGet(page, size, search, sortBy, sortOrder, firstname, lastname, email, status, establishmentId, role, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Endpoint racine pour vérifier que le service fonctionne.
          * @summary Root
          * @param {*} [options] Override http request option.
@@ -908,6 +1881,49 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         rootGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
             return localVarFp.rootGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Gestion des requêtes OPTIONS pour CORS.  Args:     batch_id: ID du batch      Returns:     Response: Headers CORS
+         * @summary Sse Options
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Stream Server-Sent Events pour la progression d\'un batch.  Args:     batch_id: ID du batch à suivre     timeout: Timeout en secondes (5 minutes par défaut)     request: Requête HTTP     bulk_import_service: Service de bulk import      Returns:     StreamingResponse: Flux SSE de la progression
+         * @summary Stream Batch Progress
+         * @param {string} batchId 
+         * @param {number | null} [timeout] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId: string, timeout?: number | null, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId, timeout, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * @summary Unlink Identity From Establishment
+         * @param {string} identityId 
+         * @param {string} establishmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId: string, establishmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId, establishmentId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité mise à jour
+         * @summary Update Identity
+         * @param {string} identityId 
+         * @param {IdentityUpdate} identityUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId: string, identityUpdate: IdentityUpdate, options?: RawAxiosRequestConfig): AxiosPromise<IdentityResponse> {
+            return localVarFp.updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId, identityUpdate, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -920,7 +1936,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
  */
 export class DefaultApi extends BaseAPI {
     /**
-     * Import en masse d\'identités via fichier CSV.       Accepte les formats CSV avec les schémas suivants :  - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone  - **parents.csv** : establishment_id;firstname;lastname;email;phone  - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date  - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date    Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.    Le domaine est automatiquement détecté à partir des en-têtes du CSV.
+     * Import en masse d\'identités via fichier CSV.  Accepte les formats CSV avec les schémas suivants : - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone - **parents.csv** : establishment_id;firstname;lastname;email;phone - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date  Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.  Le domaine est automatiquement détecté à partir des en-têtes du CSV.
      * @summary Bulk Import Identities
      * @param {File} file Fichier CSV à importer
      * @param {string} establishmentId ID de l\\\&#39;établissement
@@ -931,6 +1947,42 @@ export class DefaultApi extends BaseAPI {
      */
     public bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId: string, sourceFileUrl?: string | null, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, sourceFileUrl, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Annule un batch d\'import en cours.  Args:     batch_id: ID du batch
+     * @summary Cancel Bulk Import
+     * @param {string} batchId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité créée
+     * @summary Create Identity
+     * @param {IdentityCreate} identityCreate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public createIdentityApiV1IdentityIdentitiesPost(identityCreate: IdentityCreate, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createIdentityApiV1IdentityIdentitiesPost(identityCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+     * @summary Delete Identity
+     * @param {string} identityId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -949,6 +2001,18 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * Récupère la progression d\'un batch d\'import.  Args:     batch_id: ID du batch
+     * @summary Get Bulk Import Progress
+     * @param {string} batchId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Récupère un template CSV pour un domaine donné.  Args:     domain: Domaine (student, parent, teacher, admin_staff)
      * @summary Get Csv Template
      * @param {string} domain 
@@ -958,6 +2022,29 @@ export class DefaultApi extends BaseAPI {
      */
     public getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(domain: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(domain, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité trouvée
+     * @summary Get Identity
+     * @param {string} identityId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère les statistiques des connexions SSE.  Returns:     Dict: Statistiques des connexions
+     * @summary Get Sse Stats
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getSseStatsApiV1IdentityBulkimportSseStatsGet(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getSseStatsApiV1IdentityBulkimportSseStatsGet(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -972,6 +2059,41 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+     * @summary Link Identity To Establishment
+     * @param {string} identityId 
+     * @param {EstablishmentLinkCreate} establishmentLinkCreate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId, establishmentLinkCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityListResponse: Liste paginée des identités
+     * @summary List Identities
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de la page
+     * @param {string | null} [search] Terme de recherche global
+     * @param {string | null} [sortBy] Champ de tri
+     * @param {string | null} [sortOrder] Ordre de tri
+     * @param {string | null} [firstname] Filtrer par prénom
+     * @param {string | null} [lastname] Filtrer par nom
+     * @param {string | null} [email] Filtrer par email
+     * @param {string | null} [status] Filtrer par statut
+     * @param {string | null} [establishmentId] Filtrer par établissement
+     * @param {string | null} [role] Filtrer par rôle
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listIdentitiesApiV1IdentityIdentitiesGet(page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listIdentitiesApiV1IdentityIdentitiesGet(page, size, search, sortBy, sortOrder, firstname, lastname, email, status, establishmentId, role, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Endpoint racine pour vérifier que le service fonctionne.
      * @summary Root
      * @param {*} [options] Override http request option.
@@ -980,6 +2102,57 @@ export class DefaultApi extends BaseAPI {
      */
     public rootGet(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).rootGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Gestion des requêtes OPTIONS pour CORS.  Args:     batch_id: ID du batch      Returns:     Response: Headers CORS
+     * @summary Sse Options
+     * @param {string} batchId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Stream Server-Sent Events pour la progression d\'un batch.  Args:     batch_id: ID du batch à suivre     timeout: Timeout en secondes (5 minutes par défaut)     request: Requête HTTP     bulk_import_service: Service de bulk import      Returns:     StreamingResponse: Flux SSE de la progression
+     * @summary Stream Batch Progress
+     * @param {string} batchId 
+     * @param {number | null} [timeout] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId: string, timeout?: number | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId, timeout, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+     * @summary Unlink Identity From Establishment
+     * @param {string} identityId 
+     * @param {string} establishmentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId: string, establishmentId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId, establishmentId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité mise à jour
+     * @summary Update Identity
+     * @param {string} identityId 
+     * @param {IdentityUpdate} identityUpdate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId: string, identityUpdate: IdentityUpdate, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId, identityUpdate, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

@@ -13,6 +13,9 @@ import { useEstablishments } from '../../hooks/useEstablishments';
 import { useClasses } from '../../hooks/useClasses';
 import { useClasseEnseignants } from '../../hooks/useClasseEnseignants';
 import { useDirector } from '../../contexts/DirectorContext';
+import { useEvents } from '../../hooks/useEvents';
+import { useCreateEvent, usePublishEventById } from '../../hooks/useEventMutations';
+import type { EventCreateCategoryEnum } from '../../api/event-service/api';
 
 interface NormalizedCourse {
   id: string | number;
@@ -40,10 +43,11 @@ const EmploiDuTempsPage = () => {
   const [selectedView, setSelectedView] = useState('global');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [conflicts, setConflicts] = useState<Conflict[]>([]);
-  const [activeTab, setActiveTab] = useState<'calendar' | 'replacements' | 'conflicts' | 'validation' | 'audit' | 'ics'>('calendar');
+  const [activeTab, setActiveTab] = useState<'calendar' | 'replacements' | 'conflicts' | 'validation' | 'audit' | 'ics' | 'events'>('calendar');
   const [icsClassId, setIcsClassId] = useState<string>('');
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<NormalizedCourse | null>(null);
+  const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
 
   // Nouveaux états pour le formulaire d'ajout
   const [selectedEtabId, setSelectedEtabId] = useState<string>(currentEtablissementId || '');
@@ -64,6 +68,9 @@ const EmploiDuTempsPage = () => {
   const { data: classesResp } = useClasses({ etablissementId: selectedEtabId, limit: 100 });
   const classes = classesResp?.data ?? [];
   const { data: enseignants } = useClasseEnseignants(selectedClasseId || undefined);
+  const { data: eventsList } = useEvents({ page: 1, size: 50 });
+  const createEvent = useCreateEvent();
+  const publishEventById = usePublishEventById();
 
   const createReplacement = useCreateReplacement();
   const updateLesson = useUpdateLesson();
@@ -213,6 +220,9 @@ const EmploiDuTempsPage = () => {
             </button>
             <button onClick={() => setActiveTab('ics')} className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'ics' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
               <div className="flex items-center space-x-2"><LinkIcon className="w-4 h-4" /><span>{t('ics_feed', 'Flux ICS')}</span></div>
+            </button>
+            <button onClick={() => setActiveTab('events')} className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'events' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+              <div className="flex items-center space-x-2"><Calendar className="w-4 h-4" /><span>{t('events', 'Événements')}</span></div>
             </button>
           </nav>
         </div>
@@ -504,6 +514,157 @@ const EmploiDuTempsPage = () => {
               {icsClassId && (<a href={`${TIMETABLE_API_BASE_URL}feed/${icsClassId}.ics`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 mt-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded"><LinkIcon className="w-4 h-4" /> {t('open_ics_link', 'Ouvrir le lien ICS')}</a>)}
             </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'events' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">{t('events', 'Événements')}</h3>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">{t('count', 'Nombre')} : {(() => {
+                const asArr = eventsList as unknown[] | undefined;
+                if (Array.isArray(asArr)) return asArr.length;
+                const asObj = eventsList as { total?: number } | undefined;
+                return asObj?.total ?? 0;
+              })()}</span>
+              <button onClick={() => setIsCreateEventOpen(true)} className="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">{t('create', 'Créer')}</button>
+            </div>
+          </div>
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <table className="min-w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('title', 'Titre')}</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('category', 'Catégorie')}</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('start', 'Début')}</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('end', 'Fin')}</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('status', 'Statut')}</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('actions', 'Actions')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.isArray((eventsList as { items?: unknown } | undefined)?.items) && (eventsList as { items: unknown[] }).items.length > 0 ? (
+                  (eventsList as { items: unknown[] }).items.map((evUnknown) => {
+                    const ev = evUnknown as { id: string; title: string; category?: string | null; start_time?: string | null; end_time?: string | null; status?: string | null };
+                    const id = ev?.id;
+                    return (
+                    <tr key={ev.id} className="border-t hover:bg-gray-50">
+                      <td className="px-4 py-2 text-sm text-gray-800">{ev.title}</td>
+                      <td className="px-4 py-2 text-sm text-gray-600">{ev.category ?? '—'}</td>
+                      <td className="px-4 py-2 text-sm text-gray-600">{ev.start_time ? new Date(ev.start_time).toLocaleString() : '—'}</td>
+                      <td className="px-4 py-2 text-sm text-gray-600">{ev.end_time ? new Date(ev.end_time).toLocaleString() : '—'}</td>
+                      <td className="px-4 py-2 text-sm">
+                        <span className={`px-2 py-1 rounded text-xs ${ev.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : ev.status === 'DRAFT' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>{ev.status}</span>
+                      </td>
+                      <td className="px-4 py-2 text-sm">
+                        {ev.status !== 'PUBLISHED' && (
+                          <button
+                            className="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs"
+                            onClick={async () => {
+                              try {
+                                if (!id) throw new Error('eventId manquant');
+                                await publishEventById.mutateAsync(id);
+                                toast.success(t('event_published', 'Événement publié'));
+                              } catch (errUnknown) {
+                                const err = errUnknown as { message?: string };
+                                toast.error(typeof err?.message === 'string' ? err.message : 'Erreur publication');
+                              }
+                            }}
+                          >
+                            {t('publish', 'Publier')}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-6 text-center text-gray-500">{t('no_events', 'Aucun événement')}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {isCreateEventOpen && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-4 w-full max-w-2xl max-h-[70vh] overflow-y-auto">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('create_event', 'Créer un événement')}</h3>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget as HTMLFormElement;
+                  const fd = new FormData(form);
+                  const title = String(fd.get('title') || '').trim();
+                  const category = String(fd.get('category') || '').trim() || 'Autre';
+                  const start_time = String(fd.get('start_time') || '').trim();
+                  const end_time = String(fd.get('end_time') || '').trim();
+                  const description = String(fd.get('description') || '').trim() || undefined;
+                  const location = String(fd.get('location') || '').trim() || undefined;
+                  const capacityStr = String(fd.get('capacity') || '').trim();
+                  const capacity = capacityStr !== '' && !Number.isNaN(Number(capacityStr)) ? Number(capacityStr) : undefined;
+                  if (!title || !category || !start_time || !end_time) {
+                    toast.error(t('fill_required_fields', 'Veuillez remplir les champs obligatoires'));
+                    return;
+                  }
+                  try {
+                    await createEvent.mutateAsync({ title, category: category as EventCreateCategoryEnum, start_time, end_time, description, location, capacity });
+                    toast.success(t('event_created', 'Événement créé'));
+                    setIsCreateEventOpen(false);
+                    form.reset();
+                  } catch (errUnknown) {
+                    const err = errUnknown as { message?: string };
+                    toast.error(typeof err?.message === 'string' ? err.message : 'Erreur inconnue');
+                  }
+                }}>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('title', 'Titre')} *</label>
+                      <input name="title" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('category', 'Catégorie')} *</label>
+                      <select name="category" className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        <option value="Sortie">Sortie</option>
+                        <option value="Cérémonie">Cérémonie</option>
+                        <option value="Club">Club</option>
+                        <option value="Autre">Autre</option>
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('start', 'Début')} *</label>
+                        <input type="datetime-local" name="start_time" className="w-full border border-gray-300 rounded-lg px-3 py-2" step="1" />
+                        <p className="text-xs text-gray-500 mt-1">{t('timezone_hint', 'Le fuseau sera normalisé automatiquement (UTC)')}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('end', 'Fin')} *</label>
+                        <input type="datetime-local" name="end_time" className="w-full border border-gray-300 rounded-lg px-3 py-2" step="1" />
+                        <p className="text-xs text-gray-500 mt-1">{t('timezone_hint', 'Le fuseau sera normalisé automatiquement (UTC)')}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('location', 'Lieu')}</label>
+                      <input name="location" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('description', 'Description')}</label>
+                      <textarea name="description" className="w-full border border-gray-300 rounded-lg px-3 py-2" rows={3} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('capacity', 'Capacité')}</label>
+                      <input name="capacity" type="number" min={0} step={1} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2 mt-5">
+                    <button type="button" className="px-4 py-2 border rounded-lg" onClick={() => setIsCreateEventOpen(false)}>{t('cancel', 'Annuler')}</button>
+                    <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg" disabled={createEvent.isPending}>{createEvent.isPending ? t('saving', 'Enregistrement...') : t('create', 'Créer')}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

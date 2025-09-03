@@ -23,8 +23,8 @@ export function useCompetencies(params: UseCompetenciesParams) {
         versionNumber,
         page,
         size,
-        subjectId,
-        q
+        subjectId ?? undefined,
+        q ?? undefined
       );
       return data;
     },
