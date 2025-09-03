@@ -381,7 +381,7 @@
         "/api/v1/identity/bulkimport": {
             "post": {
                 "summary": "Bulk Import Identities",
-                "description": "Import en masse d'identités via fichier CSV.\n\n     Accepte les formats CSV avec les schémas suivants :\n - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone\n - **parents.csv** : establishment_id;firstname;lastname;email;phone\n - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date\n - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date\n \n Note: L'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.\n \n Le domaine est automatiquement détecté à partir des en-têtes du CSV.",
+                "description": "Import en masse d'identités via fichier CSV.\n\nAccepte les formats CSV avec les schémas suivants :\n- **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone\n- **parents.csv** : establishment_id;firstname;lastname;email;phone\n- **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date\n- **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date\n\nNote: L'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.\n\nLe domaine est automatiquement détecté à partir des en-têtes du CSV.",
                 "operationId": "bulk_import_identities_api_v1_identity_bulkimport_post",
                 "requestBody": {
                     "content": {
@@ -401,6 +401,82 @@
                                 "schema": {
                                     "$ref": "#/components/schemas/BulkImportResponse"
                                 }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/progress/{batch_id}": {
+            "get": {
+                "summary": "Get Bulk Import Progress",
+                "description": "Récupère la progression d'un batch d'import.\n\nArgs:\n    batch_id: ID du batch",
+                "operationId": "get_bulk_import_progress_api_v1_identity_bulkimport_progress__batch_id__get",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Batch Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/cancel/{batch_id}": {
+            "post": {
+                "summary": "Cancel Bulk Import",
+                "description": "Annule un batch d'import en cours.\n\nArgs:\n    batch_id: ID du batch",
+                "operationId": "cancel_bulk_import_api_v1_identity_bulkimport_cancel__batch_id__post",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Batch Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
                             }
                         }
                     },
@@ -517,6 +593,598 @@
                             "type": "integer",
                             "default": 100,
                             "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/stream/{batch_id}": {
+            "get": {
+                "summary": "Stream Batch Progress",
+                "description": "Stream Server-Sent Events pour la progression d'un batch.\n\nArgs:\n    batch_id: ID du batch à suivre\n    timeout: Timeout en secondes (5 minutes par défaut)\n    request: Requête HTTP\n    bulk_import_service: Service de bulk import\n    \nReturns:\n    StreamingResponse: Flux SSE de la progression",
+                "operationId": "stream_batch_progress_api_v1_identity_bulkimport_stream__batch_id__get",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Batch Id"
+                        }
+                    },
+                    {
+                        "name": "timeout",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "default": 300,
+                            "title": "Timeout"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "options": {
+                "summary": "Sse Options",
+                "description": "Gestion des requêtes OPTIONS pour CORS.\n\nArgs:\n    batch_id: ID du batch\n    \nReturns:\n    Response: Headers CORS",
+                "operationId": "sse_options_api_v1_identity_bulkimport_stream__batch_id__options",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Batch Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/sse/stats": {
+            "get": {
+                "summary": "Get Sse Stats",
+                "description": "Récupère les statistiques des connexions SSE.\n\nReturns:\n    Dict: Statistiques des connexions",
+                "operationId": "get_sse_stats_api_v1_identity_bulkimport_sse_stats_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/identities": {
+            "post": {
+                "summary": "Create Identity",
+                "description": "Crée une nouvelle identité.\n\nArgs:\n    identity_data: Données de l'identité à créer\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    IdentityResponse: Identité créée",
+                "operationId": "create_identity_api_v1_identity_identities_post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IdentityCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IdentityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "summary": "List Identities",
+                "description": "Liste les identités avec pagination et filtres.\n\nArgs:\n    page: Numéro de page\n    size: Taille de la page\n    search: Terme de recherche global\n    sort_by: Champ de tri\n    sort_order: Ordre de tri\n    firstname: Filtre par prénom\n    lastname: Filtre par nom\n    email: Filtre par email\n    status: Filtre par statut\n    establishment_id: Filtre par établissement\n    role: Filtre par rôle\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    IdentityListResponse: Liste paginée des identités",
+                "operationId": "list_identities_api_v1_identity_identities_get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de la page",
+                            "default": 10,
+                            "title": "Size"
+                        },
+                        "description": "Taille de la page"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Terme de recherche global",
+                            "title": "Search"
+                        },
+                        "description": "Terme de recherche global"
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Champ de tri",
+                            "default": "created_at",
+                            "title": "Sort By"
+                        },
+                        "description": "Champ de tri"
+                    },
+                    {
+                        "name": "sort_order",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^(asc|desc)$"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Ordre de tri",
+                            "default": "desc",
+                            "title": "Sort Order"
+                        },
+                        "description": "Ordre de tri"
+                    },
+                    {
+                        "name": "firstname",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par prénom",
+                            "title": "Firstname"
+                        },
+                        "description": "Filtrer par prénom"
+                    },
+                    {
+                        "name": "lastname",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par nom",
+                            "title": "Lastname"
+                        },
+                        "description": "Filtrer par nom"
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par email",
+                            "title": "Email"
+                        },
+                        "description": "Filtrer par email"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par statut",
+                            "title": "Status"
+                        },
+                        "description": "Filtrer par statut"
+                    },
+                    {
+                        "name": "establishment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par établissement",
+                            "title": "Establishment Id"
+                        },
+                        "description": "Filtrer par établissement"
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par rôle",
+                            "title": "Role"
+                        },
+                        "description": "Filtrer par rôle"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IdentityListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/identities/{identity_id}": {
+            "get": {
+                "summary": "Get Identity",
+                "description": "Récupère une identité par son ID.\n\nArgs:\n    identity_id: ID de l'identité\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    IdentityResponse: Identité trouvée",
+                "operationId": "get_identity_api_v1_identity_identities__identity_id__get",
+                "parameters": [
+                    {
+                        "name": "identity_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Identity Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IdentityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update Identity",
+                "description": "Met à jour une identité.\n\nArgs:\n    identity_id: ID de l'identité à mettre à jour\n    identity_data: Nouvelles données\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    IdentityResponse: Identité mise à jour",
+                "operationId": "update_identity_api_v1_identity_identities__identity_id__put",
+                "parameters": [
+                    {
+                        "name": "identity_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Identity Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IdentityUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IdentityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete Identity",
+                "description": "Supprime une identité.\n\nArgs:\n    identity_id: ID de l'identité à supprimer\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    Dict: Message de confirmation",
+                "operationId": "delete_identity_api_v1_identity_identities__identity_id__delete",
+                "parameters": [
+                    {
+                        "name": "identity_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Identity Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/identities/{identity_id}/establishments": {
+            "post": {
+                "summary": "Link Identity To Establishment",
+                "description": "Lie une identité à un établissement.\n\nArgs:\n    identity_id: ID de l'identité\n    link_data: Données du lien\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    Dict: Message de confirmation",
+                "operationId": "link_identity_to_establishment_api_v1_identity_identities__identity_id__establishments_post",
+                "parameters": [
+                    {
+                        "name": "identity_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Identity Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EstablishmentLinkCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/identities/{identity_id}/establishments/{establishment_id}": {
+            "delete": {
+                "summary": "Unlink Identity From Establishment",
+                "description": "Supprime le lien entre une identité et un établissement.\n\nArgs:\n    identity_id: ID de l'identité\n    establishment_id: ID de l'établissement\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    Dict: Message de confirmation",
+                "operationId": "unlink_identity_from_establishment_api_v1_identity_identities__identity_id__establishments__establishment_id__delete",
+                "parameters": [
+                    {
+                        "name": "identity_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Identity Id"
+                        }
+                    },
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Establishment Id"
                         }
                     }
                 ],
@@ -695,6 +1363,41 @@
                     "updated_count": 30
                 }
             },
+            "EstablishmentLinkCreate": {
+                "properties": {
+                    "establishment_id": {
+                        "type": "string",
+                        "title": "Establishment Id",
+                        "description": "ID de l'établissement"
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/EstablishmentRole",
+                        "description": "Rôle dans l'établissement"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "establishment_id",
+                    "role"
+                ],
+                "title": "EstablishmentLinkCreate",
+                "description": "Schéma pour la création d'un lien avec un établissement.",
+                "example": {
+                    "establishment_id": "EST-001",
+                    "role": "ROLE_ELEVE"
+                }
+            },
+            "EstablishmentRole": {
+                "type": "string",
+                "enum": [
+                    "student",
+                    "parent",
+                    "teacher",
+                    "admin_staff"
+                ],
+                "title": "EstablishmentRole",
+                "description": "Énumération des rôles possibles dans un établissement."
+            },
             "HTTPValidationError": {
                 "properties": {
                     "detail": {
@@ -707,6 +1410,331 @@
                 },
                 "type": "object",
                 "title": "HTTPValidationError"
+            },
+            "IdentityCreate": {
+                "properties": {
+                    "firstname": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Firstname",
+                        "description": "Prénom"
+                    },
+                    "lastname": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Lastname",
+                        "description": "Nom de famille"
+                    },
+                    "email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Email",
+                        "description": "Adresse email"
+                    },
+                    "phone": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 20
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Phone",
+                        "description": "Numéro de téléphone"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/IdentityStatus",
+                        "description": "Statut de l'identité",
+                        "default": "ACTIVE"
+                    },
+                    "external_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "External Id",
+                        "description": "ID externe (généré par Keycloak)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "firstname",
+                    "lastname"
+                ],
+                "title": "IdentityCreate",
+                "description": "Schéma pour la création d'une identité.",
+                "example": {
+                    "email": "jean.dupont@example.com",
+                    "firstname": "Jean",
+                    "lastname": "Dupont",
+                    "phone": "+33123456789",
+                    "status": "ACTIVE"
+                }
+            },
+            "IdentityListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/IdentityResponse"
+                        },
+                        "type": "array",
+                        "title": "Items",
+                        "description": "Liste des identités"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total",
+                        "description": "Nombre total d'identités"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page",
+                        "description": "Page actuelle"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "title": "Size",
+                        "description": "Taille de la page"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages",
+                        "description": "Nombre total de pages"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "size",
+                    "pages"
+                ],
+                "title": "IdentityListResponse",
+                "description": "Schéma pour la liste des identités.",
+                "example": {
+                    "items": [
+                        {
+                            "email": "jean.dupont@example.com",
+                            "firstname": "Jean",
+                            "id": "123e4567-e89b-12d3-a456-426614174000",
+                            "lastname": "Dupont",
+                            "status": "ACTIVE"
+                        }
+                    ],
+                    "page": 1,
+                    "pages": 1,
+                    "size": 10,
+                    "total": 1
+                }
+            },
+            "IdentityResponse": {
+                "properties": {
+                    "firstname": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Firstname",
+                        "description": "Prénom"
+                    },
+                    "lastname": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Lastname",
+                        "description": "Nom de famille"
+                    },
+                    "email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Email",
+                        "description": "Adresse email"
+                    },
+                    "phone": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 20
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Phone",
+                        "description": "Numéro de téléphone"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/IdentityStatus",
+                        "description": "Statut de l'identité",
+                        "default": "ACTIVE"
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id",
+                        "description": "ID unique de l'identité"
+                    },
+                    "external_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "External Id",
+                        "description": "ID externe (Keycloak)"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At",
+                        "description": "Date de création"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At",
+                        "description": "Date de dernière modification"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "firstname",
+                    "lastname",
+                    "id",
+                    "created_at"
+                ],
+                "title": "IdentityResponse",
+                "description": "Schéma pour la réponse d'une identité.",
+                "example": {
+                    "created_at": "2024-01-15T10:30:00",
+                    "email": "jean.dupont@example.com",
+                    "external_id": "keycloak-user-123",
+                    "firstname": "Jean",
+                    "id": "123e4567-e89b-12d3-a456-426614174000",
+                    "lastname": "Dupont",
+                    "phone": "+33123456789",
+                    "status": "ACTIVE",
+                    "updated_at": "2024-01-20T14:45:00"
+                }
+            },
+            "IdentityStatus": {
+                "type": "string",
+                "enum": [
+                    "ACTIVE",
+                    "ARCHIVED",
+                    "TRANSFERRED"
+                ],
+                "title": "IdentityStatus",
+                "description": "Énumération des statuts possibles pour une identité."
+            },
+            "IdentityUpdate": {
+                "properties": {
+                    "firstname": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 100,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Firstname",
+                        "description": "Prénom"
+                    },
+                    "lastname": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 100,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Lastname",
+                        "description": "Nom de famille"
+                    },
+                    "email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Email",
+                        "description": "Adresse email"
+                    },
+                    "phone": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 20
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Phone",
+                        "description": "Numéro de téléphone"
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/IdentityStatus"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Statut de l'identité"
+                    }
+                },
+                "type": "object",
+                "title": "IdentityUpdate",
+                "description": "Schéma pour la modification d'une identité.",
+                "example": {
+                    "email": "jean-pierre.dupont@example.com",
+                    "firstname": "Jean-Pierre",
+                    "status": "ACTIVE"
+                }
             },
             "ValidationError": {
                 "properties": {

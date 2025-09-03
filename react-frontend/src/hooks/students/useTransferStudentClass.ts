@@ -4,10 +4,14 @@ import type { ClassMembershipUpdate, ClassMembershipResponse } from '../../api/s
 
 export function useTransferStudentClass() {
   const qc = useQueryClient();
-  return useMutation<ClassMembershipResponse, Error, { studentId: string; update: ClassMembershipUpdate }>({
+  return useMutation<ClassMembershipResponse, Error, { studentId: string; update: ClassMembershipUpdate; etabId?: string }>({
     mutationKey: ['student:transfer-class'],
-    mutationFn: async ({ studentId, update }) => {
-      const { data } = await studentsApi.transferStudentClassApiStudentsStudentIdClassPatch(studentId, update);
+    mutationFn: async ({ studentId, update, etabId }) => {
+      const { data } = await studentsApi.transferStudentClassApiStudentsStudentIdClassPatch(
+        studentId,
+        update,
+        etabId ? { headers: { 'X-Establishment-Id': etabId } } : undefined
+      );
       return data;
     },
     onSuccess: (_d, vars) => {

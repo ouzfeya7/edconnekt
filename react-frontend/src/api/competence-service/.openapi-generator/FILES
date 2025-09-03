@@ -19,10 +19,13 @@ docs/DomainResponse.md
 docs/DomainTree.md
 docs/DomainUpdate.md
 docs/EventsApi.md
+docs/GlobalReferentialListResponse.md
+docs/GlobalReferentialResponse.md
 docs/HTTPValidationError.md
 docs/OutboxEventResponse.md
 docs/PublicApi.md
 docs/RefStateEnum.md
+docs/ReferentialCloneFromGlobalRequest.md
 docs/ReferentialCloneRequest.md
 docs/ReferentialCreate.md
 docs/ReferentialListResponse.md

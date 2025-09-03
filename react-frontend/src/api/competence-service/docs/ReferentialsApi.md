@@ -4,6 +4,7 @@ All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost**](#clonefromglobalreferentialapicompetenceglobalreferentialsglobalreferentialidclonepost) | **POST** /api/competence/global/referentials/{global_referential_id}/clone | Clone From Global Referential|
 |[**cloneReferentialApiCompetenceReferentialsReferentialIdClonePost**](#clonereferentialapicompetencereferentialsreferentialidclonepost) | **POST** /api/competence/referentials/{referential_id}/clone | Clone Referential|
 |[**createAssignmentApiCompetenceAssignmentsPost**](#createassignmentapicompetenceassignmentspost) | **POST** /api/competence/assignments | Create Assignment|
 |[**createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost**](#createcompetencyapicompetencereferentialsreferentialidcompetenciespost) | **POST** /api/competence/referentials/{referential_id}/competencies | Create Competency|
@@ -23,6 +24,7 @@ All URIs are relative to *http://localhost*
 |[**listAssignmentsApiCompetenceAssignmentsGet**](#listassignmentsapicompetenceassignmentsget) | **GET** /api/competence/assignments | List Assignments|
 |[**listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet**](#listcompetenciesapicompetencereferentialsreferentialidcompetenciesget) | **GET** /api/competence/referentials/{referential_id}/competencies | List Competencies|
 |[**listDomainsApiCompetenceReferentialsReferentialIdDomainsGet**](#listdomainsapicompetencereferentialsreferentialiddomainsget) | **GET** /api/competence/referentials/{referential_id}/domains | List Domains|
+|[**listGlobalReferentialsApiCompetenceGlobalReferentialsGet**](#listglobalreferentialsapicompetenceglobalreferentialsget) | **GET** /api/competence/global/referentials | List Global Referentials|
 |[**listReferentialsApiCompetenceReferentialsGet**](#listreferentialsapicompetencereferentialsget) | **GET** /api/competence/referentials | List Referentials|
 |[**listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet**](#listsubjectsapicompetencereferentialsreferentialidsubjectsget) | **GET** /api/competence/referentials/{referential_id}/subjects | List Subjects|
 |[**publishReferentialApiCompetenceReferentialsReferentialIdPublishPost**](#publishreferentialapicompetencereferentialsreferentialidpublishpost) | **POST** /api/competence/referentials/{referential_id}/publish | Publish Referential|
@@ -30,6 +32,62 @@ All URIs are relative to *http://localhost*
 |[**updateDomainApiCompetenceDomainsDomainIdPut**](#updatedomainapicompetencedomainsdomainidput) | **PUT** /api/competence/domains/{domain_id} | Update Domain|
 |[**updateReferentialApiCompetenceReferentialsReferentialIdPut**](#updatereferentialapicompetencereferentialsreferentialidput) | **PUT** /api/competence/referentials/{referential_id} | Update Referential|
 |[**updateSubjectApiCompetenceSubjectsSubjectIdPut**](#updatesubjectapicompetencesubjectssubjectidput) | **PUT** /api/competence/subjects/{subject_id} | Update Subject|
+
+# **cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost**
+> ReferentialResponse cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(referentialCloneFromGlobalRequest)
+
+Cloner un référentiel global dans le tenant courant
+
+### Example
+
+```typescript
+import {
+    ReferentialsApi,
+    Configuration,
+    ReferentialCloneFromGlobalRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ReferentialsApi(configuration);
+
+let globalReferentialId: string; //ID du référentiel global à cloner (default to undefined)
+let referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest; //
+
+const { status, data } = await apiInstance.cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(
+    globalReferentialId,
+    referentialCloneFromGlobalRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **referentialCloneFromGlobalRequest** | **ReferentialCloneFromGlobalRequest**|  | |
+| **globalReferentialId** | [**string**] | ID du référentiel global à cloner | defaults to undefined|
+
+
+### Return type
+
+**ReferentialResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **cloneReferentialApiCompetenceReferentialsReferentialIdClonePost**
 > ReferentialResponse cloneReferentialApiCompetenceReferentialsReferentialIdClonePost(referentialCloneRequest)
@@ -1057,6 +1115,67 @@ const { status, data } = await apiInstance.listDomainsApiCompetenceReferentialsR
 ### Return type
 
 **Array<DomainResponse>**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listGlobalReferentialsApiCompetenceGlobalReferentialsGet**
+> GlobalReferentialListResponse listGlobalReferentialsApiCompetenceGlobalReferentialsGet()
+
+Lister les référentiels globaux (catalogue EdConnect)
+
+### Example
+
+```typescript
+import {
+    ReferentialsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ReferentialsApi(configuration);
+
+let page: number; //Numéro de page (optional) (default to 1)
+let size: number; //Taille de page (optional) (default to 20)
+let cycle: string; //Filtrer par cycle (optional) (default to undefined)
+let q: string; //Recherche textuelle (optional) (default to undefined)
+
+const { status, data } = await apiInstance.listGlobalReferentialsApiCompetenceGlobalReferentialsGet(
+    page,
+    size,
+    cycle,
+    q
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] | Numéro de page | (optional) defaults to 1|
+| **size** | [**number**] | Taille de page | (optional) defaults to 20|
+| **cycle** | [**string**] | Filtrer par cycle | (optional) defaults to undefined|
+| **q** | [**string**] | Recherche textuelle | (optional) defaults to undefined|
+
+
+### Return type
+
+**GlobalReferentialListResponse**
 
 ### Authorization
 

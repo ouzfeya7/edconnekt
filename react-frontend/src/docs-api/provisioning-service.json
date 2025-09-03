@@ -2,13 +2,32 @@
     "openapi": "3.1.0",
     "info": {
         "title": "Provisioning Service",
-        "version": "0.1.0"
+        "description": "Service de provisioning automatique des comptes Keycloak",
+        "version": "1.0.0"
     },
     "paths": {
         "/health": {
             "get": {
                 "summary": "Health Check",
+                "description": "Endpoint de santé de l'application.\n\nVérifie :\n- Connexion à la base de données\n- État du consommateur RabbitMQ",
                 "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/": {
+            "get": {
+                "summary": "Root",
+                "description": "Endpoint racine avec informations sur le service.",
+                "operationId": "root__get",
                 "responses": {
                     "200": {
                         "description": "Successful Response",

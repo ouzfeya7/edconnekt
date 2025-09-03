@@ -8,7 +8,14 @@ docs/BatchRead.md
 docs/BatchesApi.md
 docs/BulkImportResponse.md
 docs/DefaultApi.md
+docs/EstablishmentLinkCreate.md
+docs/EstablishmentRole.md
 docs/HTTPValidationError.md
+docs/IdentityCreate.md
+docs/IdentityListResponse.md
+docs/IdentityResponse.md
+docs/IdentityStatus.md
+docs/IdentityUpdate.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 git_push.sh

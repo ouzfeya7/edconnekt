@@ -15,6 +15,9 @@ import { Button } from '../../../components/ui/button';
 import { useEstablishmentAudit, useEstablishmentAuditStatistics, useExportEstablishmentAudit } from '../../../hooks/useEstablishmentAudit';
 import { useClasses } from '../../../hooks/useClasses';
 import { FaChalkboard, FaDoorOpen, FaClock, FaListAlt } from 'react-icons/fa';
+import { useEvents } from '../../../hooks/useEvents';
+import { useCreateEvent, usePublishEventById } from '../../../hooks/useEventMutations';
+import type { EventCreateCategoryEnum } from '../../../api/event-service/api';
 
 const EtablissementDetailPage: React.FC = () => {
   const { etabId } = useParams<{ etabId: string }>();
@@ -23,12 +26,14 @@ const EtablissementDetailPage: React.FC = () => {
   const { data: timeslots } = useTimeslots();
   const updateStatus = useUpdateEstablishmentStatus();
   const { data: auditStats } = useEstablishmentAuditStatistics(etabId);
-  const { data: auditList } = useEstablishmentAudit({ establishmentId: etabId, limit: 10, offset: 0 });
+  const [auditLimit, setAuditLimit] = useState(10);
+  const [auditOffset, setAuditOffset] = useState(0);
+  const { data: auditList } = useEstablishmentAudit({ establishmentId: etabId, limit: auditLimit, offset: auditOffset });
   const exportAudit = useExportEstablishmentAudit();
   const { data: classesResp } = useClasses({ etablissementId: etabId || '', limit: 1, skip: 0 });
 
   const [statusModalOpen, setStatusModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'rooms' | 'timeslots' | 'subscription' | 'audit'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'rooms' | 'timeslots' | 'events' | 'subscription' | 'audit'>('overview');
   const [isCreateClasseOpen, setIsCreateClasseOpen] = useState(false);
   const [isImportClassesOpen, setIsImportClassesOpen] = useState(false);
   const [editEtabOpen, setEditEtabOpen] = useState(false);
@@ -38,6 +43,10 @@ const EtablissementDetailPage: React.FC = () => {
   const [createTimeslotOpen, setCreateTimeslotOpen] = useState(false);
   const [newTimeslot, setNewTimeslot] = useState<{ start_time: string; end_time: string }>({ start_time: '', end_time: '' });
   const createTimeslot = useCreateTimeslot();
+  const { data: eventsList } = useEvents({ page: 1, size: 50 });
+  const createEvent = useCreateEvent();
+  const publishEventById = usePublishEventById();
+  const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
 
   const location = useLocation();
   useEffect(() => {
@@ -93,9 +102,138 @@ const EtablissementDetailPage: React.FC = () => {
           <button onClick={() => setActiveTab('classes')} className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'classes' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Classes</button>
           <button onClick={() => setActiveTab('rooms')} className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'rooms' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Salles</button>
           <button onClick={() => setActiveTab('timeslots')} className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'timeslots' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Créneaux</button>
+          <button onClick={() => setActiveTab('events')} className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'events' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Événements</button>
           <button onClick={() => setActiveTab('subscription')} className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'subscription' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Abonnement</button>
           <button onClick={() => setActiveTab('audit')} className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'audit' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Audit</button>
         </nav>
+      {activeTab === 'events' && (
+        <div className="border rounded p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium">Événements</h3>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">Total: {(() => {
+                const asArr = eventsList as unknown[] | undefined;
+                if (Array.isArray(asArr)) return asArr.length;
+                const asObj = eventsList as { total?: number } | undefined;
+                return asObj?.total ?? 0;
+              })()}</span>
+              <Button onClick={() => setIsCreateEventOpen(true)}>Créer</Button>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-3 py-2 text-left text-sm text-gray-600">Titre</th>
+                  <th className="px-3 py-2 text-left text-sm text-gray-600">Catégorie</th>
+                  <th className="px-3 py-2 text-left text-sm text-gray-600">Début</th>
+                  <th className="px-3 py-2 text-left text-sm text-gray-600">Fin</th>
+                  <th className="px-3 py-2 text-left text-sm text-gray-600">Statut</th>
+                  <th className="px-3 py-2 text-left text-sm text-gray-600">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.isArray((eventsList as { items?: unknown } | undefined)?.items) && (eventsList as { items: unknown[] }).items.length > 0 ? (
+                  (eventsList as { items: unknown[] }).items.map((evUnknown) => {
+                    const ev = evUnknown as { id: string; title: string; category?: string | null; start_time?: string | null; end_time?: string | null; status?: string | null };
+                    const id = ev?.id;
+                    return (
+                      <tr key={id} className="border-t">
+                        <td className="px-3 py-2 text-sm text-gray-800">{ev.title}</td>
+                        <td className="px-3 py-2 text-sm text-gray-600">{ev.category ?? '—'}</td>
+                        <td className="px-3 py-2 text-sm text-gray-600">{ev.start_time ? new Date(ev.start_time).toLocaleString() : '—'}</td>
+                        <td className="px-3 py-2 text-sm text-gray-600">{ev.end_time ? new Date(ev.end_time).toLocaleString() : '—'}</td>
+                        <td className="px-3 py-2 text-sm">
+                          <span className={`px-2 py-1 rounded text-xs ${ev.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : ev.status === 'DRAFT' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>{ev.status}</span>
+                        </td>
+                        <td className="px-3 py-2 text-sm">
+                          {ev.status !== 'PUBLISHED' && id && (
+                            <button
+                              className="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs"
+                              onClick={async () => {
+                                await publishEventById.mutateAsync(id);
+                              }}
+                            >Publier</button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr className="border-t"><td className="px-3 py-6 text-center text-gray-500" colSpan={6}>Aucun événement</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {isCreateEventOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
+              <div className="bg-white rounded-lg w-full max-w-2xl p-4 relative shadow-xl max-h-[70vh] overflow-y-auto">
+                <h3 className="text-lg font-semibold mb-4">Créer un événement</h3>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget as HTMLFormElement;
+                  const fd = new FormData(form);
+                  const title = String(fd.get('title') || '').trim();
+                  const category = String(fd.get('category') || '').trim() || 'Autre';
+                  const start_time = String(fd.get('start_time') || '').trim();
+                  const end_time = String(fd.get('end_time') || '').trim();
+                  const description = String(fd.get('description') || '').trim() || undefined;
+                  const location = String(fd.get('location') || '').trim() || undefined;
+                  const capacityStr = String(fd.get('capacity') || '').trim();
+                  const capacity = capacityStr !== '' && !Number.isNaN(Number(capacityStr)) ? Number(capacityStr) : undefined;
+                  if (!title || !category || !start_time || !end_time) return;
+                  await createEvent.mutateAsync({ title, category: category as EventCreateCategoryEnum, start_time, end_time, description, location, capacity });
+                  setIsCreateEventOpen(false);
+                  form.reset();
+                }} className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Titre *</label>
+                    <input name="title" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie *</label>
+                    <select name="category" className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                      <option value="Sortie">Sortie</option>
+                      <option value="Cérémonie">Cérémonie</option>
+                      <option value="Club">Club</option>
+                      <option value="Autre">Autre</option>
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Début *</label>
+                      <input type="datetime-local" name="start_time" className="w-full border border-gray-300 rounded-lg px-3 py-2" step="1" />
+                      <p className="text-xs text-gray-500 mt-1">Le fuseau sera normalisé automatiquement (UTC)</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Fin *</label>
+                      <input type="datetime-local" name="end_time" className="w-full border border-gray-300 rounded-lg px-3 py-2" step="1" />
+                      <p className="text-xs text-gray-500 mt-1">Le fuseau sera normalisé automatiquement (UTC)</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Lieu</label>
+                    <input name="location" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea name="description" className="w-full border border-gray-300 rounded-lg px-3 py-2" rows={3} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Capacité</label>
+                    <input type="number" min={0} step={1} name="capacity" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button type="button" variant="secondary" onClick={() => setIsCreateEventOpen(false)}>Annuler</Button>
+                    <Button type="submit" disabled={createEvent.isPending}>Créer</Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       </div>
 
       {/* Contextual actions for Classes */}
@@ -376,6 +514,42 @@ const EtablissementDetailPage: React.FC = () => {
                 )}
               </tbody>
             </table>
+          </div>
+          <div className="flex items-center justify-between mt-3">
+            <div className="text-xs text-gray-600">
+              Total: {auditList?.total ?? 0}
+              <span className="ml-2">Page: {Math.floor(auditOffset / auditLimit) + 1}{typeof auditList?.total === 'number' && auditLimit > 0 ? ` / ${Math.max(1, Math.ceil(auditList.total / auditLimit))}` : ''}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                className="border rounded px-2 py-1 text-sm"
+                value={auditLimit}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  setAuditLimit(next);
+                  setAuditOffset(0);
+                }}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+              <Button
+                variant="secondary"
+                onClick={() => setAuditOffset((o) => Math.max(0, o - auditLimit))}
+                disabled={auditOffset <= 0}
+              >
+                Précédent
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setAuditOffset((o) => o + auditLimit)}
+                disabled={!(auditList?.has_more ?? false)}
+              >
+                Suivant
+              </Button>
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Upload, Users, User, UserCheck, UserCog, Shield, PlusCircle, List } from 'lucide-react'; // Ajout d'icônes
+import { Upload, Users, User, UserCheck, UserCog, Shield, PlusCircle, IdCard } from 'lucide-react';
+import IdentitiesManagement from '../../components/directeur/users/IdentitiesManagement';
 import CSVUploader from '../../components/directeur/onboarding/CSVUploader';
 import OnboardingTracking from '../../components/directeur/onboarding/OnboardingTracking';
 import StudentsManagement from '../../components/directeur/users/StudentsManagement';
@@ -9,8 +10,7 @@ import ParentsManagement from '../../components/directeur/users/ParentsManagemen
 import StaffManagement from '../../components/directeur/users/StaffManagement';
 import AddUserModal from '../../components/directeur/users/AddUserModal';
 import { useOnboarding } from '../../contexts/OnboardingContext';
-import IdentityBatchesList from '../../components/directeur/onboarding/IdentityBatchesList';
-import ProvisioningBatchesList from '../../components/directeur/onboarding/ProvisioningBatchesList';
+// Onglets lot Identity/Provisioning retirés (fusion dans Suivi Onboarding)
 
 const UsersPage = () => {
   const { t } = useTranslation();
@@ -28,8 +28,7 @@ const UsersPage = () => {
   const tabs = [
     { id: 'import', label: t('onboarding', 'Onboarding'), icon: Upload },
     { id: 'suivi', label: t('onboarding_tracking', 'Suivi Onboarding'), icon: UserCheck },
-    { id: 'id_history', label: t('identity_batches', "Lots d'identités"), icon: List },
-    { id: 'prov_history', label: t('provisioning_batches', 'Lots de provisioning'), icon: List },
+    { id: 'identities', label: t('identities', 'Identités'), icon: IdCard },
     { id: 'students', label: t('students', 'Élèves'), icon: User },
     { id: 'teachers', label: t('teachers', 'Enseignants'), icon: UserCog },
     { id: 'parents', label: t('parents', 'Parents'), icon: Users },
@@ -85,9 +84,8 @@ const UsersPage = () => {
       <div>
         {activeTab === 'import' && <CSVUploader />}
         {activeTab === 'suivi' && <OnboardingTracking />}
-        {activeTab === 'id_history' && <IdentityBatchesList />}
-        {activeTab === 'prov_history' && <ProvisioningBatchesList />}
         {activeTab === 'students' && <StudentsManagement />}
+        {activeTab === 'identities' && <IdentitiesManagement />}
         {activeTab === 'teachers' && <TeachersManagement />}
         {activeTab === 'parents' && <ParentsManagement />}
         {activeTab === 'staff' && <StaffManagement />}

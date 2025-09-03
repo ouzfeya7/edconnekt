@@ -4,14 +4,18 @@ import type { StudentParentCreate, StudentParentResponse } from '../../api/stude
 
 export function useLinkParent() {
   const qc = useQueryClient();
-  return useMutation<StudentParentResponse, Error, StudentParentCreate>({
+  return useMutation<StudentParentResponse, Error, { payload: StudentParentCreate; etabId?: string }>({
     mutationKey: ['student:link-parent'],
-    mutationFn: async (payload: StudentParentCreate) => {
-      const { data } = await studentsApi.linkParentToStudentApiStudentsStudentIdParentsPost(payload);
+    mutationFn: async ({ payload, etabId }) => {
+      const { data } = await studentsApi.linkParentToStudentApiStudentsStudentIdParentsPost(
+        payload.student_id,
+        payload,
+        etabId ? { headers: { 'X-Establishment-Id': etabId } } : undefined
+      );
       return data;
     },
     onSuccess: (_d, vars) => {
-      if (vars?.student_id) qc.invalidateQueries({ queryKey: ['student', vars.student_id] });
+      if (vars?.payload?.student_id) qc.invalidateQueries({ queryKey: ['student', vars.payload.student_id] });
     },
   });
 }

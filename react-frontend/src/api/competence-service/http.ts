@@ -28,7 +28,7 @@ competenceAxios.interceptors.request.use((config) => {
   }
   if (import.meta.env.DEV) {
     const headers = { ...(config.headers as Record<string, unknown>) };
-    if (headers && 'Authorization' in headers) (headers as any).Authorization = '[REDACTED]';
+    if (headers && 'Authorization' in headers) (headers as unknown as Record<string, string>).Authorization = '[REDACTED]';
     console.debug('[competence-api][request]', {
       method: (config.method || 'GET').toUpperCase(),
       url: `${config.baseURL || ''}${config.url || ''}`,

@@ -3,6 +3,8 @@ import { competenceReferentialsApi } from '../../api/competence-service/client';
 import type {
   ReferentialCreate,
   ReferentialUpdate,
+  ReferentialCloneRequest,
+  ReferentialCloneFromGlobalRequest,
   DomainCreate,
   DomainUpdate,
   SubjectCreate,
@@ -49,6 +51,55 @@ export function usePublishReferential() {
     mutationFn: async (params: { referentialId: string; versionNumber: number }) => {
       const { referentialId, versionNumber } = params;
       const { data } = await competenceReferentialsApi.publishReferentialApiCompetenceReferentialsReferentialIdPublishPost(referentialId, versionNumber);
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['competence:referentials'] });
+    },
+  });
+}
+
+export function useCloneReferential() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['competence:referential:clone'],
+    mutationFn: async (params: { referentialId: string; payload: ReferentialCloneRequest }) => {
+      const { referentialId, payload } = params;
+      const { data } = await competenceReferentialsApi.cloneReferentialApiCompetenceReferentialsReferentialIdClonePost(referentialId, payload);
+      return data;
+    },
+    onSuccess: (_res, vars) => {
+      qc.invalidateQueries({ queryKey: ['competence:referentials'] });
+      qc.invalidateQueries({ queryKey: ['competence:referential', { referentialId: vars.referentialId }] });
+    },
+  });
+}
+
+export function useCloneFromGlobalReferential() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['competence:referential:clone-from-global'],
+    mutationFn: async (params: { globalReferentialId: string; payload: ReferentialCloneFromGlobalRequest }) => {
+      const { globalReferentialId, payload } = params;
+      const { data } = await competenceReferentialsApi.cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(
+        globalReferentialId,
+        payload
+      );
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['competence:referentials'] });
+    },
+  });
+}
+
+export function useDeleteReferential() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['competence:referential:delete'],
+    mutationFn: async (params: { referentialId: string; versionNumber: number }) => {
+      const { referentialId, versionNumber } = params;
+      const { data } = await competenceReferentialsApi.deleteReferentialApiCompetenceReferentialsReferentialIdDelete(referentialId, versionNumber);
       return data;
     },
     onSuccess: () => {

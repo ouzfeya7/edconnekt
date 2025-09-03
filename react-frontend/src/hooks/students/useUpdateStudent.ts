@@ -4,10 +4,14 @@ import type { StudentUpdate, StudentResponse } from '../../api/student-service/a
 
 export function useUpdateStudent() {
   const qc = useQueryClient();
-  return useMutation<StudentResponse, Error, { studentId: string; update: StudentUpdate }>({
+  return useMutation<StudentResponse, Error, { studentId: string; update: StudentUpdate; etabId?: string }>({
     mutationKey: ['student:update'],
-    mutationFn: async ({ studentId, update }) => {
-      const { data } = await studentsApi.updateStudentApiStudentsStudentIdPatch(studentId, update);
+    mutationFn: async ({ studentId, update, etabId }) => {
+      const { data } = await studentsApi.updateStudentApiStudentsStudentIdPatch(
+        studentId,
+        update,
+        etabId ? { headers: { 'X-Establishment-Id': etabId } } : undefined
+      );
       return data;
     },
     onSuccess: (_data, vars) => {

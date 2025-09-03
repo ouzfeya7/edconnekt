@@ -4,10 +4,13 @@ import type { StudentCreate, StudentResponse } from '../../api/student-service/a
 
 export function useCreateStudent() {
   const qc = useQueryClient();
-  return useMutation<StudentResponse, Error, StudentCreate>({
+  return useMutation<StudentResponse, Error, { payload: StudentCreate; etabId?: string }>({
     mutationKey: ['student:create'],
-    mutationFn: async (payload: StudentCreate) => {
-      const { data } = await studentsApi.createStudentApiStudentsPost(payload);
+    mutationFn: async ({ payload, etabId }) => {
+      const { data } = await studentsApi.createStudentApiStudentsPost(
+        payload,
+        etabId ? { headers: { 'X-Establishment-Id': etabId } } : undefined
+      );
       return data;
     },
     onSuccess: () => {

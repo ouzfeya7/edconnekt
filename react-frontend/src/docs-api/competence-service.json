@@ -54,6 +54,23 @@
                 }
             }
         },
+        "/debug/headers": {
+            "get": {
+                "summary": "Debug Headers",
+                "description": "Endpoint de diagnostic pour vérifier les en-têtes d'authentification",
+                "operationId": "debug_headers_debug_headers_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/competence/referentials": {
             "post": {
                 "tags": [
@@ -502,6 +519,158 @@
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/ReferentialCloneRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/global/referentials": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Global Referentials",
+                "description": "Lister les référentiels globaux (catalogue EdConnect)",
+                "operationId": "list_global_referentials_api_competence_global_referentials_get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de page",
+                            "default": 20,
+                            "title": "Size"
+                        },
+                        "description": "Taille de page"
+                    },
+                    {
+                        "name": "cycle",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par cycle",
+                            "title": "Cycle"
+                        },
+                        "description": "Filtrer par cycle"
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Recherche textuelle",
+                            "title": "Q"
+                        },
+                        "description": "Recherche textuelle"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GlobalReferentialListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/global/referentials/{global_referential_id}/clone": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Clone From Global Referential",
+                "description": "Cloner un référentiel global dans le tenant courant",
+                "operationId": "clone_from_global_referential_api_competence_global_referentials__global_referential_id__clone_post",
+                "parameters": [
+                    {
+                        "name": "global_referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel global à cloner",
+                            "title": "Global Referential Id"
+                        },
+                        "description": "ID du référentiel global à cloner"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReferentialCloneFromGlobalRequest"
                             }
                         }
                     }
@@ -2590,6 +2759,109 @@
                 "type": "object",
                 "title": "DomainUpdate"
             },
+            "GlobalReferentialListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/GlobalReferentialResponse"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "title": "Size"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "size",
+                    "pages"
+                ],
+                "title": "GlobalReferentialListResponse"
+            },
+            "GlobalReferentialResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "cycle": {
+                        "$ref": "#/components/schemas/CycleEnum"
+                    },
+                    "version_number": {
+                        "type": "integer",
+                        "title": "Version Number"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/RefStateEnum"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "published_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Published At"
+                    },
+                    "stats": {
+                        "type": "object",
+                        "title": "Stats"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "cycle",
+                    "version_number",
+                    "state",
+                    "description",
+                    "created_at",
+                    "published_at",
+                    "stats"
+                ],
+                "title": "GlobalReferentialResponse"
+            },
             "HTTPValidationError": {
                 "properties": {
                     "detail": {
@@ -2677,6 +2949,50 @@
                     "PUBLISHED"
                 ],
                 "title": "RefStateEnum"
+            },
+            "ReferentialCloneFromGlobalRequest": {
+                "properties": {
+                    "global_referential_id": {
+                        "type": "string",
+                        "title": "Global Referential Id",
+                        "description": "ID du référentiel global à cloner"
+                    },
+                    "new_name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "New Name",
+                        "description": "Nouveau nom pour le référentiel cloné"
+                    },
+                    "cycle": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/CycleEnum"
+                            }
+                        ],
+                        "description": "Cycle d'enseignement"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 1000
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description",
+                        "description": "Description du référentiel"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "global_referential_id",
+                    "new_name",
+                    "cycle"
+                ],
+                "title": "ReferentialCloneFromGlobalRequest"
             },
             "ReferentialCloneRequest": {
                 "properties": {
