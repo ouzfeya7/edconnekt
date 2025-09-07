@@ -179,7 +179,25 @@ const ReferentielsManager: React.FC = () => {
   };
   const handlePublishRef = async () => {
     if (!effectiveReferentialId || effectiveVersion === null) return;
-    await toast.promise(publishRef.mutateAsync({ referentialId: effectiveReferentialId, versionNumber: effectiveVersion }), { loading: 'Publication…', success: 'Référentiel publié', error: 'Échec de la publication' });
+    await toast.promise(
+      publishRef.mutateAsync({ referentialId: effectiveReferentialId, versionNumber: effectiveVersion }),
+      {
+        loading: 'Publication…',
+        success: 'Référentiel publié',
+        error: (err: unknown) => {
+          const anyErr = err as { response?: { status?: number; data?: { error?: string; code?: string; detail?: string } } };
+          const status = anyErr?.response?.status;
+          const data = anyErr?.response?.data;
+          const code = data?.error || data?.code || '';
+          const detail = data?.detail || '';
+          const isValidationBeforePublish = status === 400 && (code.includes('VALIDATION') || detail.toLowerCase().includes('validation'));
+          if (isValidationBeforePublish) {
+            return "Publication impossible: le référentiel est vide. Ajoutez au moins un domaine, une matière et une compétence, puis réessayez.";
+          }
+          return 'Échec de la publication';
+        },
+      }
+    );
   };
 
   const handleDeleteRef = async (referentialId: string, versionNumber: number) => {
