@@ -2,9 +2,6 @@ import './index.css';
 // import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-// Import Keycloak commenté temporairement
-// import { ReactKeycloakProvider } from '@react-keycloak/web';
-// import keycloak from './pages/authentification/keycloak.ts';
 import App from './App.tsx';
 import "./i18n";
 import i18n from './i18n';

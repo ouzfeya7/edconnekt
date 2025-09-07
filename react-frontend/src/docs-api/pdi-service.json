@@ -1,0 +1,1094 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "PDI Session Service",
+        "description": "Microservice pour la gestion des séances PDI selon le cahier des charges ENGY PARTNERS",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/health": {
+            "get": {
+                "summary": "Health Check",
+                "description": "Vérification de l'état du service",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health/db": {
+            "get": {
+                "summary": "Health Check Db",
+                "description": "Vérification de la base de données",
+                "operationId": "health_check_db_health_db_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pdi/sessions": {
+            "post": {
+                "summary": "Create Pdi Session",
+                "description": "Créer une nouvelle séance PDI avec les statuts des élèves",
+                "operationId": "create_pdi_session_api_v1_pdi_sessions_post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PDISessionWithStudentsCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PDISessionOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "summary": "List Pdi Sessions",
+                "description": "Lister les séances PDI avec filtres",
+                "operationId": "list_pdi_sessions_api_v1_pdi_sessions_get",
+                "parameters": [
+                    {
+                        "name": "school_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ID de l'établissement",
+                            "title": "School Id"
+                        },
+                        "description": "ID de l'établissement"
+                    },
+                    {
+                        "name": "class_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ID de la classe",
+                            "title": "Class Id"
+                        },
+                        "description": "ID de la classe"
+                    },
+                    {
+                        "name": "teacher_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ID de l'enseignant",
+                            "title": "Teacher Id"
+                        },
+                        "description": "ID de l'enseignant"
+                    },
+                    {
+                        "name": "session_date_from",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Date de début",
+                            "title": "Session Date From"
+                        },
+                        "description": "Date de début"
+                    },
+                    {
+                        "name": "session_date_to",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Date de fin",
+                            "title": "Session Date To"
+                        },
+                        "description": "Date de fin"
+                    },
+                    {
+                        "name": "evaluation_period",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Période d'évaluation",
+                            "title": "Evaluation Period"
+                        },
+                        "description": "Période d'évaluation"
+                    },
+                    {
+                        "name": "report_status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/ReportStatusEnum"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Statut du rapport",
+                            "title": "Report Status"
+                        },
+                        "description": "Statut du rapport"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Nombre maximum de résultats",
+                            "default": 50,
+                            "title": "Limit"
+                        },
+                        "description": "Nombre maximum de résultats"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Offset pour la pagination",
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Offset pour la pagination"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PDISessionOut"
+                                    },
+                                    "title": "Response List Pdi Sessions Api V1 Pdi Sessions Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pdi/sessions/{session_id}": {
+            "get": {
+                "summary": "Get Pdi Session",
+                "description": "Récupérer une séance PDI par son ID",
+                "operationId": "get_pdi_session_api_v1_pdi_sessions__session_id__get",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Session Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PDISessionWithStudentsOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Update Pdi Session",
+                "description": "Mettre à jour une séance PDI en utilisant JSON-Patch (RFC 6902)",
+                "operationId": "update_pdi_session_api_v1_pdi_sessions__session_id__patch",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Session Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json-patch+json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "additionalProperties": true
+                                },
+                                "title": "Patch Ops"
+                            },
+                            "example": [
+                                {
+                                    "op": "replace",
+                                    "path": "/pdi_code",
+                                    "value": "PDI-2025-MATHS-S2"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PDISessionOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pdi/sessions/{session_id}/report": {
+            "post": {
+                "summary": "Request Report Generation",
+                "description": "Demander la génération d'un rapport pour une séance PDI",
+                "operationId": "request_report_generation_api_v1_pdi_sessions__session_id__report_post",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Session Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportGenerationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pdi/stats": {
+            "get": {
+                "summary": "Get Pdi Stats",
+                "description": "Récupérer les statistiques des séances PDI",
+                "operationId": "get_pdi_stats_api_v1_pdi_stats_get",
+                "parameters": [
+                    {
+                        "name": "teacher_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ID de l'enseignant",
+                            "title": "Teacher Id"
+                        },
+                        "description": "ID de l'enseignant"
+                    },
+                    {
+                        "name": "school_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ID de l'établissement",
+                            "title": "School Id"
+                        },
+                        "description": "ID de l'établissement"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PDISessionStats"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pdi/sessions/{session_id}/students/{student_id}": {
+            "patch": {
+                "summary": "Update Student Status",
+                "description": "Mettre à jour le statut d'un élève pour une séance PDI",
+                "operationId": "update_student_status_api_v1_pdi_sessions__session_id__students__student_id__patch",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Session Id"
+                        }
+                    },
+                    {
+                        "name": "student_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Student Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PDIStudentStatusUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PDIStudentStatusOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AssistanceLevelEnum": {
+                "type": "string",
+                "enum": [
+                    "NONE",
+                    "MINIMAL",
+                    "MODERATE",
+                    "HIGH",
+                    "FULL"
+                ],
+                "title": "AssistanceLevelEnum"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "PDISessionCreate": {
+                "properties": {
+                    "school_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "School Id"
+                    },
+                    "class_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Class Id"
+                    },
+                    "teacher_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Teacher Id"
+                    },
+                    "pdi_code": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 20
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pdi Code"
+                    },
+                    "session_date": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Session Date"
+                    },
+                    "evaluation_period": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 10
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Evaluation Period"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "school_id",
+                    "class_id",
+                    "teacher_id",
+                    "session_date"
+                ],
+                "title": "PDISessionCreate"
+            },
+            "PDISessionOut": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "school_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "School Id"
+                    },
+                    "class_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Class Id"
+                    },
+                    "teacher_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Teacher Id"
+                    },
+                    "pdi_code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pdi Code"
+                    },
+                    "session_date": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Session Date"
+                    },
+                    "evaluation_period": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Evaluation Period"
+                    },
+                    "report_status": {
+                        "type": "string",
+                        "title": "Report Status"
+                    },
+                    "report_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Report Url"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    },
+                    "student_statuses": {
+                        "items": {
+                            "$ref": "#/components/schemas/PDIStudentStatusOut"
+                        },
+                        "type": "array",
+                        "title": "Student Statuses",
+                        "default": []
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "school_id",
+                    "class_id",
+                    "teacher_id",
+                    "pdi_code",
+                    "session_date",
+                    "evaluation_period",
+                    "report_status",
+                    "report_url",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "PDISessionOut"
+            },
+            "PDISessionStats": {
+                "properties": {
+                    "total_sessions": {
+                        "type": "integer",
+                        "title": "Total Sessions"
+                    },
+                    "sessions_this_month": {
+                        "type": "integer",
+                        "title": "Sessions This Month"
+                    },
+                    "average_score": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Average Score"
+                    },
+                    "students_participated": {
+                        "type": "integer",
+                        "title": "Students Participated"
+                    },
+                    "reports_generated": {
+                        "type": "integer",
+                        "title": "Reports Generated"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "total_sessions",
+                    "sessions_this_month",
+                    "average_score",
+                    "students_participated",
+                    "reports_generated"
+                ],
+                "title": "PDISessionStats"
+            },
+            "PDISessionWithStudentsCreate": {
+                "properties": {
+                    "session": {
+                        "$ref": "#/components/schemas/PDISessionCreate"
+                    },
+                    "student_statuses": {
+                        "items": {
+                            "$ref": "#/components/schemas/PDIStudentStatusCreate"
+                        },
+                        "type": "array",
+                        "title": "Student Statuses"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "session",
+                    "student_statuses"
+                ],
+                "title": "PDISessionWithStudentsCreate"
+            },
+            "PDISessionWithStudentsOut": {
+                "properties": {
+                    "session": {
+                        "$ref": "#/components/schemas/PDISessionOut"
+                    },
+                    "student_statuses": {
+                        "items": {
+                            "$ref": "#/components/schemas/PDIStudentStatusOut"
+                        },
+                        "type": "array",
+                        "title": "Student Statuses"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "session",
+                    "student_statuses"
+                ],
+                "title": "PDISessionWithStudentsOut"
+            },
+            "PDIStudentStatusCreate": {
+                "properties": {
+                    "student_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Student Id"
+                    },
+                    "score_global": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "maximum": 100.0,
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Score Global"
+                    },
+                    "comp_scores": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Comp Scores"
+                    },
+                    "assistance_level": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AssistanceLevelEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "presence_status": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PresenceStatusEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "comment": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Comment"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "student_id"
+                ],
+                "title": "PDIStudentStatusCreate"
+            },
+            "PDIStudentStatusOut": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "student_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Student Id"
+                    },
+                    "score_global": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Score Global"
+                    },
+                    "comp_scores": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Comp Scores"
+                    },
+                    "assistance_level": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Assistance Level"
+                    },
+                    "presence_status": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Presence Status"
+                    },
+                    "comment": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Comment"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "student_id",
+                    "score_global",
+                    "comp_scores",
+                    "assistance_level",
+                    "presence_status",
+                    "comment",
+                    "created_at"
+                ],
+                "title": "PDIStudentStatusOut"
+            },
+            "PDIStudentStatusUpdate": {
+                "properties": {
+                    "score_global": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "maximum": 100.0,
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Score Global"
+                    },
+                    "comp_scores": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": true,
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Comp Scores"
+                    },
+                    "assistance_level": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AssistanceLevelEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "presence_status": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PresenceStatusEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "comment": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Comment"
+                    }
+                },
+                "type": "object",
+                "title": "PDIStudentStatusUpdate"
+            },
+            "PresenceStatusEnum": {
+                "type": "string",
+                "enum": [
+                    "PRESENT",
+                    "ABSENT",
+                    "LATE",
+                    "EXCUSED"
+                ],
+                "title": "PresenceStatusEnum"
+            },
+            "ReportGenerationResponse": {
+                "properties": {
+                    "session_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Session Id"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "session_id",
+                    "status",
+                    "message"
+                ],
+                "title": "ReportGenerationResponse"
+            },
+            "ReportStatusEnum": {
+                "type": "string",
+                "enum": [
+                    "PENDING",
+                    "GENERATING",
+                    "READY",
+                    "FAILED"
+                ],
+                "title": "ReportStatusEnum"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}
