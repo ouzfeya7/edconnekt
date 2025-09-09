@@ -1,0 +1,1022 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Admission Service API",
+        "description": "API pour la gestion des demandes d'admission",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Root",
+                "description": "Endpoint racine pour vérifier que l'API fonctionne",
+                "operationId": "root__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Health Check",
+                "description": "Endpoint de santé pour Docker et monitoring",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admissions/": {
+            "post": {
+                "tags": [
+                    "admissions"
+                ],
+                "summary": "Create Admission",
+                "description": "Créer une nouvelle admission.\n\n- **student_name**: Nom complet de l'élève (requis)\n- **student_birthdate**: Date de naissance de l'élève (requis)\n- **class_requested**: Classe demandée (requis)\n- **parent_name**: Nom du parent/tuteur (requis)\n- **parent_contact**: Contact du parent (email ou téléphone) (requis)\n- **student_email**: Email de l'élève (optionnel)\n- **student_phone**: Téléphone de l'élève (optionnel)\n- **parent_email**: Email du parent (optionnel)\n- **parent_phone**: Téléphone du parent (optionnel)\n- **notes**: Notes additionnelles (optionnel)\n- **attachments**: Liste des chemins des fichiers joints (optionnel)\n- **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)\n\nLe statut sera automatiquement défini sur 'PENDING'.",
+                "operationId": "create_admission_api_v1_admissions__post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdmissionCreateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdmissionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "admissions"
+                ],
+                "summary": "Get Admissions",
+                "description": "Récupérer la liste des admissions avec pagination et filtres.\n\n- **page**: Numéro de page (défaut: 1)\n- **limit**: Nombre d'éléments par page (défaut: 10, max: 100)\n- **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST)\n- **class_requested**: Filtrer par classe demandée\n- **student_name**: Filtrer par nom d'élève\n- **parent_name**: Filtrer par nom de parent\n\nLes résultats sont triés par date de création (plus récent en premier).",
+                "operationId": "get_admissions_api_v1_admissions__get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Nombre d'éléments par page",
+                            "default": 10,
+                            "title": "Limit"
+                        },
+                        "description": "Nombre d'éléments par page"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/AdmissionStatus"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par statut",
+                            "title": "Status"
+                        },
+                        "description": "Filtrer par statut"
+                    },
+                    {
+                        "name": "class_requested",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par classe demandée",
+                            "title": "Class Requested"
+                        },
+                        "description": "Filtrer par classe demandée"
+                    },
+                    {
+                        "name": "student_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par nom d'élève",
+                            "title": "Student Name"
+                        },
+                        "description": "Filtrer par nom d'élève"
+                    },
+                    {
+                        "name": "parent_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par nom de parent",
+                            "title": "Parent Name"
+                        },
+                        "description": "Filtrer par nom de parent"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdmissionListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admissions/{admission_id}": {
+            "get": {
+                "tags": [
+                    "admissions"
+                ],
+                "summary": "Get Admission",
+                "description": "Récupérer les détails d'une admission spécifique.\n\n- **admission_id**: ID de l'admission à récupérer\n\nRetourne une erreur 404 si l'admission n'existe pas.",
+                "operationId": "get_admission_api_v1_admissions__admission_id__get",
+                "parameters": [
+                    {
+                        "name": "admission_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Admission Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdmissionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "admissions"
+                ],
+                "summary": "Update Admission",
+                "description": "Mettre à jour une admission complète.\n\n- **admission_id**: ID de l'admission à mettre à jour\n- Tous les champs de l'admission peuvent être mis à jour\n\nMet automatiquement à jour le champ `updated_at`.",
+                "operationId": "update_admission_api_v1_admissions__admission_id__put",
+                "parameters": [
+                    {
+                        "name": "admission_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Admission Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdmissionUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdmissionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "admissions"
+                ],
+                "summary": "Delete Admission",
+                "description": "Supprimer une admission.\n\n- **admission_id**: ID de l'admission à supprimer\n\nRetourne une erreur 404 si l'admission n'existe pas.",
+                "operationId": "delete_admission_api_v1_admissions__admission_id__delete",
+                "parameters": [
+                    {
+                        "name": "admission_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Admission Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admissions/{admission_id}/status": {
+            "patch": {
+                "tags": [
+                    "admissions"
+                ],
+                "summary": "Update Admission Status",
+                "description": "Mettre à jour le statut d'une admission.\n\n- **admission_id**: ID de l'admission à mettre à jour\n- **status**: Nouveau statut (ACCEPTED, REJECTED, WAITLIST)\n- **admin_notes**: Notes de l'administrateur (optionnel)\n- **reviewed_by**: Nom de l'administrateur (optionnel)\n\nMet automatiquement à jour les champs `reviewed_at` et `updated_at`.",
+                "operationId": "update_admission_status_api_v1_admissions__admission_id__status_patch",
+                "parameters": [
+                    {
+                        "name": "admission_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Admission Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdmissionStatusUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdmissionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admissions/stats/summary": {
+            "get": {
+                "tags": [
+                    "admissions"
+                ],
+                "summary": "Get Admission Stats",
+                "description": "Récupérer les statistiques des admissions.\n\nRetourne le nombre total d'admissions et la répartition par statut.",
+                "operationId": "get_admission_stats_api_v1_admissions_stats_summary_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Get Admission Stats Api V1 Admissions Stats Summary Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AdmissionCreateRequest": {
+                "properties": {
+                    "student_name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 2,
+                        "title": "Student Name",
+                        "description": "Nom complet de l'élève"
+                    },
+                    "student_birthdate": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Student Birthdate",
+                        "description": "Date de naissance de l'élève"
+                    },
+                    "class_requested": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Class Requested",
+                        "description": "Classe demandée"
+                    },
+                    "parent_name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 2,
+                        "title": "Parent Name",
+                        "description": "Nom du parent/tuteur"
+                    },
+                    "parent_contact": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 5,
+                        "title": "Parent Contact",
+                        "description": "Contact du parent (email ou téléphone)"
+                    },
+                    "student_email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Student Email",
+                        "description": "Email de l'élève"
+                    },
+                    "student_phone": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Student Phone",
+                        "description": "Téléphone de l'élève"
+                    },
+                    "parent_email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Parent Email",
+                        "description": "Email du parent"
+                    },
+                    "parent_phone": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Parent Phone",
+                        "description": "Téléphone du parent"
+                    },
+                    "notes": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notes",
+                        "description": "Notes additionnelles"
+                    },
+                    "attachments": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Attachments",
+                        "description": "Liste des chemins des fichiers joints"
+                    },
+                    "captcha_token": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Captcha Token",
+                        "description": "Token reCAPTCHA v3 pour validation anti-spam"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "student_name",
+                    "student_birthdate",
+                    "class_requested",
+                    "parent_name",
+                    "parent_contact",
+                    "captcha_token"
+                ],
+                "title": "AdmissionCreateRequest",
+                "description": "Schéma pour la requête de création d'une admission (avec CAPTCHA)"
+            },
+            "AdmissionListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/AdmissionResponse"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "title": "Limit"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "limit",
+                    "pages"
+                ],
+                "title": "AdmissionListResponse",
+                "description": "Schéma de réponse pour la liste des admissions avec pagination"
+            },
+            "AdmissionResponse": {
+                "properties": {
+                    "student_name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 2,
+                        "title": "Student Name",
+                        "description": "Nom complet de l'élève"
+                    },
+                    "student_birthdate": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Student Birthdate",
+                        "description": "Date de naissance de l'élève"
+                    },
+                    "class_requested": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Class Requested",
+                        "description": "Classe demandée"
+                    },
+                    "parent_name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 2,
+                        "title": "Parent Name",
+                        "description": "Nom du parent/tuteur"
+                    },
+                    "parent_contact": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 5,
+                        "title": "Parent Contact",
+                        "description": "Contact du parent (email ou téléphone)"
+                    },
+                    "student_email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Student Email",
+                        "description": "Email de l'élève"
+                    },
+                    "student_phone": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Student Phone",
+                        "description": "Téléphone de l'élève"
+                    },
+                    "parent_email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Parent Email",
+                        "description": "Email du parent"
+                    },
+                    "parent_phone": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Parent Phone",
+                        "description": "Téléphone du parent"
+                    },
+                    "notes": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notes",
+                        "description": "Notes additionnelles"
+                    },
+                    "attachments": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Attachments",
+                        "description": "Liste des chemins des fichiers joints"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/AdmissionStatus"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    },
+                    "admin_notes": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Admin Notes"
+                    },
+                    "reviewed_by": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Reviewed By"
+                    },
+                    "reviewed_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Reviewed At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "student_name",
+                    "student_birthdate",
+                    "class_requested",
+                    "parent_name",
+                    "parent_contact",
+                    "id",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "AdmissionResponse",
+                "description": "Schéma de réponse pour une admission"
+            },
+            "AdmissionStatus": {
+                "type": "string",
+                "enum": [
+                    "PENDING",
+                    "ACCEPTED",
+                    "REJECTED",
+                    "WAITLIST"
+                ],
+                "title": "AdmissionStatus",
+                "description": "Énumération des statuts possibles pour une admission"
+            },
+            "AdmissionStatusUpdate": {
+                "properties": {
+                    "status": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/AdmissionStatus"
+                            }
+                        ],
+                        "description": "Nouveau statut de l'admission"
+                    },
+                    "admin_notes": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Admin Notes",
+                        "description": "Notes de l'administrateur"
+                    },
+                    "reviewed_by": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Reviewed By",
+                        "description": "Nom de l'administrateur"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "status"
+                ],
+                "title": "AdmissionStatusUpdate",
+                "description": "Schéma pour la mise à jour du statut uniquement"
+            },
+            "AdmissionUpdate": {
+                "properties": {
+                    "student_name": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255,
+                                "minLength": 2
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Student Name"
+                    },
+                    "student_birthdate": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Student Birthdate"
+                    },
+                    "class_requested": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 100,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Class Requested"
+                    },
+                    "parent_name": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255,
+                                "minLength": 2
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Parent Name"
+                    },
+                    "parent_contact": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255,
+                                "minLength": 5
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Parent Contact"
+                    },
+                    "student_email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Student Email"
+                    },
+                    "student_phone": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Student Phone"
+                    },
+                    "parent_email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Parent Email"
+                    },
+                    "parent_phone": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 50
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Parent Phone"
+                    },
+                    "notes": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notes"
+                    },
+                    "attachments": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Attachments"
+                    }
+                },
+                "type": "object",
+                "title": "AdmissionUpdate",
+                "description": "Schéma pour la mise à jour d'une admission"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

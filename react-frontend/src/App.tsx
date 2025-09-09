@@ -59,6 +59,9 @@ import ParentDashboard from "./pages/parents/ParentDashboard";
 import ParentRapportPage from "./pages/parents/ParentRapportPage"; // Importer la nouvelle page
 import ParentRemediationPage from "./pages/parents/ParentRemediationPage"; // Importer la page de remédiation
 import PaiementPage from './pages/PaiementPage';
+import AdmissionPublicPage from './pages/AdmissionPublicPage';
+import AdmissionsPage from './pages/admin/admissions/AdmissionsPage';
+import AdmissionFormPage from './pages/parents/AdmissionFormPage';
 
 // Import des pages du directeur
 import DirecteurDashboard from './pages/directeur/DirecteurDashboard';
@@ -123,6 +126,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   ],
   directeur: [
     { path: "/", element: <DirecteurDashboard /> },
+    { path: "/admissions", element: <AdmissionsPage /> },
     { path: "/utilisateurs", element: <UsersPage /> }, // Mis à jour
     { path: "/referentiels", element: <ReferentielsPage /> },
     { path: "/alertes", element: <CentreAlertesPage /> },
@@ -154,6 +158,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   ],
   parent: [
     { path: "/", element: <ParentDashboard /> },
+    { path: "/admission", element: <AdmissionFormPage /> },
     { path: "/rapport", element: <ParentRapportPage /> },
     { path: "/remediation", element: <ParentRemediationPage /> }, // Route pour la page de remédiation
     { path: "/remediation/:remediationId", element: <RemediationDetailPage /> }, // Route pour la page de détail de remédiation
@@ -171,6 +176,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   ],
   administrateur: [
     { path: "/", element: <AdminDashboard /> },
+    { path: "/admissions", element: <AdmissionsPage /> },
     { path: "/etablissements", element: <EtablissementsPage /> },
     { path: "/etablissements/:etabId", element: <EtablissementDetailPage /> },
     { path: "/admin/classes/:classeId", element: <ClasseDetailPage /> },
@@ -215,6 +221,7 @@ const AppContent = () => {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admission" element={<AdmissionPublicPage />} />
         {/* Redirige toutes les autres tentatives d'accès vers la page de connexion */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
