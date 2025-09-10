@@ -25,7 +25,7 @@ export interface PdiCompetence {
   status: 'acquis' | 'en_cours' | 'a_renforcer';
 }
 
-export interface PdiSession {
+export interface PdiPlanSession {
   sessionCode: string;
   sessionDate: string;
   trimester: number;
@@ -64,7 +64,7 @@ export interface StudentNote {
       };
   };
   pdiSessions?: {
-    [sessionKey: string]: PdiSession;
+    [sessionKey: string]: PdiPlanSession;
   };
 }
 
@@ -648,4 +648,4 @@ export const calculateTrimesterAverages = (allNotes: StudentNote[], trimestre: n
             notes: averagedNotes,
         };
     });
-}; 
+};

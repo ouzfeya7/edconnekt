@@ -6,13 +6,27 @@ interface ChatContextType extends ChatState, ChatActions {}
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 const buildInitialState = (): ChatState => {
+  // Récupérer l'ID de l'utilisateur connecté depuis le token Keycloak
+  const currentUserId = (() => {
+    try {
+      const raw = sessionStorage.getItem('keycloak-token');
+      if (!raw) return 'mock-user-123'; // fallback pour dev
+      const parts = raw.split('.');
+      if (parts.length < 2) return 'mock-user-123';
+      const payload = JSON.parse(atob(parts[1]));
+      return payload?.sub || 'mock-user-123';
+    } catch {
+      return 'mock-user-123';
+    }
+  })();
+
   const conversations: Record<string, Conversation> = {
     'conv-1': {
       id: 'conv-1',
       type: 'DM',
       title: 'Mme Diallo (Parent)',
       members: [
-        { userId: 'me', role: 'enseignant' },
+        { userId: currentUserId, role: 'enseignant' },
         { userId: 'parent-1', role: 'parent' },
       ],
       lastMessageAt: new Date().toISOString(),
@@ -24,7 +38,7 @@ const buildInitialState = (): ChatState => {
       title: 'Infos rentrée',
       members: [
         { userId: 'directeur-1', role: 'directeur' },
-        { userId: 'me', role: 'enseignant' },
+        { userId: currentUserId, role: 'enseignant' },
         { userId: 'parent-1', role: 'parent' },
       ],
       lastMessageAt: new Date().toISOString(),
@@ -45,7 +59,7 @@ const buildInitialState = (): ChatState => {
       {
         id: 'm-2',
         conversationId: 'conv-1',
-        senderId: 'me',
+        senderId: currentUserId,
         type: 'TEXT',
         content: 'Oui, je vous détaille cela après le cours à 11h.',
         createdAt: new Date(Date.now() - 1000 * 60 * 3).toISOString(),
@@ -115,7 +129,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const setTyping = useCallback((conversationId: string, isTyping: boolean) => {
-    const currentUserId = 'me';
+    const currentUserId = (() => {
+      try {
+        const raw = sessionStorage.getItem('keycloak-token');
+        if (!raw) return 'mock-user-123';
+        const parts = raw.split('.');
+        if (parts.length < 2) return 'mock-user-123';
+        const payload = JSON.parse(atob(parts[1]));
+        return payload?.sub || 'mock-user-123';
+      } catch {
+        return 'mock-user-123';
+      }
+    })();
     setState(prev => ({
       ...prev,
       typingByConversation: {

@@ -15,7 +15,7 @@ export interface PdiCompetence {
   status: 'acquis' | 'en_cours' | 'a_renforcer';
 }
 
-export interface PdiSession {
+export interface PdiPlanSession {
   sessionCode: string;
   sessionDate: string;
   trimester: number;
