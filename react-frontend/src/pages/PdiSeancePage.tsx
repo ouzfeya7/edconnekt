@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mockFacilitators } from '../lib/mock-data';
+import { createPdiSessionsForFacilitator } from '../lib/pdi-session-utils';
 import { useFilters } from '../contexts/FilterContext';
 import { Users, Target, FileText } from 'lucide-react';
 
@@ -14,14 +15,18 @@ const PdiSeancePage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  // Calcul des statistiques PDI spécifiques
+  // Calcul des statistiques PDI spécifiques (dérivées des séances générées côté UI)
+  const allSessions = mockFacilitators.flatMap(f => createPdiSessionsForFacilitator(f));
+  const allStudents = allSessions.flatMap(s => s.students);
   const pdiStats = {
     totalFacilitators: mockFacilitators.length,
-    totalClasses: mockFacilitators.reduce((sum, f) => sum + f.classes.length, 0),
-    averageScore: Math.round(mockFacilitators.reduce((sum, f) => sum + f.stats.avg, 0) / mockFacilitators.length),
-    totalSessions: mockFacilitators.reduce((sum, f) => sum + f.stats.remediation, 0) + 15, // Simulation
-    reportsGenerated: Math.round(mockFacilitators.length * 0.8), // 80% des facilitateurs ont généré des rapports
-    studentsInDifficulty: mockFacilitators.reduce((sum, f) => sum + f.stats.remediation, 0)
+    totalClasses: new Set(mockFacilitators.flatMap(f => f.classes)).size,
+    averageScore: allStudents.length
+      ? Math.round(allStudents.reduce((sum, s) => sum + s.globalScore, 0) / allStudents.length)
+      : 0,
+    totalSessions: allSessions.length,
+    reportsGenerated: allSessions.filter(s => s.reportGenerated).length,
+    studentsInDifficulty: allStudents.filter(s => s.needsAssistance).length
   };
 
   const handleViewAllSessions = (facilitatorId: string) => {
