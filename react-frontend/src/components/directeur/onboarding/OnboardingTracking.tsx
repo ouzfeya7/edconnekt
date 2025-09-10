@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useDirector } from '../../../contexts/DirectorContext';
-import { useIdentityBatches, useIdentityBatchItems, useIdentityCancelBulkImport } from '../../../hooks/useIdentity';
+import { useIdentityBatches, useIdentityBatchItems, useIdentityCancelBulkImport, useIdentityBulkProgress, useIdentityAudit } from '../../../hooks/useIdentity';
 import { useProvisioningBatches, useProvisioningCreateBatch, useProvisioningRunBatch, useProvisioningBatchItems } from '../../../hooks/useProvisioning';
 import toast from 'react-hot-toast';
 import { useOnboarding } from '../../../contexts/OnboardingContext';
@@ -34,7 +34,12 @@ const OnboardingTracking: React.FC = () => {
 
   const effectiveEtabId = currentEtablissementId || undefined;
   const { data: idBatches } = useIdentityBatches({ establishmentId: effectiveEtabId, page, size });
-  const { data: idItems } = useIdentityBatchItems({ batchId: selectedIdentityBatchId, domain: domainFilter, itemStatus: statusFilter, page: 1, size: 50 });
+  const { data: idItems } = useIdentityBatchItems(
+    { batchId: selectedIdentityBatchId, domain: domainFilter, itemStatus: statusFilter, page: 1, size: 50 },
+    { refetchInterval: 2000 }
+  );
+  const { data: idProgress } = useIdentityBulkProgress(selectedIdentityBatchId, { refetchInterval: 2000 });
+  const { data: idAudit } = useIdentityAudit({ batchId: selectedIdentityBatchId, limit: 20 });
   const cancelBulk = useIdentityCancelBulkImport();
 
 
@@ -43,7 +48,10 @@ const OnboardingTracking: React.FC = () => {
   const { data: provBatches } = useProvisioningBatches({ skip: (page - 1) * size, limit: size });
   const provCreate = useProvisioningCreateBatch();
   const provRun = useProvisioningRunBatch();
-  const { data: provItems } = useProvisioningBatchItems({ batchId: selectedProvBatchId, limit: 100 });
+  const { data: provItems } = useProvisioningBatchItems(
+    { batchId: selectedProvBatchId, limit: 100 },
+    { refetchInterval: 2000 }
+  );
 
   type IdentityBatchRow = { id: string; establishment_id?: string; source_file_url?: string; created_at?: string };
   const identityBatchList: IdentityBatchRow[] = useMemo(() => {
@@ -90,11 +98,20 @@ const OnboardingTracking: React.FC = () => {
   type IdentityItemRow = { domain?: string; establishment_id?: string; external_id?: string; target_uuid?: string; item_status?: string; message?: string; created_at?: string; updated_at?: string };
   const identityItemsArray: IdentityItemRow[] = useMemo(() => {
     if (!idItems) return [];
-    if (Array.isArray(idItems)) return idItems as IdentityItemRow[];
-    const obj = idItems as { items?: unknown };
-    if (Array.isArray(obj.items)) return obj.items as IdentityItemRow[];
-    return [] as IdentityItemRow[];
+    const obj = idItems as { items?: IdentityItemRow[] };
+    return Array.isArray(obj.items) ? obj.items : [];
   }, [idItems]);
+
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.debug('[OnboardingTracking] identity items', {
+        selectedIdentityBatchId,
+        count: identityItemsArray.length,
+        domainFilter,
+        statusFilter,
+      });
+    }
+  }, [selectedIdentityBatchId, identityItemsArray.length, domainFilter, statusFilter]);
 
   const identityCounters = useMemo(() => {
     const counters: Record<string, number> = { NEW: 0, UPDATED: 0, SKIPPED: 0, INVALID: 0 };
@@ -126,6 +143,17 @@ const OnboardingTracking: React.FC = () => {
     });
     return counters;
   }, [provItemsArray]);
+
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.debug('[OnboardingTracking] provisioning items', {
+        selectedProvBatchId,
+        count: provItemsArray.length,
+        provDomainFilter,
+        provStatusFilter,
+      });
+    }
+  }, [selectedProvBatchId, provItemsArray.length, provDomainFilter, provStatusFilter]);
 
 
 
@@ -432,6 +460,22 @@ const OnboardingTracking: React.FC = () => {
         {/* Section des items d'identité améliorée */}
         {selectedIdentityBatchId && (
           <div className="mt-6 space-y-4">
+            {/* Progrès du batch identité */}
+            <div className="p-4 border border-gray-200 rounded-lg bg-white">
+              {(() => {
+                const p = (idProgress as unknown as { status?: string; total_items?: number; new_count?: number; updated_count?: number; skipped_count?: number; invalid_count?: number } | undefined);
+                return (
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-700">
+                    <span><span className="text-gray-500">Statut:</span> {p?.status ?? '—'}</span>
+                    <span><span className="text-gray-500">Total:</span> {p?.total_items ?? '—'}</span>
+                    <span><span className="text-gray-500">NEW:</span> {p?.new_count ?? 0}</span>
+                    <span><span className="text-gray-500">UPDATED:</span> {p?.updated_count ?? 0}</span>
+                    <span><span className="text-gray-500">SKIPPED:</span> {p?.skipped_count ?? 0}</span>
+                    <span><span className="text-gray-500">INVALID:</span> {p?.invalid_count ?? 0}</span>
+                  </div>
+                );
+              })()}
+            </div>
             {/* Statistiques avec design amélioré */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
@@ -497,6 +541,9 @@ const OnboardingTracking: React.FC = () => {
 
             <h4 className="font-medium">Items du batch {selectedIdentityBatchId}</h4>
             <div className="overflow-x-auto">
+              {identityItemsArray.length === 0 && (
+                <div className="p-4 text-sm text-gray-600">Aucun item d'identité pour ce batch pour le moment.</div>
+              )}
               <table className="min-w-full border">
                 <thead className="bg-gray-50">
                   <tr>
@@ -528,6 +575,14 @@ const OnboardingTracking: React.FC = () => {
                   })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Audit (dernieres entrées) */}
+            <div className="overflow-x-auto border border-gray-200 rounded-lg">
+              <details className="p-4 bg-gray-50" open={false}>
+                <summary className="cursor-pointer text-sm text-gray-700">Voir l'audit (dernier événements)</summary>
+                <pre className="mt-2 text-xs text-gray-700 whitespace-pre-wrap break-all">{idAudit ? JSON.stringify(idAudit, null, 2) : '—'}</pre>
+              </details>
             </div>
           </div>
         )}
@@ -659,6 +714,9 @@ const OnboardingTracking: React.FC = () => {
               </div>
               
               <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                {filteredProvItems.length === 0 && (
+                  <div className="p-4 text-sm text-gray-600">Aucun item de provisioning pour ce batch pour le moment.</div>
+                )}
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>

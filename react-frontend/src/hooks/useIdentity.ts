@@ -11,6 +11,26 @@ import type {
 } from '../api/identity-service/api';
 import { identityAxios } from '../api/identity-service/http';
 
+// Types locaux pour typer les items d'un batch et la réponse paginée
+export type IdentityBatchItem = {
+  domain?: string;
+  establishment_id?: string;
+  external_id?: string;
+  target_uuid?: string;
+  item_status?: string;
+  message?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type IdentityBatchItemsResult = {
+  items: IdentityBatchItem[];
+  total?: number;
+  page?: number;
+  size?: number;
+  pages?: number;
+};
+
 export function useIdentityBatches(params?: { establishmentId?: string; uploadedBy?: string; page?: number; size?: number; orderBy?: string; orderDir?: 'asc' | 'desc'; }) {
   return useQuery<unknown, Error>({
     queryKey: ['identity:batches', params],
@@ -59,8 +79,11 @@ export function useIdentityBatch(batchId?: string) {
   });
 }
 
-export function useIdentityBatchItems(params: { batchId?: string; itemStatus?: string; domain?: string; page?: number; size?: number; orderBy?: string; orderDir?: 'asc' | 'desc'; }) {
-  return useQuery<unknown, Error>({
+export function useIdentityBatchItems(
+  params: { batchId?: string; itemStatus?: string; domain?: string; page?: number; size?: number; orderBy?: string; orderDir?: 'asc' | 'desc'; },
+  options?: { refetchInterval?: number | false }
+) {
+  return useQuery<IdentityBatchItemsResult, Error>({
     queryKey: ['identity:batch-items', params],
     enabled: !!params.batchId,
     queryFn: async () => {
@@ -74,9 +97,23 @@ export function useIdentityBatchItems(params: { batchId?: string; itemStatus?: s
         params.orderBy,
         params.orderDir
       );
-      return data;
+      // Normaliser en structure paginée
+      if (Array.isArray(data)) {
+        const page = params.page ?? 0;
+        const size = params.size ?? (data as unknown[]).length;
+        return { items: data as IdentityBatchItem[], total: (data as unknown[]).length, page, size, pages: 1 };
+      }
+      const obj = data as { items?: unknown; total?: number; page?: number; size?: number; pages?: number };
+      return {
+        items: (Array.isArray(obj.items) ? (obj.items as IdentityBatchItem[]) : []),
+        total: obj.total,
+        page: obj.page,
+        size: obj.size,
+        pages: obj.pages,
+      };
     },
-    placeholderData: (prev: unknown) => prev,
+    placeholderData: (prev: IdentityBatchItemsResult | undefined) => prev as IdentityBatchItemsResult | undefined,
+    refetchInterval: options?.refetchInterval ?? false,
   });
 }
 
@@ -113,6 +150,8 @@ export function useIdentityCommitBatch() {
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['identity:batches'] });
+        // Invalider aussi les items pour forcer un refetch immédiat
+        queryClient.invalidateQueries({ queryKey: ['identity:batch-items'] });
       },
     }
   );

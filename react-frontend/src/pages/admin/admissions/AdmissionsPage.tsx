@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAdmissions } from '../../../hooks/useAdmissions';
-import { useUpdateAdmissionStatus } from '../../../hooks/useAdmissionMutations';
+import { useUpdateAdmissionStatus, useDeleteAdmission } from '../../../hooks/useAdmissionMutations';
 import type { AdmissionListResponse, AdmissionResponse, AdmissionStatus } from '../../../api/admission-service/api';
 import toast from 'react-hot-toast';
 import { useAdmissionStats } from '../../../hooks/useAdmissionStats';
+import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 
 const STATUS_OPTIONS: AdmissionStatus[] = ['PENDING', 'ACCEPTED', 'REJECTED', 'WAITLIST'];
 
 export default function AdmissionsPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
   const [status, setStatus] = useState<AdmissionStatus | null | undefined>(undefined);
@@ -29,6 +32,9 @@ export default function AdmissionsPage() {
 
   const [pendingStatus, setPendingStatus] = useState<Record<number, AdmissionStatus>>({});
   const updateStatusMutation = useUpdateAdmissionStatus();
+  const deleteAdmissionMutation = useDeleteAdmission();
+  const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
+  const [toDelete, setToDelete] = useState<AdmissionResponse | null>(null);
 
   useEffect(() => {
     if (isError) {
@@ -48,11 +54,30 @@ export default function AdmissionsPage() {
       return;
     }
     try {
-      await updateStatusMutation.mutateAsync({ status: newStatus });
+      await updateStatusMutation.mutateAsync({ admissionId: row.id, update: { status: newStatus } });
       toast.success('Statut mis à jour');
       void refetch();
     } catch (e: unknown) {
       const msg = (e instanceof Error && e.message) ? e.message : 'Mise à jour échouée';
+      toast.error(msg);
+    }
+  };
+
+  const requestDelete = (row: AdmissionResponse) => {
+    setToDelete(row);
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!toDelete) return;
+    try {
+      await deleteAdmissionMutation.mutateAsync({ admissionId: toDelete.id });
+      toast.success(`Admission #${toDelete.id} supprimée`);
+      setConfirmOpen(false);
+      setToDelete(null);
+      void refetch();
+    } catch (e: unknown) {
+      const msg = (e instanceof Error && e.message) ? e.message : 'Suppression échouée';
       toast.error(msg);
     }
   };
@@ -304,6 +329,31 @@ export default function AdmissionsPage() {
                           <span className="hidden sm:inline">Mettre à jour</span>
                           <span className="sm:hidden">MAJ</span>
                         </button>
+                        <button
+                          className="w-full sm:w-auto border border-gray-300 hover:bg-gray-50 text-gray-700 px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm font-medium transition-colors flex items-center justify-center gap-1"
+                          onClick={() => navigate(`/admissions/${row.id}`)}
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5h2m-2 4h2m-2 4h2m2 4H7a2 2 0 01-2-2V7a2 2 0 012-2h5l5 5v9a2 2 0 01-2 2z" />
+                          </svg>
+                          <span className="hidden sm:inline">Modifier</span>
+                          <span className="sm:hidden">Modif</span>
+                        </button>
+                        <button
+                          className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md flex items-center justify-center gap-1"
+                          onClick={() => requestDelete(row)}
+                          disabled={deleteAdmissionMutation.isPending}
+                        >
+                          {deleteAdmissionMutation.isPending ? (
+                            <div className="animate-spin rounded-full h-3 w-3 border-b border-white"></div>
+                          ) : (
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-1-2H10a1 1 0 00-1 1v1h8V6a1 1 0 00-1-1z" />
+                            </svg>
+                          )}
+                          <span className="hidden sm:inline">Supprimer</span>
+                          <span className="sm:hidden">Suppr</span>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -313,6 +363,16 @@ export default function AdmissionsPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        title={toDelete ? `Supprimer l'admission #${toDelete.id} ?` : 'Supprimer'}
+        description="Cette action est irréversible. Confirmez-vous la suppression ?"
+        confirmText={deleteAdmissionMutation.isPending ? 'Suppression...' : 'Supprimer'}
+        cancelText="Annuler"
+        onConfirm={() => void confirmDelete()}
+        onCancel={() => { setConfirmOpen(false); setToDelete(null); }}
+      />
 
       {/* Pagination */}
       <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">

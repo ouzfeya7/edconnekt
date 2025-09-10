@@ -40,12 +40,17 @@ export function useProvisioningRunBatch() {
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['prov:batches'] });
+        // Invalider aussi les items pour forcer un refetch immédiat
+        queryClient.invalidateQueries({ queryKey: ['prov:items'] });
       },
     }
   );
 }
 
-export function useProvisioningBatchItems(params: { batchId?: string; skip?: number; limit?: number }) {
+export function useProvisioningBatchItems(
+  params: { batchId?: string; skip?: number; limit?: number },
+  options?: { refetchInterval?: number | false }
+) {
   return useQuery<ProvisioningItem[], Error>({
     queryKey: ['prov:items', params],
     enabled: !!params.batchId,
@@ -55,5 +60,6 @@ export function useProvisioningBatchItems(params: { batchId?: string; skip?: num
       return data;
     },
     placeholderData: (prev: ProvisioningItem[] | undefined) => prev,
+    refetchInterval: options?.refetchInterval ?? false,
   });
 }
