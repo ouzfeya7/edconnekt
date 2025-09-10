@@ -19,7 +19,7 @@ export interface Message {
   attachments?: string[];
 }
 
-export type UserRole = 'eleve' | 'parent' | 'enseignant' | 'admin';
+export type UserRole = 'eleve' | 'parent' | 'enseignant' | 'admin' | 'directeur';
 
 // Messages pour les élèves
 export const getStudentMessages = (): Message[] => [
@@ -541,6 +541,13 @@ export const getCategoriesForRole = (role: UserRole) => {
         id: 'students', 
         name: 'Élèves',
         icon: 'GraduationCap'
+      },
+    ],
+    directeur: [
+      { 
+        id: 'directeurs', 
+        name: 'Directeurs',
+        icon: 'UserCog'
       },
     ],
   };

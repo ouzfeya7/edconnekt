@@ -15,7 +15,10 @@ export function useAdmissionStats() {
       return data as unknown as AdmissionStatsSummary;
     },
     retry: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 }
 

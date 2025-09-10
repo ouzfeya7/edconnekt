@@ -17,8 +17,7 @@ import Dash from "./pages/eleves/Dashboard";
 import MesNotesPage from "./pages/eleves/MesNotesPage";
 import Classe from "./pages/ClassePage";
 import GNote from "./pages/gestionNotes/TableauPdi";
-import MessageEnseignant from "./pages/enseignants/message/message";
-import MessageEleve from "./pages/eleves/message/message";
+import MessagePage from "./pages/messages/MessagePage";
 import { LoginPage } from "./pages/signup/LoginPage";
 import Agenda from "./pages/Agenda";
 import Ressource from "./pages/RessourcesPage";
@@ -61,6 +60,7 @@ import ParentRemediationPage from "./pages/parents/ParentRemediationPage"; // Im
 import PaiementPage from './pages/PaiementPage';
 import AdmissionPublicPage from './pages/AdmissionPublicPage';
 import AdmissionsPage from './pages/admin/admissions/AdmissionsPage';
+import AdmissionDetailPage from './pages/admin/admissions/AdmissionDetailPage';
 import AdmissionFormPage from './pages/parents/AdmissionFormPage';
 
 // Import des pages du directeur
@@ -101,7 +101,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/classes", element: <Classe /> },
     { path: "/calendar", element: <Agenda /> },
     { path: "/agenda", element: <Agenda /> },
-    { path: "/messages", element: <MessageEnseignant /> },
+    { path: "/messages", element: <MessagePage /> },
     { path: "/ressources", element: <Ressource /> },
     { path: "/ressources/archives", element: <ArchivesPage /> },
     { path: "/ressources/creer", element: <CreateResourcePage /> }, // New route for resource creation
@@ -127,6 +127,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   directeur: [
     { path: "/", element: <DirecteurDashboard /> },
     { path: "/admissions", element: <AdmissionsPage /> },
+    { path: "/admissions/:admissionId", element: <AdmissionDetailPage /> },
     { path: "/utilisateurs", element: <UsersPage /> }, // Mis à jour
     { path: "/referentiels", element: <ReferentielsPage /> },
     { path: "/alertes", element: <CentreAlertesPage /> },
@@ -147,7 +148,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/calendar", element: <Agenda /> },
     { path: "/agenda", element: <Agenda /> },
     { path: "/emploi-du-temps", element: <EmploiDuTemps /> },
-    { path: "/messages", element: <MessageEleve /> },
+    { path: "/messages", element: <MessagePage /> },
     { path: "/evaluations/notes", element: <GNote /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "/mes-cours", element: <MesCoursPage /> },
@@ -165,10 +166,10 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/calendar", element: <Agenda /> },
     { path: "/agenda", element: <Agenda /> },
     { path: "/emploi-du-temps", element: <EmploiDuTemps /> },
-    { path: "/messages", element: <MessageEleve /> },
+    { path: "/messages", element: <MessagePage /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "/mes-notes", element: <MesNotesPage /> },
-    { path: "/notifications", element: <MessageEnseignant /> },
+    { path: "/notifications", element: <MessagePage /> },
     { path: "/ressources", element: <Ressource /> }, // Ajouter la route des ressources
     { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
     { path: "/fournitures", element: <FournituresPage /> },
@@ -177,6 +178,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   administrateur: [
     { path: "/", element: <AdminDashboard /> },
     { path: "/admissions", element: <AdmissionsPage /> },
+    { path: "/admissions/:admissionId", element: <AdmissionDetailPage /> },
     { path: "/etablissements", element: <EtablissementsPage /> },
     { path: "/etablissements/:etabId", element: <EtablissementDetailPage /> },
     { path: "/admin/classes/:classeId", element: <ClasseDetailPage /> },

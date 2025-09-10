@@ -36,6 +36,7 @@ export function useCreateAdmission() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admission-service', 'admissions'] });
+      void queryClient.invalidateQueries({ queryKey: ['admission-service', 'stats', 'summary'] });
     },
   });
 }
@@ -57,27 +58,29 @@ export function useUpdateAdmission(admissionId?: number) {
       if (typeof admissionId === 'number') {
         void queryClient.invalidateQueries({ queryKey: ['admission-service', 'admissions', admissionId] });
       }
+      void queryClient.invalidateQueries({ queryKey: ['admission-service', 'stats', 'summary'] });
     },
   });
 }
 
-export function useUpdateAdmissionStatus(admissionId?: number) {
+export function useUpdateAdmissionStatus() {
   const queryClient = useQueryClient();
-  return useMutation<AdmissionResponse, Error, AdmissionStatusUpdate>({
-    mutationFn: async (payload: AdmissionStatusUpdate) => {
+  return useMutation<AdmissionResponse, Error, { admissionId: number; update: AdmissionStatusUpdate }>({
+    mutationFn: async ({ admissionId, update }) => {
       if (typeof admissionId !== 'number') throw new Error('admissionId requis');
       try {
-        const { data } = await admissionsApi.updateAdmissionStatusApiV1AdmissionsAdmissionIdStatusPatch(admissionId, payload);
+        const { data } = await admissionsApi.updateAdmissionStatusApiV1AdmissionsAdmissionIdStatusPatch(admissionId, update);
         return data;
       } catch (err: unknown) {
         throw new Error(getErrorMessage(err));
       }
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['admission-service', 'admissions'] });
-      if (typeof admissionId === 'number') {
-        void queryClient.invalidateQueries({ queryKey: ['admission-service', 'admissions', admissionId] });
+      if (typeof variables.admissionId === 'number') {
+        void queryClient.invalidateQueries({ queryKey: ['admission-service', 'admissions', variables.admissionId] });
       }
+      void queryClient.invalidateQueries({ queryKey: ['admission-service', 'stats', 'summary'] });
     },
   });
 }
@@ -99,6 +102,7 @@ export function useDeleteAdmission() {
       if (typeof variables.admissionId === 'number') {
         void queryClient.invalidateQueries({ queryKey: ['admission-service', 'admissions', variables.admissionId] });
       }
+      void queryClient.invalidateQueries({ queryKey: ['admission-service', 'stats', 'summary'] });
     },
   });
 }
