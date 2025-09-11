@@ -1,0 +1,1473 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "supplies-service",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/health": {
+            "get": {
+                "summary": "Health",
+                "operationId": "health_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/": {
+            "post": {
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "Create Campaign",
+                "operationId": "create_campaign_api_campaigns__post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CampaignCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "List Campaigns",
+                "operationId": "list_campaigns_api_campaigns__get",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Recherche texte sur le nom",
+                            "title": "Q"
+                        },
+                        "description": "Recherche texte sur le nom"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtre par statut",
+                            "title": "Status"
+                        },
+                        "description": "Filtre par statut"
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "name | -created_at",
+                            "default": "-created_at",
+                            "title": "Order"
+                        },
+                        "description": "name | -created_at"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 200,
+                            "minimum": 1,
+                            "default": 50,
+                            "title": "Limit"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Offset"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CampaignListResponse"
+                                    },
+                                    "title": "Response List Campaigns Api Campaigns  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/open": {
+            "patch": {
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "Open Campaign",
+                "operationId": "open_campaign_api_campaigns__campaign_id__open_patch",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/validate": {
+            "patch": {
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "Validate Campaign",
+                "operationId": "validate_campaign_api_campaigns__campaign_id__validate_patch",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/publish": {
+            "patch": {
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "Publish Campaign",
+                "operationId": "publish_campaign_api_campaigns__campaign_id__publish_patch",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/close": {
+            "patch": {
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "Close Campaign",
+                "operationId": "close_campaign_api_campaigns__campaign_id__close_patch",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/dashboard": {
+            "get": {
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "Campaign Dashboard",
+                "operationId": "campaign_dashboard_api_campaigns__campaign_id__dashboard_get",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignDashboard"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/my-list": {
+            "get": {
+                "tags": [
+                    "teacher-lists"
+                ],
+                "summary": "Get My List",
+                "operationId": "get_my_list_api_campaigns__campaign_id__my_list_get",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    },
+                    {
+                        "name": "classId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Classid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TeacherListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "teacher-lists"
+                ],
+                "summary": "Upsert My List",
+                "operationId": "upsert_my_list_api_campaigns__campaign_id__my_list_put",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    },
+                    {
+                        "name": "classId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Classid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/TeacherListItemPayload"
+                                },
+                                "title": "Items"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TeacherListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/my-list/submit": {
+            "post": {
+                "tags": [
+                    "teacher-lists"
+                ],
+                "summary": "Submit My List",
+                "operationId": "submit_my_list_api_campaigns__campaign_id__my_list_submit_post",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    },
+                    {
+                        "name": "classId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Classid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TeacherListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/consolidation/diff": {
+            "get": {
+                "tags": [
+                    "consolidation"
+                ],
+                "summary": "Consolidation Diff",
+                "operationId": "consolidation_diff_api_campaigns__campaign_id__consolidation_diff_get",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    },
+                    {
+                        "name": "classId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Classid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/consolidation": {
+            "put": {
+                "tags": [
+                    "consolidation"
+                ],
+                "summary": "Consolidation Apply",
+                "operationId": "consolidation_apply_api_campaigns__campaign_id__consolidation_put",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    },
+                    {
+                        "name": "classId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Classid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/ConsolidationDecision"
+                                },
+                                "title": "Decisions"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/public-list": {
+            "get": {
+                "tags": [
+                    "publication"
+                ],
+                "summary": "Public List",
+                "operationId": "public_list_api_campaigns__campaign_id__public_list_get",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    },
+                    {
+                        "name": "classId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Classid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/public-list.pdf": {
+            "get": {
+                "tags": [
+                    "publication"
+                ],
+                "summary": "Public List Pdf",
+                "operationId": "public_list_pdf_api_campaigns__campaign_id__public_list_pdf_get",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    },
+                    {
+                        "name": "classId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Classid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/children/{child_id}/checklist": {
+            "get": {
+                "tags": [
+                    "parent-checklist"
+                ],
+                "summary": "Get Checklist",
+                "operationId": "get_checklist_api_campaigns__campaign_id__children__child_id__checklist_get",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    },
+                    {
+                        "name": "child_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Child Id"
+                        }
+                    },
+                    {
+                        "name": "classId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Classid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChecklistResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/children/{child_id}/checklist/items/{item_id}": {
+            "patch": {
+                "tags": [
+                    "parent-checklist"
+                ],
+                "summary": "Toggle Item",
+                "operationId": "toggle_item_api_campaigns__campaign_id__children__child_id__checklist_items__item_id__patch",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    },
+                    {
+                        "name": "child_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Child Id"
+                        }
+                    },
+                    {
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Item Id"
+                        }
+                    },
+                    {
+                        "name": "classId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Classid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChecklistItemUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChecklistResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaign_id}/children/{child_id}/progress": {
+            "get": {
+                "tags": [
+                    "parent-checklist"
+                ],
+                "summary": "Progress",
+                "operationId": "progress_api_campaigns__campaign_id__children__child_id__progress_get",
+                "parameters": [
+                    {
+                        "name": "campaign_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Campaign Id"
+                        }
+                    },
+                    {
+                        "name": "child_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Child Id"
+                        }
+                    },
+                    {
+                        "name": "classId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Classid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProgressResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CampaignCreate": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "title": "CampaignCreate"
+            },
+            "CampaignDashboard": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "teacher_lists_count": {
+                        "type": "integer",
+                        "title": "Teacher Lists Count"
+                    },
+                    "consolidated_lists_count": {
+                        "type": "integer",
+                        "title": "Consolidated Lists Count"
+                    },
+                    "submitted_teacher_lists": {
+                        "type": "integer",
+                        "title": "Submitted Teacher Lists"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "status",
+                    "teacher_lists_count",
+                    "consolidated_lists_count",
+                    "submitted_teacher_lists",
+                    "created_at"
+                ],
+                "title": "CampaignDashboard"
+            },
+            "CampaignListResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "CampaignListResponse"
+            },
+            "CampaignResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "CampaignResponse"
+            },
+            "ChecklistItemResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "label": {
+                        "type": "string",
+                        "title": "Label"
+                    },
+                    "is_checked": {
+                        "type": "boolean",
+                        "title": "Is Checked"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "title": "Quantity"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "label",
+                    "is_checked",
+                    "quantity"
+                ],
+                "title": "ChecklistItemResponse"
+            },
+            "ChecklistItemUpdate": {
+                "properties": {
+                    "is_checked": {
+                        "type": "boolean",
+                        "title": "Is Checked"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "is_checked"
+                ],
+                "title": "ChecklistItemUpdate"
+            },
+            "ChecklistResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "campaign_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Campaign Id"
+                    },
+                    "child_id": {
+                        "type": "string",
+                        "title": "Child Id"
+                    },
+                    "class_id": {
+                        "type": "string",
+                        "title": "Class Id"
+                    },
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/ChecklistItemResponse"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "campaign_id",
+                    "child_id",
+                    "class_id",
+                    "items"
+                ],
+                "title": "ChecklistResponse"
+            },
+            "ConsolidationDecision": {
+                "properties": {
+                    "label_normalized": {
+                        "type": "string",
+                        "title": "Label Normalized"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "title": "Quantity"
+                    },
+                    "unit": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Unit"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "label_normalized",
+                    "quantity"
+                ],
+                "title": "ConsolidationDecision"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "ProgressResponse": {
+                "properties": {
+                    "progress": {
+                        "type": "number",
+                        "title": "Progress"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "progress"
+                ],
+                "title": "ProgressResponse"
+            },
+            "PublicItem": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "label": {
+                        "type": "string",
+                        "title": "Label"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "title": "Quantity"
+                    },
+                    "unit": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Unit"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "label",
+                    "quantity"
+                ],
+                "title": "PublicItem"
+            },
+            "PublicListResponse": {
+                "properties": {
+                    "campaign_id": {
+                        "type": "string",
+                        "title": "Campaign Id"
+                    },
+                    "class_id": {
+                        "type": "string",
+                        "title": "Class Id"
+                    },
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/PublicItem"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "campaign_id",
+                    "class_id",
+                    "items"
+                ],
+                "title": "PublicListResponse"
+            },
+            "TeacherListItemPayload": {
+                "properties": {
+                    "label": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Label"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "title": "Quantity",
+                        "default": 1
+                    },
+                    "unit": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Unit"
+                    },
+                    "notes": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notes"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "label"
+                ],
+                "title": "TeacherListItemPayload"
+            },
+            "TeacherListResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "campaign_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Campaign Id"
+                    },
+                    "teacher_id": {
+                        "type": "string",
+                        "title": "Teacher Id"
+                    },
+                    "class_id": {
+                        "type": "string",
+                        "title": "Class Id"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    },
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/TeacherListResponseItem"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "campaign_id",
+                    "teacher_id",
+                    "class_id",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "TeacherListResponse"
+            },
+            "TeacherListResponseItem": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "label": {
+                        "type": "string",
+                        "title": "Label"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "title": "Quantity"
+                    },
+                    "unit": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Unit"
+                    },
+                    "notes": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notes"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "label",
+                    "quantity",
+                    "unit",
+                    "notes"
+                ],
+                "title": "TeacherListResponseItem"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

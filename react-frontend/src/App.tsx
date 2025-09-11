@@ -31,7 +31,8 @@ import PdiDetailPage from "./pages/PdiDetailPage";
 
 import RessourceDetailPage from "./pages/RessourceDetailPage";
 import CreateResourcePage from "./pages/CreateResourcePage"; // Import the new page
-import FournituresPage from "./pages/FournituresPage"; // Import de la page fournitures
+import TeacherSuppliesPage from './pages/supplies/TeacherSuppliesPage';
+import ParentSuppliesChecklistPage from './pages/supplies/ParentSuppliesChecklistPage';
 
 import ArchivesPage from "./pages/ArchivesPage";
 import { JSX } from "react/jsx-runtime";
@@ -71,6 +72,9 @@ import CentreAlertesPage from './pages/directeur/CentreAlertesPage';
 import EmploiDuTempsPage from './pages/directeur/EmploiDuTempsPage';
 import ParametresPage from './pages/directeur/ParametresPage';
 import RessourcesAuditPage from './pages/directeur/RessourcesAuditPage';
+import SuppliesCampaignsPage from './pages/directeur/SuppliesCampaignsPage';
+import SuppliesConsolidationPage from './pages/directeur/SuppliesConsolidationPage';
+import PublicSuppliesListPage from './pages/famille/PublicSuppliesListPage';
 
 // Import des pages de l'administrateur
 import AdminDashboard from './pages/admin/dashboard/AdminDashboard';
@@ -121,7 +125,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/evaluations", element: <Evaluations /> },
     { path: "/remediation", element: <RemediationPage /> },
     { path: "/remediations/:remediationId", element: <RemediationDetailPage /> },
-    { path: "/fournitures", element: <FournituresPage /> },
+    { path: "/fournitures", element: <TeacherSuppliesPage /> },
     { path: "*", element: <NotFound /> }, // Utilisation de '*' pour le catch-all
   ],
   directeur: [
@@ -134,6 +138,8 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/emploi-du-temps", element: <EmploiDuTempsPage /> },
     { path: "/audit-ressources", element: <RessourcesAuditPage /> },
     { path: "/parametres", element: <ParametresPage /> },
+    { path: "/fournitures/campagnes", element: <SuppliesCampaignsPage /> },
+    { path: "/fournitures/consolidation", element: <SuppliesConsolidationPage /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "*", element: <NotFound /> },
   ],
@@ -154,7 +160,6 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/mes-cours", element: <MesCoursPage /> },
     { path: "/mes-cours/:courseId", element: <CourseDetailPage /> },
     { path: "/lecons/:lessonId", element: <DetailLeconPage /> },
-    { path: "/fournitures", element: <FournituresPage /> },
     { path: "*", element: <NotFound /> },
   ],
   parent: [
@@ -172,7 +177,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/notifications", element: <MessagePage /> },
     { path: "/ressources", element: <Ressource /> }, // Ajouter la route des ressources
     { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
-    { path: "/fournitures", element: <FournituresPage /> },
+    { path: "/fournitures", element: <ParentSuppliesChecklistPage /> },
     { path: "*", element: <NotFound /> },
   ],
   administrateur: [
@@ -193,7 +198,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
   espaceFamille: [
     { path: "/", element: <Accueil /> },
     { path: "/ressources/:resourceId", element: <RessourceDetailPage /> },
-    { path: "/fournitures", element: <FournituresPage /> },
+    { path: "/fournitures/liste-publique", element: <PublicSuppliesListPage /> },
     { path: "*", element: <NotFound /> },
     { path: "/profile", element: <ProfilePage /> },
   ],

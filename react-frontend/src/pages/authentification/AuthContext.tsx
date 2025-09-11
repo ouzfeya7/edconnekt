@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           redirectUri: window.location.href,
           pkceMethod: 'S256',
           responseMode: 'fragment',
-          scope: 'profile email roles resource-service.access timetable-service.access classe-service.access establishment-service.access identity-service.access provisioning-service.access competence-service.access student-service.access event-service.access pdi-service.access admission-service.access message-service.access',
+          scope: 'profile email roles resource-service.access timetable-service.access classe-service.access establishment-service.access identity-service.access provisioning-service.access competence-service.access student-service.access event-service.access pdi-service.access admission-service.access message-service.access supplies-service.access',
         });
         setIsAuthenticated(authenticated);
 
