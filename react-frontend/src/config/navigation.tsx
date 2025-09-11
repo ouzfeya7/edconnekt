@@ -1,7 +1,7 @@
 import {
   FaHome, FaUsers, FaFileAlt, FaChalkboardTeacher,
   FaCalendarAlt, FaEnvelope, FaUser, FaChartLine, FaBook, FaClipboardList,
-  FaUpload, FaExclamationTriangle, FaGraduationCap, FaCog, FaBuilding, FaFileInvoiceDollar, FaTags
+  FaUpload, FaExclamationTriangle, FaGraduationCap, FaCog, FaBuilding, FaFileInvoiceDollar, FaTags, FaEllipsisH
 } from "react-icons/fa";
 // import { MdSettings } from "react-icons/md";
 import { JSX } from "react/jsx-runtime";
@@ -14,6 +14,8 @@ export interface MenuItemType {
   icon: JSX.Element;
   hideInNavbar?: boolean; // Nouvelle propriété optionnelle
   activePaths?: string[]; // Chemins pour lesquels l'onglet doit rester actif
+  isDropdown?: boolean; // Pour identifier les items dropdown
+  dropdownItems?: MenuItemType[]; // Sous-items pour le dropdown
 }
 
 export type Role = "enseignant" | "directeur" | "eleve" | "parent" | "administrateur" | "espaceFamille";
@@ -39,7 +41,20 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
     { titleKey: "referentiels", to: "/referentiels", icon: <FaGraduationCap /> },
     { titleKey: "alertes", to: "/alertes", icon: <FaExclamationTriangle /> },
     { titleKey: "emploi_du_temps", to: "/emploi-du-temps", icon: <FaCalendarAlt /> },
-    { titleKey: "parametres", to: "/parametres", icon: <FaCog /> },
+    { 
+      titleKey: "plus", 
+      to: "#", 
+      icon: <FaEllipsisH />, 
+      isDropdown: true,
+      dropdownItems: [
+        { titleKey: "parametres", to: "/parametres", icon: <FaCog /> },
+        { titleKey: "supplies", to: "/fournitures", icon: <FaClipboardList /> },
+        { titleKey: "seances_pdi", to: "/direction/pdi", icon: <FaChartLine /> },
+      ]
+    },
+    { titleKey: "parametres", to: "/parametres", icon: <FaCog />, hideInNavbar: true },
+    { titleKey: "supplies", to: "/fournitures", icon: <FaClipboardList />, hideInNavbar: true },
+    { titleKey: "seances_pdi", to: "/direction/pdi", icon: <FaChartLine />, hideInNavbar: true },
     { titleKey: "Profile", to: "/profile", icon: <FaUser />, hideInNavbar: true },
   ],
   eleve: [

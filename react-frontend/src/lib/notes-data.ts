@@ -648,4 +648,4 @@ export const calculateTrimesterAverages = (allNotes: StudentNote[], trimestre: n
             notes: averagedNotes,
         };
     });
-};
+}; 

@@ -81,10 +81,15 @@ const ConversationThread: React.FC<Props> = ({ conversationId, onClose }) => {
                 {someoneTyping && <span className="text-orange-600">écrit…</span>}
               </div>
             </div>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-sm">Fermer</button>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-sm md:hidden">
+              ← Retour
+            </button>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-sm hidden md:block">
+              Fermer
+            </button>
           </div>
 
-          <div ref={scrollerRef} className="flex-1 overflow-y-auto p-4" style={{ backgroundColor: '#efeae2', backgroundImage: 'radial-gradient(circle, rgba(229, 221, 213, 0.3) 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+          <div ref={scrollerRef} className="flex-1 overflow-y-auto p-2 md:p-4" style={{ backgroundColor: '#efeae2', backgroundImage: 'radial-gradient(circle, rgba(229, 221, 213, 0.3) 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
             <div className="space-y-1">
               {messages.map((m, index) => {
                 const isMe = currentUserId && m.senderId === currentUserId;
@@ -147,7 +152,7 @@ const ConversationThread: React.FC<Props> = ({ conversationId, onClose }) => {
                       </span>
                     </div>
                     {!isEditing && !isDeleted && (
-                      <div className="absolute top-0 -right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-0 -right-6 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">
                         <button
                           onClick={() => { setEditingId(m.id); setEditingText(String(m.content)); }}
                           className="text-xs text-gray-500 hover:text-gray-700 mr-2"
@@ -161,6 +166,25 @@ const ConversationThread: React.FC<Props> = ({ conversationId, onClose }) => {
                             }
                           }}
                           className="text-xs text-red-600 hover:text-red-700"
+                        >Supprimer</button>
+                      </div>
+                    )}
+                    {/* Actions tactiles pour mobile */}
+                    {!isEditing && !isDeleted && (
+                      <div className="mt-1 flex gap-2 md:hidden">
+                        <button
+                          onClick={() => { setEditingId(m.id); setEditingText(String(m.content)); }}
+                          className="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded"
+                        >Éditer</button>
+                        <button
+                          onClick={async () => {
+                            try {
+                              await deleteMutation.mutateAsync({ messageId: m.id });
+                            } catch {
+                              // ignore, erreur déjà gérée par mutation
+                            }
+                          }}
+                          className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded"
                         >Supprimer</button>
                       </div>
                     )}

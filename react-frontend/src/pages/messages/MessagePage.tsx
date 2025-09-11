@@ -9,11 +9,49 @@ import ConversationComposer from "../../components/message/ConversationComposer"
 
 const Layout: React.FC = () => {
   const [selectedId, setSelectedId] = React.useState<string | undefined>(undefined);
+  const [showSidebar, setShowSidebar] = React.useState(true);
+
+  // Sur mobile, masquer la sidebar quand une conversation est sélectionnée
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setShowSidebar(true);
+      } else {
+        setShowSidebar(!selectedId);
+      }
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [selectedId]);
+
+  const handleSelectConversation = (id: string) => {
+    setSelectedId(id);
+    // Sur mobile, masquer la sidebar quand on sélectionne une conversation
+    if (window.innerWidth < 768) {
+      setShowSidebar(false);
+    }
+  };
+
+  const handleCloseConversation = () => {
+    setSelectedId(undefined);
+    // Sur mobile, afficher la sidebar quand on ferme une conversation
+    if (window.innerWidth < 768) {
+      setShowSidebar(true);
+    }
+  };
+
   return (
-    <div className="h-full flex">
-      <ConversationSidebar selectedId={selectedId} onSelect={setSelectedId} />
-      <div className="flex-1 flex flex-col">
-        <ConversationThread conversationId={selectedId} onClose={() => setSelectedId(undefined)} />
+    <div className="h-full flex relative">
+      {/* Sidebar - masquée sur mobile quand une conversation est sélectionnée */}
+      <div className={`${showSidebar ? 'block' : 'hidden'} md:block w-full md:w-80 flex-shrink-0`}>
+        <ConversationSidebar selectedId={selectedId} onSelect={handleSelectConversation} />
+      </div>
+      
+      {/* Thread de conversation - affiché seulement quand une conversation est sélectionnée */}
+      <div className={`${selectedId ? 'flex' : 'hidden md:flex'} flex-1 flex-col`}>
+        <ConversationThread conversationId={selectedId} onClose={handleCloseConversation} />
         <ConversationComposer conversationId={selectedId} />
       </div>
     </div>
