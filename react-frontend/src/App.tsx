@@ -28,6 +28,7 @@ import DetailLeconPage from "./pages/eleves/DetailLeconPage";
 import MesCours from "./pages/enseignants/MesCoursPage";
 import PdiSeancePage from "./pages/PdiSeancePage";
 import PdiDetailPage from "./pages/PdiDetailPage";
+import DirectorPdiPage from "./pages/DirectorPdiPage";
 
 import RessourceDetailPage from "./pages/RessourceDetailPage";
 import CreateResourcePage from "./pages/CreateResourcePage"; // Import the new page
@@ -72,8 +73,7 @@ import CentreAlertesPage from './pages/directeur/CentreAlertesPage';
 import EmploiDuTempsPage from './pages/directeur/EmploiDuTempsPage';
 import ParametresPage from './pages/directeur/ParametresPage';
 import RessourcesAuditPage from './pages/directeur/RessourcesAuditPage';
-import SuppliesCampaignsPage from './pages/directeur/SuppliesCampaignsPage';
-import SuppliesConsolidationPage from './pages/directeur/SuppliesConsolidationPage';
+import DirectorSuppliesPage from './pages/directeur/DirectorSuppliesPage';
 import PublicSuppliesListPage from './pages/famille/PublicSuppliesListPage';
 
 // Import des pages de l'administrateur
@@ -138,9 +138,9 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/emploi-du-temps", element: <EmploiDuTempsPage /> },
     { path: "/audit-ressources", element: <RessourcesAuditPage /> },
     { path: "/parametres", element: <ParametresPage /> },
-    { path: "/fournitures/campagnes", element: <SuppliesCampaignsPage /> },
+    { path: "/fournitures/*", element: <DirectorSuppliesPage /> },
+    { path: "/direction/pdi", element: <DirectorPdiPage /> },
     { path: "/messages", element: <MessagePage /> },
-    { path: "/fournitures/consolidation", element: <SuppliesConsolidationPage /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "*", element: <NotFound /> },
   ],

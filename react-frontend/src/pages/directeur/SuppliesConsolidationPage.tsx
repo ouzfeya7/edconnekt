@@ -57,25 +57,19 @@ const SuppliesConsolidationPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-50">
+    <div>
       <Toaster position="top-right" />
       
-      {/* En-tête moderne */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-teal-100 rounded-lg">
-              <GitMerge className="h-6 w-6 text-teal-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{t('Consolidation fournitures', 'Consolidation des Fournitures')}</h1>
-              <p className="text-gray-600">{t('Analysez et appliquez les décisions de consolidation', 'Analysez et appliquez les décisions de consolidation')}</p>
-            </div>
-          </div>
+      {/* Header de section */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-teal-100 rounded-lg">
+          <GitMerge className="h-6 w-6 text-teal-600" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">{t('Consolidation', 'Consolidation')}</h2>
+          <p className="text-gray-600 text-sm">{t('Analysez et appliquez les décisions de consolidation', 'Analysez et appliquez les décisions de consolidation')}</p>
         </div>
       </div>
-
-      <div className="max-w-7xl mx-auto p-4 md:p-6">
         {/* Section de configuration */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
@@ -240,7 +234,6 @@ const SuppliesConsolidationPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

@@ -18,7 +18,7 @@ const DirecteurDashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useUser();
-  const { isRefreshing, lastUpdate, refreshData, kpiData } = useDirector();
+  const { isRefreshing, lastUpdate, refreshData } = useDirector();
 
   const shortcuts = [
     {
@@ -26,7 +26,7 @@ const DirecteurDashboard = () => {
       description: t('import_users', 'Importer des utilisateurs'),
       icon: <Upload className="w-6 h-6" />,
       color: 'bg-blue-500',
-      onClick: () => navigate('/onboarding')
+      onClick: () => navigate('/utilisateurs')
     },
     {
       title: t('alertes', 'Alertes'),
@@ -117,55 +117,6 @@ const DirecteurDashboard = () => {
 
        {/* Graphiques et visualisations */}
        <DashboardCharts className="mb-8" />
-
-       {/* Section Informations rapides */}
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         <div className="bg-white border border-gray-200 rounded-lg p-6">
-           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-             {t('recent_activities', 'Activités Récentes')}
-           </h3>
-           <div className="space-y-3">
-             <div className="flex items-center space-x-3">
-               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-               <span className="text-sm text-gray-600">
-                 {t('new_student_registered', 'Nouvel élève inscrit')}
-               </span>
-             </div>
-             <div className="flex items-center space-x-3">
-               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-               <span className="text-sm text-gray-600">
-                 {t('new_alert_created', 'Nouvelle alerte créée')}
-               </span>
-             </div>
-             <div className="flex items-center space-x-3">
-               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-               <span className="text-sm text-gray-600">
-                 {t('schedule_updated', 'Emploi du temps mis à jour')}
-               </span>
-             </div>
-           </div>
-         </div>
-
-         <div className="bg-white border border-gray-200 rounded-lg p-6">
-           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-             {t('quick_stats', 'Statistiques Rapides')}
-           </h3>
-           <div className="space-y-3">
-             <div className="flex justify-between">
-               <span className="text-sm text-gray-600">{t('teachers', 'Enseignants')}</span>
-               <span className="font-semibold">{kpiData.enseignants}</span>
-             </div>
-             <div className="flex justify-between">
-               <span className="text-sm text-gray-600">{t('classes', 'Classes')}</span>
-               <span className="font-semibold">{kpiData.classes}</span>
-             </div>
-             <div className="flex justify-between">
-               <span className="text-sm text-gray-600">{t('absence_rate', 'Taux d\'absence')}</span>
-               <span className="font-semibold text-red-600">{kpiData.tauxAbsenteisme}%</span>
-             </div>
-           </div>
-         </div>
-       </div>
     </div>
   );
 };

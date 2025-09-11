@@ -77,34 +77,28 @@ const SuppliesCampaignsPage: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen bg-white">
+    <div>
       <Toaster position="top-right" />
       
-      {/* En-tête moderne */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <Calendar className="h-6 w-6 text-indigo-600" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">{t('Campagnes fournitures', 'Gestion des Campagnes')}</h1>
-                <p className="text-gray-600">{t('Créez et gérez les campagnes de fournitures scolaires', 'Créez et gérez les campagnes de fournitures scolaires')}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsCreateOpen(true)}
-              className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 flex items-center gap-2 transition-colors duration-200"
-            >
-              <Plus className="h-4 w-4" />
-              {t('Nouvelle campagne', 'Nouvelle campagne')}
-            </button>
+      {/* Header de section avec bouton */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-indigo-100 rounded-lg">
+            <Calendar className="h-6 w-6 text-indigo-600" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">{t('Campagnes', 'Campagnes')}</h2>
+            <p className="text-gray-600 text-sm">{t('Créez et gérez les campagnes de fournitures', 'Créez et gérez les campagnes de fournitures')}</p>
           </div>
         </div>
+        <button
+          onClick={() => setIsCreateOpen(true)}
+          className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 flex items-center gap-2 transition-colors duration-200"
+        >
+          <Plus className="h-4 w-4" />
+          {t('Nouvelle campagne', 'Nouvelle campagne')}
+        </button>
       </div>
-
-      <div className="max-w-7xl mx-auto p-4 md:p-6">
         {/* Contrôles liste campagnes (plein écran) */}
         <div className="mb-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -384,10 +378,7 @@ const SuppliesCampaignsPage: React.FC = () => {
             </div>
           </div>
         )}
-
-
       </div>
-    </div>
   );
 };
 

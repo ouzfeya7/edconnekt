@@ -44,7 +44,7 @@ const ConversationSidebar: React.FC<Props> = ({ selectedId, onSelect }) => {
 
   return (
     <div className="relative h-full">
-    <aside className="w-80 border-r border-gray-200 h-full overflow-y-auto bg-white">
+    <aside className="w-full border-r border-gray-200 h-full overflow-y-auto bg-white">
       <div className="p-3">
         <div className="text-base font-semibold text-gray-800 mb-3">Discussions</div>
         <input
@@ -91,7 +91,7 @@ const ConversationSidebar: React.FC<Props> = ({ selectedId, onSelect }) => {
     {/* FAB nouvelle conversation */}
     <button
       onClick={() => setModalOpen(true)}
-      className="absolute bottom-4 right-4 w-12 h-12 rounded-full bg-green-400 hover:bg-green-500 text-white shadow-lg flex items-center justify-center"
+      className="fixed md:absolute bottom-4 right-4 w-12 h-12 md:w-12 md:h-12 rounded-full bg-green-400 hover:bg-green-500 text-white shadow-lg flex items-center justify-center z-10"
       title="Nouvelle conversation"
     >
       <Plus size={20} />
@@ -99,13 +99,13 @@ const ConversationSidebar: React.FC<Props> = ({ selectedId, onSelect }) => {
 
     {/* Modal création */}
     {isModalOpen && (
-      <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-4">
+      <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-4 mx-4 max-h-[90vh] overflow-y-auto">
           <div className="text-base font-semibold mb-2">Nouvelle conversation</div>
           <div className="grid gap-3">
             <div>
               <label className="block text-xs text-gray-600 mb-1">Type</label>
-              <select value={newType} onChange={(e) => setNewType(e.target.value as 'DM' | 'GROUP')} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+              <select value={newType} onChange={(e) => setNewType(e.target.value as 'DM' | 'GROUP')} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
                 <option value="DM">DM</option>
                 <option value="GROUP">Groupe</option>
               </select>
