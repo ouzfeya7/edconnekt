@@ -51,7 +51,7 @@ const DirectorSuppliesPage: React.FC = () => {
                        className={`
                          flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200
                          ${isActive 
-                           ? 'bg-gray-100 text-blue-600 shadow-sm border border-blue-200' 
+                           ? 'text-blue-600 shadow-sm border border-blue-200' 
                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                          }
                        `}

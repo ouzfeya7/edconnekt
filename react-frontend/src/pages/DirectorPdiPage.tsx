@@ -148,15 +148,15 @@ const DirectorPdiSidebar: React.FC<DirectorPdiSidebarProps> = ({
   ];
 
   return (
-    <div className="w-80 bg-white border-r border-slate-200 flex flex-col">
+    <div className="w-80 bg-white border-r border-slate-200 flex flex-col h-full">
       {/* En-tête sidebar */}
-      <div className="p-6 border-b border-slate-200">
+      <div className="p-6 border-b border-slate-200 flex-shrink-0">
         <h2 className="text-lg font-semibold text-slate-800">Direction PDI</h2>
         <p className="text-sm text-slate-600 mt-1">Pilotage et supervision</p>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeView === item.id;
@@ -185,24 +185,6 @@ const DirectorPdiSidebar: React.FC<DirectorPdiSidebarProps> = ({
         })}
       </nav>
 
-      {/* Résumé rapide */}
-      <div className="p-4 border-t border-slate-200 bg-slate-50">
-        <div className="text-xs font-medium text-slate-600 mb-2">Statut global</div>
-        <div className="space-y-1 text-xs">
-          <div className="flex justify-between">
-            <span className="text-slate-600">Séances actives</span>
-            <span className="font-medium text-slate-800">24</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-600">En attente validation</span>
-            <span className="font-medium text-orange-600">2</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-600">Alertes doublons</span>
-            <span className="font-medium text-red-600">1</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
@@ -415,20 +397,8 @@ const DirectorPdiPage: React.FC = () => {
         activeView={activeView}
         onViewChange={setActiveView}
       />
-
       {/* Contenu principal */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* En-tête avec fil d'Ariane */}
-        <div className="bg-white border-b border-slate-200 px-6 py-4">
-          <div className="flex items-center gap-4">
-            <div className="text-sm text-slate-300">•</div>
-            <div className="text-sm text-slate-600">
-              <span className="font-medium text-slate-800">Direction</span>
-              <span className="ml-2">• Séances PDI</span>
-            </div>
-          </div>
-        </div>
-          
         {/* Zone de contenu avec défilement */}
         <div className="flex-1 overflow-auto">
           <div className="p-6">

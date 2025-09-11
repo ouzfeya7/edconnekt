@@ -73,6 +73,12 @@ const Navbar = ({ role }: NavbarProps) => {
     } else if (item.to === '/ressources') {
       // Logique pour "Ressources" - actif pour la page principale et les pages de détails
       isActive = location.pathname.startsWith('/ressources');
+    } else if (item.to === '/fournitures') {
+      // Logique pour "Fournitures" - actif pour toutes les pages de fournitures
+      isActive = location.pathname.startsWith('/fournitures');
+    } else if (item.to === '/direction/pdi') {
+      // Logique pour "Séances PDI" Direction - actif pour toutes les pages PDI direction
+      isActive = location.pathname.startsWith('/direction/pdi');
     } else if (item.to !== '#') {
       // Logique standard pour les autres routes (exclure les dropdowns)
       isActive = location.pathname === item.to;
