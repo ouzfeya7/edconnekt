@@ -139,6 +139,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/audit-ressources", element: <RessourcesAuditPage /> },
     { path: "/parametres", element: <ParametresPage /> },
     { path: "/fournitures/campagnes", element: <SuppliesCampaignsPage /> },
+    { path: "/messages", element: <MessagePage /> },
     { path: "/fournitures/consolidation", element: <SuppliesConsolidationPage /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "*", element: <NotFound /> },
