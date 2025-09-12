@@ -26,8 +26,40 @@ provisioningAxios.interceptors.request.use((config) => {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>)['X-Establishment-Id'] = etabId;
   }
+  if (import.meta.env.DEV) {
+    const headers = { ...(config.headers as Record<string, unknown>) };
+    if (headers && 'Authorization' in headers) headers.Authorization = '[REDACTED]';
+    // Axios may store params on config.params or in URL; log both
+    console.debug('[provisioning-api][request]', {
+      method: (config.method || 'GET').toUpperCase(),
+      url: `${config.baseURL || ''}${config.url || ''}`,
+      params: config.params,
+      headers,
+    });
+  }
   return config;
 });
+
+provisioningAxios.interceptors.response.use(
+  (response) => {
+    if (import.meta.env.DEV) {
+      console.debug('[provisioning-api][response]', {
+        status: response.status,
+        url: response.config?.url,
+      });
+    }
+    return response;
+  },
+  (error) => {
+    if (import.meta.env.DEV) {
+      const status = error?.response?.status;
+      const data = error?.response?.data;
+      const url = `${error?.config?.baseURL || ''}${error?.config?.url || ''}`;
+      console.error('[provisioning-api][error]', { status, url, data });
+    }
+    return Promise.reject(error);
+  }
+);
 
 if (import.meta.env.DEV) {
   console.info('[provisioning-api] baseURL =', provisioningAxios.defaults.baseURL);

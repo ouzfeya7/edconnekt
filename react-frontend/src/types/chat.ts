@@ -25,10 +25,19 @@ export interface ChatMessage {
   senderId: string;
   type: MessageType;
   content: string;
+  attachments?: Array<{
+    id: string;
+    filename: string;
+    url: string;
+    type: string;
+  }>;
   metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt?: string;
   deletedAt?: string;
+  // UI optimiste
+  isOptimistic?: boolean;
+  sendingStatus?: 'sending' | 'sent' | 'failed';
 }
 
 export type AckType = 'DELIVERED' | 'READ';
@@ -48,7 +57,7 @@ export interface TypingEvent {
 
 export interface PresenceEvent {
   userId: string;
-  status: 'online' | 'offline';
+  status: 'online' | 'offline' | 'away';
   lastSeenAt?: string;
 }
 
@@ -68,7 +77,7 @@ export interface ChatActions {
   sendMessage: (draft: Omit<ChatMessage, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   markRead: (conversationId: string, messageIds: string[]) => void;
   setTyping: (conversationId: string, isTyping: boolean) => void;
-  setPresence?: (userId: string, status: 'online' | 'offline') => void;
+  setPresence?: (userId: string, status: 'online' | 'offline' | 'away') => void;
 }
 
 
