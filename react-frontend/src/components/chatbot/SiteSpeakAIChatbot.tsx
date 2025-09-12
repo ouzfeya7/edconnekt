@@ -21,16 +21,16 @@ const SiteSpeakAIChatbot: React.FC<SiteSpeakAIChatbotProps> = ({
         {/* Bouton flottant pour ouvrir/fermer le chatbot */}
         <button
           onClick={toggleChatbot}
-          className="bg-white hover:bg-gray-50 rounded-full p-2 shadow-lg transition-all duration-300 hover:scale-110 border border-gray-200"
+          className="bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md transition-all duration-300 hover:scale-105 border border-gray-200/60 opacity-80 hover:opacity-100"
           aria-label="Ouvrir l'assistant IA"
         >
           <svg 
-            width="44" 
-            height="41" 
+            width="32" 
+            height="30" 
             viewBox="0 0 44 41" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
-            className="w-14 h-13"
+            className="w-8 h-7"
           >
             <path d="M30.2708 13.2305L13.6768 12.2858L12.1218 12.4924L10.4133 14.6866L9.93016 17.1684L9.88947 18.8456L26.5313 19.7074L30.2708 13.2305Z" fill="#068789"/>
             <path d="M13.5736 27.3277L30.1603 28.393L31.7167 28.1977L33.4411 26.0161L33.9424 23.5378L33.9952 21.8609L17.3601 20.8781L13.5736 27.3277Z" fill="#FFC903"/>

@@ -348,3 +348,49 @@ export function useIdentityUnlinkFromEstablishment(identityId?: string) {
     },
   });
 }
+
+// Hooks manquants pour les endpoints non couverts
+
+export function useIdentityRoot() {
+  return useQuery<unknown, Error>({
+    queryKey: ['identity:root'],
+    queryFn: async () => {
+      const { data } = await identityDefaultApi.rootGet();
+      return data as unknown;
+    },
+  });
+}
+
+export function useIdentityHealth() {
+  return useQuery<unknown, Error>({
+    queryKey: ['identity:health'],
+    queryFn: async () => {
+      const { data } = await identityDefaultApi.healthCheckHealthGet();
+      return data as unknown;
+    },
+  });
+}
+
+export function useIdentityStreamProgress(batchId?: string, timeout?: number | null) {
+  return useQuery<unknown, Error>({
+    queryKey: ['identity:stream-progress', batchId, timeout],
+    enabled: !!batchId,
+    queryFn: async () => {
+      if (!batchId) throw new Error('batchId requis');
+      const { data } = await identityDefaultApi.streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId, timeout);
+      return data as unknown;
+    },
+  });
+}
+
+export function useIdentitySseOptions(batchId?: string) {
+  return useQuery<unknown, Error>({
+    queryKey: ['identity:sse-options', batchId],
+    enabled: !!batchId,
+    queryFn: async () => {
+      if (!batchId) throw new Error('batchId requis');
+      const { data } = await identityDefaultApi.sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId);
+      return data as unknown;
+    },
+  });
+}

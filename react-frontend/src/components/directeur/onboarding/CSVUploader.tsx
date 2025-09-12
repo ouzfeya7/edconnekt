@@ -5,17 +5,16 @@ import { useOnboarding } from '../../../contexts/OnboardingContext';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
 
-
 type Domain = 'student' | 'parent' | 'teacher' | 'admin_staff';
 
 // Champs requis et autorisés par domaine
 const requiredHeadersMap: Record<Domain, string[]> = {
-  student: ['establishment_id', 'firstname', 'lastname', 'birth_date', 'gender', 'level', 'account_required'],
-  parent: ['establishment_id', 'firstname', 'lastname'],
-  teacher: ['establishment_id', 'firstname', 'lastname', 'subject', 'hire_date'],
-  admin_staff: ['establishment_id', 'firstname', 'lastname', 'position', 'hire_date'],
+  student: ['establishment_id', 'firstname', 'lastname', 'birth_date', 'gender', 'level', 'account_required', 'email', 'phone'],
+  parent: ['establishment_id', 'firstname', 'lastname', 'email', 'phone'],
+  teacher: ['establishment_id', 'firstname', 'lastname', 'email', 'phone', 'subject', 'hire_date'],
+  admin_staff: ['establishment_id', 'firstname', 'lastname', 'email', 'phone', 'position', 'hire_date'],
 };
-const allowedExtraHeaders = ['email', 'phone'];
+const allowedExtraHeaders: string[] = [];
 const allowedHeadersMap: Record<Domain, string[]> = {
   student: [...requiredHeadersMap.student, ...allowedExtraHeaders],
   parent: [...requiredHeadersMap.parent, ...allowedExtraHeaders],

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { provisioningApi } from '../api/provisioning-service/client';
+import { provisioningApi, provisioningDefaultApi } from '../api/provisioning-service/client';
 import type { ProvisioningBatch, ProvisioningItem } from '../api/provisioning-service/api';
 
 export function useProvisioningBatches(params?: { skip?: number; limit?: number }) {
@@ -61,5 +61,27 @@ export function useProvisioningBatchItems(
     },
     placeholderData: (prev: ProvisioningItem[] | undefined) => prev,
     refetchInterval: options?.refetchInterval ?? false,
+  });
+}
+
+// Hooks manquants pour les endpoints non couverts
+
+export function useProvisioningRoot() {
+  return useQuery<unknown, Error>({
+    queryKey: ['prov:root'],
+    queryFn: async () => {
+      const { data } = await provisioningDefaultApi.rootGet();
+      return data as unknown;
+    },
+  });
+}
+
+export function useProvisioningHealth() {
+  return useQuery<unknown, Error>({
+    queryKey: ['prov:health'],
+    queryFn: async () => {
+      const { data } = await provisioningDefaultApi.healthCheckHealthGet();
+      return data as unknown;
+    },
   });
 }

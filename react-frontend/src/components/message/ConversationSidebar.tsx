@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useConversations, useCreateConversation } from '../../hooks/useMessageConversations';
+import { useRealtimeSync } from '../../hooks/useRealtimeSync';
 import { Plus } from 'lucide-react';
 import type { ConversationCreate } from '../../api/message-service/api';
 
@@ -11,6 +12,7 @@ interface Props {
 const ConversationSidebar: React.FC<Props> = ({ selectedId, onSelect }) => {
   const { data: apiConversations, isLoading } = useConversations();
   const createMutation = useCreateConversation();
+  useRealtimeSync(); // Synchronisation temps réel des conversations
   const [isModalOpen, setModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [query, setQuery] = React.useState('');

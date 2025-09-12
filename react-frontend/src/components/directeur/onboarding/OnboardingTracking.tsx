@@ -612,8 +612,8 @@ const OnboardingTracking: React.FC = () => {
                 <div className={`text-2xl font-bold ${textColor} mt-1`}>{provCounters[key] ?? 0}</div>
                 <div className="text-xs text-gray-400 mt-1">{description}</div>
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
           {/* Filtres améliorés */}
           <div className="flex flex-wrap items-center gap-3 p-4 bg-gray-50 rounded-lg">
@@ -628,7 +628,7 @@ const OnboardingTracking: React.FC = () => {
               <option value="parent">👨‍👩‍👧‍👦 Parent</option>
               <option value="teacher">👨‍🏫 Enseignant</option>
               <option value="admin_staff">👨‍💼 Admin Staff</option>
-            </select>
+              </select>
             <select 
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
               value={provStatusFilter ?? ''} 
@@ -644,8 +644,8 @@ const OnboardingTracking: React.FC = () => {
               <option value="EXPIRED">⏰ EXPIRED</option>
               <option value="DISABLED">🚫 DISABLED</option>
               <option value="ERROR">❌ ERROR</option>
-            </select>
-          </div>
+              </select>
+            </div>
 
             {/* Barre de progression et légendes améliorées */}
             {provItemsArray.length > 0 && (
@@ -653,26 +653,26 @@ const OnboardingTracking: React.FC = () => {
                 <div className="space-y-3">
                   <h5 className="text-sm font-medium text-gray-700">Répartition des statuts</h5>
                   <div className="w-full h-4 rounded-lg bg-gray-200 overflow-hidden flex shadow-inner">
-                    {(() => {
-                      const total = provItemsArray.length;
-                      const parts = [
+                  {(() => {
+                    const total = provItemsArray.length;
+                    const parts = [
                         { key: 'ENQUEUED', color: 'bg-gray-500' },
                         { key: 'KC_CREATED', color: 'bg-blue-500' },
-                        { key: 'KC_UPDATED', color: 'bg-blue-600' },
+                      { key: 'KC_UPDATED', color: 'bg-blue-600' },
                         { key: 'INVITE_SENT', color: 'bg-indigo-500' },
                         { key: 'PENDING_ACTIVATION', color: 'bg-yellow-500' },
-                        { key: 'ACTIVATED', color: 'bg-green-500' },
+                      { key: 'ACTIVATED', color: 'bg-green-500' },
                         { key: 'EXPIRED', color: 'bg-orange-500' },
-                        { key: 'DISABLED', color: 'bg-gray-600' },
-                        { key: 'ERROR', color: 'bg-red-500' },
-                      ] as const;
-                      return parts
-                        .map(p => ({ ...p, count: provCounters[p.key] ?? 0 }))
-                        .filter(p => p.count > 0)
-                        .map(p => (
+                      { key: 'DISABLED', color: 'bg-gray-600' },
+                      { key: 'ERROR', color: 'bg-red-500' },
+                    ] as const;
+                    return parts
+                      .map(p => ({ ...p, count: provCounters[p.key] ?? 0 }))
+                      .filter(p => p.count > 0)
+                      .map(p => (
                           <div key={p.key} className={`${p.color} transition-all duration-300`} style={{ width: `${(p.count / total) * 100}%` }} />
-                        ));
-                    })()}
+                      ));
+                  })()}
                   </div>
                 </div>
                 
@@ -718,8 +718,8 @@ const OnboardingTracking: React.FC = () => {
                   <div className="p-4 text-sm text-gray-600">Aucun item de provisioning pour ce batch pour le moment.</div>
                 )}
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
+                <thead className="bg-gray-50">
+                  <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identity ID</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Domaine</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Etablissement</th>
@@ -730,10 +730,10 @@ const OnboardingTracking: React.FC = () => {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dernière erreur</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créé</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MAJ</th>
-                    </tr>
-                  </thead>
+                  </tr>
+                </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredProvItems.map((it) => (
+                  {filteredProvItems.map((it) => (
                       <tr key={it.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">{it.identity_id ?? '—'}</td>
                         <td className="px-4 py-3 text-sm">
@@ -776,10 +776,10 @@ const OnboardingTracking: React.FC = () => {
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-500">{it.created_at ? new Date(it.created_at).toLocaleString() : '—'}</td>
                         <td className="px-4 py-3 text-sm text-gray-500">{it.updated_at ? new Date(it.updated_at).toLocaleString() : '—'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
               </div>
             </div>
           </div>

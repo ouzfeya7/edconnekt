@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import edcLogo from '../../assets/logo.svg';
 import { useChat } from '../../contexts/ChatContext';
 import { useConversationMessages, useEditMessage, useDeleteMessage } from '../../hooks/useMessageMessages';
+import { useRealtimeSync } from '../../hooks/useRealtimeSync';
+import type { ChatMessage } from '../../types/chat';
 
 interface Props {
   conversationId?: string;
@@ -9,8 +11,9 @@ interface Props {
 }
 
 const ConversationThread: React.FC<Props> = ({ conversationId, onClose }) => {
-  const { messagesByConversation, typingByConversation, conversations, presenceByUser } = useChat();
+  const { messagesByConversation, typingByConversation, conversations, presenceByUser, wsStatus } = useChat();
   const { data: apiMessages } = useConversationMessages(conversationId);
+  const { isPolling } = useRealtimeSync(conversationId);
   const editMutation = useEditMessage();
   const deleteMutation = useDeleteMessage();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -81,12 +84,28 @@ const ConversationThread: React.FC<Props> = ({ conversationId, onClose }) => {
                 {someoneTyping && <span className="text-orange-600">écrit…</span>}
               </div>
             </div>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-sm md:hidden">
-              ← Retour
-            </button>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-sm hidden md:block">
-              Fermer
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Indicateur de statut de connexion */}
+              <div className="flex items-center gap-1 text-xs">
+                <div className={`w-2 h-2 rounded-full ${
+                  wsStatus === 'connected' ? 'bg-green-500' : 
+                  wsStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' :
+                  'bg-red-500'
+                }`}></div>
+                <span className="text-gray-500">
+                  {wsStatus === 'connected' ? 'En ligne' : 
+                   isPolling ? 'Synchronisation...' :
+                   'Hors ligne'}
+                </span>
+              </div>
+              
+              <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-sm md:hidden">
+                ← Retour
+              </button>
+              <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-sm hidden md:block">
+                Fermer
+              </button>
+            </div>
           </div>
 
           <div ref={scrollerRef} className="flex-1 overflow-y-auto p-2 md:p-4" style={{ backgroundColor: '#efeae2', backgroundImage: 'radial-gradient(circle, rgba(229, 221, 213, 0.3) 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
@@ -147,9 +166,23 @@ const ConversationThread: React.FC<Props> = ({ conversationId, onClose }) => {
                           })()}
                         </span>
                       )}
-                      <span className={`absolute bottom-1 right-2 text-[10px] font-medium ${isMe ? 'text-white/90' : 'text-gray-500'}`}>
-                        {time}{isEdited ? ' (modifié)' : ''}
-                      </span>
+                      <div className={`absolute bottom-1 right-2 flex items-center gap-1 text-[10px] font-medium ${isMe ? 'text-white/90' : 'text-gray-500'}`}>
+                        <span>{time}{isEdited ? ' (modifié)' : ''}</span>
+                        {/* Indicateurs de statut pour les messages optimistes */}
+                        {(m as ChatMessage).isOptimistic && (
+                          <div className="flex items-center">
+                            {(m as ChatMessage).sendingStatus === 'sending' && (
+                              <div className="w-3 h-3 animate-spin rounded-full border border-current border-t-transparent"></div>
+                            )}
+                            {(m as ChatMessage).sendingStatus === 'sent' && (
+                              <div className="w-3 h-3 text-green-400">✓</div>
+                            )}
+                            {(m as ChatMessage).sendingStatus === 'failed' && (
+                              <div className="w-3 h-3 text-red-400">⚠</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                     {!isEditing && !isDeleted && (
                       <div className="absolute top-0 -right-6 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">
