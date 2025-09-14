@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { teacherListsApi, publicationApi } from '@/api/supplies-service/client';
-import type { TeacherListItemPayload } from '@/api/supplies-service/api';
+import { teacherListsApi, publicationApi } from '../api/supplies-service/client';
+import type { TeacherListItemPayload } from '../api/supplies-service/api';
 import { suppliesTeacherListKey } from './useSuppliesTeacherList';
 
 type ErrorLike = unknown;

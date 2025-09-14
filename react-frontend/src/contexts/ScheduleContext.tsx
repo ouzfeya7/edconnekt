@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Types pour l'emploi du temps
 interface Course {
@@ -118,6 +118,7 @@ const mockCourses: Course[] = [
     classe: '4ème A',
     salle: 'Labo SVT',
     jour: 'mercredi',
+    heureDebut: '14:00',
     heure: '14:00',
     duree: 2,
     type: 'tp',

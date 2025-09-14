@@ -5,7 +5,7 @@ import { useSettings } from '../../../contexts/SettingsContext';
 
 const SchoolSettingsForm: React.FC = () => {
   const { t } = useTranslation();
-  const { schoolSettings, updateSchoolSettings, uploadLogo, isLoading, isSaving } = useSettings();
+  const { schoolSettings, updateSchoolSettings, uploadLogo, isSaving } = useSettings();
   
   const [formData, setFormData] = useState({
     nom: schoolSettings.nom,
@@ -20,7 +20,7 @@ const SchoolSettingsForm: React.FC = () => {
   });
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>(schoolSettings.logo);
+  const [logoPreview, setLogoPreview] = useState<string | null>(schoolSettings.logo || null);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));

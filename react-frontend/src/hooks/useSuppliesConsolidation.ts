@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { consolidationApi } from '@/api/supplies-service/client';
-import type { ConsolidationDecision } from '@/api/supplies-service/api';
+import { consolidationApi } from '../api/supplies-service/client';
+import type { ConsolidationDecision } from '../api/supplies-service/api';
 
 const diffKey = (campaignId: string | undefined, classId: string | undefined) => [
   'supplies',

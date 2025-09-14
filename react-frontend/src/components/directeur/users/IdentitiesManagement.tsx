@@ -1,6 +1,6 @@
 import React from 'react';
 import { useIdentities, useIdentityCreate, useIdentityUpdate, useIdentityDelete } from '../../../hooks/useIdentity';
-import type { IdentityCreate, IdentityUpdate, IdentityResponse } from '../../../api/identity-service/api';
+import type { IdentityCreate, IdentityUpdate, IdentityResponse, IdentityStatus } from '../../../api/identity-service/api';
 
 type NullableString = string | null | undefined;
 
@@ -48,7 +48,7 @@ export default function IdentitiesManagement(): JSX.Element {
       lastname: normalizeOptional(fd.get('lastname')) as NullableString,
       email: normalizeOptional(fd.get('email')) as NullableString,
       phone: normalizeOptional(fd.get('phone')) as NullableString,
-      status: normalizeOptional(fd.get('status')) as NullableString,
+      status: normalizeOptional(fd.get('status')) as IdentityStatus | null | undefined,
     };
     await updateMutation.mutateAsync(payload);
     setEditOpen(false);

@@ -98,7 +98,7 @@ const EstablishmentsBulkImport: React.FC<EstablishmentsBulkImportProps> = ({ onS
   const [parseErrors, setParseErrors] = useState<string[]>([]);
   const [rowErrors, setRowErrors] = useState<Record<number, string[]>>({});
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [result, setResult] = useState<{ success: number; failed: number } | null>(null);
+  // Résultat non utilisé à l'écran; supprimé pour éviter l'avertissement linter
   const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
 
   const createBulkMutation = useCreateEstablishmentsBulk();
@@ -124,7 +124,7 @@ const EstablishmentsBulkImport: React.FC<EstablishmentsBulkImportProps> = ({ onS
         re[r.line] = validateRow(r);
       });
       setRowErrors(re);
-      setResult(null);
+      // reset de tout état dérivé
     };
     reader.readAsText(file);
   };
@@ -146,7 +146,6 @@ const EstablishmentsBulkImport: React.FC<EstablishmentsBulkImportProps> = ({ onS
     }));
     try {
       await createBulkMutation.mutateAsync(payloads);
-      setResult({ success: payloads.length, failed: 0 });
       toast.success(`${payloads.length} établissement(s) créés`);
       // Reset local state et fermer le modal si demandé
       setFileName('');
@@ -154,10 +153,22 @@ const EstablishmentsBulkImport: React.FC<EstablishmentsBulkImportProps> = ({ onS
       setParseErrors([]);
       setRowErrors({});
       onSuccessClose?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       // si rollback total côté backend, tout échoue
-      setResult({ success: 0, failed: payloads.length });
-      const serverMsg = error?.response?.data?.detail || error?.response?.data || error?.message || 'Erreur inconnue';
+      interface ErrorWithMessage { message?: string }
+      interface ErrorWithResponse { response?: { data?: unknown } }
+      interface ErrorDataWithDetail { detail?: string }
+
+      const err = error as ErrorWithMessage & ErrorWithResponse;
+      const data = err.response?.data;
+      let serverMsg: string = 'Erreur inconnue';
+      if (typeof data === 'string') {
+        serverMsg = data;
+      } else if (data && typeof (data as ErrorDataWithDetail).detail === 'string') {
+        serverMsg = (data as ErrorDataWithDetail).detail as string;
+      } else if (err.message) {
+        serverMsg = err.message;
+      }
       console.error('Erreur import établissements:', error);
       toast.error(`Échec de l'import (${payloads.length}) : ${typeof serverMsg === 'string' ? serverMsg : JSON.stringify(serverMsg)}`);
     } finally {
@@ -237,7 +248,7 @@ function normalizeTelephoneSn(input: string): string {
       </div>
       <ConfirmDialog
         isOpen={isConfirmOpen}
-        onClose={() => setIsConfirmOpen(false)}
+        onCancel={() => setIsConfirmOpen(false)}
         onConfirm={() => { setIsConfirmOpen(false); doSubmit(); }}
         title={`Confirmer l'import de ${parsed.length} établissement(s)`}
         description="Cette opération va créer tous les établissements listés. Vérifiez les erreurs éventuelles avant de confirmer."

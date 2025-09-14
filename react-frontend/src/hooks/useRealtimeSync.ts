@@ -17,7 +17,7 @@ export const useRealtimeSync = (selectedConversationId?: string) => {
   const { refetch: refetchConversations } = useConversations();
   const { refetch: refetchMessages } = useConversationMessages(
     selectedConversationId || '', 
-    { enabled: Boolean(selectedConversationId) }
+    { limit: undefined }
   );
 
   // Démarrer/arrêter le polling selon le statut WebSocket

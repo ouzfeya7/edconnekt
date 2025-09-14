@@ -1,12 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Button } from '../../../components/ui/button';
 import EditClasseModal from './EditClasseModal';
 import { useClasse } from '../../../hooks/useClasse';
 import { useClasseEleves } from '../../../hooks/useClasseEleves';
 import { useClasseEnseignants } from '../../../hooks/useClasseEnseignants';
 import { useClasseAudits } from '../../../hooks/useClasseAudits';
-
+import type { ClasseOut } from '../../../api/classe-service/api';
 const ClasseDetailPage: React.FC = () => {
   const { classeId } = useParams<{ classeId: string }>();
   const { data: classe, isLoading, isError } = useClasse(classeId || '');
@@ -134,7 +133,7 @@ const ClasseDetailPage: React.FC = () => {
         </div>
       )}
 
-      <EditClasseModal isOpen={editOpen} onClose={() => setEditOpen(false)} classe={classe as any} />
+      <EditClasseModal isOpen={editOpen} onClose={() => setEditOpen(false)} classe={classe as unknown as ClasseOut} />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AtSign, MessageSquare, Smartphone, Save, Plus, Edit, Trash2, Loader2, CheckCircle } from 'lucide-react';
 import TemplateModal from './TemplateModal';
@@ -139,9 +139,8 @@ const NotificationSettings: React.FC = () => {
     ];
 
     const hasChanges = JSON.stringify(initialChannelState) !== JSON.stringify(enabledChannels);
-
     const handleToggleChannel = (channelId: keyof typeof enabledChannels) => {
-        setEnabledChannels(prevState => ({ ...prevState, [channelId]: !prevState[channelId] }));
+      setEnabledChannels((prevState: typeof enabledChannels) => ({ ...prevState, [channelId]: !prevState[channelId] }));
     };
 
     const handleSaveChanges = () => {

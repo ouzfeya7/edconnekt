@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useMemo, useState } from 'react';
 import { useIdentityBatches } from '../../../hooks/useIdentity';
 import { useDirector } from '../../../contexts/DirectorContext';
@@ -13,7 +14,7 @@ const IdentityBatchesList: React.FC = () => {
   const { focusIdentityBatch, setShouldFocusTracking } = useOnboarding();
 
   const rows: any[] = useMemo(() => {
-    const list = Array.isArray(data) ? data : data?.items ?? [];
+    const list = Array.isArray(data) ? data : (data as { items?: any[] })?.items ?? [];
     const query = q.trim().toLowerCase();
     if (!query) return list;
     return list.filter((b: any) => {
