@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { teacherListsApi } from '@/api/supplies-service/client';
+import { teacherListsApi } from '../api/supplies-service/client';
 
 const buildKey = (campaignId: string | undefined, classId: string | undefined) => [
   'supplies',

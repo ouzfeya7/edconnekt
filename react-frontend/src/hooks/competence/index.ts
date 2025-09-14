@@ -10,7 +10,6 @@ export * from './usePublicReferentials';
 
 // Hooks des événements
 export * from './useEvents';
-export * from './usePublic';
 
 // Hooks des domaines, matières et compétences
 export * from './useDomains';

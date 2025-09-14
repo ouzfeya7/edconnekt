@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { campaignsApi } from '@/api/supplies-service/client';
-import type { CampaignListResponse } from '@/api/supplies-service/api';
+import { campaignsApi } from '../api/supplies-service/client';
+import type { CampaignListResponse } from '../api/supplies-service/api';
 
 export function useSuppliesCampaignDashboard(campaignId: string | undefined) {
   return useQuery({

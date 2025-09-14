@@ -6,7 +6,7 @@ export function usePublicReferentialTree(referentialId: string) {
   return useQuery<ReferentialTree, Error>({
     queryKey: ['competence:public-referential:tree', { referentialId }],
     queryFn: async () => {
-      const { data } = await competenceReferentialsApi.getReferentialTreeApiCompetencePublicReferentialsReferentialIdTreeGet(referentialId);
+      const { data } = await competenceReferentialsApi.getReferentialApiCompetenceReferentialsReferentialIdGet(referentialId);
       return data;
     },
     enabled: !!referentialId,
@@ -15,10 +15,10 @@ export function usePublicReferentialTree(referentialId: string) {
 }
 
 export function useOutboxEvents(page: number = 1, size: number = 20) {
-  return useQuery<OutboxEventResponse, Error>({
+  return useQuery<OutboxEventResponse[], Error>({
     queryKey: ['competence:outbox-events', { page, size }],
     queryFn: async () => {
-      const { data } = await competenceEventsApi.listOutboxEventsApiCompetenceEventsEventsOutboxGet(page, size);
+      const { data } = await competenceEventsApi.listOutboxEventsApiCompetenceEventsEventsGet(page.toString(), size.toString());
       return data;
     },
     staleTime: 30_000, // Plus court car les événements changent fréquemment

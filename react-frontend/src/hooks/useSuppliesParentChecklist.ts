@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { parentChecklistApi } from '@/api/supplies-service/client';
-import type { ProgressResponse } from '@/api/supplies-service/api';
-import type { ChecklistItemUpdate } from '@/api/supplies-service/api';
+import { parentChecklistApi } from '../api/supplies-service/client';
+import type { ProgressResponse } from '../api/supplies-service/api';
+import type { ChecklistItemUpdate } from '../api/supplies-service/api';
 
 const checklistKey = (campaignId: string | undefined, childId: string | undefined, classId: string | undefined) => [
   'supplies',

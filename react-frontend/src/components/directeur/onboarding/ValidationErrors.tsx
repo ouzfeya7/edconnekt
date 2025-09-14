@@ -5,8 +5,8 @@ import { useOnboarding } from '../../../contexts/OnboardingContext';
 
 const ValidationErrors: React.FC = () => {
   const { t } = useTranslation();
-  const { validationErrors, previewData } = useOnboarding();
-
+  const { uploadHistory } = useOnboarding();
+  const validationErrors = uploadHistory.filter(item => item.status === 'error').map(item => item.fileName);
   if (!validationErrors || validationErrors.length === 0) return null;
 
   return (
@@ -19,7 +19,7 @@ const ValidationErrors: React.FC = () => {
       </div>
 
       <div className="space-y-3">
-        {validationErrors.map((error, index) => (
+        {validationErrors.map((error: string, index: number) => (
           <div key={index} className="bg-white border border-red-200 rounded-lg p-4">
             <div className="flex items-start">
               <AlertTriangle className="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />

@@ -5,7 +5,18 @@ import { useSchedule } from '../../../contexts/ScheduleContext';
 
 interface ScheduleFormProps {
   onClose: () => void;
-  editCourse?: any;
+  editCourse?: {
+    id: number;
+    matiere: string;
+    enseignant: string;
+    classe: string;
+    jour: 'lundi' | 'mardi' | 'mercredi' | 'jeudi' | 'vendredi' | 'samedi';
+    heureDebut: string;
+    duree: number;
+    salle: string;
+    type: 'cours' | 'td' | 'tp' | 'evaluation' | 'reunion';
+    cycle: '6eme' | '5eme' | '4eme' | '3eme';
+  };
 }
 
 const ScheduleForm: React.FC<ScheduleFormProps> = ({ onClose, editCourse }) => {
@@ -23,22 +34,29 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ onClose, editCourse }) => {
     type: editCourse?.type || 'cours'
   });
 
-  const [conflicts, setConflicts] = useState<any[]>([]);
+  const [conflicts, setConflicts] = useState<Array<{ type: string; description?: string }>>([]);
   const [isChecking, setIsChecking] = useState(false);
 
-  const handleInputChange = (field: string, value: string | number) => {
+  const handleInputChange = (field: keyof typeof formData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const checkConflicts = async () => {
     setIsChecking(true);
     const courseData = {
-      ...formData,
+      matiere: formData.matiere,
+      enseignant: formData.enseignant,
+      classe: formData.classe,
+      salle: formData.salle,
+      jour: formData.jour as 'lundi' | 'mardi' | 'mercredi' | 'jeudi' | 'vendredi' | 'samedi',
+      heureDebut: formData.heureDebut,
       heure: formData.heureDebut,
-      cycle: '6eme' // Valeur par défaut, à adapter selon le contexte
+      duree: Number(formData.duree),
+      type: formData.type as 'cours' | 'td' | 'tp' | 'evaluation' | 'reunion',
+      cycle: (editCourse?.cycle ?? '6eme') as '6eme' | '5eme' | '4eme' | '3eme',
     };
     const detectedConflicts = detectConflicts(courseData);
-    setConflicts(detectedConflicts);
+    setConflicts(detectedConflicts.map(c => ({ type: c.type, description: c.description ?? c.message })));
     setIsChecking(false);
   };
 
@@ -46,11 +64,18 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ onClose, editCourse }) => {
     e.preventDefault();
     
     const courseData = {
-      ...formData,
+      matiere: formData.matiere,
+      enseignant: formData.enseignant,
+      classe: formData.classe,
+      salle: formData.salle,
+      jour: formData.jour as 'lundi' | 'mardi' | 'mercredi' | 'jeudi' | 'vendredi' | 'samedi',
+      heureDebut: formData.heureDebut,
       heure: formData.heureDebut,
-      cycle: '6eme' // Valeur par défaut, à adapter selon le contexte
+      duree: Number(formData.duree),
+      type: formData.type as 'cours' | 'td' | 'tp' | 'evaluation' | 'reunion',
+      cycle: (editCourse?.cycle ?? '6eme') as '6eme' | '5eme' | '4eme' | '3eme',
     };
-    
+
     if (editCourse) {
       updateCourse(editCourse.id, courseData);
     } else {

@@ -4,10 +4,10 @@ import { useResources as useRemoteResources } from '../hooks/useResources';
 import { useRestoreResource } from '../hooks/useRestoreResource';
 import { useAuth } from '../pages/authentification/useAuth';
 import { 
-  ArrowLeft, Search, FileText, Archive, RefreshCw, Filter, 
+  ArrowLeft, Search, FileText, Archive, RefreshCw,
   Calendar, User, HardDrive, Eye, Lock, Users, Globe, 
-  Download, RotateCcw, Trash2, MoreVertical, Info, AlertCircle,
-  ChevronLeft, ChevronRight, Plus, FolderOpen, Clock
+  Download, RotateCcw, MoreVertical,
+  ChevronLeft, ChevronRight, FolderOpen, Clock
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '../components/ui/dialog';
 import { ResourceStatus } from '../api/resource-service/api';
@@ -28,15 +28,7 @@ const domainNames = [
   "CREATIVITE ARTISTIQUE / SPORTIVE",
 ];
 
-// Couleurs subtiles spécifiques à chaque matière
-const subjectColors: { [key: string]: string } = {
-  "Arts plastiques": "bg-indigo-400", "EPS": "bg-sky-400", "Motricité": "bg-cyan-400",
-  "Musique": "bg-violet-400", "Théâtre/Drama": "bg-purple-400", "Anglais": "bg-emerald-400",
-  "Français": "bg-green-400", "Mathématiques": "bg-amber-400", "Études islamiques": "bg-teal-400",
-  "Géographie": "bg-blue-400", "Histoire": "bg-slate-400", "Lecture arabe": "bg-lime-400",
-  "Qran": "bg-rose-400", "Vivre dans son milieu": "bg-stone-400", "Vivre ensemble": "bg-pink-400",
-  "Wellness": "bg-orange-400",
-};
+// Couleurs subtiles spécifiques à chaque matière (badge seulement utilisé ci-dessous)
 
 const subjectBadgeColors: { [key: string]: string } = {
   "Arts plastiques": "bg-indigo-50 text-indigo-700", "EPS": "bg-sky-50 text-sky-700",
@@ -72,7 +64,7 @@ const getIconForSubject = (subject: string) => {
 };
 
 interface ArchivedResource {
-    id: number;
+    id: string;
     title: string;
     subject: string;
   description: string;
@@ -105,7 +97,6 @@ const ArchivedResourceListItem: React.FC<ArchivedResourceListItemProps> = ({
   canModify 
 }) => {
     const Icon = getIconForSubject(resource.subject);
-    const bgColor = subjectColors[resource.subject] || "bg-gray-400";
     const badgeColor = subjectBadgeColors[resource.subject] || "bg-gray-50 text-gray-700";
   const navigate = useNavigate();
 
@@ -288,8 +279,6 @@ function ArchivesPage() {
 
   const {
     data: archivedResources,
-    isLoading: isLoading,
-    error: error,
   } = useRemoteResources({
     status: ResourceStatus.Archived,
     limit: 100, // TODO: Implement proper pagination
@@ -297,12 +286,12 @@ function ArchivesPage() {
 
   // Tri des ressources (côté client pour l'instant)
   const sortedResources = [...(archivedResources || [])].sort((a, b) => {
-    let aValue: any, bValue: any;
+    let aValue: number | string, bValue: number | string;
     
     switch (sortBy) {
       case 'title':
-        aValue = a.title.toLowerCase();
-        bValue = b.title.toLowerCase();
+        aValue = (a.title || '').toLowerCase();
+        bValue = (b.title || '').toLowerCase();
         break;
       case 'subject':
         aValue = (subjectIdToNameMap[a.subject_id] || String(a.subject_id)).toLowerCase();
@@ -310,11 +299,10 @@ function ArchivesPage() {
         break;
       case 'date':
       default:
-        aValue = new Date(a.createdAt || '').getTime();
-        bValue = new Date(b.createdAt || '').getTime();
+        aValue = new Date(a.created_at || '').getTime();
+        bValue = new Date(b.created_at || '').getTime();
         break;
     }
-    
     if (sortOrder === 'asc') {
       return aValue > bValue ? 1 : -1;
     } else {
@@ -466,7 +454,7 @@ function ArchivesPage() {
               <div>
                 <p className="text-sm text-gray-600">PDF</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {archivedResources?.filter(r => r.fileType === 'PDF').length || 0}
+                  {archivedResources?.filter(r => (r.mime_type || '').toLowerCase() === 'application/pdf').length || 0}
                 </p>
               </div>
             </div>
@@ -480,7 +468,10 @@ function ArchivesPage() {
               <div>
                 <p className="text-sm text-gray-600">Enseignants</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {new Set(archivedResources?.map(r => r.author?.name)).size || 0}
+                  {(() => {
+                    const names = (archivedResources || []).map(r => r.author_user_id || '');
+                    return new Set(names).size;
+                  })()}
                 </p>
                     </div>
                 </div>
@@ -494,8 +485,8 @@ function ArchivesPage() {
               <div>
                 <p className="text-sm text-gray-600">Espace utilisé</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {archivedResources?.reduce((sum, r) => sum + (r.fileSize || 0), 0) > 0 
-                    ? Math.round(archivedResources?.reduce((sum, r) => sum + (r.fileSize || 0), 0) / (1024 * 1024)) + ' MB'
+                  {archivedResources && archivedResources.reduce((sum, r) => sum + (r.size_bytes || 0), 0) > 0 
+                    ? Math.round((archivedResources?.reduce((sum, r) => sum + (r.size_bytes || 0), 0) || 0) / (1024 * 1024)) + ' MB'
                     : 'N/A'
                   }
                 </p>

@@ -159,6 +159,7 @@ export interface ClasseEleveCreate {
  * @interface ClasseEleveOut
  */
 export interface ClasseEleveOut {
+    nom: string;
     /**
      * 
      * @type {string}
@@ -215,6 +216,7 @@ export interface ClasseEnseignantCreate {
  * @interface ClasseEnseignantOut
  */
 export interface ClasseEnseignantOut {
+    nom: string;
     /**
      * 
      * @type {string}
