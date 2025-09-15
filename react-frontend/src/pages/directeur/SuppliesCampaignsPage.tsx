@@ -26,7 +26,7 @@ const SuppliesCampaignsPage: React.FC = () => {
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [order, setOrder] = useState<string>('');
+  const [order] = useState<string>('');
   const [establishmentId, setEstablishmentId] = useState<string>('');
   const [schoolYear, setSchoolYear] = useState<string>('');
   const [classId, setClassId] = useState<string>('');
