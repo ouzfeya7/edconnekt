@@ -1,5 +1,4 @@
 // Service pour gérer l'association des ressources aux cours
-import { useResources } from '../contexts/ResourceContext';
 
 export interface CourseResource {
   id: string;
@@ -41,6 +40,50 @@ class CourseResourceService {
     }
   }
 
+  // Associer une ressource existante à un cours/une leçon
+  async associateResourceToCourse(params: {
+    courseId: string;
+    lessonId?: string;
+    resourceId: string;
+    addedBy: string;
+    addedAt: string;
+  }): Promise<boolean> {
+    try {
+      // Simulation d'appel API
+      await new Promise(resolve => setTimeout(resolve, 300));
+      console.log('Association ressource → cours', params);
+      return true;
+    } catch (error) {
+      console.error('Erreur associateResourceToCourse:', error);
+      return false;
+    }
+  }
+
+  // Créer puis associer une nouvelle ressource à un cours/une leçon
+  async createAndAssociateResource(
+    courseId: string,
+    lessonId: string,
+    resourceData: {
+      title: string;
+      description: string;
+      subject: string;
+      imageUrl: string;
+      visibility: 'PRIVATE' | 'CLASS' | 'SCHOOL';
+      fileType: string;
+      fileSize: number;
+    }
+  ): Promise<boolean> {
+    try {
+      // Simulation d'appel API
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log('Création ressource → association cours', { courseId, lessonId, resourceData });
+      return true;
+    } catch (error) {
+      console.error('Erreur createAndAssociateResource:', error);
+      return false;
+    }
+  }
+
   // Récupérer les ressources d'une leçon spécifique
   async getLessonResources(courseId: string, lessonId: string): Promise<CourseResource[]> {
     try {
@@ -52,49 +95,12 @@ class CourseResourceService {
     }
   }
 
-  // Associer une ressource existante à un cours
-  async associateResourceToCourse(association: CourseResourceAssociation): Promise<boolean> {
-    try {
-      console.log('Service microservice non disponible - simulation d\'association');
-      return true;
-    } catch (error) {
-      console.error('Erreur associateResourceToCourse:', error);
-      return false;
-    }
-  }
-
-  // Créer une nouvelle ressource et l'associer au cours
-  async createAndAssociateResource(
-    courseId: string, 
-    lessonId: string, 
-    resourceData: any
-  ): Promise<boolean> {
-    try {
-      console.log('Service microservice non disponible - simulation de création et association');
-      return true;
-    } catch (error) {
-      console.error('Erreur createAndAssociateResource:', error);
-      return false;
-    }
-  }
-
-  // Retirer une ressource d'un cours
-  async removeResourceFromCourse(courseId: string, resourceId: string): Promise<boolean> {
-    try {
-      console.log('Service microservice non disponible - simulation de suppression');
-      return true;
-    } catch (error) {
-      console.error('Erreur removeResourceFromCourse:', error);
-      return false;
-    }
-  }
-
   // Rechercher des ressources disponibles pour association
   async searchAvailableResources(
     courseId: string, 
     query: string, 
     subject?: string
-  ): Promise<any[]> {
+  ): Promise<unknown[]> {
     try {
       console.log('Service microservice non disponible - simulation de recherche');
       return this.getMockAvailableResources(query, subject);
@@ -146,7 +152,7 @@ class CourseResourceService {
     return this.getMockCourseResources(courseId).filter(r => r.lessonId === lessonId);
   }
 
-  private getMockAvailableResources(query: string, subject?: string): any[] {
+  private getMockAvailableResources(query: string, subject?: string): unknown[] {
     return [
       {
         id: 'resource-3',

@@ -7,7 +7,6 @@ import {
   GitMerge, 
   Search, 
   FileCode, 
-  CheckCircle, 
   AlertTriangle,
   Copy,
   Download
@@ -17,26 +16,67 @@ const SuppliesConsolidationPage: React.FC = () => {
   const { t } = useTranslation();
   const [campaignId, setCampaignId] = useState<string>('');
   const [classId, setClassId] = useState<string>('');
-  const [decisionsText, setDecisionsText] = useState<string>('');
+  // JSON editor removed; UI is form-based
 
-  const { data, isLoading, isError } = useConsolidationDiff(campaignId || undefined, classId || undefined);
+  const { data, isLoading, isError, refetch } = useConsolidationDiff(campaignId || undefined, classId || undefined);
   const apply = useConsolidationApply(campaignId || undefined, classId || undefined);
 
-  const parsedDecisions: ConsolidationDecision[] | null = useMemo(() => {
-    if (!decisionsText.trim()) return null;
-    try {
-      const parsed = JSON.parse(decisionsText) as unknown;
-      if (Array.isArray(parsed)) {
-        return parsed as ConsolidationDecision[];
-      }
-    } catch {
-      return null;
-    }
-    return null;
-  }, [decisionsText]);
-
   const canLoadDiff = Boolean(campaignId && classId);
-  const isValidJson = parsedDecisions !== null && decisionsText.trim() !== '';
+
+  // Extraire des propositions à partir du diff brut
+  type Candidate = { label_normalized: string; quantity: number; unit?: string | null };
+  const extractCandidatesFromDiff = React.useCallback((node: unknown, acc: Candidate[]) => {
+    if (!node) return acc;
+    if (Array.isArray(node)) {
+      node.forEach((it) => extractCandidatesFromDiff(it, acc));
+      return acc;
+    }
+    if (typeof node === 'object') {
+      const obj = node as Record<string, unknown>;
+      const ln = obj['label_normalized'];
+      const q = obj['quantity'];
+      if (typeof ln === 'string' && typeof q === 'number') {
+        const unit = (typeof obj['unit'] === 'string' || obj['unit'] === null) ? (obj['unit'] as string | null | undefined) : undefined;
+        acc.push({ label_normalized: ln, quantity: q, unit });
+      }
+      Object.values(obj).forEach((v) => extractCandidatesFromDiff(v, acc));
+      return acc;
+    }
+    return acc;
+  }, []);
+
+  const candidates = useMemo(() => {
+    if (!data) return [] as Candidate[];
+    const out: Candidate[] = [];
+    extractCandidatesFromDiff(data, out);
+    return out;
+  }, [data, extractCandidatesFromDiff]);
+
+  const groupedSuggestions = useMemo(() => {
+    const map = new Map<string, { label: string; total: number; count: number; unit?: string | null }>();
+    for (const c of candidates) {
+      const key = c.label_normalized;
+      const prev = map.get(key);
+      if (prev) {
+        map.set(key, { label: key, total: prev.total + (c.quantity || 0), count: prev.count + 1, unit: prev.unit ?? c.unit });
+      } else {
+        map.set(key, { label: key, total: c.quantity || 0, count: 1, unit: c.unit });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
+  }, [candidates]);
+
+  // Éditeur de décisions sans JSON
+  const [decisions, setDecisions] = useState<ConsolidationDecision[]>([]);
+  const addDecision = (d?: Partial<ConsolidationDecision>) => {
+    setDecisions((prev) => [...prev, { label_normalized: d?.label_normalized || '', quantity: d?.quantity ?? 1, unit: d?.unit ?? null }]);
+  };
+  const updateDecision = (idx: number, patch: Partial<ConsolidationDecision>) => {
+    setDecisions((prev) => prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
+  };
+  const removeDecision = (idx: number) => {
+    setDecisions((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   const handleCopyDiff = () => {
     if (data) {
@@ -46,11 +86,14 @@ const SuppliesConsolidationPage: React.FC = () => {
   };
 
   const handleApplyDecisions = async () => {
-    if (!parsedDecisions) return;
-    
+    if (!decisions.length) {
+      toast.error(t('Ajoutez au moins une décision', 'Ajoutez au moins une décision'));
+      return;
+    }
     try {
-      await apply.mutateAsync(parsedDecisions);
+      await apply.mutateAsync(decisions);
       toast.success(t('Décisions appliquées avec succès', 'Décisions appliquées avec succès'));
+      setDecisions([]);
     } catch {
       toast.error(t('Erreur lors de l\'application', 'Erreur lors de l\'application'));
     }
@@ -100,7 +143,7 @@ const SuppliesConsolidationPage: React.FC = () => {
               <button 
                 className="w-full bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2"
                 disabled={!canLoadDiff}
-                onClick={() => undefined}
+                onClick={() => { if (canLoadDiff) refetch(); }}
               >
                 <Search className="h-4 w-4" />
                 {t('Charger diff', 'Charger diff')}
@@ -129,21 +172,21 @@ const SuppliesConsolidationPage: React.FC = () => {
         )}
 
         {/* Affichage du diff */}
-        {data && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <FileCode className="h-5 w-5 text-teal-600" />
-                <h2 className="text-lg font-semibold text-gray-900">{t('Diff de consolidation', 'Diff de consolidation')}</h2>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleCopyDiff}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg px-3 py-2 flex items-center gap-2 transition-colors duration-200"
-                >
-                  <Copy className="h-4 w-4" />
-                  {t('Copier', 'Copier')}
-                </button>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <FileCode className="h-5 w-5 text-teal-600" />
+              <h2 className="text-lg font-semibold text-gray-900">{t('Propositions de consolidation', 'Propositions de consolidation')}</h2>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleCopyDiff}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg px-3 py-2 flex items-center gap-2 transition-colors duration-200"
+              >
+                <Copy className="h-4 w-4" />
+                {t('Copier le diff brut', 'Copier le diff brut')}
+              </button>
+              {data && (
                 <button
                   onClick={() => {
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -154,83 +197,101 @@ const SuppliesConsolidationPage: React.FC = () => {
                     a.click();
                     URL.revokeObjectURL(url);
                   }}
-                  className="bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg px-3 py-2 flex items-center gap-2 transition-colors duration-200"
+                  className="bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg px-3 py-2 flex items-center gap-2 transition-colors durée-200"
                 >
                   <Download className="h-4 w-4" />
-                  {t('Télécharger', 'Télécharger')}
+                  {t('Télécharger diff', 'Télécharger diff')}
                 </button>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-lg border">
-              <pre className="text-sm p-4 overflow-auto max-h-96 text-gray-800 font-mono">
-                {JSON.stringify(data, null, 2)}
-              </pre>
+              )}
             </div>
           </div>
-        )}
+          {groupedSuggestions.length === 0 ? (
+            <div className="text-gray-600 text-sm">{t('Aucune proposition détectée. Ajoutez vos décisions manuellement ci-dessous.', 'Aucune proposition détectée. Ajoutez vos décisions manuellement ci-dessous.')}</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full border text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="text-left p-2 border-b">{t('Article (normalisé)', 'Article (normalisé)')}</th>
+                    <th className="text-right p-2 border-b">{t('Quantité suggérée', 'Quantité suggérée')}</th>
+                    <th className="text-center p-2 border-b">{t('Sources', 'Sources')}</th>
+                    <th className="text-right p-2 border-b">{t('Action', 'Action')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {groupedSuggestions.map((s) => (
+                    <tr key={s.label} className="border-b">
+                      <td className="p-2">{s.label}</td>
+                      <td className="p-2 text-right">{s.total}</td>
+                      <td className="p-2 text-center">{s.count}</td>
+                      <td className="p-2 text-right">
+                        <button
+                          className="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
+                          onClick={() => addDecision({ label_normalized: s.label, quantity: s.total, unit: s.unit ?? null })}
+                        >
+                          {t('Ajouter à la liste', 'Ajouter à la liste')}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
 
-        {/* Section des décisions */}
+        {/* Section des décisions (éditeur) */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
             <FileCode className="h-5 w-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">{t('Décisions de consolidation', 'Décisions de consolidation')}</h2>
-            {isValidJson && (
-              <div className="flex items-center gap-1 text-green-600">
-                <CheckCircle className="h-4 w-4" />
-                <span className="text-sm font-medium">{t('JSON valide', 'JSON valide')}</span>
-              </div>
-            )}
-            {decisionsText.trim() && !isValidJson && (
-              <div className="flex items-center gap-1 text-red-600">
-                <AlertTriangle className="h-4 w-4" />
-                <span className="text-sm font-medium">{t('JSON invalide', 'JSON invalide')}</span>
-              </div>
-            )}
           </div>
-          
           <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
-                {t('Données JSON des décisions', 'Données JSON des décisions')}
-              </label>
-              <textarea
-                className={`w-full border rounded-lg p-4 h-48 font-mono text-sm transition-all duration-200 ${
-                  decisionsText.trim() && !isValidJson
-                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-                    : 'border-gray-300 focus:ring-emerald-500 focus:border-transparent'
-                }`}
-                placeholder={t(
-                  '[\n  {\n    "label_normalized": "cahier",\n    "quantity": 2,\n    "unit": "A4"\n  }\n]',
-                  '[\n  {\n    "label_normalized": "cahier",\n    "quantity": 2,\n    "unit": "A4"\n  }\n]'
-                )}
-                value={decisionsText}
-                onChange={(e) => setDecisionsText(e.target.value)}
-              />
+            <div className="overflow-x-auto">
+              <table className="min-w-full border text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="text-left p-2 border-b w-1/2">{t('Article (normalisé)', 'Article (normalisé)')}</th>
+                    <th className="text-right p-2 border-b w-32">{t('Quantité', 'Quantité')}</th>
+                    <th className="text-left p-2 border-b w-40">{t('Unité (optionnelle)', 'Unité (optionnelle)')}</th>
+                    <th className="text-right p-2 border-b w-24">{t('Action', 'Action')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {decisions.length === 0 ? (
+                    <tr>
+                      <td className="p-3 text-gray-500" colSpan={4}>{t('Aucune ligne. Ajoutez à partir des propositions ou manuellement.', 'Aucune ligne. Ajoutez à partir des propositions ou manuellement.')}</td>
+                    </tr>
+                  ) : (
+                    decisions.map((d, idx) => (
+                      <tr key={idx} className="border-b">
+                        <td className="p-2">
+                          <input className="w-full border rounded px-2 py-1" value={d.label_normalized} onChange={(e) => updateDecision(idx, { label_normalized: e.target.value })} placeholder={t('ex: cahier 96 pages', 'ex: cahier 96 pages')} />
+                        </td>
+                        <td className="p-2 text-right">
+                          <input className="w-full border rounded px-2 py-1 text-right" type="number" min={0} value={d.quantity} onChange={(e) => updateDecision(idx, { quantity: Number(e.target.value) || 0 })} />
+                        </td>
+                        <td className="p-2">
+                          <input className="w-full border rounded px-2 py-1" value={d.unit ?? ''} onChange={(e) => updateDecision(idx, { unit: e.target.value || null })} placeholder={t('ex: pcs, lots, boites', 'ex: pcs, lots, boites')} />
+                        </td>
+                        <td className="p-2 text-right">
+                          <button className="px-2 py-1 text-xs rounded bg-red-100 text-red-700 hover:bg-red-200" onClick={() => removeDecision(idx)}>
+                            {t('Supprimer', 'Supprimer')}
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-medium text-blue-900 mb-2">{t('Format attendu', 'Format attendu')}</h3>
-              <p className="text-sm text-blue-700 mb-2">
-                {t('Un tableau d\'objets avec les propriétés suivantes :', 'Un tableau d\'objets avec les propriétés suivantes :')}
-              </p>
-              <ul className="text-sm text-blue-700 space-y-1">
-                <li>• <code className="bg-blue-100 px-1 rounded">label_normalized</code>: {t('Nom normalisé de l\'article', 'Nom normalisé de l\'article')}</li>
-                <li>• <code className="bg-blue-100 px-1 rounded">quantity</code>: {t('Quantité requise', 'Quantité requise')}</li>
-                <li>• <code className="bg-blue-100 px-1 rounded">unit</code>: {t('Unité (optionnel)', 'Unité (optionnel)')}</li>
-              </ul>
+            <div className="flex items-center justify-end gap-2">
+              <button className="px-3 py-2 rounded border border-gray-200" onClick={() => addDecision()}>+ {t('Ajouter une ligne manuelle', 'Ajouter une ligne manuelle')}</button>
+              <button onClick={handleApplyDecisions} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2" disabled={apply.isPending || decisions.length === 0 || !canLoadDiff}>
+                <GitMerge className="h-4 w-4" />
+                {apply.isPending ? t('Application...', 'Application...') : t('Appliquer les décisions', 'Appliquer les décisions')}
+              </button>
             </div>
-
-            <button
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2"
-              disabled={!isValidJson || apply.isPending || !canLoadDiff}
-              onClick={handleApplyDecisions}
-            >
-              <CheckCircle className="h-4 w-4" />
-              {apply.isPending 
-                ? t('Application en cours...', 'Application en cours...') 
-                : t('Appliquer les décisions', 'Appliquer les décisions')
-              }
-            </button>
           </div>
         </div>
       </div>

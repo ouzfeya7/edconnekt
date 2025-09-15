@@ -28,10 +28,9 @@ interface ResourceMetadataProps {
 
 const ResourceMetadata: React.FC<ResourceMetadataProps> = ({ 
   resource, 
-  onUpdate 
 }) => {
   const { t } = useTranslation();
-  const { user, roles } = useAuth();
+  const { roles } = useAuth();
   
   // Permissions : les parents/élèves voient moins d'informations
   const canViewDetailedMetadata = roles.includes('enseignant') || roles.includes('directeur') || roles.includes('administrateur');

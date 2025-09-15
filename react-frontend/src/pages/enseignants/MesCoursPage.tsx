@@ -9,19 +9,16 @@ import ClassNameCard from '../../components/Header/ClassNameCard';
 import TrimestreCard from '../../components/Header/TrimestreCard';
 import StatsCard from '../../components/Header/StatsCard';
 import RemediationCard from '../../components/course/RemediationCard';
-import AddFicheModal, { NewFicheData } from '../../components/course/AddFicheModal';
 import { mockRemediations, RemediationSession } from '../../lib/mock-data';
 import { getEnrichedCourses, EnrichedCourse } from '../../lib/mock-student-data';
 import { useStudents } from '../../contexts/StudentContext';
 import { useFilters } from '../../contexts/FilterContext';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../authentification/useAuth';
 import CourseCard from '../../components/course/CourseCard';
 
 const MesCours = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { studentCount } = useStudents();
   const { 
     currentDate,
@@ -32,7 +29,6 @@ const MesCours = () => {
     setCurrentTrimestre 
   } = useFilters();
   
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [courses, setCourses] = useState<EnrichedCourse[]>([]);
   const [remediations, setRemediations] = useState<RemediationSession[]>([]);
 
@@ -56,35 +52,9 @@ const MesCours = () => {
     setRemediations(remediationsForClass);
   }, [currentClasse, navigate, studentCount]);
 
-  const handleAddFiche = (data: NewFicheData) => {
-    const teacherName = user ? `${user.firstName} ${user.lastName}` : t('unknown_teacher', 'Enseignant non identifié');
-    const courseId = `course-${Date.now()}`;
-    
-    const newCourse: EnrichedCourse = {
-      id: courseId,
-      subject: data.subject,
-      teacher: teacherName,
-      theme: "Nouveau cours",
-      title: data.title,
-      time: data.time,
-      progress: 0,
-      totalLessons: 10,
-      completedLessons: 0,
-      status: "upcoming" as const,
-      nextLessonDate: "À planifier",
-      classId: currentClasse,
-      domain: "Langues et Communication", // Domaine par défaut
-      competences: [],
-      presentCount: 0,
-      remediationCount: 0,
-      onViewDetails: () => navigate(`/mes-cours/${courseId}`)
-    };
-    setCourses(prevCourses => [newCourse, ...prevCourses]);
-    setIsModalOpen(false);
-  };
 
   const actionButtons = [
-    { icon: <Plus className="text-orange-500" />, label: t('add_sheet'), onClick: () => setIsModalOpen(true) },
+    { icon: <Plus className="text-orange-500" />, label: t('add_sheet'), onClick: () => {} },
     { icon: <BarChart2 className="text-orange-500" />, label: t('grade_management'), onClick: () => navigate('/gestion-notes') },
     { icon: <MessageSquare className="text-orange-500" />, label: t('send_message'), onClick: () => navigate('/messages', { state: { composeNew: true } }) },
     { icon: <Calendar className="text-orange-500" />, label: t('add_event'), onClick: () => navigate('/calendar', { state: { showAddEventModal: true } }) },

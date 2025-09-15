@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { importsData, ImportHistory } from './mock-imports';
 import { etablissementsData } from '../etablissements/mock-etablissements';
 import { 
-  FaPlus, 
   FaUpload, 
   FaFileCsv, 
   FaCheckCircle, 
@@ -16,7 +15,7 @@ import Badge from '../../../components/ui/Badge';
 
 const ImportsPage: React.FC = () => {
   const [etablissements] = useState(etablissementsData);
-  const [historique, setHistorique] = useState<ImportHistory[]>(importsData);
+  const [historique] = useState<ImportHistory[]>(importsData);
   const [filteredImports, setFilteredImports] = useState<ImportHistory[]>(importsData);
   const [activeTab, setActiveTab] = useState('import'); // 'import' or 'history'
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -25,10 +24,6 @@ const ImportsPage: React.FC = () => {
     if (event.target.files && event.target.files.length > 0) {
       setSelectedFile(event.target.files[0]);
     }
-  };
-
-  const handleImport = () => {
-    // This function was removed, so this block is no longer needed.
   };
   
   const getStatusIcon = (status: 'succès' | 'échec' | 'en_cours') => {

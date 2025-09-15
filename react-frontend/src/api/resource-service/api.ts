@@ -463,6 +463,40 @@ export const ResourcesApiAxiosParamCreator = function (configuration?: Configura
             };
         },
         /**
+         * Télécharge le fichier associé à une ressource. Vérifie les permissions avant de permettre le téléchargement.
+         * @summary Download Resource File
+         * @param {string} resourceId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        downloadResourceFileResourcesResourceIdDownloadGet: async (resourceId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'resourceId' is not null or undefined
+            assertParamExists('downloadResourceFileResourcesResourceIdDownloadGet', 'resourceId', resourceId)
+            const localVarPath = `/resources/{resource_id}/download`
+                .replace(`{${"resource_id"}}`, encodeURIComponent(String(resourceId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary Get Resource Audit Log
          * @param {string} resourceId 
@@ -606,6 +640,40 @@ export const ResourcesApiAxiosParamCreator = function (configuration?: Configura
             };
         },
         /**
+         * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, DIRECTION ou l\'auteur original peuvent restaurer.
+         * @summary Restore Resource
+         * @param {string} resourceId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        restoreResourceResourcesResourceIdRestorePatch: async (resourceId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'resourceId' is not null or undefined
+            assertParamExists('restoreResourceResourcesResourceIdRestorePatch', 'resourceId', resourceId)
+            const localVarPath = `/resources/{resource_id}/restore`
+                .replace(`{${"resource_id"}}`, encodeURIComponent(String(resourceId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary Update Resource
          * @param {string} resourceId 
@@ -720,6 +788,19 @@ export const ResourcesApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Télécharge le fichier associé à une ressource. Vérifie les permissions avant de permettre le téléchargement.
+         * @summary Download Resource File
+         * @param {string} resourceId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async downloadResourceFileResourcesResourceIdDownloadGet(resourceId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.downloadResourceFileResourcesResourceIdDownloadGet(resourceId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ResourcesApi.downloadResourceFileResourcesResourceIdDownloadGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @summary Get Resource Audit Log
          * @param {string} resourceId 
@@ -764,6 +845,19 @@ export const ResourcesApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listResourcesResourcesGet(authorUserId, visibility, subjectId, competenceId, status, limit, offset, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ResourcesApi.listResourcesResourcesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, DIRECTION ou l\'auteur original peuvent restaurer.
+         * @summary Restore Resource
+         * @param {string} resourceId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async restoreResourceResourcesResourceIdRestorePatch(resourceId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResourceOut>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.restoreResourceResourcesResourceIdRestorePatch(resourceId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ResourcesApi.restoreResourceResourcesResourceIdRestorePatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -822,6 +916,16 @@ export const ResourcesApiFactory = function (configuration?: Configuration, base
             return localVarFp.deleteResourceResourcesResourceIdDelete(resourceId, options).then((request) => request(axios, basePath));
         },
         /**
+         * Télécharge le fichier associé à une ressource. Vérifie les permissions avant de permettre le téléchargement.
+         * @summary Download Resource File
+         * @param {string} resourceId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        downloadResourceFileResourcesResourceIdDownloadGet(resourceId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.downloadResourceFileResourcesResourceIdDownloadGet(resourceId, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary Get Resource Audit Log
          * @param {string} resourceId 
@@ -858,6 +962,16 @@ export const ResourcesApiFactory = function (configuration?: Configuration, base
          */
         listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<ResourceOut>> {
             return localVarFp.listResourcesResourcesGet(authorUserId, visibility, subjectId, competenceId, status, limit, offset, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, DIRECTION ou l\'auteur original peuvent restaurer.
+         * @summary Restore Resource
+         * @param {string} resourceId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        restoreResourceResourcesResourceIdRestorePatch(resourceId: string, options?: RawAxiosRequestConfig): AxiosPromise<ResourceOut> {
+            return localVarFp.restoreResourceResourcesResourceIdRestorePatch(resourceId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -916,6 +1030,18 @@ export class ResourcesApi extends BaseAPI {
     }
 
     /**
+     * Télécharge le fichier associé à une ressource. Vérifie les permissions avant de permettre le téléchargement.
+     * @summary Download Resource File
+     * @param {string} resourceId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ResourcesApi
+     */
+    public downloadResourceFileResourcesResourceIdDownloadGet(resourceId: string, options?: RawAxiosRequestConfig) {
+        return ResourcesApiFp(this.configuration).downloadResourceFileResourcesResourceIdDownloadGet(resourceId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary Get Resource Audit Log
      * @param {string} resourceId 
@@ -957,6 +1083,18 @@ export class ResourcesApi extends BaseAPI {
      */
     public listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
         return ResourcesApiFp(this.configuration).listResourcesResourcesGet(authorUserId, visibility, subjectId, competenceId, status, limit, offset, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, DIRECTION ou l\'auteur original peuvent restaurer.
+     * @summary Restore Resource
+     * @param {string} resourceId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ResourcesApi
+     */
+    public restoreResourceResourcesResourceIdRestorePatch(resourceId: string, options?: RawAxiosRequestConfig) {
+        return ResourcesApiFp(this.configuration).restoreResourceResourcesResourceIdRestorePatch(resourceId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

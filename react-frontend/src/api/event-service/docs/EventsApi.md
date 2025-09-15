@@ -302,13 +302,15 @@ let size: number; //Items per page (1-100) (optional) (default to 20)
 let category: string; //Filter by event category (optional) (default to undefined)
 let startDate: string; //Filter events starting after this date (optional) (default to undefined)
 let endDate: string; //Filter events ending before this date (optional) (default to undefined)
+let etablissementId: string; //Filter by establishment ID (optional) (default to undefined)
 
 const { status, data } = await apiInstance.listEventsApiV1EventsGet(
     page,
     size,
     category,
     startDate,
-    endDate
+    endDate,
+    etablissementId
 );
 ```
 
@@ -321,6 +323,7 @@ const { status, data } = await apiInstance.listEventsApiV1EventsGet(
 | **category** | [**string**] | Filter by event category | (optional) defaults to undefined|
 | **startDate** | [**string**] | Filter events starting after this date | (optional) defaults to undefined|
 | **endDate** | [**string**] | Filter events ending before this date | (optional) defaults to undefined|
+| **etablissementId** | [**string**] | Filter by establishment ID | (optional) defaults to undefined|
 
 
 ### Return type

@@ -22,8 +22,10 @@ function extractErrorMessage(error: ErrorLike): string {
 export function useCreateCampaign() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { name: string }) => {
-      const res = await campaignsApi.createCampaignApiCampaignsPost({ name: payload.name });
+    mutationFn: async (payload: { name: string; establishmentId: string; schoolYear: string; classes?: string[] }) => {
+      const { name, schoolYear, classes, establishmentId } = payload;
+      const body = { name, establishment_id: establishmentId, school_year: schoolYear, classes } as { name: string; establishment_id: string; school_year: string; classes?: string[] };
+      const res = await campaignsApi.createCampaignApiCampaignsPost(body, { headers: { 'X-Establishment-Id': establishmentId } });
       return res.data;
     },
     onSuccess: () => {

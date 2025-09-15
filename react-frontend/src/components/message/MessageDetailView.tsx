@@ -1,7 +1,6 @@
 // src/components/message/MessageDetailView.tsx
 import React, { useState } from 'react';
 import { Reply, Forward, Trash2, Star, MoreHorizontal, Send, Paperclip } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 interface Message {
   id: string;
@@ -37,10 +36,8 @@ interface MessageDetailViewProps {
 
 const MessageDetailView: React.FC<MessageDetailViewProps> = ({
   message,
-  isOpen,
   onClose,
   onReply,
-  userRole,
   onToggleStar,
   onArchive,
   onDelete,
@@ -51,7 +48,6 @@ const MessageDetailView: React.FC<MessageDetailViewProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
   const moreOptionsRef = React.useRef<HTMLDivElement>(null);
-  const { t } = useTranslation();
 
   // Fermer le menu "Plus d'options" quand on clique en dehors
   React.useEffect(() => {

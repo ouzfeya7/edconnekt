@@ -1,6 +1,4 @@
 import React from 'react';
-import { BookOpen, Calendar, MapPin } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 interface DashboardCourseCardProps {
   subject: string;
@@ -18,16 +16,16 @@ interface DashboardCourseCardProps {
 const DashboardCourseCard: React.FC<DashboardCourseCardProps> = ({ 
   subject,
   teacher,
-  progress,
-  status,
-  nextLessonDate,
+  // progress,
+  // status,
+  // nextLessonDate,
   onViewDetails,
   title,
   time,
   presentCount,
   remediationCount
 }) => {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   // Générer un avatar simple avec initiales
   const getTeacherInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();

@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { Search, Upload, FileText, X, Eye, Users, Globe, Lock, DollarSign } from 'lucide-react';
 import { courseResourceService, CourseResource } from '../../services/courseResourceService';
-import { useAuth } from '../../pages/authentification/useAuth';
 import { useAvailableResources, AvailableResource } from '../../hooks/useAvailableResources';
 import { useResources } from '../../contexts/ResourceContext';
 
@@ -21,9 +20,8 @@ const ResourceAssociationModal: React.FC<ResourceAssociationModalProps> = ({
   lessonId,
   onResourceAssociated
 }) => {
-  const { roles } = useAuth();
   const { addResource } = useResources();
-  const { availableResources, searchResources } = useAvailableResources();
+  const { searchResources } = useAvailableResources();
   
   const [activeTab, setActiveTab] = useState<'search' | 'upload'>('search');
   const [searchQuery, setSearchQuery] = useState('');
@@ -82,7 +80,7 @@ const ResourceAssociationModal: React.FC<ResourceAssociationModalProps> = ({
   };
 
   // Rechercher des ressources disponibles
-  const performSearch = () => {
+  const performSearch = useCallback(() => {
     setIsLoading(true);
     try {
       const results = searchResources(searchQuery, selectedSubject || undefined);
@@ -92,7 +90,7 @@ const ResourceAssociationModal: React.FC<ResourceAssociationModalProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery, selectedSubject, searchResources]);
 
   // Associer une ressource existante
   const associateExistingResource = async (resource: AvailableResource) => {
@@ -211,7 +209,7 @@ const ResourceAssociationModal: React.FC<ResourceAssociationModalProps> = ({
     } else {
       setFilteredResources([]);
     }
-  }, [searchQuery, selectedSubject]);
+  }, [searchQuery, selectedSubject, performSearch]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

@@ -13,8 +13,8 @@ interface CourseResourcesWidgetProps {
 
 const CourseResourcesWidget: React.FC<CourseResourcesWidgetProps> = ({ 
   courseId, 
-  courseTitle,
-  onViewResource,
+  // courseTitle,
+  // onViewResource,
   onResourceClick 
 }) => {
   const { roles } = useAuth();

@@ -17,7 +17,6 @@ const DevoirCard: React.FC<DevoirCardProps> = ({ id, title, subject, startDate, 
   const { t } = useTranslation();
   const total = submitted + notSubmitted;
   const submittedPercentage = total > 0 ? (submitted / total) * 100 : 0;
-  const notSubmittedPercentage = total > 0 ? (notSubmitted / total) * 100 : 0;
 
   // Déterminer le statut du devoir basé sur la date de fin
   const isOverdue = new Date(endDate) < new Date();

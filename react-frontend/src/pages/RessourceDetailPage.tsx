@@ -6,6 +6,7 @@ import { useResourceAudit } from "../hooks/useResourceAudit";
 import { useArchiveResource } from "../hooks/useArchiveResource";
 import { useRestoreResource } from "../hooks/useRestoreResource";
 import { useResources as useRemoteResources } from "../hooks/useResources"; // Pour les ressources similaires
+import { useDownloadResourceFile } from "../hooks/useDownloadResourceFile";
 import { subjectIdToNameMap } from "./RessourcesPage";
 import {
   User,
@@ -41,6 +42,7 @@ const RessourceDetailPage = () => {
   const { data: auditLogs } = useResourceAudit(resourceId!);
   const archiveMutation = useArchiveResource();
   const restoreMutation = useRestoreResource();
+  const downloadMutation = useDownloadResourceFile();
   // Pour les ressources similaires, on peut utiliser le hook existant
   const { data: similarResourcesData } = useRemoteResources({ subjectId: resource?.subject_id });
 
@@ -170,9 +172,10 @@ const RessourceDetailPage = () => {
 
   // Fonction pour télécharger un fichier
   const handleDownload = () => {
-    // if (!resource.presigned_url) return;
-    // window.open(resource.presigned_url, '_blank');
-    alert("Fonctionnalité de téléchargement non encore implémentée.");
+    if (!resource) return;
+    const ext = getFileExtension(resource.mime_type);
+    const suggestedFilename = `${resource.title}.${ext}`;
+    downloadMutation.mutate({ resourceId: String(resource.id), suggestedFilename });
   };
 
   // Fonction pour fermer le visualiseur
@@ -231,7 +234,7 @@ const RessourceDetailPage = () => {
                     <button 
                       onClick={handleDownload}
                       className="bg-orange-500 text-white px-3 py-1.5 rounded-lg hover:bg-orange-600 transition flex items-center gap-1 text-sm"
-                      disabled
+                      disabled={downloadMutation.isPending}
                     >
                       <Download className="w-4 h-4" />
                       Télécharger
@@ -635,7 +638,7 @@ const RessourceDetailPage = () => {
                 <button
                   onClick={handleDownload}
                   className="bg-orange-500 text-white px-3 py-1.5 rounded-lg hover:bg-orange-600 transition flex items-center gap-1 text-sm"
-                  disabled
+                  disabled={downloadMutation.isPending}
                 >
                   <Download className="w-4 h-4" />
                   Télécharger
@@ -697,7 +700,7 @@ const RessourceDetailPage = () => {
                         <button
                           onClick={handleDownload}
                           className="mt-4 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition"
-                          disabled
+                          disabled={downloadMutation.isPending}
                         >
                           Télécharger pour voir
                         </button>

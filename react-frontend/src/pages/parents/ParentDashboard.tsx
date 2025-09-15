@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, Package, ArrowRight } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import CourseDetailHeader from '../../components/course/CourseDetailHeader';
 import ChildSelectorCard from '../../components/parents/ChildSelectorCard';
 import { Competence } from '../../lib/notes-data'; // Garder seulement ce qui est nécessaire

@@ -9,18 +9,16 @@ import {
   BookOpenCheck, Languages, Sigma, Palette, Music, Bike, Theater, 
   Move, Globe, ScrollText, BookMarked, Home, HeartPulse, Eye, HardDrive, FileIcon
 } from 'lucide-react';
-import RemediationResourceAssociationModal from '../components/course/RemediationResourceAssociationModal';
-import RemediationResourceCard from '../components/course/RemediationResourceCard';
 import jsPDF from 'jspdf';
 import autoTable, { Table, UserOptions } from 'jspdf-autotable';
 import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { ActionCard } from '../components/ui/ActionCard';
 import { useFilters } from '../contexts/FilterContext';
 import { useAuthContext } from '../pages/authentification/AuthContext';
 import { useAvailableResources } from '../hooks/useAvailableResources';
 
 import schoolLogo from '../assets/logo-yka-1.png';
+import RemediationResourceCard from '../components/course/RemediationResourceCard';
 
 // Couleurs pour les badges de matière (copiées de RessourcesPage)
 const subjectBadgeColors: { [key: string]: string } = {
@@ -156,7 +154,6 @@ const getPdfTableStyles = (): Partial<UserOptions> => ({
 
 
 const RemediationDetailPage = () => {
-  const { t } = useTranslation();
   const { currentClasse } = useFilters();
   const { roles } = useAuthContext();
   const { remediationId } = useParams<{ remediationId: string }>();
@@ -172,7 +169,6 @@ const RemediationDetailPage = () => {
   const [showParentReport, setShowParentReport] = useState(false);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
   const [editingCell, setEditingCell] = useState<string | null>(null);
-  const [isResourceModalOpen, setIsResourceModalOpen] = useState(false);
   const [remediationResources, setRemediationResources] = useState<RemediationResource[]>([]);
   const [isParentMethodModalOpen, setIsParentMethodModalOpen] = useState(false);
   const [parentMethods, setParentMethods] = useState<Array<{
@@ -215,7 +211,7 @@ const RemediationDetailPage = () => {
     };
 
     loadRemediationResources();
-  }, [remediation, remediationId]);
+  }, [remediation, remediationId, getResourcesBySubject]);
 
   if (!remediation) {
     return (
@@ -270,22 +266,6 @@ const RemediationDetailPage = () => {
         return student;
       })
     );
-  };
-
-
-
-
-
-  // Gérer l'association d'une ressource
-  const handleResourceAssociated = (resource: RemediationResource) => {
-    // Déterminer qui ajoute la ressource basé sur le rôle de l'utilisateur
-    const isParent = roles.includes('parent');
-    const updatedResource = {
-      ...resource,
-      addedBy: isParent ? 'Parent' : 'Enseignant'
-    };
-    
-    setRemediationResources(prev => [...prev, updatedResource]);
   };
 
   const handleParentMethodShared = (method: {
@@ -834,7 +814,7 @@ const RemediationDetailPage = () => {
             </div>
             {requiresIntervention && (
               <button 
-                onClick={() => setIsResourceModalOpen(true)}
+                onClick={() => (true)}
                 className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
               >
                 <FileText className="w-4 h-4" />
@@ -1500,7 +1480,7 @@ const RemediationDetailPage = () => {
               <ActionCard
                 icon={<PlusCircle className="w-4 h-4" />}
                 label="Ajouter une ressource"
-                onClick={() => setIsResourceModalOpen(true)}
+                onClick={() => (true)}
                 className="hover:bg-orange-50"
               />
             </div>
@@ -1512,7 +1492,6 @@ const RemediationDetailPage = () => {
                   <RemediationResourceCard
                     key={resource.id}
                     resource={resource}
-                    onClick={handleResourceClick}
                   />
                 ))}
               </div>
@@ -1522,7 +1501,7 @@ const RemediationDetailPage = () => {
                 <p className="text-slate-600 mb-3">Aucune ressource documentée pour cette session</p>
                 <button 
                   className="text-orange-600 hover:text-orange-700 text-sm font-medium"
-                  onClick={() => setIsResourceModalOpen(true)}
+                  onClick={() => (true)}
                 >
                   Ajouter des ressources
                 </button>

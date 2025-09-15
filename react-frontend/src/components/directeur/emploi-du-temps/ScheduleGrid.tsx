@@ -1,11 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clock, MapPin, Users, AlertTriangle } from 'lucide-react';
+import { MapPin, Users, AlertTriangle } from 'lucide-react';
 import { useSchedule } from '../../../contexts/ScheduleContext';
 
 const ScheduleGrid: React.FC = () => {
   const { t } = useTranslation();
-  const { courses, conflicts, filters, getCoursesByDay, getCoursesByClasse } = useSchedule();
+  const { conflicts, filters, getCoursesByDay } = useSchedule();
 
   const days = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
   const timeSlots = [

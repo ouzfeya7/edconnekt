@@ -2,14 +2,12 @@ import React, { useState, useMemo } from 'react';
 import DashboardCourseCard from '../../components/course/DashboardCourseCard';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../../contexts/FilterContext';
-import { useUser } from '../../layouts/DashboardLayout';
 import { getEnrichedCourses } from '../../lib/mock-student-data';
 import { BookOpen, Clock, CheckCircle, Filter, Search, Grid3X3, List } from 'lucide-react';
 
 const MesCoursPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentClasse } = useFilters();
-  const { user } = useUser();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'completed' | 'upcoming'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');

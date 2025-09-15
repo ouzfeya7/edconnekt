@@ -43,9 +43,11 @@ const AssignTeacherModal: React.FC<AssignTeacherModalProps> = ({ isOpen, onClose
       const msg = ((): string => {
         if (typeof e === 'string') return e;
         if (e && typeof e === 'object') {
-          const anyE = e as any;
-          const raw = anyE?.response?.data?.detail || anyE?.response?.data || anyE?.message;
+          const anyE = e as { response?: { data?: { detail?: string } | string }; message?: string };
+          const raw = anyE?.response?.data;
           if (typeof raw === 'string') return raw;
+          if (typeof raw === 'object' && raw?.detail) return raw.detail;
+          if (anyE?.message) return anyE.message;
           try { return JSON.stringify(raw); } catch { return 'Erreur inconnue'; }
         }
         return 'Erreur inconnue';

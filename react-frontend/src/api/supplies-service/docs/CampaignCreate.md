@@ -6,6 +6,9 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **string** |  | [default to undefined]
+**establishment_id** | **string** |  | [default to undefined]
+**school_year** | **string** |  | [default to undefined]
+**classes** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -14,6 +17,9 @@ import { CampaignCreate } from './api';
 
 const instance: CampaignCreate = {
     name,
+    establishment_id,
+    school_year,
+    classes,
 };
 ```
 

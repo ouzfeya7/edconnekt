@@ -25,10 +25,12 @@ const apiInstance = new TeacherListsApi(configuration);
 
 let campaignId: string; // (default to undefined)
 let classId: string; // (default to undefined)
+let teacherId: string; //ID de l\'enseignant (requis pour admin/directeur) (optional) (default to undefined)
 
 const { status, data } = await apiInstance.getMyListApiCampaignsCampaignIdMyListGet(
     campaignId,
-    classId
+    classId,
+    teacherId
 );
 ```
 
@@ -38,6 +40,7 @@ const { status, data } = await apiInstance.getMyListApiCampaignsCampaignIdMyList
 |------------- | ------------- | ------------- | -------------|
 | **campaignId** | [**string**] |  | defaults to undefined|
 | **classId** | [**string**] |  | defaults to undefined|
+| **teacherId** | [**string**] | ID de l\&#39;enseignant (requis pour admin/directeur) | (optional) defaults to undefined|
 
 
 ### Return type
@@ -79,10 +82,12 @@ const apiInstance = new TeacherListsApi(configuration);
 
 let campaignId: string; // (default to undefined)
 let classId: string; // (default to undefined)
+let teacherId: string; //ID de l\'enseignant (requis pour admin/directeur) (optional) (default to undefined)
 
 const { status, data } = await apiInstance.submitMyListApiCampaignsCampaignIdMyListSubmitPost(
     campaignId,
-    classId
+    classId,
+    teacherId
 );
 ```
 
@@ -92,6 +97,7 @@ const { status, data } = await apiInstance.submitMyListApiCampaignsCampaignIdMyL
 |------------- | ------------- | ------------- | -------------|
 | **campaignId** | [**string**] |  | defaults to undefined|
 | **classId** | [**string**] |  | defaults to undefined|
+| **teacherId** | [**string**] | ID de l\&#39;enseignant (requis pour admin/directeur) | (optional) defaults to undefined|
 
 
 ### Return type
@@ -134,11 +140,13 @@ const apiInstance = new TeacherListsApi(configuration);
 let campaignId: string; // (default to undefined)
 let classId: string; // (default to undefined)
 let teacherListItemPayload: Array<TeacherListItemPayload>; //
+let teacherId: string; //ID de l\'enseignant (requis pour admin/directeur) (optional) (default to undefined)
 
 const { status, data } = await apiInstance.upsertMyListApiCampaignsCampaignIdMyListPut(
     campaignId,
     classId,
-    teacherListItemPayload
+    teacherListItemPayload,
+    teacherId
 );
 ```
 
@@ -149,6 +157,7 @@ const { status, data } = await apiInstance.upsertMyListApiCampaignsCampaignIdMyL
 | **teacherListItemPayload** | **Array<TeacherListItemPayload>**|  | |
 | **campaignId** | [**string**] |  | defaults to undefined|
 | **classId** | [**string**] |  | defaults to undefined|
+| **teacherId** | [**string**] | ID de l\&#39;enseignant (requis pour admin/directeur) | (optional) defaults to undefined|
 
 
 ### Return type

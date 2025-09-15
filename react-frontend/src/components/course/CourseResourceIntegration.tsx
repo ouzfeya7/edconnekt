@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Search, BookOpen, Users, Eye, EyeOff, ExternalLink, Calendar } from 'lucide-react';
+import { Plus, BookOpen, ExternalLink, Calendar } from 'lucide-react';
 import { useAuth } from '../../pages/authentification/useAuth';
 import ResourceAssociationModal from './ResourceAssociationModal';
 import { courseResourceService, CourseResource } from '../../services/courseResourceService';
@@ -50,15 +50,15 @@ const CourseResourceIntegration: React.FC<CourseResourceIntegrationProps> = ({
     }
   };
 
-  const handleVisibilityChange = (resourceId: string, newVisibility: 'PRIVATE' | 'CLASS' | 'SCHOOL') => {
-    setRecentResources(prev => 
-      prev.map(resource => 
-        resource.id === resourceId 
-          ? { ...resource, visibility: newVisibility }
-          : resource
-      )
-    );
-  };
+  // const handleVisibilityChange = (resourceId: string, newVisibility: 'PRIVATE' | 'CLASS' | 'SCHOOL') => {
+  //   setRecentResources(prev => 
+  //     prev.map(resource => 
+  //       resource.id === resourceId 
+  //         ? { ...resource, visibility: newVisibility }
+  //         : resource
+  //     )
+  //   );
+  // };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">

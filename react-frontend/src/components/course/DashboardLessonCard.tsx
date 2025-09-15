@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, MapPin, Users } from 'lucide-react';
+import { Clock, Users } from 'lucide-react';
 
 interface DashboardLessonCardProps {
   id: string;

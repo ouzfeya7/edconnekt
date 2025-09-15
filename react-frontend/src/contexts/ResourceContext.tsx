@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 // import { useTranslation } from 'react-i18next';
 import { useAuth } from '../pages/authentification/useAuth';

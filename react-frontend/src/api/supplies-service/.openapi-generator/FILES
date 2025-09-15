@@ -6,7 +6,6 @@ common.ts
 configuration.ts
 docs/CampaignCreate.md
 docs/CampaignDashboard.md
-docs/CampaignListResponse.md
 docs/CampaignResponse.md
 docs/CampaignsApi.md
 docs/ChecklistItemResponse.md

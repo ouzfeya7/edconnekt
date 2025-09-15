@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, Clock, CheckCircle, User, Calendar } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useAlert } from '../../../contexts/AlertContext';
 import AlertCard from '../common/AlertCard';
 import FilterPanel from '../common/FilterPanel';
@@ -56,31 +56,31 @@ const AlertList: React.FC = () => {
     }
   ];
 
-  const getStatusIcon = (statut: string) => {
-    switch (statut) {
-      case 'nouvelle':
-        return <AlertTriangle className="w-4 h-4 text-red-500" />;
-      case 'en_cours':
-        return <Clock className="w-4 h-4 text-yellow-500" />;
-      case 'resolue':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      default:
-        return <AlertTriangle className="w-4 h-4 text-gray-500" />;
-    }
-  };
+  // const getStatusIcon = (statut: string) => {
+  //   switch (statut) {
+  //     case 'nouvelle':
+  //       return <AlertTriangle className="w-4 h-4 text-red-500" />;
+  //     case 'en_cours':
+  //       return <Clock className="w-4 h-4 text-yellow-500" />;
+  //     case 'resolue':
+  //       return <CheckCircle className="w-4 h-4 text-green-500" />;
+  //     default:
+  //       return <AlertTriangle className="w-4 h-4 text-gray-500" />;
+  //   }
+  // };
 
-  const getStatusText = (statut: string) => {
-    switch (statut) {
-      case 'nouvelle':
-        return t('new');
-      case 'en_cours':
-        return t('in_progress');
-      case 'resolue':
-        return t('resolved');
-      default:
-        return statut;
-    }
-  };
+  // const getStatusText = (statut: string) => {
+  //   switch (statut) {
+  //     case 'nouvelle':
+  //       return t('new');
+  //     case 'en_cours':
+  //       return t('in_progress');
+  //     case 'resolue':
+  //       return t('resolved');
+  //     default:
+  //       return statut;
+  //   }
+  // };
 
   const handleResolve = (id: number) => {
     resolveAlert(id, 'Résolue par le directeur');
@@ -90,7 +90,7 @@ const AlertList: React.FC = () => {
     assignAlert(id, assignee);
   };
 
-  const handleViewDetails = (alert: any) => {
+  const handleViewDetails = (alert: NonNullable<Parameters<typeof setSelectedAlert>[0]>) => {
     setSelectedAlert(alert);
   };
 

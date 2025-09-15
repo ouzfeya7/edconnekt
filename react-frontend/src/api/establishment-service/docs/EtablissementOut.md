@@ -14,8 +14,6 @@ Name | Type | Description | Notes
 **id** | **string** |  | [default to undefined]
 **plan** | [**PlanEnum**](PlanEnum.md) |  | [default to undefined]
 **status** | [**StatusEnum**](StatusEnum.md) |  | [default to undefined]
-**date_debut** | **string** |  | [default to undefined]
-**date_fin** | **string** |  | [default to undefined]
 **subscription_start** | **string** |  | [optional] [default to undefined]
 **subscription_end** | **string** |  | [optional] [default to undefined]
 **etablissement_group** | **string** |  | [default to undefined]
@@ -39,8 +37,6 @@ const instance: EtablissementOut = {
     id,
     plan,
     status,
-    date_debut,
-    date_fin,
     subscription_start,
     subscription_end,
     etablissement_group,

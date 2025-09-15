@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Search } from 'lucide-react';
@@ -72,7 +73,7 @@ const GestionDevoirsPage: React.FC = () => {
   const subjectOptions = useMemo(() => [
     { value: '', label: t('all_subjects') },
     ...[...new Set(mockDevoirs.map(d => d.subject))].map(s => ({ value: s, label: s }))
-  ], [mockDevoirs, t]);
+  ], [t]);
 
   const statusOptions: ComboboxOption[] = useMemo(() => [
     { value: '', label: t('all_statuses') },
@@ -88,7 +89,7 @@ const GestionDevoirsPage: React.FC = () => {
       .filter(d => selectedClass ? d.className === selectedClass : true)
       .filter(d => selectedSubject ? d.subject === selectedSubject : true)
       .filter(d => selectedStatus ? d.status === selectedStatus : true);
-  }, [mockDevoirs, searchTerm, selectedClass, selectedSubject, selectedStatus]);
+  }, [searchTerm, selectedClass, selectedSubject, selectedStatus]);
 
   const paginatedDevoirs = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;

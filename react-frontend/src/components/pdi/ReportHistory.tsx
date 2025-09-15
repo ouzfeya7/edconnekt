@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, FileText, Calendar, Eye, Filter, Search, ExternalLink } from 'lucide-react';
+import { Download, FileText, Calendar, Eye, Search, ExternalLink } from 'lucide-react';
 import { PdiSession } from '../../types/pdi';
 
 interface ReportHistoryProps {
@@ -34,7 +34,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ sessions, onDownloadRepor
     return matchesSearch && matchesStatus && matchesDate;
   });
 
-  const getStatusBadge = (status: string, published: boolean) => {
+  const getStatusBadge = (status: string) => {
     if (status === 'published') {
       return <span className="px-2 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-full">Publié</span>;
     }
@@ -77,7 +77,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ sessions, onDownloadRepor
           {/* Filtre par statut */}
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'published' | 'completed')}
             className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="all">Tous les statuts</option>
@@ -88,7 +88,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ sessions, onDownloadRepor
           {/* Filtre par période */}
           <select
             value={dateRange}
-            onChange={(e) => setDateRange(e.target.value as any)}
+            onChange={(e) => setDateRange(e.target.value as 'all' | 'week' | 'month' | 'quarter')}
             className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="all">Toutes les périodes</option>
@@ -153,7 +153,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ sessions, onDownloadRepor
                     </td>
                     
                     <td className="p-4">
-                      {getStatusBadge(session.status, session.published)}
+                      {getStatusBadge(session.status)}
                     </td>
                     
                     <td className="p-4">

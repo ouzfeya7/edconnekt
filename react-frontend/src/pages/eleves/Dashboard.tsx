@@ -25,7 +25,7 @@ import {
   Bell,
   MapPin,
   BookMarked,
-  Package
+  // Package
 } from 'lucide-react';
 
 // Interface Student pour le dashboard (structure complète)

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clock, CheckCircle, User, Calendar, AlertTriangle, Mail } from 'lucide-react';
+import { Clock, CheckCircle, User, Calendar, AlertTriangle } from 'lucide-react';
 import { useDirectorTimetable } from '../../../contexts/DirectorTimetableContext';
 
 const AbsenceValidationPanel: React.FC = () => {

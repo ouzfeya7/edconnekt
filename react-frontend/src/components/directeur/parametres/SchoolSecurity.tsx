@@ -190,10 +190,6 @@ const SchoolSecurity: React.FC = () => {
     }
   };
 
-  const handleRulesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setRulesContent(e.target.value);
-  };
-
   const handleDownloadPDF = () => {
     const elementToCapture = previewRef.current;
     if (!elementToCapture) {

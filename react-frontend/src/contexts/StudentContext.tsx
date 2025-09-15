@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useFilters } from './FilterContext'; // Importer pour accéder à la classe actuelle
 import { studentNotesByClass } from '../lib/notes-data'; // Importer les données

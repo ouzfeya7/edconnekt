@@ -79,7 +79,7 @@ export function useDeleteMessage() {
       const res = await messagesApi.deleteMessageConversationsMessagesMessageIdDeletePost(params.messageId);
       return res.data;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       // Invalidate all message queries; backend ne renvoie pas le convId ici
       qc.invalidateQueries({ queryKey: ['message-service','messages'] });
     },

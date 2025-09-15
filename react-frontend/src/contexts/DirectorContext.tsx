@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 // Types pour les données du directeur
@@ -117,7 +118,7 @@ export const DirectorProvider: React.FC<DirectorProviderProps> = ({ children }) 
   const [currentEtablissementId, setCurrentEtablissementIdState] = useState<string | undefined>(() => {
     const stored = localStorage.getItem('current-etab-id') || '';
     if (stored) return stored;
-    const fromEnv = (import.meta as any).env?.VITE_DEFAULT_ETAB_ID as string | undefined;
+    const fromEnv = (import.meta as { env?: { VITE_DEFAULT_ETAB_ID?: string } }).env?.VITE_DEFAULT_ETAB_ID as string | undefined;
     if (fromEnv) {
       // Persist for axios interceptors and consumers without context
       localStorage.setItem('current-etab-id', fromEnv);

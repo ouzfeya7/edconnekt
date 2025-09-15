@@ -6,6 +6,7 @@ Schema for event response
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**id** | **string** | Event ID | [default to undefined]
 **title** | **string** | Event title | [default to undefined]
 **description** | **string** |  | [optional] [default to undefined]
 **category** | **string** | Event category | [default to undefined]
@@ -13,7 +14,7 @@ Name | Type | Description | Notes
 **end_time** | **string** | Event end time | [default to undefined]
 **location** | **string** |  | [optional] [default to undefined]
 **capacity** | **number** |  | [optional] [default to undefined]
-**id** | **string** | Event ID | [default to undefined]
+**etablissement_id** | **string** |  | [optional] [default to undefined]
 **status** | **string** | Event status | [default to undefined]
 **created_at** | **string** | Creation timestamp | [default to undefined]
 **updated_at** | **string** | Last update timestamp | [default to undefined]
@@ -24,6 +25,7 @@ Name | Type | Description | Notes
 import { EventOut } from './api';
 
 const instance: EventOut = {
+    id,
     title,
     description,
     category,
@@ -31,7 +33,7 @@ const instance: EventOut = {
     end_time,
     location,
     capacity,
-    id,
+    etablissement_id,
     status,
     created_at,
     updated_at,

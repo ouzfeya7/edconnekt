@@ -57,16 +57,16 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const [isEditorInitialized, setIsEditorInitialized] = useState(false);
   const { showSuccess, showError } = useNotification();
 
+  // Référence stable pour appeler updateFormatStates sans dépendance circulaire
+  const updateFormatStatesRef = useRef<() => void>(() => {});
+
   // Fonction pour exécuter les commandes de formatage
   const executeCommand = useCallback((command: string, value: string | boolean = false) => {
     if (editorRef.current) {
-      // S'assurer que l'éditeur a le focus avant d'exécuter la commande
       editorRef.current.focus();
       document.execCommand(command, false, String(value));
-      // Mettre à jour le contenu après le formatage
       setContent(editorRef.current.innerHTML);
-      // Mettre à jour les états de formatage
-      setTimeout(() => updateFormatStates(), 0);
+      setTimeout(() => updateFormatStatesRef.current(), 0);
     }
   }, []);
 
@@ -104,6 +104,11 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
     }
   }, []);
 
+  // Garder la ref synchronisée
+  useEffect(() => {
+    updateFormatStatesRef.current = updateFormatStates;
+  }, [updateFormatStates]);
+
   // Gestion du contenu de l'éditeur
   const handleEditorChange = useCallback(() => {
     if (editorRef.current) {
@@ -132,7 +137,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
       }
       setIsEditorInitialized(true);
     }
-  }, [isEditorInitialized]);
+  }, [isEditorInitialized, content]);
 
   // Effet pour s'assurer que l'éditeur est bien initialisé au montage
   useEffect(() => {

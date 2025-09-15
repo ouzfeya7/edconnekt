@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, Clock, CheckCircle, TrendingUp } from 'lucide-react';
+import { AlertTriangle, Clock, CheckCircle } from 'lucide-react';
 import { useAlert } from '../../../contexts/AlertContext';
 import StatsCard from '../common/StatsCard';
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import keycloak from './keycloak';
 import { KeycloakProfile } from 'keycloak-js';
@@ -15,7 +16,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const MOCK_AUTH = false;
+const MOCK_AUTH = true;
 
 const transformRoles = (keycloakRoles: string[]): string[] => {
   const appRoles: string[] = [];
@@ -62,7 +63,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         emailVerified: true,
       };
       setUser(mockUser);
-      setRoles(['enseignant']);
+      setRoles(['directeur']);
       setIsAuthenticated(true);
       setLoading(false);
       return;
