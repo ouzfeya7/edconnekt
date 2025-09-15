@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { SchoolEvent } from '../components/agenda/agenda_data';
 import { getStudentAgendaEvents } from '../lib/mock-student-data';

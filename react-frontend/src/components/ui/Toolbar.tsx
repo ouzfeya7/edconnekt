@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Filter, ChevronLeft, ChevronRight, Download, MoreHorizontal, ChevronDown } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ToolbarProps {
   // Section de gauche (généralement la recherche)
@@ -51,11 +51,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
-
-  // Formatage de l'affichage de la page (ex: "1-04" ou "1-4")
-  // Le design montre "1-04", donc si endItem < 10, on ajoute un 0 devant.
-  const formattedEndItem = endItem < 10 && endItem > 0 ? `0${endItem}` : endItem.toString();
-  const pageDisplay = totalItems > 0 ? `${startItem}-${formattedEndItem}` : '0-0';
 
   return (
     <div className={`flex flex-col sm:flex-row justify-between items-center gap-3 my-4 px-1 ${containerClassName}`}>

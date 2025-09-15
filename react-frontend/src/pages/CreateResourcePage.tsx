@@ -68,7 +68,7 @@ function CreateResourcePage() {
     // États pour l'édition
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingResourceId, setEditingResourceId] = useState<string | null>(null);
-    const [readOnlyFields, setReadOnlyFields] = useState<string[]>([]);
+    const [readOnlyFields] = useState<string[]>([]);
     
     // Récupération des données pour l'édition
     const resourceIdFromURL = searchParams.get('resourceId');

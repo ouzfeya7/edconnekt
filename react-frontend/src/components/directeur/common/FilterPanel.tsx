@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Filter, X, RotateCcw } from 'lucide-react';
 
@@ -18,8 +18,8 @@ interface FilterGroup {
 
 interface FilterPanelProps {
   filters: FilterGroup[];
-  values: Record<string, any>;
-  onFilterChange: (key: string, value: any) => void;
+  values: Record<string, unknown>;
+  onFilterChange: (key: string, value: unknown) => void;
   onClearAll: () => void;
   onClearFilter: (key: string) => void;
   className?: string;

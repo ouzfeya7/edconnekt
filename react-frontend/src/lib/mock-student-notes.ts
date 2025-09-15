@@ -1,4 +1,4 @@
-import { StudentNote, Domain, getSubjectsForClass } from './notes-data';
+import { StudentNote, getSubjectsForClass } from './notes-data';
 
 /**
  * Génère des notes aléatoires pour un élève spécifique

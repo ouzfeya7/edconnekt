@@ -4,8 +4,7 @@ import { mockCourses } from '../../lib/mock-data';
 import CourseDetailHeader from '../../components/course/CourseDetailHeader';
 import LessonInfoSection, { StatItem } from '../../components/course/LessonInfoSection';
 import LessonResourcesSection from '../../components/course/LessonResourcesSection';
-import RemediationCard from '../../components/course/RemediationCard';
-import { useAuth } from '../authentification/useAuth';
+import { useAuth } from '../../pages/authentification/useAuth';
 import { Pencil, GraduationCap, AlertTriangle, Calendar, TrendingUp, User } from 'lucide-react';
 
 // Ces types et cette constante devraient idéalement être dans un fichier partagé

@@ -20,18 +20,31 @@ const SuppliesCampaignsPage: React.FC = () => {
   const { t } = useTranslation();
   
   const [newName, setNewName] = useState<string>('');
+  const [newSchoolYear, setNewSchoolYear] = useState<string>('');
   const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
   const [selectedCampaignId, setSelectedCampaignId] = useState<string>('');
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [order, setOrder] = useState<string>('');
+  const [establishmentId, setEstablishmentId] = useState<string>('');
+  const [schoolYear, setSchoolYear] = useState<string>('');
+  const [classId, setClassId] = useState<string>('');
   const [limit, setLimit] = useState<number>(10);
   const [offset, setOffset] = useState<number>(0);
 
   const qc = useQueryClient();
   const { data: dashboard, isLoading: isDashLoading, refetch: refetchDashboard } = useSuppliesCampaignDashboard(selectedCampaignId || undefined);
-  const { data: listData } = useSuppliesCampaignList({ q: search || null, status: statusFilter || null, order: order || null, limit, offset });
+  const { data: listData } = useSuppliesCampaignList({
+    q: search || null,
+    status: statusFilter || null,
+    order: order || null,
+    establishmentId: establishmentId || null,
+    schoolYear: schoolYear || null,
+    classId: classId || null,
+    limit,
+    offset,
+  });
 
   const create = useCreateCampaign();
   const open = useOpenCampaign();
@@ -116,11 +129,24 @@ const SuppliesCampaignsPage: React.FC = () => {
               <option value="published">Published</option>
               <option value="closed">Closed</option>
             </select>
-            <select className="border rounded-lg px-3 py-2" value={order} onChange={(e) => { setOrder(e.target.value); setOffset(0); }}>
-              <option value="">{t('Tri', 'Tri')}</option>
-              <option value="name">{t('Nom', 'Nom')}</option>
-              <option value="-created_at">{t('Plus récentes', 'Plus récentes')}</option>
-            </select>
+            <input
+              className="border rounded-lg px-3 py-2"
+              placeholder={t('Établissement ID', 'Établissement ID')}
+              value={establishmentId}
+              onChange={(e) => { setEstablishmentId(e.target.value); setOffset(0); }}
+            />
+            <input
+              className="border rounded-lg px-3 py-2"
+              placeholder={t('Année scolaire', 'Année scolaire')}
+              value={schoolYear}
+              onChange={(e) => { setSchoolYear(e.target.value); setOffset(0); }}
+            />
+            <input
+              className="border rounded-lg px-3 py-2"
+              placeholder={t('Classe ID', 'Classe ID')}
+              value={classId}
+              onChange={(e) => { setClassId(e.target.value); setOffset(0); }}
+            />
             <div className="flex items-center gap-2">
               <select className="border rounded-lg px-3 py-2" value={limit} onChange={(e) => { setLimit(parseInt(e.target.value || '10')); setOffset(0); }}>
                 <option value={10}>10</option>
@@ -158,12 +184,12 @@ const SuppliesCampaignsPage: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <div className="font-semibold text-gray-900 truncate">{c.name}</div>
-                      <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(c.status)}`}>{c.status}</span>
+                      <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(c.status || '')}`}>{c.status}</span>
                     </div>
                     <div className="text-xs text-gray-500 mt-1 flex flex-wrap gap-3">
                       <span>{t('ID', 'ID')}: <span className="font-mono">{c.id}</span></span>
-                      <span>{t('Créée le', 'Créée le')}: {new Date(c.created_at).toLocaleDateString()}</span>
-                      <span>{t('Maj', 'Maj')}: {new Date(c.updated_at).toLocaleDateString()}</span>
+                      <span>{t('Créée le', 'Créée le')}: {c.created_at ? new Date(c.created_at).toLocaleDateString() : '-'}</span>
+                      <span>{t('Maj', 'Maj')}: {c.updated_at ? new Date(c.updated_at).toLocaleDateString() : '-'}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -263,6 +289,17 @@ const SuppliesCampaignsPage: React.FC = () => {
                     onChange={(e) => setNewName(e.target.value)}
                   />
                 </div>
+                <div className="grid grid-cols-1 gap-3">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">{t('Année scolaire', 'Année scolaire')}</label>
+                    <input
+                      className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                      placeholder={t('Ex: 2025-2026', 'Ex: 2025-2026')}
+                      value={newSchoolYear}
+                      onChange={(e) => setNewSchoolYear(e.target.value)}
+                    />
+                  </div>
+                </div>
                 <div className="flex justify-end gap-2">
                   <button
                     className="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 disabled:opacity-50"
@@ -273,11 +310,17 @@ const SuppliesCampaignsPage: React.FC = () => {
                   </button>
                   <button
                     className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    disabled={!newName.trim() || create.isPending}
+                    disabled={!newName.trim() || !newSchoolYear.trim() || create.isPending}
                     onClick={async () => {
                       try {
-                        const created = await create.mutateAsync({ name: newName.trim() });
+                        const etabId = localStorage.getItem('current-etab-id') || '';
+                        if (!etabId) {
+                          toast.error(t("Aucun établissement courant (current-etab-id)", 'Aucun établissement courant'));
+                          return;
+                        }
+                        const created = await create.mutateAsync({ name: newName.trim(), establishmentId: etabId, schoolYear: newSchoolYear.trim() });
                         setNewName('');
+                        setNewSchoolYear('');
                         setIsCreateOpen(false);
                         const createdId = (created as { id?: string } | undefined)?.id;
                         if (createdId) {
@@ -383,5 +426,3 @@ const SuppliesCampaignsPage: React.FC = () => {
 };
 
 export default SuppliesCampaignsPage;
-
-

@@ -1,5 +1,6 @@
 # EtablissementCreate
 
+
 ## Properties
 
 Name | Type | Description | Notes
@@ -12,8 +13,6 @@ Name | Type | Description | Notes
 **pays** | **string** |  | [optional] [default to undefined]
 **plan** | [**PlanEnum**](PlanEnum.md) |  | [optional] [default to undefined]
 **status** | [**StatusEnum**](StatusEnum.md) |  | [optional] [default to undefined]
-**date_debut** | **string** |  | [optional] [default to undefined]
-**date_fin** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -29,8 +28,6 @@ const instance: EtablissementCreate = {
     pays,
     plan,
     status,
-    date_debut,
-    date_fin,
 };
 ```
 

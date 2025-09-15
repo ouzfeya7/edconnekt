@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Types pour l'emploi du temps du directeur
 interface Absence {
@@ -27,7 +28,7 @@ interface LessonAudit {
   action: string;
   actor_id: string;
   actor_role: string;
-  diff: { [key: string]: any };
+  diff: { [key: string]: unknown };
   created_at: string;
 }
 

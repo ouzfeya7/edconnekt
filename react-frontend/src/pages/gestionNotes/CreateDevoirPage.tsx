@@ -159,7 +159,7 @@ const CreateDevoirPage: React.FC = () => {
   };
 
   // Rechercher des ressources disponibles
-  const performSearch = () => {
+  const performSearch = useCallback(() => {
     setIsSearching(true);
     try {
       const results = searchResources(searchQuery, selectedSubjectFilter || undefined);
@@ -169,7 +169,7 @@ const CreateDevoirPage: React.FC = () => {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [searchQuery, selectedSubjectFilter, searchResources]);
 
   // Ajouter une ressource existante
   const addExistingResource = (resource: AvailableResource) => {
@@ -227,7 +227,7 @@ const CreateDevoirPage: React.FC = () => {
     } else {
       setFilteredResources([]);
     }
-  }, [searchQuery, selectedSubjectFilter]);
+  }, [searchQuery, selectedSubjectFilter, performSearch]);
 
   const subjects = [
     'Mathématiques', 'Français', 'Histoire', 'Géographie', 

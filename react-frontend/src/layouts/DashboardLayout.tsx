@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Outlet, useOutletContext } from "react-router-dom";
 import Sidebar from "../components/layout/Sidebar";
 import Topbar from "../components/layout/Topbar";
@@ -96,13 +97,9 @@ const DashboardLayout = ({ role }: DashboardLayoutProps) => {
       const newName = (updatedData.firstName && updatedData.lastName)
         ? `${updatedData.firstName} ${updatedData.lastName}`
         : prevUser.name;
-      
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { firstName, lastName, ...restOfData } = updatedData;
-
-      return { 
-        ...prevUser, 
-        ...restOfData,
+      return {
+        ...prevUser,
+        ...updatedData,
         name: newName 
       };
     });

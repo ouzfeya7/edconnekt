@@ -12,7 +12,7 @@ import { useEstablishment } from '../../../hooks/useEstablishment';
 interface EtablissementFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (etablissement: any) => void;
+  onSave: (etablissement: unknown) => void;
   etablissementToEdit?: EtablissementOut | null;
 }
 
@@ -51,26 +51,22 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
     if (current) {
       setFormData({
         nom: current.nom ?? '',
-        adresse: (current as any).adresse ?? '',
+        adresse: current.adresse ?? '',
         email: current.email ?? '',
         telephone: current.telephone ?? '',
-        ville: (current as any).ville ?? '',
-        pays: (current as any).pays ?? '',
-        date_debut: (current as any).date_debut ?? '',
-        date_fin: (current as any).date_fin ?? '',
+        ville: current.ville ?? '',
+        pays: current.pays ?? '',
         plan: current.plan,
         status: current.status,
       });
     } else if (etablissementToEdit) {
       setFormData({
         nom: etablissementToEdit.nom ?? '',
-        adresse: (etablissementToEdit as any).adresse ?? '',
+        adresse: etablissementToEdit.adresse ?? '',
         email: etablissementToEdit.email ?? '',
         telephone: etablissementToEdit.telephone ?? '',
-        ville: (etablissementToEdit as any).ville ?? '',
-        pays: (etablissementToEdit as any).pays ?? '',
-        date_debut: (etablissementToEdit as any).date_debut ?? '',
-        date_fin: (etablissementToEdit as any).date_fin ?? '',
+        ville: etablissementToEdit.ville ?? '',
+        pays: etablissementToEdit.pays ?? '',
         plan: etablissementToEdit.plan,
         status: etablissementToEdit.status,
       });
@@ -89,12 +85,12 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
     try {
       if (etablissementToEdit?.id) {
         const id = etablissementToEdit.id;
-        const ops: Promise<any>[] = [];
+        const ops: Promise<unknown>[] = [];
 
         // Comparer et mettre à jour coordonnées (nom, adresse, email, telephone)
-        const coordsPayload: Record<string, any> = {};
+        const coordsPayload: Record<string, unknown> = {};
         if (formData.nom !== (etablissementToEdit.nom ?? '')) coordsPayload.nom = formData.nom;
-        if (formData.adresse !== ((etablissementToEdit as any).adresse ?? '')) coordsPayload.adresse = formData.adresse;
+        if (formData.adresse !== (etablissementToEdit.adresse ?? '')) coordsPayload.adresse = formData.adresse;
         if (formData.email !== (etablissementToEdit.email ?? '')) coordsPayload.email = formData.email;
         if (formData.telephone !== (etablissementToEdit.telephone ?? '')) coordsPayload.telephone = formData.telephone;
         if (Object.keys(coordsPayload).length > 0) {
@@ -122,8 +118,6 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
           telephone: formData.telephone,
           ville: formData.ville || undefined,
           pays: formData.pays || undefined,
-          date_debut: formData.date_debut || undefined,
-          date_fin: formData.date_fin || undefined,
           plan: formData.plan,
           status: formData.status,
         });

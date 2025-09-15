@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, FileText, Eye, Share2, Calendar, Users, AlertTriangle, Target } from 'lucide-react';
+import { Download, FileText, Eye, Share2, Users, AlertTriangle, Target } from 'lucide-react';
 import { PdiSession } from '../../types/pdi';
 
 interface ReportPreviewProps {

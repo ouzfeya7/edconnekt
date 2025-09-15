@@ -35,6 +35,24 @@ export interface CampaignCreate {
      * @memberof CampaignCreate
      */
     'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CampaignCreate
+     */
+    'establishment_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CampaignCreate
+     */
+    'school_year': string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof CampaignCreate
+     */
+    'classes'?: Array<string>;
 }
 /**
  * 
@@ -60,6 +78,24 @@ export interface CampaignDashboard {
      * @memberof CampaignDashboard
      */
     'status': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CampaignDashboard
+     */
+    'establishment_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CampaignDashboard
+     */
+    'school_year': string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof CampaignDashboard
+     */
+    'classes': Array<string>;
     /**
      * 
      * @type {number}
@@ -88,43 +124,6 @@ export interface CampaignDashboard {
 /**
  * 
  * @export
- * @interface CampaignListResponse
- */
-export interface CampaignListResponse {
-    /**
-     * 
-     * @type {string}
-     * @memberof CampaignListResponse
-     */
-    'id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof CampaignListResponse
-     */
-    'name': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof CampaignListResponse
-     */
-    'status': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof CampaignListResponse
-     */
-    'created_at': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof CampaignListResponse
-     */
-    'updated_at': string;
-}
-/**
- * 
- * @export
  * @interface CampaignResponse
  */
 export interface CampaignResponse {
@@ -146,6 +145,24 @@ export interface CampaignResponse {
      * @memberof CampaignResponse
      */
     'status': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CampaignResponse
+     */
+    'establishment_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CampaignResponse
+     */
+    'school_year': string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof CampaignResponse
+     */
+    'classes': Array<string>;
     /**
      * 
      * @type {string}
@@ -616,15 +633,17 @@ export const CampaignsApiAxiosParamCreator = function (configuration?: Configura
         /**
          * 
          * @summary List Campaigns
-         * @param {string | null} [q] Recherche texte sur le nom
-         * @param {string | null} [status] Filtre par statut
-         * @param {string | null} [order] name | -created_at
-         * @param {number} [limit] 
-         * @param {number} [offset] 
+         * @param {string | null} [name] Filtrer par nom de campagne
+         * @param {string | null} [status] Filtrer par statut
+         * @param {string | null} [establishmentId] Filtrer par établissement
+         * @param {string | null} [schoolYear] Filtrer par année scolaire
+         * @param {string | null} [classId] Filtrer par classe
+         * @param {number} [limit] Nombre de résultats par page
+         * @param {number} [offset] Décalage pour la pagination
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listCampaignsApiCampaignsGet: async (q?: string | null, status?: string | null, order?: string | null, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listCampaignsApiCampaignsGet: async (name?: string | null, status?: string | null, establishmentId?: string | null, schoolYear?: string | null, classId?: string | null, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/campaigns/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -637,16 +656,24 @@ export const CampaignsApiAxiosParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            if (q !== undefined) {
-                localVarQueryParameter['q'] = q;
+            if (name !== undefined) {
+                localVarQueryParameter['name'] = name;
             }
 
             if (status !== undefined) {
                 localVarQueryParameter['status'] = status;
             }
 
-            if (order !== undefined) {
-                localVarQueryParameter['order'] = order;
+            if (establishmentId !== undefined) {
+                localVarQueryParameter['establishment_id'] = establishmentId;
+            }
+
+            if (schoolYear !== undefined) {
+                localVarQueryParameter['school_year'] = schoolYear;
+            }
+
+            if (classId !== undefined) {
+                localVarQueryParameter['class_id'] = classId;
             }
 
             if (limit !== undefined) {
@@ -822,16 +849,18 @@ export const CampaignsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary List Campaigns
-         * @param {string | null} [q] Recherche texte sur le nom
-         * @param {string | null} [status] Filtre par statut
-         * @param {string | null} [order] name | -created_at
-         * @param {number} [limit] 
-         * @param {number} [offset] 
+         * @param {string | null} [name] Filtrer par nom de campagne
+         * @param {string | null} [status] Filtrer par statut
+         * @param {string | null} [establishmentId] Filtrer par établissement
+         * @param {string | null} [schoolYear] Filtrer par année scolaire
+         * @param {string | null} [classId] Filtrer par classe
+         * @param {number} [limit] Nombre de résultats par page
+         * @param {number} [offset] Décalage pour la pagination
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listCampaignsApiCampaignsGet(q?: string | null, status?: string | null, order?: string | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CampaignListResponse>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listCampaignsApiCampaignsGet(q, status, order, limit, offset, options);
+        async listCampaignsApiCampaignsGet(name?: string | null, status?: string | null, establishmentId?: string | null, schoolYear?: string | null, classId?: string | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<{ [key: string]: any; }>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listCampaignsApiCampaignsGet(name, status, establishmentId, schoolYear, classId, limit, offset, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CampaignsApi.listCampaignsApiCampaignsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -918,16 +947,18 @@ export const CampaignsApiFactory = function (configuration?: Configuration, base
         /**
          * 
          * @summary List Campaigns
-         * @param {string | null} [q] Recherche texte sur le nom
-         * @param {string | null} [status] Filtre par statut
-         * @param {string | null} [order] name | -created_at
-         * @param {number} [limit] 
-         * @param {number} [offset] 
+         * @param {string | null} [name] Filtrer par nom de campagne
+         * @param {string | null} [status] Filtrer par statut
+         * @param {string | null} [establishmentId] Filtrer par établissement
+         * @param {string | null} [schoolYear] Filtrer par année scolaire
+         * @param {string | null} [classId] Filtrer par classe
+         * @param {number} [limit] Nombre de résultats par page
+         * @param {number} [offset] Décalage pour la pagination
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listCampaignsApiCampaignsGet(q?: string | null, status?: string | null, order?: string | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<CampaignListResponse>> {
-            return localVarFp.listCampaignsApiCampaignsGet(q, status, order, limit, offset, options).then((request) => request(axios, basePath));
+        listCampaignsApiCampaignsGet(name?: string | null, status?: string | null, establishmentId?: string | null, schoolYear?: string | null, classId?: string | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<{ [key: string]: any; }> {
+            return localVarFp.listCampaignsApiCampaignsGet(name, status, establishmentId, schoolYear, classId, limit, offset, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1008,17 +1039,19 @@ export class CampaignsApi extends BaseAPI {
     /**
      * 
      * @summary List Campaigns
-     * @param {string | null} [q] Recherche texte sur le nom
-     * @param {string | null} [status] Filtre par statut
-     * @param {string | null} [order] name | -created_at
-     * @param {number} [limit] 
-     * @param {number} [offset] 
+     * @param {string | null} [name] Filtrer par nom de campagne
+     * @param {string | null} [status] Filtrer par statut
+     * @param {string | null} [establishmentId] Filtrer par établissement
+     * @param {string | null} [schoolYear] Filtrer par année scolaire
+     * @param {string | null} [classId] Filtrer par classe
+     * @param {number} [limit] Nombre de résultats par page
+     * @param {number} [offset] Décalage pour la pagination
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CampaignsApi
      */
-    public listCampaignsApiCampaignsGet(q?: string | null, status?: string | null, order?: string | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return CampaignsApiFp(this.configuration).listCampaignsApiCampaignsGet(q, status, order, limit, offset, options).then((request) => request(this.axios, this.basePath));
+    public listCampaignsApiCampaignsGet(name?: string | null, status?: string | null, establishmentId?: string | null, schoolYear?: string | null, classId?: string | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
+        return CampaignsApiFp(this.configuration).listCampaignsApiCampaignsGet(name, status, establishmentId, schoolYear, classId, limit, offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1888,10 +1921,11 @@ export const TeacherListsApiAxiosParamCreator = function (configuration?: Config
          * @summary Get My List
          * @param {string} campaignId 
          * @param {string} classId 
+         * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyListApiCampaignsCampaignIdMyListGet: async (campaignId: string, classId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getMyListApiCampaignsCampaignIdMyListGet: async (campaignId: string, classId: string, teacherId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'campaignId' is not null or undefined
             assertParamExists('getMyListApiCampaignsCampaignIdMyListGet', 'campaignId', campaignId)
             // verify required parameter 'classId' is not null or undefined
@@ -1913,6 +1947,10 @@ export const TeacherListsApiAxiosParamCreator = function (configuration?: Config
                 localVarQueryParameter['classId'] = classId;
             }
 
+            if (teacherId !== undefined) {
+                localVarQueryParameter['teacher_id'] = teacherId;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -1929,10 +1967,11 @@ export const TeacherListsApiAxiosParamCreator = function (configuration?: Config
          * @summary Submit My List
          * @param {string} campaignId 
          * @param {string} classId 
+         * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        submitMyListApiCampaignsCampaignIdMyListSubmitPost: async (campaignId: string, classId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        submitMyListApiCampaignsCampaignIdMyListSubmitPost: async (campaignId: string, classId: string, teacherId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'campaignId' is not null or undefined
             assertParamExists('submitMyListApiCampaignsCampaignIdMyListSubmitPost', 'campaignId', campaignId)
             // verify required parameter 'classId' is not null or undefined
@@ -1954,6 +1993,10 @@ export const TeacherListsApiAxiosParamCreator = function (configuration?: Config
                 localVarQueryParameter['classId'] = classId;
             }
 
+            if (teacherId !== undefined) {
+                localVarQueryParameter['teacher_id'] = teacherId;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -1971,10 +2014,11 @@ export const TeacherListsApiAxiosParamCreator = function (configuration?: Config
          * @param {string} campaignId 
          * @param {string} classId 
          * @param {Array<TeacherListItemPayload>} teacherListItemPayload 
+         * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        upsertMyListApiCampaignsCampaignIdMyListPut: async (campaignId: string, classId: string, teacherListItemPayload: Array<TeacherListItemPayload>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        upsertMyListApiCampaignsCampaignIdMyListPut: async (campaignId: string, classId: string, teacherListItemPayload: Array<TeacherListItemPayload>, teacherId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'campaignId' is not null or undefined
             assertParamExists('upsertMyListApiCampaignsCampaignIdMyListPut', 'campaignId', campaignId)
             // verify required parameter 'classId' is not null or undefined
@@ -1996,6 +2040,10 @@ export const TeacherListsApiAxiosParamCreator = function (configuration?: Config
 
             if (classId !== undefined) {
                 localVarQueryParameter['classId'] = classId;
+            }
+
+            if (teacherId !== undefined) {
+                localVarQueryParameter['teacher_id'] = teacherId;
             }
 
 
@@ -2027,11 +2075,12 @@ export const TeacherListsApiFp = function(configuration?: Configuration) {
          * @summary Get My List
          * @param {string} campaignId 
          * @param {string} classId 
+         * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMyListApiCampaignsCampaignIdMyListGet(campaignId: string, classId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TeacherListResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getMyListApiCampaignsCampaignIdMyListGet(campaignId, classId, options);
+        async getMyListApiCampaignsCampaignIdMyListGet(campaignId: string, classId: string, teacherId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TeacherListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getMyListApiCampaignsCampaignIdMyListGet(campaignId, classId, teacherId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TeacherListsApi.getMyListApiCampaignsCampaignIdMyListGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -2041,11 +2090,12 @@ export const TeacherListsApiFp = function(configuration?: Configuration) {
          * @summary Submit My List
          * @param {string} campaignId 
          * @param {string} classId 
+         * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId: string, classId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TeacherListResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId, classId, options);
+        async submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId: string, classId: string, teacherId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TeacherListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId, classId, teacherId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TeacherListsApi.submitMyListApiCampaignsCampaignIdMyListSubmitPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -2056,11 +2106,12 @@ export const TeacherListsApiFp = function(configuration?: Configuration) {
          * @param {string} campaignId 
          * @param {string} classId 
          * @param {Array<TeacherListItemPayload>} teacherListItemPayload 
+         * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async upsertMyListApiCampaignsCampaignIdMyListPut(campaignId: string, classId: string, teacherListItemPayload: Array<TeacherListItemPayload>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TeacherListResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.upsertMyListApiCampaignsCampaignIdMyListPut(campaignId, classId, teacherListItemPayload, options);
+        async upsertMyListApiCampaignsCampaignIdMyListPut(campaignId: string, classId: string, teacherListItemPayload: Array<TeacherListItemPayload>, teacherId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TeacherListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.upsertMyListApiCampaignsCampaignIdMyListPut(campaignId, classId, teacherListItemPayload, teacherId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TeacherListsApi.upsertMyListApiCampaignsCampaignIdMyListPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -2080,22 +2131,24 @@ export const TeacherListsApiFactory = function (configuration?: Configuration, b
          * @summary Get My List
          * @param {string} campaignId 
          * @param {string} classId 
+         * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyListApiCampaignsCampaignIdMyListGet(campaignId: string, classId: string, options?: RawAxiosRequestConfig): AxiosPromise<TeacherListResponse> {
-            return localVarFp.getMyListApiCampaignsCampaignIdMyListGet(campaignId, classId, options).then((request) => request(axios, basePath));
+        getMyListApiCampaignsCampaignIdMyListGet(campaignId: string, classId: string, teacherId?: string, options?: RawAxiosRequestConfig): AxiosPromise<TeacherListResponse> {
+            return localVarFp.getMyListApiCampaignsCampaignIdMyListGet(campaignId, classId, teacherId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Submit My List
          * @param {string} campaignId 
          * @param {string} classId 
+         * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId: string, classId: string, options?: RawAxiosRequestConfig): AxiosPromise<TeacherListResponse> {
-            return localVarFp.submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId, classId, options).then((request) => request(axios, basePath));
+        submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId: string, classId: string, teacherId?: string, options?: RawAxiosRequestConfig): AxiosPromise<TeacherListResponse> {
+            return localVarFp.submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId, classId, teacherId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2103,11 +2156,12 @@ export const TeacherListsApiFactory = function (configuration?: Configuration, b
          * @param {string} campaignId 
          * @param {string} classId 
          * @param {Array<TeacherListItemPayload>} teacherListItemPayload 
+         * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        upsertMyListApiCampaignsCampaignIdMyListPut(campaignId: string, classId: string, teacherListItemPayload: Array<TeacherListItemPayload>, options?: RawAxiosRequestConfig): AxiosPromise<TeacherListResponse> {
-            return localVarFp.upsertMyListApiCampaignsCampaignIdMyListPut(campaignId, classId, teacherListItemPayload, options).then((request) => request(axios, basePath));
+        upsertMyListApiCampaignsCampaignIdMyListPut(campaignId: string, classId: string, teacherListItemPayload: Array<TeacherListItemPayload>, teacherId?: string, options?: RawAxiosRequestConfig): AxiosPromise<TeacherListResponse> {
+            return localVarFp.upsertMyListApiCampaignsCampaignIdMyListPut(campaignId, classId, teacherListItemPayload, teacherId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2124,12 +2178,13 @@ export class TeacherListsApi extends BaseAPI {
      * @summary Get My List
      * @param {string} campaignId 
      * @param {string} classId 
+     * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TeacherListsApi
      */
-    public getMyListApiCampaignsCampaignIdMyListGet(campaignId: string, classId: string, options?: RawAxiosRequestConfig) {
-        return TeacherListsApiFp(this.configuration).getMyListApiCampaignsCampaignIdMyListGet(campaignId, classId, options).then((request) => request(this.axios, this.basePath));
+    public getMyListApiCampaignsCampaignIdMyListGet(campaignId: string, classId: string, teacherId?: string, options?: RawAxiosRequestConfig) {
+        return TeacherListsApiFp(this.configuration).getMyListApiCampaignsCampaignIdMyListGet(campaignId, classId, teacherId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2137,12 +2192,13 @@ export class TeacherListsApi extends BaseAPI {
      * @summary Submit My List
      * @param {string} campaignId 
      * @param {string} classId 
+     * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TeacherListsApi
      */
-    public submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId: string, classId: string, options?: RawAxiosRequestConfig) {
-        return TeacherListsApiFp(this.configuration).submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId, classId, options).then((request) => request(this.axios, this.basePath));
+    public submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId: string, classId: string, teacherId?: string, options?: RawAxiosRequestConfig) {
+        return TeacherListsApiFp(this.configuration).submitMyListApiCampaignsCampaignIdMyListSubmitPost(campaignId, classId, teacherId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2151,12 +2207,13 @@ export class TeacherListsApi extends BaseAPI {
      * @param {string} campaignId 
      * @param {string} classId 
      * @param {Array<TeacherListItemPayload>} teacherListItemPayload 
+     * @param {string} [teacherId] ID de l\&#39;enseignant (requis pour admin/directeur)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TeacherListsApi
      */
-    public upsertMyListApiCampaignsCampaignIdMyListPut(campaignId: string, classId: string, teacherListItemPayload: Array<TeacherListItemPayload>, options?: RawAxiosRequestConfig) {
-        return TeacherListsApiFp(this.configuration).upsertMyListApiCampaignsCampaignIdMyListPut(campaignId, classId, teacherListItemPayload, options).then((request) => request(this.axios, this.basePath));
+    public upsertMyListApiCampaignsCampaignIdMyListPut(campaignId: string, classId: string, teacherListItemPayload: Array<TeacherListItemPayload>, teacherId?: string, options?: RawAxiosRequestConfig) {
+        return TeacherListsApiFp(this.configuration).upsertMyListApiCampaignsCampaignIdMyListPut(campaignId, classId, teacherListItemPayload, teacherId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

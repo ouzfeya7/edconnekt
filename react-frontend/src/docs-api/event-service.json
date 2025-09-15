@@ -137,6 +137,25 @@
                             "title": "End Date"
                         },
                         "description": "Filter events ending before this date"
+                    },
+                    {
+                        "name": "etablissement_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by establishment ID",
+                            "title": "Etablissement Id"
+                        },
+                        "description": "Filter by establishment ID"
                     }
                 ],
                 "responses": {
@@ -646,6 +665,12 @@
                         ],
                         "title": "Capacity",
                         "description": "Event capacity (must be positive)"
+                    },
+                    "etablissement_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Etablissement Id",
+                        "description": "ID de l'établissement"
                     }
                 },
                 "type": "object",
@@ -653,13 +678,20 @@
                     "title",
                     "category",
                     "start_time",
-                    "end_time"
+                    "end_time",
+                    "etablissement_id"
                 ],
                 "title": "EventCreate",
                 "description": "Schema for creating a new event"
             },
             "EventOut": {
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id",
+                        "description": "Event ID"
+                    },
                     "title": {
                         "type": "string",
                         "maxLength": 120,
@@ -728,11 +760,18 @@
                         "title": "Capacity",
                         "description": "Event capacity (must be positive)"
                     },
-                    "id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "title": "Id",
-                        "description": "Event ID"
+                    "etablissement_id": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Etablissement Id",
+                        "description": "ID de l'établissement"
                     },
                     "status": {
                         "type": "string",
@@ -759,11 +798,11 @@
                 },
                 "type": "object",
                 "required": [
+                    "id",
                     "title",
                     "category",
                     "start_time",
                     "end_time",
-                    "id",
                     "status",
                     "created_at",
                     "updated_at"

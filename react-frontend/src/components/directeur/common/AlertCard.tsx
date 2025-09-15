@@ -16,7 +16,7 @@ interface AlertCardProps {
     statut: 'ouverte' | 'en_cours' | 'resolue' | 'fermee';
     priorite: 'basse' | 'moyenne' | 'haute' | 'urgente';
     assignee?: string;
-    actions: any[];
+    actions: unknown[];
   };
   onResolve?: () => void;
   onAssign?: (assignee: string) => void;
@@ -27,13 +27,10 @@ interface AlertCardProps {
 
 const AlertCard: React.FC<AlertCardProps> = ({
   alert,
-  onResolve,
-  onAssign,
   onViewDetails,
-  showActions = true,
   className = ''
 }) => {
-  const { id, type, niveau, titre, description, eleve, classe, enseignant, dateCreation, statut, priorite, assignee, actions } = alert;
+  const { type, niveau, titre, description, eleve, classe, enseignant, dateCreation, statut, priorite, assignee, actions } = alert;
   const { t } = useTranslation();
 
   const getNiveauIcon = () => {

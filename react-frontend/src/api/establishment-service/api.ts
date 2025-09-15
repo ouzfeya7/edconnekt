@@ -168,18 +168,6 @@ export interface Data {
      * @memberof Data
      */
     'status'?: StatusEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof Data
-     */
-    'date_debut'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Data
-     */
-    'date_fin'?: string;
 }
 
 
@@ -329,18 +317,6 @@ export interface EtablissementCreate {
      * @memberof EtablissementCreate
      */
     'status'?: StatusEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EtablissementCreate
-     */
-    'date_debut'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof EtablissementCreate
-     */
-    'date_fin'?: string | null;
 }
 
 
@@ -417,18 +393,6 @@ export interface EtablissementOut {
      * @memberof EtablissementOut
      */
     'status': StatusEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EtablissementOut
-     */
-    'date_debut': string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof EtablissementOut
-     */
-    'date_fin': string | null;
     /**
      * 
      * @type {string}
@@ -528,18 +492,6 @@ export interface EtablissementUpdate {
      * @memberof EtablissementUpdate
      */
     'status'?: StatusEnum | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof EtablissementUpdate
-     */
-    'date_debut'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof EtablissementUpdate
-     */
-    'date_fin'?: string | null;
 }
 
 
@@ -662,18 +614,6 @@ export interface ResponseCreateEstablishmentApiEtablissementsPost {
      * @memberof ResponseCreateEstablishmentApiEtablissementsPost
      */
     'status': StatusEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
-     */
-    'date_debut': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
-     */
-    'date_fin': string;
     /**
      * 
      * @type {string}

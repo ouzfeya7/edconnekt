@@ -13,6 +13,7 @@ Name | Type | Description | Notes
 **end_time** | **string** | Event end time | [default to undefined]
 **location** | **string** |  | [optional] [default to undefined]
 **capacity** | **number** |  | [optional] [default to undefined]
+**etablissement_id** | **string** | ID de l\&#39;établissement | [default to undefined]
 
 ## Example
 
@@ -27,6 +28,7 @@ const instance: EventCreate = {
     end_time,
     location,
     capacity,
+    etablissement_id,
 };
 ```
 

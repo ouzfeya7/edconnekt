@@ -63,7 +63,7 @@ const SessionDetailView: React.FC<SessionDetailViewProps> = ({
     return () => {
       if (timeout) clearTimeout(timeout);
     };
-  }, [editableObservations, saveObservations, session.status]);
+  }, [editableObservations, saveObservations, session.status, autoSaveTimeout]);
 
   // Fonction de génération de rapport
   const handleGenerateReport = useCallback(() => {

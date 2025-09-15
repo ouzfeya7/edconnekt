@@ -81,7 +81,7 @@ export function useUpdateEvent(eventId?: string) {
         throw new Error(getErrorMessage(err));
       }
     },
-    onSuccess: (_data, _variables, _ctx) => {
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['event-service', 'events'] });
       if (eventId) void queryClient.invalidateQueries({ queryKey: ['event-service', 'events', eventId] });
     },

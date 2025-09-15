@@ -24,7 +24,7 @@ const AssignStudentModal: React.FC<AssignStudentModalProps> = ({ isOpen, onClose
       await assignMutation.mutateAsync(payload);
       toast.success('Élève assigné avec succès');
       onClose();
-    } catch (e) {
+    } catch {
       toast.error("Échec de l'assignation de l'élève");
     }
   };

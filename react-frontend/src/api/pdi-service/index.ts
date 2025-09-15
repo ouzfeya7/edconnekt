@@ -1,5 +1,5 @@
 /* tslint:disable */
-/* eslint-disable */
+ 
 /**
  * PDI Session Service
  * Microservice pour la gestion des séances PDI selon le cahier des charges ENGY PARTNERS

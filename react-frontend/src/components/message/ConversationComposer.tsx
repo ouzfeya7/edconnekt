@@ -83,7 +83,9 @@ const ConversationComposer: React.FC<Props> = ({ conversationId }) => {
                 try {
                   const { key } = await uploadMutation.mutateAsync({ file });
                   await apiSend.mutateAsync({ type: 'FILE', content: { key, filename: file.name, contentType: file.type } as unknown as object });
-                } catch {}
+                } catch {
+                  // Do nothing
+                }
               }}
             />
           </label>

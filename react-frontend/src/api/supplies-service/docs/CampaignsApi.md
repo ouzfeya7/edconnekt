@@ -167,7 +167,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **listCampaignsApiCampaignsGet**
-> Array<CampaignListResponse> listCampaignsApiCampaignsGet()
+> { [key: string]: any; } listCampaignsApiCampaignsGet()
 
 
 ### Example
@@ -181,16 +181,20 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CampaignsApi(configuration);
 
-let q: string; //Recherche texte sur le nom (optional) (default to undefined)
-let status: string; //Filtre par statut (optional) (default to undefined)
-let order: string; //name | -created_at (optional) (default to undefined)
-let limit: number; // (optional) (default to 50)
-let offset: number; // (optional) (default to 0)
+let name: string; //Filtrer par nom de campagne (optional) (default to undefined)
+let status: string; //Filtrer par statut (optional) (default to undefined)
+let establishmentId: string; //Filtrer par établissement (optional) (default to undefined)
+let schoolYear: string; //Filtrer par année scolaire (optional) (default to undefined)
+let classId: string; //Filtrer par classe (optional) (default to undefined)
+let limit: number; //Nombre de résultats par page (optional) (default to 50)
+let offset: number; //Décalage pour la pagination (optional) (default to 0)
 
 const { status, data } = await apiInstance.listCampaignsApiCampaignsGet(
-    q,
+    name,
     status,
-    order,
+    establishmentId,
+    schoolYear,
+    classId,
     limit,
     offset
 );
@@ -200,16 +204,18 @@ const { status, data } = await apiInstance.listCampaignsApiCampaignsGet(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **q** | [**string**] | Recherche texte sur le nom | (optional) defaults to undefined|
-| **status** | [**string**] | Filtre par statut | (optional) defaults to undefined|
-| **order** | [**string**] | name | -created_at | (optional) defaults to undefined|
-| **limit** | [**number**] |  | (optional) defaults to 50|
-| **offset** | [**number**] |  | (optional) defaults to 0|
+| **name** | [**string**] | Filtrer par nom de campagne | (optional) defaults to undefined|
+| **status** | [**string**] | Filtrer par statut | (optional) defaults to undefined|
+| **establishmentId** | [**string**] | Filtrer par établissement | (optional) defaults to undefined|
+| **schoolYear** | [**string**] | Filtrer par année scolaire | (optional) defaults to undefined|
+| **classId** | [**string**] | Filtrer par classe | (optional) defaults to undefined|
+| **limit** | [**number**] | Nombre de résultats par page | (optional) defaults to 50|
+| **offset** | [**number**] | Décalage pour la pagination | (optional) defaults to 0|
 
 
 ### Return type
 
-**Array<CampaignListResponse>**
+**{ [key: string]: any; }**
 
 ### Authorization
 

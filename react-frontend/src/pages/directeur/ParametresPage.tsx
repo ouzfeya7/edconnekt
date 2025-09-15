@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Settings, Building, Users, Bell, Shield, Layers } from 'lucide-react';
+import { Settings, Building, Bell, Shield, Layers } from 'lucide-react';
 import SchoolSettingsForm from '../../components/directeur/parametres/SchoolSettingsForm';
 import CycleManagement from '../../components/directeur/parametres/CycleManagement';
 import ClassesAdminPage from '../admin/classes/ClassesAdminPage';
-import { useAuthContext } from '../authentification/AuthContext';
 import NotificationSettings from '../../components/directeur/parametres/NotificationSettings';
 import SchoolSecurity from '../../components/directeur/parametres/SchoolSecurity';
 
 const ParametresPage = () => {
   const { t } = useTranslation();
-  const { roles } = useAuthContext();
-  const isDirector = roles.includes('directeur');
-  const storedEtablissementId = (typeof window !== 'undefined' && sessionStorage.getItem('etablissement_id')) || '';
   const [activeTab, setActiveTab] = useState('school');
 
   const settingsTabs = [

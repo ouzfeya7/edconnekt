@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 // Types pour les alertes
@@ -192,7 +193,7 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
     priorite: [],
     classe: []
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
 
   // Appliquer les filtres quand ils changent
@@ -252,7 +253,8 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
   };
 
   // Fonction pour résoudre une alerte
-  const resolveAlert = (id: number, resolution: string) => {
+  const resolveAlert = (id: number, _resolution: string) => {
+    void _resolution;
     updateAlert(id, {
       statut: 'resolue',
       dateResolution: new Date().toISOString()

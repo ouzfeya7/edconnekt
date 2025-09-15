@@ -6,9 +6,11 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 |[**createResourceResourcesPost**](#createresourceresourcespost) | **POST** /resources | Create Resource|
 |[**deleteResourceResourcesResourceIdDelete**](#deleteresourceresourcesresourceiddelete) | **DELETE** /resources/{resource_id} | Delete Resource|
+|[**downloadResourceFileResourcesResourceIdDownloadGet**](#downloadresourcefileresourcesresourceiddownloadget) | **GET** /resources/{resource_id}/download | Download Resource File|
 |[**getResourceAuditLogResourcesResourceIdAuditGet**](#getresourceauditlogresourcesresourceidauditget) | **GET** /resources/{resource_id}/audit | Get Resource Audit Log|
 |[**getResourceResourcesResourceIdGet**](#getresourceresourcesresourceidget) | **GET** /resources/{resource_id} | Get Resource|
 |[**listResourcesResourcesGet**](#listresourcesresourcesget) | **GET** /resources | List Resources|
+|[**restoreResourceResourcesResourceIdRestorePatch**](#restoreresourceresourcesresourceidrestorepatch) | **PATCH** /resources/{resource_id}/restore | Restore Resource|
 |[**updateResourceResourcesResourceIdPatch**](#updateresourceresourcesresourceidpatch) | **PATCH** /resources/{resource_id} | Update Resource|
 
 # **createResourceResourcesPost**
@@ -124,6 +126,58 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **downloadResourceFileResourcesResourceIdDownloadGet**
+> any downloadResourceFileResourcesResourceIdDownloadGet()
+
+Télécharge le fichier associé à une ressource. Vérifie les permissions avant de permettre le téléchargement.
+
+### Example
+
+```typescript
+import {
+    ResourcesApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ResourcesApi(configuration);
+
+let resourceId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.downloadResourceFileResourcesResourceIdDownloadGet(
+    resourceId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **resourceId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**any**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
 |**422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -286,6 +340,58 @@ const { status, data } = await apiInstance.listResourcesResourcesGet(
 ### Return type
 
 **Array<ResourceOut>**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **restoreResourceResourcesResourceIdRestorePatch**
+> ResourceOut restoreResourceResourcesResourceIdRestorePatch()
+
+Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, DIRECTION ou l\'auteur original peuvent restaurer.
+
+### Example
+
+```typescript
+import {
+    ResourcesApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ResourcesApi(configuration);
+
+let resourceId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.restoreResourceResourcesResourceIdRestorePatch(
+    resourceId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **resourceId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**ResourceOut**
 
 ### Authorization
 

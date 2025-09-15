@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { Search, Upload, FileText, X, Eye, Users, Globe, Lock, DollarSign, Check } from 'lucide-react';
 import { useAuth } from '../../pages/authentification/useAuth';
@@ -40,7 +40,7 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
 }) => {
   const { roles } = useAuth();
   const { addResource } = useResources();
-  const { availableResources, searchResources } = useAvailableResources();
+  const { searchResources } = useAvailableResources();
   
   const [activeTab, setActiveTab] = useState<'search' | 'upload'>(
     roles.includes('parent') ? 'search' : 'search'
@@ -100,7 +100,7 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
   };
 
      // Rechercher des ressources disponibles
-   const performSearch = () => {
+   const performSearch = useCallback(() => {
      setIsLoading(true);
      try {
        const results = searchResources(searchQuery, remediationSubject);
@@ -110,7 +110,7 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
      } finally {
        setIsLoading(false);
      }
-   };
+   }, [searchQuery, remediationSubject, searchResources]);
 
   // Associer une ressource existante
   const associateExistingResource = async (resource: AvailableResource) => {
@@ -242,14 +242,14 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
      } else {
        performSearch();
      }
-   }, [searchQuery]);
+   }, [searchQuery, performSearch]);
 
    // Recherche automatique avec la matière de la remédiation quand la modal s'ouvre
    useEffect(() => {
      if (isOpen && remediationSubject) {
        performSearch();
      }
-   }, [isOpen, remediationSubject]);
+   }, [isOpen, performSearch, remediationSubject]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

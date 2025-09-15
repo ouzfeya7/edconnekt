@@ -69,7 +69,7 @@
                 "operationId": "list_campaigns_api_campaigns__get",
                 "parameters": [
                     {
-                        "name": "q",
+                        "name": "name",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -81,10 +81,10 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "Recherche texte sur le nom",
-                            "title": "Q"
+                            "description": "Filtrer par nom de campagne",
+                            "title": "Name"
                         },
-                        "description": "Recherche texte sur le nom"
+                        "description": "Filtrer par nom de campagne"
                     },
                     {
                         "name": "status",
@@ -99,13 +99,13 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "Filtre par statut",
+                            "description": "Filtrer par statut",
                             "title": "Status"
                         },
-                        "description": "Filtre par statut"
+                        "description": "Filtrer par statut"
                     },
                     {
-                        "name": "order",
+                        "name": "establishment_id",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -117,11 +117,46 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "name | -created_at",
-                            "default": "-created_at",
-                            "title": "Order"
+                            "description": "Filtrer par établissement",
+                            "title": "Establishment Id"
                         },
-                        "description": "name | -created_at"
+                        "description": "Filtrer par établissement"
+                    },
+                    {
+                        "name": "school_year",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par année scolaire",
+                            "title": "School Year"
+                        },
+                        "description": "Filtrer par année scolaire"
+                    },
+                    {
+                        "name": "class_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par classe",
+                            "title": "Class Id"
+                        },
+                        "description": "Filtrer par classe"
                     },
                     {
                         "name": "limit",
@@ -129,11 +164,13 @@
                         "required": false,
                         "schema": {
                             "type": "integer",
-                            "maximum": 200,
+                            "maximum": 100,
                             "minimum": 1,
+                            "description": "Nombre de résultats par page",
                             "default": 50,
                             "title": "Limit"
-                        }
+                        },
+                        "description": "Nombre de résultats par page"
                     },
                     {
                         "name": "offset",
@@ -142,9 +179,11 @@
                         "schema": {
                             "type": "integer",
                             "minimum": 0,
+                            "description": "Décalage pour la pagination",
                             "default": 0,
                             "title": "Offset"
-                        }
+                        },
+                        "description": "Décalage pour la pagination"
                     }
                 ],
                 "responses": {
@@ -153,10 +192,8 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/CampaignListResponse"
-                                    },
+                                    "type": "object",
+                                    "additionalProperties": true,
                                     "title": "Response List Campaigns Api Campaigns  Get"
                                 }
                             }
@@ -410,6 +447,17 @@
                             "type": "string",
                             "title": "Classid"
                         }
+                    },
+                    {
+                        "name": "teacher_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de l'enseignant (requis pour admin/directeur)",
+                            "title": "Teacher Id"
+                        },
+                        "description": "ID de l'enseignant (requis pour admin/directeur)"
                     }
                 ],
                 "responses": {
@@ -459,6 +507,17 @@
                             "type": "string",
                             "title": "Classid"
                         }
+                    },
+                    {
+                        "name": "teacher_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de l'enseignant (requis pour admin/directeur)",
+                            "title": "Teacher Id"
+                        },
+                        "description": "ID de l'enseignant (requis pour admin/directeur)"
                     }
                 ],
                 "requestBody": {
@@ -524,6 +583,17 @@
                             "type": "string",
                             "title": "Classid"
                         }
+                    },
+                    {
+                        "name": "teacher_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de l'enseignant (requis pour admin/directeur)",
+                            "title": "Teacher Id"
+                        },
+                        "description": "ID de l'enseignant (requis pour admin/directeur)"
                     }
                 ],
                 "responses": {
@@ -971,11 +1041,32 @@
                         "maxLength": 255,
                         "minLength": 1,
                         "title": "Name"
+                    },
+                    "establishment_id": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "title": "Establishment Id"
+                    },
+                    "school_year": {
+                        "type": "string",
+                        "maxLength": 16,
+                        "minLength": 1,
+                        "title": "School Year"
+                    },
+                    "classes": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Classes"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "name"
+                    "name",
+                    "establishment_id",
+                    "school_year"
                 ],
                 "title": "CampaignCreate"
             },
@@ -993,6 +1084,21 @@
                     "status": {
                         "type": "string",
                         "title": "Status"
+                    },
+                    "establishment_id": {
+                        "type": "string",
+                        "title": "Establishment Id"
+                    },
+                    "school_year": {
+                        "type": "string",
+                        "title": "School Year"
+                    },
+                    "classes": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Classes"
                     },
                     "teacher_lists_count": {
                         "type": "integer",
@@ -1017,48 +1123,15 @@
                     "id",
                     "name",
                     "status",
+                    "establishment_id",
+                    "school_year",
+                    "classes",
                     "teacher_lists_count",
                     "consolidated_lists_count",
                     "submitted_teacher_lists",
                     "created_at"
                 ],
                 "title": "CampaignDashboard"
-            },
-            "CampaignListResponse": {
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "title": "Id"
-                    },
-                    "name": {
-                        "type": "string",
-                        "title": "Name"
-                    },
-                    "status": {
-                        "type": "string",
-                        "title": "Status"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "title": "Created At"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "title": "Updated At"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "id",
-                    "name",
-                    "status",
-                    "created_at",
-                    "updated_at"
-                ],
-                "title": "CampaignListResponse"
             },
             "CampaignResponse": {
                 "properties": {
@@ -1075,6 +1148,21 @@
                         "type": "string",
                         "title": "Status"
                     },
+                    "establishment_id": {
+                        "type": "string",
+                        "title": "Establishment Id"
+                    },
+                    "school_year": {
+                        "type": "string",
+                        "title": "School Year"
+                    },
+                    "classes": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Classes"
+                    },
                     "created_at": {
                         "type": "string",
                         "format": "date-time",
@@ -1091,6 +1179,9 @@
                     "id",
                     "name",
                     "status",
+                    "establishment_id",
+                    "school_year",
+                    "classes",
                     "created_at",
                     "updated_at"
                 ],

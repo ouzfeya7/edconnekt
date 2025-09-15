@@ -1189,30 +1189,6 @@
                     "status": {
                         "$ref": "#/components/schemas/StatusEnum",
                         "default": "TRIAL"
-                    },
-                    "date_debut": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "date"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Date Debut"
-                    },
-                    "date_fin": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "date"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Date Fin"
                     }
                 },
                 "type": "object",
@@ -1306,30 +1282,6 @@
                     "status": {
                         "$ref": "#/components/schemas/StatusEnum"
                     },
-                    "date_debut": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "date"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Date Debut"
-                    },
-                    "date_fin": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "date"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Date Fin"
-                    },
                     "subscription_start": {
                         "anyOf": [
                             {
@@ -1415,8 +1367,6 @@
                     "id",
                     "plan",
                     "status",
-                    "date_debut",
-                    "date_fin",
                     "etablissement_group",
                     "etablissement_id",
                     "created_at",
@@ -1517,30 +1467,6 @@
                                 "type": "null"
                             }
                         ]
-                    },
-                    "date_debut": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "date"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Date Debut"
-                    },
-                    "date_fin": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "date"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Date Fin"
                     }
                 },
                 "type": "object",

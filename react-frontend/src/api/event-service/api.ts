@@ -96,6 +96,12 @@ export interface EventCreate {
      * @memberof EventCreate
      */
     'capacity'?: number | null;
+    /**
+     * ID de l\'établissement
+     * @type {string}
+     * @memberof EventCreate
+     */
+    'etablissement_id': string;
 }
 
 export const EventCreateCategoryEnum = {
@@ -113,6 +119,12 @@ export type EventCreateCategoryEnum = typeof EventCreateCategoryEnum[keyof typeo
  * @interface EventOut
  */
 export interface EventOut {
+    /**
+     * Event ID
+     * @type {string}
+     * @memberof EventOut
+     */
+    'id': string;
     /**
      * Event title
      * @type {string}
@@ -156,11 +168,11 @@ export interface EventOut {
      */
     'capacity'?: number | null;
     /**
-     * Event ID
+     * 
      * @type {string}
      * @memberof EventOut
      */
-    'id': string;
+    'etablissement_id'?: string | null;
     /**
      * Event status
      * @type {string}
@@ -723,10 +735,11 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {string | null} [category] Filter by event category
          * @param {string | null} [startDate] Filter events starting after this date
          * @param {string | null} [endDate] Filter events ending before this date
+         * @param {string | null} [etablissementId] Filter by establishment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listEventsApiV1EventsGet: async (page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listEventsApiV1EventsGet: async (page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, etablissementId?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/events/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -761,6 +774,10 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
                 localVarQueryParameter['end_date'] = (endDate as any instanceof Date) ?
                     (endDate as any).toISOString() :
                     endDate;
+            }
+
+            if (etablissementId !== undefined) {
+                localVarQueryParameter['etablissement_id'] = etablissementId;
             }
 
 
@@ -973,11 +990,12 @@ export const EventsApiFp = function(configuration?: Configuration) {
          * @param {string | null} [category] Filter by event category
          * @param {string | null} [startDate] Filter events starting after this date
          * @param {string | null} [endDate] Filter events ending before this date
+         * @param {string | null} [etablissementId] Filter by establishment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listEventsApiV1EventsGet(page, size, category, startDate, endDate, options);
+        async listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, etablissementId?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listEventsApiV1EventsGet(page, size, category, startDate, endDate, etablissementId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['EventsApi.listEventsApiV1EventsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1093,11 +1111,12 @@ export const EventsApiFactory = function (configuration?: Configuration, basePat
          * @param {string | null} [category] Filter by event category
          * @param {string | null} [startDate] Filter events starting after this date
          * @param {string | null} [endDate] Filter events ending before this date
+         * @param {string | null} [etablissementId] Filter by establishment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<object> {
-            return localVarFp.listEventsApiV1EventsGet(page, size, category, startDate, endDate, options).then((request) => request(axios, basePath));
+        listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, etablissementId?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<object> {
+            return localVarFp.listEventsApiV1EventsGet(page, size, category, startDate, endDate, etablissementId, options).then((request) => request(axios, basePath));
         },
         /**
          * Publier un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
@@ -1211,12 +1230,13 @@ export class EventsApi extends BaseAPI {
      * @param {string | null} [category] Filter by event category
      * @param {string | null} [startDate] Filter events starting after this date
      * @param {string | null} [endDate] Filter events ending before this date
+     * @param {string | null} [etablissementId] Filter by establishment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof EventsApi
      */
-    public listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, options?: RawAxiosRequestConfig) {
-        return EventsApiFp(this.configuration).listEventsApiV1EventsGet(page, size, category, startDate, endDate, options).then((request) => request(this.axios, this.basePath));
+    public listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, etablissementId?: string | null, options?: RawAxiosRequestConfig) {
+        return EventsApiFp(this.configuration).listEventsApiV1EventsGet(page, size, category, startDate, endDate, etablissementId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

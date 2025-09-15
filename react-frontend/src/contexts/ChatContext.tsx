@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ChatActions, ChatMessage, ChatState, Conversation, ConversationMember, PresenceEvent } from '../types/chat';
 import { websocketService, type MessageReceivedPayload, type TypingPayload, type PresencePayload, type ConversationUpdatedPayload } from '../services/websocketService';
@@ -192,10 +193,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }));
       } else if (data.action === 'deleted') {
         setState(prev => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { [data.conversationId]: _removed, ...remainingConversations } = prev.conversations;
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { [data.conversationId]: _removedMessages, ...remainingMessages } = prev.messagesByConversation;
+          const remainingConversations = { ...prev.conversations };
+          delete remainingConversations[data.conversationId];
+          const remainingMessages = { ...prev.messagesByConversation };
+          delete remainingMessages[data.conversationId];
           return {
             ...prev,
             conversations: remainingConversations,

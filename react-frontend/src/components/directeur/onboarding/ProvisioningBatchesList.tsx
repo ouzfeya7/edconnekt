@@ -3,7 +3,7 @@ import { useProvisioningBatches } from '../../../hooks/useProvisioning';
 import { useOnboarding } from '../../../contexts/OnboardingContext';
 
 const ProvisioningBatchesList: React.FC = () => {
-  const [skip, setSkip] = useState(0);
+  // const [skip, setSkip] = useState(0);
   const [limit, setLimit] = useState(20);
   const [q, setQ] = useState('');
 

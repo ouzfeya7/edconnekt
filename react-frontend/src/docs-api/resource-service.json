@@ -190,7 +190,7 @@
                     "Resources"
                 ],
                 "summary": "Get Resource",
-                "operationId": "get_resource_resources_resource_id_get",
+                "operationId": "get_resource_resources__resource_id__get",
                 "parameters": [
                     {
                         "name": "resource_id",
@@ -231,7 +231,7 @@
                     "Resources"
                 ],
                 "summary": "Update Resource",
-                "operationId": "update_resource_resources_resource_id_patch",
+                "operationId": "update_resource_resources__resource_id__patch",
                 "parameters": [
                     {
                         "name": "resource_id",
@@ -248,7 +248,7 @@
                     "content": {
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/Body_update_resource_resources_resource_id_patch"
+                                "$ref": "#/components/schemas/Body_update_resource_resources__resource_id__patch"
                             }
                         }
                     }
@@ -281,7 +281,7 @@
                     "Resources"
                 ],
                 "summary": "Delete Resource",
-                "operationId": "delete_resource_resources_resource_id_delete",
+                "operationId": "delete_resource_resources__resource_id__delete",
                 "parameters": [
                     {
                         "name": "resource_id",
@@ -311,13 +311,99 @@
                 }
             }
         },
+        "/resources/{resource_id}/restore": {
+            "patch": {
+                "tags": [
+                    "Resources"
+                ],
+                "summary": "Restore Resource",
+                "description": "Restaure une ressource archivée en la remettant au statut ACTIVE.\nSeuls les COORDONNATEUR, DIRECTION ou l'auteur original peuvent restaurer.",
+                "operationId": "restore_resource_resources__resource_id__restore_patch",
+                "parameters": [
+                    {
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Resource Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResourceOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/resources/{resource_id}/download": {
+            "get": {
+                "tags": [
+                    "Resources"
+                ],
+                "summary": "Download Resource File",
+                "description": "Télécharge le fichier associé à une ressource.\nVérifie les permissions avant de permettre le téléchargement.",
+                "operationId": "download_resource_file_resources__resource_id__download_get",
+                "parameters": [
+                    {
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Resource Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/resources/{resource_id}/audit": {
             "get": {
                 "tags": [
                     "Resources"
                 ],
                 "summary": "Get Resource Audit Log",
-                "operationId": "get_resource_audit_log_resources_resource_id_audit_get",
+                "operationId": "get_resource_audit_log_resources__resource_id__audit_get",
                 "parameters": [
                     {
                         "name": "resource_id",
@@ -488,7 +574,7 @@
                 ],
                 "title": "Body_create_resource_resources_post"
             },
-            "Body_update_resource_resources_resource_id_patch": {
+            "Body_update_resource_resources__resource_id__patch": {
                 "properties": {
                     "title": {
                         "anyOf": [
@@ -568,7 +654,7 @@
                     }
                 },
                 "type": "object",
-                "title": "Body_update_resource_resources_resource_id_patch"
+                "title": "Body_update_resource_resources__resource_id__patch"
             },
             "HTTPValidationError": {
                 "properties": {

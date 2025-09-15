@@ -36,7 +36,7 @@ export function useUpsertTeacherList(campaignId: string | undefined, classId: st
       qc.invalidateQueries({ queryKey: suppliesTeacherListKey(campaignId, classId) });
     },
     onError: (err) => {
-      // eslint-disable-next-line no-console
+       
       console.error(extractErrorMessage(err));
     },
   });
@@ -56,7 +56,7 @@ export function useSubmitTeacherList(campaignId: string | undefined, classId: st
       qc.invalidateQueries({ queryKey: suppliesTeacherListKey(campaignId, classId) });
     },
     onError: (err) => {
-      // eslint-disable-next-line no-console
+       
       console.error(extractErrorMessage(err));
     },
   });
@@ -76,7 +76,7 @@ export function usePublicList(campaignId: string | undefined, classId: string | 
       qc.invalidateQueries({ queryKey: ['supplies', 'public-list', campaignId ?? 'unknown', classId ?? 'unknown'] });
     },
     onError: (err) => {
-      // eslint-disable-next-line no-console
+       
       console.error(extractErrorMessage(err));
     },
   });

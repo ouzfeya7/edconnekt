@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Types pour les paramètres
 interface SchoolSettings {
@@ -185,7 +186,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
   const [cycles, setCycles] = useState<Cycle[]>(mockCycles);
   const [userProfile, setUserProfile] = useState<UserProfile>(mockUserProfile);
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(mockNotificationSettings);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   // Fonction pour mettre à jour les paramètres de l'école

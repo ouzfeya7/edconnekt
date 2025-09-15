@@ -8,6 +8,9 @@ Name | Type | Description | Notes
 **id** | **string** |  | [default to undefined]
 **name** | **string** |  | [default to undefined]
 **status** | **string** |  | [default to undefined]
+**establishment_id** | **string** |  | [default to undefined]
+**school_year** | **string** |  | [default to undefined]
+**classes** | **Array&lt;string&gt;** |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 **updated_at** | **string** |  | [default to undefined]
 
@@ -20,6 +23,9 @@ const instance: CampaignResponse = {
     id,
     name,
     status,
+    establishment_id,
+    school_year,
+    classes,
     created_at,
     updated_at,
 };

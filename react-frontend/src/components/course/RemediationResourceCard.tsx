@@ -43,7 +43,6 @@ interface RemediationResource {
 
 interface RemediationResourceCardProps {
   resource: RemediationResource;
-  onClick: (resource: RemediationResource) => void;
 }
 
 // Couleurs des badges par matière (copiées de RessourcesPage.tsx)
@@ -113,7 +112,7 @@ const getIconForSubject = (subject: string) => {
   }
 };
 
-const RemediationResourceCard: React.FC<RemediationResourceCardProps> = ({ resource, onClick }) => {
+const RemediationResourceCard: React.FC<RemediationResourceCardProps> = ({ resource }) => {
   const Icon = getIconForSubject(resource.subject);
   const badgeColor = subjectBadgeColors[resource.subject] || "bg-gray-600 text-white";
   const navigate = useNavigate();

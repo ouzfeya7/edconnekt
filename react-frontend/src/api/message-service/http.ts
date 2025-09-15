@@ -36,7 +36,7 @@ messageAxios.interceptors.request.use((config) => {
 });
 
 if ((import.meta as unknown as { env?: Record<string, string | undefined> }).env?.DEV) {
-  // eslint-disable-next-line no-console
+   
   console.info('[message-api] baseURL =', messageAxios.defaults.baseURL);
 }
 
@@ -46,8 +46,8 @@ messageAxios.interceptors.response.use(
   (error) => {
     const status = (error as { response?: { status?: number; data?: unknown } }).response?.status;
     if (status === 401 || status === 403) {
-      // eslint-disable-next-line no-console
-      console.warn('[message-api] Auth/RBAC', status, (error as any)?.response?.data);
+       
+      console.warn('[message-api] Auth/RBAC', status, (error as { response?: { data?: unknown } })?.response?.data);
     }
     return Promise.reject(error);
   }

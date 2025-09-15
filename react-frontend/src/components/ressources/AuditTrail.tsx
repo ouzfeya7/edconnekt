@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, User, Clock, History } from 'lucide-react';
+import { Calendar, User, History } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useResources } from '../../contexts/ResourceContext';
 import { useAuth } from '../../pages/authentification/useAuth';
