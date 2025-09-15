@@ -147,16 +147,16 @@ export interface ResourceOut {
     'author_user_id': string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof ResourceOut
      */
-    'subject_id': number;
+    'subject_id': string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof ResourceOut
      */
-    'competence_id': number;
+    'competence_id': string | null;
     /**
      * 
      * @type {Visibility}
@@ -359,22 +359,20 @@ export const ResourcesApiAxiosParamCreator = function (configuration?: Configura
          * @summary Create Resource
          * @param {string} title 
          * @param {Visibility} visibility 
-         * @param {number} subjectId 
-         * @param {number} competenceId 
+         * @param {string} subjectId 
          * @param {File} file 
          * @param {string | null} [description] 
+         * @param {string | null} [competenceId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createResourceResourcesPost: async (title: string, visibility: Visibility, subjectId: number, competenceId: number, file: File, description?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createResourceResourcesPost: async (title: string, visibility: Visibility, subjectId: string, file: File, description?: string | null, competenceId?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'title' is not null or undefined
             assertParamExists('createResourceResourcesPost', 'title', title)
             // verify required parameter 'visibility' is not null or undefined
             assertParamExists('createResourceResourcesPost', 'visibility', visibility)
             // verify required parameter 'subjectId' is not null or undefined
             assertParamExists('createResourceResourcesPost', 'subjectId', subjectId)
-            // verify required parameter 'competenceId' is not null or undefined
-            assertParamExists('createResourceResourcesPost', 'competenceId', competenceId)
             // verify required parameter 'file' is not null or undefined
             assertParamExists('createResourceResourcesPost', 'file', file)
             const localVarPath = `/resources`;
@@ -579,15 +577,15 @@ export const ResourcesApiAxiosParamCreator = function (configuration?: Configura
          * @summary List Resources
          * @param {string | null} [authorUserId] 
          * @param {Visibility | null} [visibility] 
-         * @param {number | null} [subjectId] 
-         * @param {number | null} [competenceId] 
+         * @param {string | null} [subjectId] 
+         * @param {string | null} [competenceId] 
          * @param {ResourceStatus | null} [status] 
          * @param {number} [limit] 
          * @param {number} [offset] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listResourcesResourcesGet: async (authorUserId?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listResourcesResourcesGet: async (authorUserId?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/resources`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -761,15 +759,15 @@ export const ResourcesApiFp = function(configuration?: Configuration) {
          * @summary Create Resource
          * @param {string} title 
          * @param {Visibility} visibility 
-         * @param {number} subjectId 
-         * @param {number} competenceId 
+         * @param {string} subjectId 
          * @param {File} file 
          * @param {string | null} [description] 
+         * @param {string | null} [competenceId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createResourceResourcesPost(title: string, visibility: Visibility, subjectId: number, competenceId: number, file: File, description?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResourceOut>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createResourceResourcesPost(title, visibility, subjectId, competenceId, file, description, options);
+        async createResourceResourcesPost(title: string, visibility: Visibility, subjectId: string, file: File, description?: string | null, competenceId?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResourceOut>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createResourceResourcesPost(title, visibility, subjectId, file, description, competenceId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ResourcesApi.createResourceResourcesPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -833,15 +831,15 @@ export const ResourcesApiFp = function(configuration?: Configuration) {
          * @summary List Resources
          * @param {string | null} [authorUserId] 
          * @param {Visibility | null} [visibility] 
-         * @param {number | null} [subjectId] 
-         * @param {number | null} [competenceId] 
+         * @param {string | null} [subjectId] 
+         * @param {string | null} [competenceId] 
          * @param {ResourceStatus | null} [status] 
          * @param {number} [limit] 
          * @param {number} [offset] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ResourceOut>>> {
+        async listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ResourceOut>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listResourcesResourcesGet(authorUserId, visibility, subjectId, competenceId, status, limit, offset, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ResourcesApi.listResourcesResourcesGet']?.[localVarOperationServerIndex]?.url;
@@ -895,15 +893,15 @@ export const ResourcesApiFactory = function (configuration?: Configuration, base
          * @summary Create Resource
          * @param {string} title 
          * @param {Visibility} visibility 
-         * @param {number} subjectId 
-         * @param {number} competenceId 
+         * @param {string} subjectId 
          * @param {File} file 
          * @param {string | null} [description] 
+         * @param {string | null} [competenceId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createResourceResourcesPost(title: string, visibility: Visibility, subjectId: number, competenceId: number, file: File, description?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<ResourceOut> {
-            return localVarFp.createResourceResourcesPost(title, visibility, subjectId, competenceId, file, description, options).then((request) => request(axios, basePath));
+        createResourceResourcesPost(title: string, visibility: Visibility, subjectId: string, file: File, description?: string | null, competenceId?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<ResourceOut> {
+            return localVarFp.createResourceResourcesPost(title, visibility, subjectId, file, description, competenceId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -952,15 +950,15 @@ export const ResourcesApiFactory = function (configuration?: Configuration, base
          * @summary List Resources
          * @param {string | null} [authorUserId] 
          * @param {Visibility | null} [visibility] 
-         * @param {number | null} [subjectId] 
-         * @param {number | null} [competenceId] 
+         * @param {string | null} [subjectId] 
+         * @param {string | null} [competenceId] 
          * @param {ResourceStatus | null} [status] 
          * @param {number} [limit] 
          * @param {number} [offset] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<ResourceOut>> {
+        listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<ResourceOut>> {
             return localVarFp.listResourcesResourcesGet(authorUserId, visibility, subjectId, competenceId, status, limit, offset, options).then((request) => request(axios, basePath));
         },
         /**
@@ -1005,16 +1003,16 @@ export class ResourcesApi extends BaseAPI {
      * @summary Create Resource
      * @param {string} title 
      * @param {Visibility} visibility 
-     * @param {number} subjectId 
-     * @param {number} competenceId 
+     * @param {string} subjectId 
      * @param {File} file 
      * @param {string | null} [description] 
+     * @param {string | null} [competenceId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ResourcesApi
      */
-    public createResourceResourcesPost(title: string, visibility: Visibility, subjectId: number, competenceId: number, file: File, description?: string | null, options?: RawAxiosRequestConfig) {
-        return ResourcesApiFp(this.configuration).createResourceResourcesPost(title, visibility, subjectId, competenceId, file, description, options).then((request) => request(this.axios, this.basePath));
+    public createResourceResourcesPost(title: string, visibility: Visibility, subjectId: string, file: File, description?: string | null, competenceId?: string | null, options?: RawAxiosRequestConfig) {
+        return ResourcesApiFp(this.configuration).createResourceResourcesPost(title, visibility, subjectId, file, description, competenceId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1072,8 +1070,8 @@ export class ResourcesApi extends BaseAPI {
      * @summary List Resources
      * @param {string | null} [authorUserId] 
      * @param {Visibility | null} [visibility] 
-     * @param {number | null} [subjectId] 
-     * @param {number | null} [competenceId] 
+     * @param {string | null} [subjectId] 
+     * @param {string | null} [competenceId] 
      * @param {ResourceStatus | null} [status] 
      * @param {number} [limit] 
      * @param {number} [offset] 
@@ -1081,7 +1079,7 @@ export class ResourcesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof ResourcesApi
      */
-    public listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
+    public listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
         return ResourcesApiFp(this.configuration).listResourcesResourcesGet(authorUserId, visibility, subjectId, competenceId, status, limit, offset, options).then((request) => request(this.axios, this.basePath));
     }
 

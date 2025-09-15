@@ -16,10 +16,13 @@ interface FilterGroup {
   placeholder?: string;
 }
 
+// Valeurs possibles par type de filtre
+type FilterValue = string | number | readonly string[] | { start?: string; end?: string } | undefined;
+
 interface FilterPanelProps {
   filters: FilterGroup[];
-  values: Record<string, unknown>;
-  onFilterChange: (key: string, value: unknown) => void;
+  values: Record<string, FilterValue>;
+  onFilterChange: (key: string, value: FilterValue) => void;
   onClearAll: () => void;
   onClearFilter: (key: string) => void;
   className?: string;
@@ -48,7 +51,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               {filter.label}
             </label>
             <select
-              value={value || ''}
+              value={typeof value === 'string' || typeof value === 'number' ? value : ''}
               onChange={(e) => onFilterChange(filter.key, e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
             >
@@ -62,7 +65,8 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           </div>
         );
 
-      case 'dateRange':
+      case 'dateRange': {
+        const dr = (typeof value === 'object' && value && !Array.isArray(value) ? value as { start?: string; end?: string } : {});
         return (
           <div className="flex flex-col">
             <label className="text-xs font-medium text-gray-700 mb-1">
@@ -72,20 +76,21 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               <input
                 type="date"
                 placeholder={t('start_date', 'Date début')}
-                value={value?.start || ''}
-                onChange={(e) => onFilterChange(filter.key, { ...value, start: e.target.value })}
+                value={dr.start || ''}
+                onChange={(e) => onFilterChange(filter.key, { ...(dr || {}), start: e.target.value })}
                 className="flex-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               />
               <input
                 type="date"
                 placeholder={t('end_date', 'Date fin')}
-                value={value?.end || ''}
-                onChange={(e) => onFilterChange(filter.key, { ...value, end: e.target.value })}
+                value={dr.end || ''}
+                onChange={(e) => onFilterChange(filter.key, { ...(dr || {}), end: e.target.value })}
                 className="flex-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               />
             </div>
           </div>
         );
+      }
 
       case 'search':
         return (
@@ -96,7 +101,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             <input
               type="text"
               placeholder={filter.placeholder || t('search', 'Rechercher...')}
-              value={value || ''}
+              value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''}
               onChange={(e) => onFilterChange(filter.key, e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
             />
@@ -154,9 +159,16 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               const filter = filters.find(f => f.key === key);
               if (!filter) return null;
 
-              const displayValue = Array.isArray(value) 
-                ? value.map(v => filter.options?.find(opt => opt.value === v)?.label || v).join(', ')
-                : filter.options?.find(opt => opt.value === value)?.label || value;
+              let displayValue: string = '';
+              if (Array.isArray(value)) {
+                displayValue = value.map(v => filter.options?.find(opt => opt.value === v)?.label || String(v)).join(', ');
+              } else if (typeof value === 'object') {
+                const dr = value as { start?: string; end?: string };
+                displayValue = [dr.start, dr.end].filter(Boolean).join(' → ');
+              } else {
+                const strVal = String(value);
+                displayValue = filter.options?.find(opt => opt.value === strVal)?.label || strVal;
+              }
 
               return (
                 <div

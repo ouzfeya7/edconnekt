@@ -34,7 +34,7 @@ const ProvisioningBatchesList: React.FC = () => {
           <input className="p-2 border rounded text-sm" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher..." />
           <div className="flex items-center gap-2 text-sm">
             <span>Taille</span>
-            <select className="p-1 border rounded" value={limit} onChange={(e) => { setSkip(0); setLimit(Number(e.target.value)); }}>
+            <select className="p-1 border rounded" value={limit} onChange={(e) => { setLimit(Number(e.target.value)); }}>
               {[10,20,50,100].map(n => <option key={n} value={n}>{n}</option>)}
             </select>
           </div>

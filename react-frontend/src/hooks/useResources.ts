@@ -5,8 +5,8 @@ import type { ResourceOut, Visibility, ResourceStatus } from '../api/resource-se
 export interface UseResourcesParams {
 	authorUserId?: string | null;
 	visibility?: Visibility | null;
-	subjectId?: number | null;
-	competenceId?: number | null;
+	subjectId?: string | null;
+	competenceId?: string | null;
 	status?: ResourceStatus | null;
 	limit?: number;
 	offset?: number;

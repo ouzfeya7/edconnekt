@@ -86,7 +86,7 @@ export const subjectNameToIdMap: { [key: string]: number } = {
   "Théâtre/Drama": 16,
 };
 
-export const subjectIdToNameMap: { [key: number]: string } = Object.fromEntries(
+export const subjectIdToNameMap: { [key: string]: string } = Object.fromEntries(
   Object.entries(subjectNameToIdMap).map(([name, id]) => [id, name])
 );
 
@@ -403,7 +403,7 @@ function RessourcesPage() {
   const [visibilityFilter, setVisibilityFilter] = useState<string>("");
   const itemsPerPage = 20;
 
-  const activeSubjectId = activeSubject ? subjectNameToIdMap[activeSubject] : null;
+  const activeSubjectId = activeSubject ? String(subjectNameToIdMap[activeSubject]) : null;
 
   const {
     data: apiResources,
@@ -439,7 +439,7 @@ function RessourcesPage() {
     return {
       id: r.id,
       title: r.title,
-      subject: subjectIdToNameMap[r.subject_id] || String(r.subject_id),
+      subject: subjectIdToNameMap[String(r.subject_id)] || String(r.subject_id),
       description: r.description ?? "",
       addedDate: new Date(r.created_at).toLocaleDateString("fr-FR"),
       author: r.author_user_id === user?.id ? `${user.firstName} ${user.lastName}` : r.author_user_id,

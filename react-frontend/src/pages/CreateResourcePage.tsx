@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { 
     Upload, FileText, Lock, Users, Globe,
@@ -7,29 +7,18 @@ import {
 import { useCreateResource } from "../hooks/useCreateResource";
 import { useUpdateResource } from "../hooks/useUpdateResource";
 import { useResourceDetail } from "../hooks/useResourceDetail";
-import { subjectNameToIdMap, subjectIdToNameMap } from "./RessourcesPage";
+import { useReferentials, useReferentialTree } from "../hooks/competence/useReferentials";
+import { useCompetencies } from "../hooks/competence/useCompetencies";
+import type { ReferentialTree, DomainTree, SubjectTree, CompetencyListResponse, CompetencyResponse, ReferentialListResponse, ReferentialResponse } from "../api/competence-service/api";
 
-// Données des domaines et matières (réutilisées depuis RessourcesPage)
-const domainsData: { [key: string]: string[] } = {
-  "LANGUES ET COMMUNICATION": ["Anglais", "Français"],
-  "SCIENCES HUMAINES": ["Études islamiques", "Géographie", "Histoire", "Lecture arabe", "Qran", "Vivre dans son milieu", "Vivre ensemble", "Wellness"],
-  "STEM": ["Mathématiques"],
-  "CREATIVITE ARTISTIQUE / SPORTIVE": ["Arts plastiques", "EPS", "Motricité", "Musique", "Théâtre/Drama"],
-};
-
-const domainNames = [
-  "LANGUES ET COMMUNICATION",
-  "SCIENCES HUMAINES", 
-  "STEM",
-  "CREATIVITE ARTISTIQUE / SPORTIVE",
-];
+// Les domaines, matières et compétences sont désormais chargés depuis competence-service
 
 interface ResourceFormData {
     title: string;
     description: string;
-    domain: string;
-    subject: string;
-    competence?: string;
+    domain?: string;
+    subject?: string;
+    competence?: string; // affichage uniquement
     visibility: 'PRIVATE' | 'CLASS' | 'SCHOOL';
     file?: File;
     coverImage?: string; // URL de l'image de couverture
@@ -49,11 +38,18 @@ function CreateResourcePage() {
     const [formData, setFormData] = useState<ResourceFormData>({
         title: '',
         description: '',
-        domain: domainNames[0],
-        subject: '',
-        competence: '',
+        domain: undefined,
+        subject: undefined,
+        competence: undefined,
         visibility: 'SCHOOL',
     });
+
+    // Référentiel et sélections (IDs UUID)
+    const [selectedReferentialId, setSelectedReferentialId] = useState<string | undefined>(undefined);
+    const [selectedVersionNumber, setSelectedVersionNumber] = useState<number | undefined>(undefined);
+    const [selectedDomainId, setSelectedDomainId] = useState<string | undefined>(undefined);
+    const [selectedSubjectId, setSelectedSubjectId] = useState<string | undefined>(undefined);
+    const [selectedCompetencyId, setSelectedCompetencyId] = useState<string | undefined>(undefined);
 
     // États pour le drag & drop
     const [isDragOver, setIsDragOver] = useState(false);
@@ -74,6 +70,46 @@ function CreateResourcePage() {
     const resourceIdFromURL = searchParams.get('resourceId');
     const { data: resourceToEdit, isLoading: isLoadingResource } = useResourceDetail(resourceIdFromURL!);
 
+    // Charger la liste des référentiels publiés et prendre le premier par défaut
+    const { data: referentials } = useReferentials({ state: 'PUBLISHED' });
+    useEffect(() => {
+        if (!selectedReferentialId && referentials?.items?.length) {
+            const ref = referentials.items[0];
+            setSelectedReferentialId(ref.id);
+            setSelectedVersionNumber(ref.version_number);
+        }
+    }, [referentials, selectedReferentialId]);
+
+    // Options groupées par référentiel (id) avec versions disponibles
+    const referentialOptions = useMemo((): Array<{ id: string; name: string; versions: number[] }> => {
+        const map = new Map<string, { name: string; versions: Set<number> }>();
+        (referentials as ReferentialListResponse | undefined)?.items?.forEach((r: ReferentialResponse) => {
+            const cur = map.get(r.id) || { name: r.name, versions: new Set<number>() };
+            cur.versions.add(r.version_number);
+            map.set(r.id, cur);
+        });
+        return Array.from(map.entries()).map(([id, { name, versions }]) => ({
+            id,
+            name,
+            versions: Array.from(versions.values()).sort((a, b) => b - a),
+        }));
+    }, [referentials]);
+
+    // Charger l'arbre du référentiel pour domaines/sujets
+    const { data: refTree, isFetching: isLoadingTree } = useReferentialTree(
+        selectedReferentialId || '',
+        selectedVersionNumber
+    );
+
+    // Charger les compétences pour la matière sélectionnée
+    const { data: competenciesPage, isFetching: isLoadingCompetencies } = useCompetencies({
+        referentialId: selectedReferentialId || '',
+        versionNumber: selectedVersionNumber ?? 0,
+        subjectId: selectedSubjectId ?? null,
+        page: 1,
+        // taille par défaut dans le hook
+    });
+
     // Initialisation pour l'édition
     useEffect(() => {
         const editParam = searchParams.get('edit');
@@ -83,29 +119,45 @@ function CreateResourcePage() {
         }
 
         if (isEditMode && resourceToEdit) {
-            const subjectName = subjectIdToNameMap[resourceToEdit.subject_id] || '';
-            const domainName = Object.keys(domainsData).find(domain => 
-                domainsData[domain].includes(subjectName)
-            ) || domainNames[0];
+            // Pré-remplir données et IDs
+            setSelectedSubjectId(resourceToEdit.subject_id);
+            if (resourceToEdit.competence_id) setSelectedCompetencyId(resourceToEdit.competence_id);
 
-                // Pré-remplir les données du formulaire
-                setFormData({
-                title: resourceToEdit.title || '',
-                description: resourceToEdit.description || '',
-                domain: domainName,
-                subject: subjectName,
-                competence: '', // API does not provide this yet
-                visibility: resourceToEdit.visibility || 'SCHOOL',
-            });
-
-                // Commencer par l'étape 1 pour permettre la navigation
-                setCurrentStep(1);
+            // Essayer de déduire le domaine à partir de l'arbre quand chargé
+            if (refTree) {
+                const tree = refTree as ReferentialTree;
+                for (const d of (tree.domains || [] as DomainTree[])) {
+                    if ((d.subjects || [] as SubjectTree[]).some((s: SubjectTree) => s.id === resourceToEdit.subject_id)) {
+                        setSelectedDomainId(d.id);
+                        setFormData((prev) => ({
+                            ...prev,
+                            domain: d.name,
+                            subject: (d.subjects || [] as SubjectTree[]).find((s: SubjectTree) => s.id === resourceToEdit.subject_id)?.name,
+                            title: resourceToEdit.title || '',
+                            description: resourceToEdit.description || '',
+                            competence: undefined,
+                            visibility: resourceToEdit.visibility || 'SCHOOL',
+                        }));
+                        break;
+                    }
+                }
+            } else {
+                setFormData((prev) => ({
+                    ...prev,
+                    title: resourceToEdit.title || '',
+                    description: resourceToEdit.description || '',
+                    visibility: resourceToEdit.visibility || 'SCHOOL',
+                }));
             }
-    }, [searchParams, resourceIdFromURL, isEditMode, resourceToEdit]);
+
+            // Commencer par l'étape 1 pour permettre la navigation
+            setCurrentStep(1);
+        }
+    }, [searchParams, resourceIdFromURL, isEditMode, resourceToEdit, refTree]);
 
     // Validation des étapes (maintenant 3 étapes au lieu de 4)
     const isStep1Valid = uploadedFile !== null || isEditMode;
-    const isStep2Valid = formData.title.trim() !== '' && formData.subject !== '';
+    const isStep2Valid = formData.title.trim() !== '' && !!selectedSubjectId;
     const isStep3Valid = true; // Étape de validation
     const canProceed = currentStep === 1 ? isStep1Valid : 
                       currentStep === 2 ? isStep2Valid : 
@@ -235,9 +287,9 @@ function CreateResourcePage() {
         if (!uploadedFile && !isEditMode) return;
         setCreationError(null);
 
-        const subjectId = subjectNameToIdMap[formData.subject];
-        // For now, let's use a placeholder for competenceId
-        const competenceId = 1;
+        const subjectId = selectedSubjectId;
+        const competenceId: string | null = selectedCompetencyId ?? null;
+        if (!subjectId) return;
 
         if (isEditMode && editingResourceId) {
             updateResourceMutation.mutate({
@@ -448,6 +500,61 @@ function CreateResourcePage() {
             </div>
 
             <div className="max-w-4xl mx-auto space-y-6">
+                {/* Sélection du référentiel / version */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Référentiel (publié)
+                        </label>
+                        <select
+                            value={selectedReferentialId || ''}
+                            onChange={(e) => {
+                                const newRefId = e.target.value || undefined;
+                                setSelectedReferentialId(newRefId);
+                                const found = referentialOptions.find((o) => o.id === newRefId);
+                                const nextVersion = found?.versions?.[0];
+                                setSelectedVersionNumber(nextVersion);
+                                // reset dépendances
+                                setSelectedDomainId(undefined);
+                                setSelectedSubjectId(undefined);
+                                setSelectedCompetencyId(undefined);
+                                setFormData({ ...formData, domain: undefined, subject: undefined, competence: undefined });
+                            }}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        >
+                            <option value="">Sélectionnez un référentiel</option>
+                            {referentialOptions.map((o) => (
+                                <option key={o.id} value={o.id}>{o.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Version
+                        </label>
+                        <select
+                            value={selectedVersionNumber !== undefined ? String(selectedVersionNumber) : ''}
+                            onChange={(e) => {
+                                const v = e.target.value ? parseInt(e.target.value, 10) : undefined;
+                                setSelectedVersionNumber(v);
+                                // reset dépendances
+                                setSelectedDomainId(undefined);
+                                setSelectedSubjectId(undefined);
+                                setSelectedCompetencyId(undefined);
+                                setFormData({ ...formData, domain: undefined, subject: undefined, competence: undefined });
+                            }}
+                            disabled={!selectedReferentialId}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        >
+                            <option value="">Sélectionnez une version</option>
+                            {referentialOptions
+                                .find((o) => o.id === selectedReferentialId)?.versions
+                                .map((v) => (
+                                    <option key={v} value={String(v)}>v{v}</option>
+                                ))}
+                        </select>
+                    </div>
+                </div>
                 {/* Formulaire principal */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
@@ -469,19 +576,21 @@ function CreateResourcePage() {
                             Domaine de compétence *
                         </label>
                         <select
-                            value={formData.domain}
+                            value={selectedDomainId || ''}
                             onChange={(e) => {
-                                setFormData({
-                                    ...formData, 
-                                    domain: e.target.value,
-                                    subject: '' // Reset subject when domain changes
-                                });
+                                const domainId = e.target.value || undefined;
+                                setSelectedDomainId(domainId);
+                                setSelectedSubjectId(undefined);
+                                setSelectedCompetencyId(undefined);
+                                const domainName = (refTree as ReferentialTree | undefined)?.domains?.find((d: DomainTree) => d.id === domainId)?.name;
+                                setFormData({ ...formData, domain: domainName, subject: undefined, competence: undefined });
                             }}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                            disabled={readOnlyFields.includes('domain')}
+                            disabled={!selectedReferentialId || selectedVersionNumber === undefined || readOnlyFields.includes('domain')}
                         >
-                            {domainNames.map(domain => (
-                                <option key={domain} value={domain}>{domain}</option>
+                            <option value="" disabled={isLoadingTree}> {isLoadingTree ? 'Chargement...' : 'Sélectionnez un domaine'} </option>
+                            {(refTree as ReferentialTree | undefined)?.domains?.map((d: DomainTree) => (
+                                <option key={d.id} value={d.id}>{d.name}</option>
                             ))}
                         </select>
                     </div>
@@ -493,14 +602,20 @@ function CreateResourcePage() {
                             Matière *
                         </label>
                         <select
-                            value={formData.subject}
-                            onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                            value={selectedSubjectId || ''}
+                            onChange={(e) => {
+                                const subjId = e.target.value || undefined;
+                                setSelectedSubjectId(subjId);
+                                setSelectedCompetencyId(undefined);
+                                const subjName = (refTree as ReferentialTree | undefined)?.domains?.find((d: DomainTree) => d.id === selectedDomainId)?.subjects?.find((s: SubjectTree) => s.id === subjId)?.name;
+                                setFormData({ ...formData, subject: subjName, competence: undefined });
+                            }}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                            disabled={readOnlyFields.includes('subject')}
+                            disabled={!selectedReferentialId || selectedVersionNumber === undefined || !selectedDomainId || readOnlyFields.includes('subject')}
                         >
-                            <option value="">Sélectionnez une matière</option>
-                            {domainsData[formData.domain]?.map(subject => (
-                                <option key={subject} value={subject}>{subject}</option>
+                            <option value="" disabled={isLoadingTree}> {isLoadingTree ? 'Chargement...' : 'Sélectionnez une matière'} </option>
+                            {(refTree as ReferentialTree | undefined)?.domains?.find((d: DomainTree) => d.id === selectedDomainId)?.subjects?.map((s: SubjectTree) => (
+                                <option key={s.id} value={s.id}>{s.name}</option>
                             ))}
                         </select>
                     </div>
@@ -509,13 +624,22 @@ function CreateResourcePage() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Compétence (facultatif)
                         </label>
-                        <input
-                            type="text"
-                            value={formData.competence}
-                            onChange={(e) => setFormData({...formData, competence: e.target.value})}
+                        <select
+                            value={selectedCompetencyId || ''}
+                            onChange={(e) => {
+                                const compId = e.target.value || undefined;
+                                setSelectedCompetencyId(compId);
+                                const compName = (competenciesPage as CompetencyListResponse | undefined)?.items?.find((c: CompetencyResponse) => c.id === compId)?.label;
+                                setFormData({ ...formData, competence: compName });
+                            }}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                            placeholder="Ex: Comprendre les fractions"
-                        />
+                            disabled={!selectedReferentialId || selectedVersionNumber === undefined || !selectedSubjectId}
+                        >
+                            <option value="" disabled={isLoadingCompetencies}> {isLoadingCompetencies ? 'Chargement...' : 'Sélectionnez une compétence (optionnel)'} </option>
+                            {(competenciesPage as CompetencyListResponse | undefined)?.items?.map((c: CompetencyResponse) => (
+                                <option key={c.id} value={c.id}>{c.label}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 

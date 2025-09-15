@@ -5,8 +5,8 @@ import { Visibility } from '../api/resource-service/api';
 interface CreateResourceVariables {
   title: string;
   visibility: Visibility;
-  subjectId: number;
-  competenceId: number;
+  subjectId: string; // OpenAPI expects UUID string
+  competenceId?: string | null;
   file: File;
   description?: string | null;
 }
@@ -17,13 +17,14 @@ export function useCreateResource() {
   return useMutation({
     mutationFn: (variables: CreateResourceVariables) => {
       const { title, visibility, subjectId, competenceId, file, description } = variables;
+      // Generated client signature: (title, visibility, subjectId, file, description?, competenceId?)
       return resourcesApi.createResourceResourcesPost(
         title,
         visibility,
         subjectId,
-        competenceId,
         file,
-        description
+        description,
+        competenceId ?? null,
       );
     },
     onSuccess: () => {
