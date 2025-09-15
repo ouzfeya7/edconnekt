@@ -183,7 +183,7 @@ const EtablissementDetailPage: React.FC = () => {
                   const capacityStr = String(fd.get('capacity') || '').trim();
                   const capacity = capacityStr !== '' && !Number.isNaN(Number(capacityStr)) ? Number(capacityStr) : undefined;
                   if (!title || !category || !start_time || !end_time) return;
-                  await createEvent.mutateAsync({ title, category: category as EventCreateCategoryEnum, start_time, end_time, description, location, capacity });
+                  await createEvent.mutateAsync({ title, category: category as EventCreateCategoryEnum, start_time, end_time, description, location, capacity, etablissement_id: etab.id });
                   setIsCreateEventOpen(false);
                   form.reset();
                 }} className="space-y-3">
@@ -268,10 +268,8 @@ const EtablissementDetailPage: React.FC = () => {
               <div><span className="text-gray-500">Supprimé le:</span> {etab.deleted_at ?? '—'}</div>
               <div><span className="text-gray-500">Groupe:</span> {etab.etablissement_group ?? '—'}</div>
               <div><span className="text-gray-500">Etablissement ID:</span> {etab.etablissement_id ?? '—'}</div>
-              <div><span className="text-gray-500">Date début:</span> {etab.date_debut ?? '—'}</div>
-              <div><span className="text-gray-500">Date fin:</span> {etab.date_fin ?? '—'}</div>
-              <div><span className="text-gray-500">Subscription start:</span> {etab.subscription_start ?? '—'}</div>
-              <div><span className="text-gray-500">Subscription end:</span> {etab.subscription_end ?? '—'}</div>
+              <div><span className="text-gray-500">Date début abonnement:</span> {etab.subscription_start ?? '—'}</div>
+              <div><span className="text-gray-500">Date fin abonnement:</span> {etab.subscription_end ?? '—'}</div>
             </div>
           </div>
           <div className="border rounded-lg p-4 md:p-5">
@@ -450,7 +448,7 @@ const EtablissementDetailPage: React.FC = () => {
         <div className="border rounded p-4 text-sm text-gray-700 space-y-1">
           <div>Plan: {etab.plan}</div>
           <div>Statut: {etab.status}</div>
-          <div>Période: {etab.date_debut ?? '—'} → {etab.date_fin ?? '—'}</div>
+          <div>Période: {etab.subscription_start ?? '—'} → {etab.subscription_end ?? '—'}</div>
           <div>Subscription start: {etab.subscription_start ?? '—'}</div>
           <div>Subscription end: {etab.subscription_end ?? '—'}</div>
         </div>

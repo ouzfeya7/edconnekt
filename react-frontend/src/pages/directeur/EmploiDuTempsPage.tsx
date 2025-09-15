@@ -608,8 +608,14 @@ const EmploiDuTempsPage = () => {
                     toast.error(t('fill_required_fields', 'Veuillez remplir les champs obligatoires'));
                     return;
                   }
+
                   try {
-                    await createEvent.mutateAsync({ title, category: category as EventCreateCategoryEnum, start_time, end_time, description, location, capacity });
+                    const etablissement_id = selectedEtabId || currentEtablissementId || '';
+                    if (!etablissement_id) {
+                      toast.error(t('missing_establishment', "Établissement manquant"));
+                      return;
+                    }
+                    await createEvent.mutateAsync({ title, category: category as EventCreateCategoryEnum, start_time, end_time, description, location, capacity, etablissement_id });
                     toast.success(t('event_created', 'Événement créé'));
                     setIsCreateEventOpen(false);
                     form.reset();

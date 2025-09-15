@@ -110,6 +110,19 @@ class CourseResourceService {
     }
   }
 
+  // Retirer l'association d'une ressource d'un cours/une leçon
+  async removeResourceFromCourse(courseId: string, resourceId: string): Promise<boolean> {
+    try {
+      // Simulation d'appel API
+      await new Promise(resolve => setTimeout(resolve, 300));
+      console.log('Retrait ressource ← cours', { courseId, resourceId });
+      return true;
+    } catch (error) {
+      console.error('Erreur removeResourceFromCourse:', error);
+      return false;
+    }
+  }
+
   // Données mock pour les ressources de cours
   private getMockCourseResources(courseId: string): CourseResource[] {
     return [

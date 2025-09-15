@@ -7,8 +7,8 @@ export interface UpdateResourceVariables {
   title?: string;
   description?: string;
   visibility?: Visibility;
-  subjectId?: number;
-  competenceId?: number;
+  subjectId?: string | null;
+  competenceId?: string | null;
   status?: ResourceStatus;
   file?: File;
 }
@@ -24,10 +24,10 @@ export function useUpdateResource() {
         title,
         description,
         visibility,
-        subjectId,
-        competenceId,
+        subjectId != null && subjectId !== '' ? Number(subjectId) : null,
+        competenceId != null && competenceId !== '' ? Number(competenceId) : null,
         status,
-        file
+        file ?? null
       );
     },
     onSuccess: (data, variables) => {
