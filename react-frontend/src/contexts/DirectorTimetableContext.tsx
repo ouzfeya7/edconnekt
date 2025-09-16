@@ -1,5 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { AbsencesApi } from '../api/timetable-service/api';
+import { Configuration } from '../api/timetable-service';
+import { timetableAxios, TIMETABLE_API_BASE_URL } from '../api/timetable-service/http';
 
 // Types pour l'emploi du temps du directeur
 interface Absence {
@@ -104,22 +107,16 @@ export const DirectorTimetableProvider: React.FC<DirectorTimetableProviderProps>
   const [isLoading, setIsLoading] = useState(false);
 
   // Valider une absence
-  const validateAbsence = async (absenceId: string) => {
+  const validateAbsence = async (absenceId: string): Promise<void> => {
     setIsLoading(true);
     try {
-      // TODO: Appel API validateAbsenceAbsencesAbsenceIdValidatePost
-      console.log(`Validation de l'absence ${absenceId}`);
-      
-      // Mise à jour locale
-      setAbsencesEnAttente(prev => 
-        prev.map(absence => 
-          absence.id === absenceId 
-            ? { ...absence, status: 'VALIDATED' as const }
-            : absence
-        )
-      );
+      const config = new Configuration({ basePath: TIMETABLE_API_BASE_URL });
+      const api = new AbsencesApi(config, undefined, timetableAxios);
+      await api.validateAbsenceAbsencesAbsenceIdValidatePost(absenceId);
+      setAbsencesEnAttente(prev => prev.map(a => a.id === absenceId ? { ...a, status: 'VALIDATED' as const } : a));
     } catch (error) {
       console.error('Erreur lors de la validation de l\'absence:', error);
+      throw error;
     } finally {
       setIsLoading(false);
     }

@@ -2,13 +2,19 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock, CheckCircle, User, Calendar, AlertTriangle } from 'lucide-react';
 import { useDirectorTimetable } from '../../../contexts/DirectorTimetableContext';
+import toast from 'react-hot-toast';
 
 const AbsenceValidationPanel: React.FC = () => {
   const { t } = useTranslation();
   const { absencesEnAttente, validateAbsence, isLoading } = useDirectorTimetable();
 
   const handleValidateAbsence = async (absenceId: string) => {
-    await validateAbsence(absenceId);
+    try {
+      await validateAbsence(absenceId);
+      toast.success(t('absence_validated', 'Absence validée'));
+    } catch (e) {
+      toast.error(t('error_validating_absence', 'Erreur lors de la validation'));
+    }
   };
 
   if (absencesEnAttente.length === 0) {

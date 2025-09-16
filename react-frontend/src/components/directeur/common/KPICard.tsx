@@ -20,51 +20,48 @@ const KPICard: React.FC<KPICardProps> = ({
 }) => {
   const colorClasses = {
     blue: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
-      text: 'text-blue-600',
-      icon: 'text-blue-500'
+      accentText: 'text-blue-600',
+      badgeBg: 'bg-blue-100',
+      badgeText: 'text-blue-600'
     },
     green: {
-      bg: 'bg-green-50',
-      border: 'border-green-200',
-      text: 'text-green-600',
-      icon: 'text-green-500'
+      accentText: 'text-green-600',
+      badgeBg: 'bg-green-100',
+      badgeText: 'text-green-600'
     },
     red: {
-      bg: 'bg-red-50',
-      border: 'border-red-200',
-      text: 'text-red-600',
-      icon: 'text-red-500'
+      accentText: 'text-red-600',
+      badgeBg: 'bg-red-100',
+      badgeText: 'text-red-600'
     },
     purple: {
-      bg: 'bg-purple-50',
-      border: 'border-purple-200',
-      text: 'text-purple-600',
-      icon: 'text-purple-500'
+      accentText: 'text-purple-600',
+      badgeBg: 'bg-purple-100',
+      badgeText: 'text-purple-600'
     },
     orange: {
-      bg: 'bg-orange-50',
-      border: 'border-orange-200',
-      text: 'text-orange-600',
-      icon: 'text-orange-500'
+      accentText: 'text-orange-600',
+      badgeBg: 'bg-orange-100',
+      badgeText: 'text-orange-600'
     }
-  };
+  } as const;
 
   const colors = colorClasses[color];
 
   return (
-    <div className={`${colors.bg} border ${colors.border} rounded-lg p-4 relative ${className}`}>
+    <div className={`bg-white border border-slate-200 rounded-xl p-4 md:p-5 relative shadow-sm hover:shadow-md transition-shadow ${className}`}>
       {isCritical && (
-        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
-          ⚠️
-        </div>
+        <span className="absolute top-3 right-3" aria-label="Alerte">
+          <span className="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+        </span>
       )}
-      <div className="flex items-center">
-        <Icon className={`w-8 h-8 ${colors.icon} mr-3`} />
-        <div>
-          <p className="text-2xl font-bold">{value}</p>
-          <p className={`text-sm ${colors.text}`}>{title}</p>
+      <div className="flex items-center gap-3">
+        <div className={`h-10 w-10 rounded-full flex items-center justify-center ${colors.badgeBg} ${colors.badgeText}`}>
+          <Icon className="w-5 h-5" />
+        </div>
+        <div className="flex-1">
+          <p className="text-2xl font-semibold leading-tight text-slate-900">{value}</p>
+          <p className={`text-sm ${colors.accentText} mt-0.5`}>{title}</p>
         </div>
       </div>
     </div>

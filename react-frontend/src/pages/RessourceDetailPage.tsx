@@ -1,13 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../pages/authentification/useAuth";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useResourceDetail } from "../hooks/useResourceDetail";
 import { useResourceAudit } from "../hooks/useResourceAudit";
 import { useArchiveResource } from "../hooks/useArchiveResource";
 import { useRestoreResource } from "../hooks/useRestoreResource";
 import { useResources as useRemoteResources } from "../hooks/useResources"; // Pour les ressources similaires
 import { useDownloadResourceFile } from "../hooks/useDownloadResourceFile";
-import { subjectIdToNameMap } from "./RessourcesPage";
+import { useReferentials, useReferentialTree } from "../hooks/competence/useReferentials";
+import type { ReferentialListResponse, ReferentialResponse, ReferentialTree, DomainTree, SubjectTree } from "../api/competence-service/api";
 import {
   User,
   BookOpen,
@@ -45,6 +46,25 @@ const RessourceDetailPage = () => {
   const downloadMutation = useDownloadResourceFile();
   // Pour les ressources similaires, on peut utiliser le hook existant
   const { data: similarResourcesData } = useRemoteResources({ subjectId: resource?.subject_id });
+
+  // Charger un référentiel pour mapper subject_id -> nom (UUID)
+  const { data: referentials } = useReferentials({ state: 'PUBLISHED' });
+  const [selectedReferentialId, setSelectedReferentialId] = useState<string | undefined>(undefined);
+  const [selectedVersionNumber, setSelectedVersionNumber] = useState<number | undefined>(undefined);
+  useEffect(() => {
+    if (!selectedReferentialId && (referentials as ReferentialListResponse | undefined)?.items?.length) {
+      const ref = (referentials as ReferentialListResponse).items[0] as ReferentialResponse;
+      setSelectedReferentialId(ref.id);
+      setSelectedVersionNumber(ref.version_number);
+    }
+  }, [referentials, selectedReferentialId]);
+  const { data: refTree } = useReferentialTree(selectedReferentialId || '', selectedVersionNumber);
+  const subjectIdToNameMap = useMemo(() => {
+    const m = new Map<string, string>();
+    const tree = refTree as ReferentialTree | undefined;
+    (tree?.domains || []).forEach((d: DomainTree) => (d.subjects || []).forEach((s: SubjectTree) => m.set(s.id, s.name)));
+    return m;
+  }, [refTree]);
 
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [viewerUrl, setViewerUrl] = useState<string>('');
@@ -271,7 +291,7 @@ const RessourceDetailPage = () => {
                           {similarResource.title}
                         </div>
                         <div className="text-sm text-gray-600">
-                          {subjectIdToNameMap[similarResource.subject_id] || "Matière inconnue"}
+                          {subjectIdToNameMap.get(String(similarResource.subject_id)) || "Matière inconnue"}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
                           {similarResource.mime_type || "Fichier"} • {formatFileSize(similarResource.size_bytes)}
@@ -386,7 +406,7 @@ const RessourceDetailPage = () => {
               Ressources
             </button>
             <ChevronRight className="w-4 h-4" />
-            <span className="text-gray-900">{subjectIdToNameMap[resource.subject_id] || "Matière"}</span>
+            <span className="text-gray-900">{subjectIdToNameMap.get(String(resource.subject_id)) || "Matière"}</span>
             <ChevronRight className="w-4 h-4" />
             <span className="text-gray-900 font-medium">
               {resource.title}
@@ -416,7 +436,7 @@ const RessourceDetailPage = () => {
                   </h1>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                      {subjectIdToNameMap[resource.subject_id] || "Matière"}
+                      {subjectIdToNameMap.get(String(resource.subject_id)) || "Matière"}
                     </span>
                     {/* isPaid n'est pas dans le modèle API */}
                     {resource.visibility && (

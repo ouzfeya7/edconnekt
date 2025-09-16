@@ -1,5 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -34,89 +33,12 @@ import { useResources as useRemoteResources } from "../hooks/useResources";
 import { useArchiveResource } from "../hooks/useArchiveResource";
 import { useAuth } from "../pages/authentification/useAuth"; // Utiliser useAuth
 import { Visibility, ResourceStatus, ResourceOut } from "../api/resource-service/api";
+import { useReferentials, useReferentialTree } from "../hooks/competence/useReferentials";
+import { useCompetencies } from "../hooks/competence/useCompetencies";
+import type { ReferentialTree, DomainTree, SubjectTree, CompetencyListResponse, CompetencyResponse, ReferentialListResponse, ReferentialResponse } from "../api/competence-service/api";
 
 
 import AuditTrail from "../components/ressources/AuditTrail";
-
-// Data for domains and subjects, mirroring AddResourcePage
-const domainsData: { [key: string]: string[] } = {
-  "LANGUES ET COMMUNICATION": ["Anglais", "Français"],
-  "SCIENCES HUMAINES": [
-    "Études islamiques",
-    "Géographie",
-    "Histoire",
-    "Lecture arabe",
-    "Qran",
-    "Vivre dans son milieu",
-    "Vivre ensemble",
-    "Wellness",
-  ],
-  STEM: ["Mathématiques"],
-  "CREATIVITE ARTISTIQUE / SPORTIVE": [
-    "Arts plastiques",
-    "EPS",
-    "Motricité",
-    "Musique",
-    "Théâtre/Drama",
-  ], // Renommé
-};
-const domainNames = [
-  "LANGUES ET COMMUNICATION",
-  "SCIENCES HUMAINES",
-  "STEM",
-  "CREATIVITE ARTISTIQUE / SPORTIVE",
-];
-
-export const subjectNameToIdMap: { [key: string]: number } = {
-  "Anglais": 1,
-  "Français": 2,
-  "Études islamiques": 3,
-  "Géographie": 4,
-  "Histoire": 5,
-  "Lecture arabe": 6,
-  "Qran": 7,
-  "Vivre dans son milieu": 8,
-  "Vivre ensemble": 9,
-  "Wellness": 10,
-  "Mathématiques": 11,
-  "Arts plastiques": 12,
-  "EPS": 13,
-  "Motricité": 14,
-  "Musique": 15,
-  "Théâtre/Drama": 16,
-};
-
-export const subjectIdToNameMap: { [key: string]: string } = Object.fromEntries(
-  Object.entries(subjectNameToIdMap).map(([name, id]) => [id, name])
-);
-
-// Couleurs subtiles spécifiques à chaque matière (utilisées dans d'autres composants)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const subjectColors: { [key: string]: string } = {
-  // CRÉATIVITÉ & SPORT - Teintes bleu-violet
-  "Arts plastiques": "bg-indigo-400",
-  EPS: "bg-sky-400",
-  Motricité: "bg-cyan-400",
-  Musique: "bg-violet-400",
-  "Théâtre/Drama": "bg-purple-400",
-
-  // LANGUES ET COMMUNICATION - Teintes vert
-  Anglais: "bg-emerald-400",
-  Français: "bg-green-400",
-
-  // STEM - Teintes orange-rouge
-  Mathématiques: "bg-amber-400",
-
-  // SCIENCES HUMAINES - Teintes rose-brun
-  "Études islamiques": "bg-teal-400",
-  Géographie: "bg-blue-400",
-  Histoire: "bg-slate-400",
-  "Lecture arabe": "bg-lime-400",
-  Qran: "bg-rose-400",
-  "Vivre dans son milieu": "bg-stone-400",
-  "Vivre ensemble": "bg-pink-400",
-  Wellness: "bg-orange-400",
-};
 
 const subjectBadgeColors: { [key: string]: string } = {
   // CRÉATIVITÉ & SPORT
@@ -390,8 +312,12 @@ function RessourcesPage() {
   console.log("Rôles actuels:", roles);
   console.log("Peut modifier les ressources:", canModifyResources);
 
-  const [activeDomain, setActiveDomain] = useState(domainNames[0]); // Default to LANGUES ET COMMUNICATION
-  const [activeSubject, setActiveSubject] = useState<string | null>(null); // No default subject selected
+  // Filtres dynamiques via Competence Service
+  const [selectedReferentialId, setSelectedReferentialId] = useState<string | undefined>(undefined);
+  const [selectedVersionNumber, setSelectedVersionNumber] = useState<number | undefined>(undefined);
+  const [selectedDomainId, setSelectedDomainId] = useState<string | undefined>(undefined);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string | undefined>(undefined);
+  const [selectedCompetencyId, setSelectedCompetencyId] = useState<string | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [paymentFilter, setPaymentFilter] = useState<"all" | "paid" | "free">(
@@ -401,9 +327,37 @@ function RessourcesPage() {
   // Nouveaux filtres avancés
   const [fileTypeFilter, setFileTypeFilter] = useState<string>("");
   const [visibilityFilter, setVisibilityFilter] = useState<string>("");
+  const [onlyMyResources, setOnlyMyResources] = useState<boolean>(false);
   const itemsPerPage = 20;
 
-  const activeSubjectId = activeSubject ? String(subjectNameToIdMap[activeSubject]) : null;
+  const { data: referentials } = useReferentials({ state: 'PUBLISHED' });
+  useEffect(() => {
+    if (!selectedReferentialId && (referentials as ReferentialListResponse | undefined)?.items?.length) {
+      const ref = (referentials as ReferentialListResponse).items[0] as ReferentialResponse;
+      setSelectedReferentialId(ref.id);
+      setSelectedVersionNumber(ref.version_number);
+    }
+  }, [referentials, selectedReferentialId]);
+
+  const { data: refTree } = useReferentialTree(selectedReferentialId || '', selectedVersionNumber);
+  const domains = useMemo(() => (refTree as ReferentialTree | undefined)?.domains ?? [], [refTree]);
+  const subjects = useMemo(() => {
+    const d = (domains as DomainTree[]).find((x: DomainTree) => x.id === selectedDomainId);
+    return d?.subjects ?? [];
+  }, [domains, selectedDomainId]);
+
+  const subjectIdToNameMap = useMemo(() => {
+    const m = new Map<string, string>();
+    (domains as DomainTree[]).forEach((d: DomainTree) => (d.subjects || []).forEach((s: SubjectTree) => m.set(s.id, s.name)));
+    return m;
+  }, [domains]);
+
+  const { data: competenciesPage } = useCompetencies({
+    referentialId: selectedReferentialId || '',
+    versionNumber: selectedVersionNumber ?? 0,
+    subjectId: selectedSubjectId ?? null,
+    page: 1,
+  });
 
   const {
     data: apiResources,
@@ -411,20 +365,23 @@ function RessourcesPage() {
     limit: itemsPerPage,
     offset: (currentPage - 1) * itemsPerPage,
     visibility: (visibilityFilter as Visibility) || null,
-    subjectId: activeSubjectId,
+    subjectId: selectedSubjectId ?? undefined,
+    competenceId: selectedCompetencyId ?? undefined,
+    authorUserId: onlyMyResources && user?.id ? user.id : undefined,
     status: ResourceStatus.Active,
   });
 
   // Removed isAddModalOpen state
 
-  const handleDomainChange = (domain: string) => {
-    setActiveDomain(domain);
-    setActiveSubject(null);
+  const handleDomainChange = (domainId: string) => {
+    setSelectedDomainId(domainId);
+    setSelectedSubjectId(undefined);
+    setSelectedCompetencyId(undefined);
   };
 
   // Mapping minimal de ResourceOut (API) -> DisplayResource
   const mapApiResourceToDisplay = (r: ResourceOut): DisplayResource => {
-    // TODO: remplacer subject_id/competence_id par libellés dès que le mapping est fourni
+    // Afficher le libellé de la matière via la tree référentiel si disponible
     const fileTypeFromMime = (() => {
       const mt = r.mime_type as string;
       if (!mt) return "PDF" as const;
@@ -439,7 +396,7 @@ function RessourcesPage() {
     return {
       id: r.id,
       title: r.title,
-      subject: subjectIdToNameMap[String(r.subject_id)] || String(r.subject_id),
+      subject: subjectIdToNameMap.get(String(r.subject_id)) || String(r.subject_id),
       description: r.description ?? "",
       addedDate: new Date(r.created_at).toLocaleDateString("fr-FR"),
       author: r.author_user_id === user?.id ? `${user.firstName} ${user.lastName}` : r.author_user_id,
@@ -516,152 +473,141 @@ function RessourcesPage() {
         </div>
       </div>
 
-      {/* Bloc filtres dans une carte blanche */}
+      {/* Recherche + Filtres */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
-        {/* Domaines de compétences */}
-        <div className="flex space-x-4 overflow-x-auto pb-4 mb-4">
-            {domainNames.map((domain) => (
-              <button
-                key={domain}
-                onClick={() => handleDomainChange(domain)}
-                className={`pb-2 text-sm font-semibold uppercase tracking-wider transition-colors focus:outline-none whitespace-nowrap ${
-                  activeDomain === domain
-                    ? "text-orange-500 border-b-2 border-orange-500"
-                    : "text-gray-600 hover:text-gray-800"
-                }`}
-              >
-                {domain}
-              </button>
-            ))}
-          </div>
-
-        {/* Matières */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {domainsData[activeDomain].map((subject) => (
-            <button
-              key={subject}
-              onClick={() =>
-                setActiveSubject(activeSubject === subject ? null : subject)
-              }
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-150 ease-in-out transform hover:scale-[1.02] whitespace-nowrap ${
-                activeSubject === subject
-                  ? "bg-[#184867] text-white shadow-lg"
-                  : "bg-white text-gray-800 border border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              {subject}
-            </button>
-          ))}
-        </div>
-
-        {/* Barre de séparation */}
-        <div className="border-t border-gray-200 mb-6"></div>
-
-        {/* Barre de recherche unifiée */}
-        <div className="mb-6">
-          <div className="relative">
+        {/* Ligne 1: Recherche + Visibilité + Statut */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-0">
+          {/* Barre de recherche */}
+          <div className="md:col-span-8">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-              placeholder="Rechercher par nom, description, compétence, auteur..."
+                placeholder="Rechercher par nom, description, compétence, auteur..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-base"
+                className="h-10 w-full pl-10 pr-4 py-2 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-base"
               />
+            </div>
           </div>
-            </div>
-
-        {/* Filtres au même niveau */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
-            {/* Filtre par statut payant */}
-          <div>
-            <label className="block text-xs text-gray-600 mb-1 font-medium">
-              Statut
-            </label>
-            <select
-              value={paymentFilter}
-              onChange={(e) =>
-                setPaymentFilter(e.target.value as "all" | "paid" | "free")
-              }
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-            >
-              <option value="all">Tous les statuts</option>
-              <option value="free">Gratuit</option>
-              <option value="paid">Payant</option>
-            </select>
-            </div>
-
-            {/* Filtre par type de fichier */}
-            <div>
-            <label className="block text-xs text-gray-600 mb-1 font-medium">
-              Type
-            </label>
-              <select
-                value={fileTypeFilter}
-                onChange={(e) => setFileTypeFilter(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-              >
-                <option value="">Tous les types</option>
-                <option value="PDF">PDF</option>
-                <option value="DOCX">DOCX</option>
-                <option value="PPTX">PPTX</option>
-                <option value="VIDEO">Vidéo</option>
-                <option value="IMAGE">Image</option>
-                <option value="LINK">Lien</option>
-              </select>
-            </div>
-
-
-
-          {/* Filtre par visibilité - Masqué pour les parents/élèves */}
-          {canModifyResources ? (
-            <div>
-              <label className="block text-xs text-gray-600 mb-1 font-medium">
-                Visibilité
-              </label>
-              <select
-                value={visibilityFilter}
-                onChange={(e) => setVisibilityFilter(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-              >
-                <option value="">Toutes les visibilités</option>
+          {canModifyResources && (
+            <div className="md:col-span-2">
+              <select aria-label="Visibilité" value={visibilityFilter} onChange={(e) => setVisibilityFilter(e.target.value)} className="h-10 w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
+                <option value="">Toutes</option>
                 <option value="PRIVATE">Privé</option>
                 <option value="CLASS">Classe</option>
                 <option value="SCHOOL">École</option>
               </select>
             </div>
-          ) : (
-                         /* Bouton de réinitialisation pour les parents/élèves */
-            <div className="flex items-end">
-              <button
-                onClick={() => {
-                   setSearchTerm("");
-                  setFileTypeFilter("");
-                   setPaymentFilter("all");
-                }}
-                className="w-full px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Réinitialiser
-              </button>
-            </div>
           )}
+          <div className="md:col-span-2">
+            <select aria-label="Statut" value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value as "all" | "paid" | "free")} className="h-10 w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
+              <option value="all">Tous les statuts</option>
+              <option value="free">Gratuit</option>
+              <option value="paid">Payant</option>
+            </select>
+          </div>
+        </div>
 
-                     {/* Bouton de réinitialisation pour les enseignants */}
-           {canModifyResources && (
-             <div className="flex items-end">
+        {/* Ligne 2: Domaines (chips) */}
+        <div className="flex space-x-4 overflow-x-auto pb-3 mb-3">
+          {(domains as DomainTree[]).map((domain: DomainTree) => (
             <button
-                 onClick={() => {
-                   setSearchTerm("");
-                   setFileTypeFilter("");
-                   setVisibilityFilter("");
-                   setPaymentFilter("all");
-                 }}
-                 className="w-full px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-               >
-                 Réinitialiser
+              key={domain.id}
+              onClick={() => handleDomainChange(domain.id)}
+              className={`pb-2 text-sm font-semibold uppercase tracking-wider transition-colors focus:outline-none whitespace-nowrap ${
+                selectedDomainId === domain.id
+                  ? "text-orange-500 border-b-2 border-orange-500"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              {domain.name}
             </button>
-             </div>
-           )}
+          ))}
+        </div>
+
+        {/* Ligne 3: Matières (chips) */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {(subjects as SubjectTree[]).map((s: SubjectTree) => (
+            <button
+              key={s.id}
+              onClick={() => setSelectedSubjectId(selectedSubjectId === s.id ? undefined : s.id)}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all durée-150 ease-in-out transform hover:scale-[1.02] whitespace-nowrap ${
+                selectedSubjectId === s.id
+                  ? "bg-[#184867] text-white shadow-lg"
+                  : "bg-white text-gray-800 border border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              {s.name}
+            </button>
+          ))}
+        </div>
+        {/* Ligne 4: Type, Compétence, Auteur, Réinitialiser */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-1 -mt-1">
+          {/* Type (col 3) */}
+          <div className="md:col-span-3">
+            <select
+              aria-label="Type"
+              value={fileTypeFilter}
+              onChange={(e) => setFileTypeFilter(e.target.value)}
+              className="h-10 w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+            >
+              <option value="">Tous les types</option>
+              <option value="PDF">PDF</option>
+              <option value="DOCX">DOCX</option>
+              <option value="PPTX">PPTX</option>
+              <option value="VIDEO">Vidéo</option>
+              <option value="IMAGE">Image</option>
+              <option value="LINK">Lien</option>
+            </select>
+          </div>
+
+          {/* Compétence (col 5) */}
+          <div className="md:col-span-5">
+            <select
+              aria-label="Compétence"
+              value={selectedCompetencyId || ''}
+              onChange={(e) => setSelectedCompetencyId(e.target.value || undefined)}
+              disabled={!selectedSubjectId}
+              className="h-10 w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+            >
+              <option value="">Toutes les compétences</option>
+              {(competenciesPage as CompetencyListResponse | undefined)?.items?.map((c: CompetencyResponse) => (
+                <option key={c.id} value={c.id}>{c.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Auteur (col 2) */}
+          <div className="md:col-span-2 flex items-center">
+            <label className="inline-flex items-center gap-2 text-sm" aria-label="Mes ressources">
+              <input
+                type="checkbox"
+                checked={onlyMyResources}
+                onChange={(e) => setOnlyMyResources(e.target.checked)}
+              />
+              Mes ressources
+            </label>
+          </div>
+
+          {/* Réinitialiser (col 2) */}
+          <div className="md:col-span-2 flex items-end justify-end">
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setFileTypeFilter("");
+                setPaymentFilter("all");
+                setOnlyMyResources(false);
+                setVisibilityFilter("");
+                setSelectedDomainId(undefined);
+                setSelectedSubjectId(undefined);
+                setSelectedCompetencyId(undefined);
+              }}
+              className="min-w-[160px] px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Réinitialiser
+            </button>
+          </div>
         </div>
 
         {/* Liste des ressources sous forme de lignes améliorée */}

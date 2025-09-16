@@ -56,10 +56,7 @@ function CreateResourcePage() {
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [uploadError, setUploadError] = useState<string>('');
 
-    // États pour l'image de couverture
-    const [coverImageUrl, setCoverImageUrl] = useState<string>('');
-    const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
-    const [coverImageError, setCoverImageError] = useState<string>('');
+    
 
     // États pour l'édition
     const [isEditMode, setIsEditMode] = useState(false);
@@ -236,38 +233,7 @@ function CreateResourcePage() {
         }
     };
 
-    // Gestion de l'image de couverture
-    const handleCoverImageUrlChange = (url: string) => {
-        setCoverImageUrl(url);
-        setCoverImageFile(null);
-        setCoverImageError('');
-    };
-
-    const handleCoverImageFileSelect = (file: File) => {
-        // Validation du fichier image
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        const maxSize = 5 * 1024 * 1024; // 5MB
-
-        if (!allowedTypes.includes(file.type)) {
-            setCoverImageError('Type de fichier non supporté. Utilisez JPG, PNG, GIF ou WebP.');
-            return;
-        }
-
-        if (file.size > maxSize) {
-            setCoverImageError('Le fichier est trop volumineux (max 5MB)');
-            return;
-        }
-
-        setCoverImageFile(file);
-        setCoverImageUrl('');
-        setCoverImageError('');
-    };
-
-    const removeCoverImage = () => {
-        setCoverImageFile(null);
-        setCoverImageUrl('');
-        setCoverImageError('');
-    };
+    
 
     // Navigation entre les étapes
     const nextStep = () => {
@@ -656,71 +622,7 @@ function CreateResourcePage() {
                     />
                 </div>
 
-                {/* Image de couverture */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Image de couverture (facultatif)
-                    </label>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {/* URL de l'image */}
-                        <div>
-                            <label className="block text-xs text-gray-600 mb-1">
-                                Ou entrez une URL d'image
-                            </label>
-                            <input
-                                type="url"
-                                value={coverImageUrl}
-                                onChange={(e) => handleCoverImageUrlChange(e.target.value)}
-                                placeholder="https://exemple.com/image.jpg"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
-                            />
-                        </div>
-
-                        {/* Upload d'image */}
-                        <div>
-                            <label className="block text-xs text-gray-600 mb-1">
-                                Ou uploadez une image depuis votre appareil
-                            </label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) handleCoverImageFileSelect(file);
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Aperçu de l'image sélectionnée */}
-                    {(coverImageUrl || coverImageFile) && (
-                        <div className="mt-4 relative inline-block">
-                            <div className="w-32 h-20 bg-gray-100 rounded-lg overflow-hidden">
-                                <img
-                                    src={coverImageFile ? URL.createObjectURL(coverImageFile) : coverImageUrl}
-                                    alt="Aperçu de l'image de couverture"
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                            <button
-                                type="button"
-                                onClick={removeCoverImage}
-                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    )}
-
-                    {coverImageError && (
-                        <p className="text-red-600 text-sm mt-2">{coverImageError}</p>
-                    )}
-
-                    <p className="text-xs text-gray-500 mt-2">
-                        Formats supportés : JPG, PNG, GIF, WebP. Taille max : 5MB.
-                    </p>
-                </div>
+                
 
                 {/* Visibilité */}
                 <div>
@@ -778,13 +680,7 @@ function CreateResourcePage() {
                     <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
                         {(uploadedFile || isEditMode) && (
                             <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                                {(coverImageUrl || coverImageFile) ? (
-                                    <img 
-                                        src={coverImageFile ? URL.createObjectURL(coverImageFile) : coverImageUrl} 
-                                        alt="Image de couverture" 
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : uploadedFile?.type.startsWith('image/') ? (
+                                {uploadedFile?.type.startsWith('image/') ? (
                                     <img 
                                         src={URL.createObjectURL(uploadedFile)} 
                                         alt="Aperçu" 

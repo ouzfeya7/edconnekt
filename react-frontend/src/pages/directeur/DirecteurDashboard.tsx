@@ -13,6 +13,7 @@ import { useDirector } from '../../contexts/DirectorContext';
 import DashboardCharts from '../../components/directeur/DashboardCharts';
 import LevelStats from '../../components/directeur/LevelStats';
 import DashboardKPIs from '../../components/directeur/dashboard/DashboardKPIs';
+import QuickActionCard from '../../components/directeur/common/QuickActionCard';
 
 const DirecteurDashboard = () => {
   const { t } = useTranslation();
@@ -95,19 +96,16 @@ const DirecteurDashboard = () => {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           {t('quick_actions', 'Actions Rapides')}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {shortcuts.map((shortcut, index) => (
-            <button
+            <QuickActionCard
               key={index}
+              title={shortcut.title}
+              description={shortcut.description}
+              icon={shortcut.icon}
+              color={shortcut.color.replace('bg-','').replace('-500','') as 'blue' | 'green' | 'red' | 'purple' | 'orange'}
               onClick={shortcut.onClick}
-              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow duration-200 text-left group"
-            >
-              <div className={`${shortcut.color} w-12 h-12 rounded-lg flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-200`}>
-                {shortcut.icon}
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{shortcut.title}</h3>
-              <p className="text-sm text-gray-600">{shortcut.description}</p>
-            </button>
+            />
           ))}
         </div>
       </div>
