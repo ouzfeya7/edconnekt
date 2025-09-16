@@ -566,9 +566,16 @@ const ReferentielsManager: React.FC = () => {
         {activeTab === 'domains' && (
           <div className="border rounded-lg">
              {!effectiveReferentialId || effectiveVersion === null ? (
-               <div className="p-8 text-center text-gray-500">
+               <div className="p-8 text-center">
                  <div className="text-lg font-medium mb-2">Aucun référentiel sélectionné</div>
-                 <div className="text-sm">Veuillez d'abord sélectionner un référentiel dans l'onglet Référentiels</div>
+                 <div className="text-sm text-gray-500 mb-4">Sélectionnez un référentiel pour gérer les domaines.</div>
+                 <button 
+                   onClick={() => setActiveTab('referentials')}
+                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                 >
+                   <GraduationCap className="w-4 h-4 text-white" />
+                   Sélectionner un référentiel
+                 </button>
                </div>
              ) : (
                <>
@@ -653,6 +660,20 @@ const ReferentielsManager: React.FC = () => {
 
         {activeTab === 'subjects' && (
           <div className="border rounded-lg">
+            {!effectiveReferentialId || effectiveVersion === null ? (
+              <div className="p-8 text-center">
+                <div className="text-lg font-medium mb-2">Aucun référentiel sélectionné</div>
+                <div className="text-sm text-gray-500 mb-4">Sélectionnez un référentiel pour gérer les matières.</div>
+                <button 
+                  onClick={() => setActiveTab('referentials')}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  <GraduationCap className="w-4 h-4 text-white" />
+                  Sélectionner un référentiel
+                </button>
+              </div>
+            ) : (
+            <>
             <div className="p-4 border-b flex items-center justify-between">
               <div className="font-semibold">Matières</div>
               <div className="flex items-center gap-3">
@@ -764,11 +785,27 @@ const ReferentielsManager: React.FC = () => {
                 <button className="px-2 py-1 border rounded" disabled={(subjectsPage?.items?.length ?? 0) < subjectSize} onClick={() => setSubjectPage((p) => p + 1)}>Suiv.</button>
               </div>
             </div>
+            </>
+            )}
           </div>
         )}
 
         {activeTab === 'competencies' && (
           <div className="border rounded-lg">
+            {!effectiveReferentialId || effectiveVersion === null ? (
+              <div className="p-8 text-center">
+                <div className="text-lg font-medium mb-2">Aucun référentiel sélectionné</div>
+                <div className="text-sm text-gray-500 mb-4">Sélectionnez un référentiel pour gérer les compétences.</div>
+                <button 
+                  onClick={() => setActiveTab('referentials')}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  <GraduationCap className="w-4 h-4 text-white" />
+                  Sélectionner un référentiel
+                </button>
+              </div>
+            ) : (
+            <>
             <div className="p-4 border-b flex items-center justify-between">
               <div className="font-semibold">Compétences</div>
               <div className="flex items-center gap-3">
@@ -873,6 +910,8 @@ const ReferentielsManager: React.FC = () => {
                 <button className="px-2 py-1 border rounded" disabled={(competenciesPage?.items?.length ?? 0) < competencySize} onClick={() => setCompetencyPage((p) => p + 1)}>Suiv.</button>
               </div>
             </div>
+            </>
+            )}
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useResources as useRemoteResources } from '../hooks/useResources';
 import { useRestoreResource } from '../hooks/useRestoreResource';
@@ -11,22 +11,12 @@ import {
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '../components/ui/dialog';
 import { ResourceStatus } from '../api/resource-service/api';
-import { subjectIdToNameMap } from './RessourcesPage';
+import { useReferentials, useReferentialTree } from '../hooks/competence/useReferentials';
+import { useCompetencies } from '../hooks/competence/useCompetencies';
+import type { ReferentialTree, DomainTree, SubjectTree, CompetencyListResponse, CompetencyResponse, ReferentialListResponse, ReferentialResponse } from '../api/competence-service/api';
+import { resourceApiBaseUrl } from '../api/resource-service/client';
 
-// Data for domains and subjects, matching RessourcesPage exactly
-const domainsData: { [key: string]: string[] } = {
-  "LANGUES ET COMMUNICATION": ["Anglais", "Français"],
-  "SCIENCES HUMAINES": ["Études islamiques", "Géographie", "Histoire", "Lecture arabe", "Qran", "Vivre dans son milieu", "Vivre ensemble", "Wellness"],
-  "STEM": ["Mathématiques"],
-  "CREATIVITE ARTISTIQUE / SPORTIVE": ["Arts plastiques", "EPS", "Motricité", "Musique", "Théâtre/Drama"],
-};
-
-const domainNames = [
-  "LANGUES ET COMMUNICATION",
-  "SCIENCES HUMAINES",
-  "STEM",
-  "CREATIVITE ARTISTIQUE / SPORTIVE",
-];
+// Filtres dynamiques via Competence Service
 
 // Couleurs subtiles spécifiques à chaque matière (badge seulement utilisé ci-dessous)
 
@@ -233,7 +223,11 @@ const ArchivedResourceListItem: React.FC<ArchivedResourceListItemProps> = ({
                           <span>Voir les détails</span>
                         </button>
                         <button 
-                          onClick={() => {/* Télécharger */}}
+                          onClick={() => {
+                            // Utiliser la baseURL configurée pour le microservice
+                            const url = `${resourceApiBaseUrl.replace(/\/$/, '')}/resources/${resource.id}/download`;
+                            window.open(url, '_blank');
+                          }}
                           className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition"
                         >
                           <Download className="w-4 h-4 text-green-500" />
@@ -268,8 +262,12 @@ function ArchivesPage() {
     const canModifyResources = roles.includes('enseignant') || roles.includes('directeur') || roles.includes('administrateur');
     
     const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDomain, setSelectedDomain] = useState<string>('all');
-  const [selectedSubject, setSelectedSubject] = useState<string>('all');
+  // Filtres Competence Service (UUID)
+  const [selectedReferentialId, setSelectedReferentialId] = useState<string | undefined>(undefined);
+  const [selectedVersionNumber, setSelectedVersionNumber] = useState<number | undefined>(undefined);
+  const [selectedDomainId, setSelectedDomainId] = useState<string | undefined>(undefined);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string | undefined>(undefined);
+  const [selectedCompetencyId, setSelectedCompetencyId] = useState<string | undefined>(undefined);
     const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'subject'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -277,11 +275,44 @@ function ArchivesPage() {
   
   const itemsPerPage = 8;
 
+  // Charger référentiel publié
+  const { data: referentials } = useReferentials({ state: 'PUBLISHED' });
+  useEffect(() => {
+    if (!selectedReferentialId && (referentials as ReferentialListResponse | undefined)?.items?.length) {
+      const ref = (referentials as ReferentialListResponse).items[0] as ReferentialResponse;
+      setSelectedReferentialId(ref.id);
+      setSelectedVersionNumber(ref.version_number);
+    }
+  }, [referentials, selectedReferentialId]);
+
+  const { data: refTree } = useReferentialTree(selectedReferentialId || '', selectedVersionNumber);
+  const domains = useMemo(() => (refTree as ReferentialTree | undefined)?.domains ?? [], [refTree]);
+  const subjects = useMemo(() => {
+    const d = (domains as DomainTree[]).find((x: DomainTree) => x.id === selectedDomainId);
+    return d?.subjects ?? [];
+  }, [domains, selectedDomainId]);
+
+  const subjectIdToNameMap = useMemo(() => {
+    const m = new Map<string, string>();
+    (domains as DomainTree[]).forEach((d: DomainTree) => (d.subjects || []).forEach((s: SubjectTree) => m.set(s.id, s.name)));
+    return m;
+  }, [domains]);
+
+  const { data: competenciesPage } = useCompetencies({
+    referentialId: selectedReferentialId || '',
+    versionNumber: selectedVersionNumber ?? 0,
+    subjectId: selectedSubjectId ?? null,
+    page: 1,
+  });
+
   const {
     data: archivedResources,
   } = useRemoteResources({
     status: ResourceStatus.Archived,
-    limit: 100, // TODO: Implement proper pagination
+    subjectId: selectedSubjectId ?? undefined,
+    competenceId: selectedCompetencyId ?? undefined,
+    limit: itemsPerPage,
+    offset: (currentPage - 1) * itemsPerPage,
   });
 
   // Tri des ressources (côté client pour l'instant)
@@ -294,8 +325,8 @@ function ArchivesPage() {
         bValue = (b.title || '').toLowerCase();
         break;
       case 'subject':
-        aValue = (subjectIdToNameMap[a.subject_id] || String(a.subject_id)).toLowerCase();
-        bValue = (subjectIdToNameMap[b.subject_id] || String(b.subject_id)).toLowerCase();
+        aValue = (subjectIdToNameMap.get(String(a.subject_id)) || String(a.subject_id)).toLowerCase();
+        bValue = (subjectIdToNameMap.get(String(b.subject_id)) || String(b.subject_id)).toLowerCase();
         break;
       case 'date':
       default:
@@ -312,7 +343,7 @@ function ArchivesPage() {
 
     useEffect(() => {
         setCurrentPage(1);
-  }, [searchTerm, selectedDomain, selectedSubject]);
+  }, [searchTerm, selectedDomainId, selectedSubjectId]);
 
   const totalPages = Math.ceil(sortedResources.length / itemsPerPage);
   const paginatedResources = sortedResources.slice(
@@ -330,9 +361,7 @@ function ArchivesPage() {
 
 
 
-  const getSubjectsForDomain = (domain: string) => {
-    return domain === 'all' ? [] : domainsData[domain] || [];
-  };
+  // plus de mapping statique
 
     return (
     <div className="min-h-screen bg-gray-50">
@@ -371,7 +400,7 @@ function ArchivesPage() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Filtres et recherche */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {/* Recherche */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -384,31 +413,46 @@ function ArchivesPage() {
                     />
                 </div>
 
-            {/* Domaine */}
+            {/* Domaine (UUID) */}
             <select
-              value={selectedDomain}
+              value={selectedDomainId || ''}
               onChange={(e) => {
-                setSelectedDomain(e.target.value);
-                setSelectedSubject('all');
+                const v = e.target.value || undefined;
+                setSelectedDomainId(v);
+                setSelectedSubjectId(undefined);
+                setSelectedCompetencyId(undefined);
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
             >
-              <option value="all">Tous les domaines</option>
-              {domainNames.map(domain => (
-                <option key={domain} value={domain}>{domain}</option>
+              <option value="">Tous les domaines</option>
+              {(domains as DomainTree[]).map((d: DomainTree) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
               ))}
             </select>
 
-            {/* Matière */}
+            {/* Matière (UUID) */}
             <select
-              value={selectedSubject}
-              onChange={(e) => setSelectedSubject(e.target.value)}
+              value={selectedSubjectId || ''}
+              onChange={(e) => setSelectedSubjectId(e.target.value || undefined)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-              disabled={selectedDomain === 'all'}
+              disabled={!selectedDomainId}
             >
-              <option value="all">Toutes les matières</option>
-              {getSubjectsForDomain(selectedDomain).map(subject => (
-                <option key={subject} value={subject}>{subject}</option>
+              <option value="">Toutes les matières</option>
+              {(subjects as SubjectTree[]).map((s: SubjectTree) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+
+            {/* Compétence (UUID) */}
+            <select
+              value={selectedCompetencyId || ''}
+              onChange={(e) => setSelectedCompetencyId(e.target.value || undefined)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+              disabled={!selectedSubjectId}
+            >
+              <option value="">Toutes les compétences</option>
+              {(competenciesPage as CompetencyListResponse | undefined)?.items?.map((c: CompetencyResponse) => (
+                <option key={c.id} value={c.id}>{c.label}</option>
               ))}
             </select>
 
@@ -498,13 +542,25 @@ function ArchivesPage() {
         {/* Liste des ressources */}
             <div className="space-y-6">
                 {paginatedResources.length > 0 ? (
-                    paginatedResources.map(resource => (
+                    paginatedResources
+                      .filter(resource => {
+                        if (!searchTerm) return true;
+                        const q = searchTerm.toLowerCase();
+                        const subj = subjectIdToNameMap.get(String(resource.subject_id)) || String(resource.subject_id);
+                        return (
+                          (resource.title || '').toLowerCase().includes(q) ||
+                          (resource.description || '').toLowerCase().includes(q) ||
+                          subj.toLowerCase().includes(q) ||
+                          (resource.author_user_id || '').toLowerCase().includes(q)
+                        );
+                      })
+                      .map(resource => (
                         <ArchivedResourceListItem 
                             key={resource.id} 
                             resource={{
                               id: resource.id,
                               title: resource.title,
-                              subject: subjectIdToNameMap[resource.subject_id] || String(resource.subject_id),
+                              subject: subjectIdToNameMap.get(String(resource.subject_id)) || String(resource.subject_id),
                               description: resource.description || "",
                               isArchived: true,
                               visibility: resource.visibility,
@@ -525,17 +581,18 @@ function ArchivesPage() {
                 <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucune ressource archivée</h3>
                 <p className="text-gray-500 mb-6">
-                  {searchTerm || selectedDomain !== 'all' || selectedSubject !== 'all'
+                  {searchTerm || selectedDomainId || selectedSubjectId
                     ? 'Aucune ressource ne correspond à vos critères de recherche.'
                     : 'Aucune ressource n\'est actuellement archivée.'
                   }
                 </p>
-                {(searchTerm || selectedDomain !== 'all' || selectedSubject !== 'all') && (
+                {(searchTerm || selectedDomainId || selectedSubjectId) && (
                   <button
                     onClick={() => {
                       setSearchTerm('');
-                      setSelectedDomain('all');
-                      setSelectedSubject('all');
+                      setSelectedDomainId(undefined);
+                      setSelectedSubjectId(undefined);
+                      setSelectedCompetencyId(undefined);
                     }}
                     className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition"
                   >

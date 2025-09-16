@@ -16,6 +16,7 @@ import { useDirector } from '../../contexts/DirectorContext';
 import { useEvents } from '../../hooks/useEvents';
 import { useCreateEvent, usePublishEventById } from '../../hooks/useEventMutations';
 import type { EventCreateCategoryEnum } from '../../api/event-service/api';
+import { useAuth } from '../authentification/useAuth';
 
 interface NormalizedCourse {
   id: string | number;
@@ -48,6 +49,8 @@ const EmploiDuTempsPage = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<NormalizedCourse | null>(null);
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
+  const { user: authUser } = useAuth();
+  const currentUserId = (authUser as unknown as { sub?: string })?.sub || authUser?.username || 'unknown';
 
   // Nouveaux états pour le formulaire d'ajout
   const [selectedEtabId, setSelectedEtabId] = useState<string>(currentEtablissementId || '');
@@ -60,8 +63,25 @@ const EmploiDuTempsPage = () => {
     }
   }, [currentEtablissementId]);
 
+  // Calcul des dates de la semaine affichée (avant les appels API)
+  const weekDates = useMemo(() => {
+    const dates: Date[] = [];
+    const startOfWeek = new Date(currentWeek);
+    startOfWeek.setDate(currentWeek.getDate() - currentWeek.getDay() + 1);
+    for (let i = 0; i < 5; i++) {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
+      dates.push(date);
+    }
+    return dates;
+  }, [currentWeek]);
   // Données API: leçons, créneaux, salles
-  const { data: lessons, isLoading: lessonsLoading, isError: lessonsError } = useLessons();
+  const { data: lessons, isLoading: lessonsLoading, isError: lessonsError } = useLessons({
+    classId: selectedView === 'classe' ? (selectedClasseId || undefined) : undefined,
+    fromDate: weekDates[0]?.toISOString?.().slice(0,10),
+    toDate: weekDates[4]?.toISOString?.().slice(0,10),
+    limit: 500,
+  });
   const { data: timeslots, isLoading: tsLoading, isError: tsError } = useTimeslots();
   const { data: rooms } = useRooms();
   const { data: establishments } = useEstablishments({ limit: 100 });
@@ -138,17 +158,7 @@ const EmploiDuTempsPage = () => {
     return cours.filter((c) => c.jour === jour && c.heure === heure);
   };
 
-  const getWeekDates = () => {
-    const dates: Date[] = [];
-    const startOfWeek = new Date(currentWeek);
-    startOfWeek.setDate(currentWeek.getDate() - currentWeek.getDay() + 1);
-    for (let i = 0; i < 5; i++) {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      dates.push(date);
-    }
-    return dates;
-  };
+  // getWeekDates remplacé par un useMemo plus haut pour éviter l'avertissement d'ordre
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('fr-FR', { 
@@ -185,7 +195,7 @@ const EmploiDuTempsPage = () => {
     setConflicts(detectedConflicts);
   }, [cours, detectConflicts]);
 
-  const weekDates = getWeekDates();
+  // recalculé déjà plus haut pour le filtre
 
   return (
     <div className="bg-white min-h-screen p-4 md:p-6">
@@ -435,12 +445,21 @@ const EmploiDuTempsPage = () => {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">{t('room', 'Salle')}</label>
-                      <input name="room_id" defaultValue={editingCourse.salle} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                      <select name="room_id" defaultValue={editingCourse.salle} className="w-full border border-gray-300 rounded-lg px-3 py-2" disabled={!rooms?.length}>
+                        <option value="">{t('select_room', 'Sélectionnez une salle')}</option>
+                        {rooms?.map((r) => (
+                          <option key={r.id} value={r.id}>{r.name} ({r.capacity})</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">{t('timeslot', 'Créneau')}</label>
-                      <input name="timeslot_id" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-                      <p className="text-xs text-gray-500 mt-1">{t('enter_timeslot_id', 'Saisir un ID de créneau existant')}</p>
+                      <select name="timeslot_id" className="w-full border border-gray-300 rounded-lg px-3 py-2" disabled={!timeslots?.length}>
+                        <option value="">{t('select_timeslot', 'Sélectionnez un créneau')}</option>
+                        {timeslots?.map((s) => (
+                          <option key={s.id} value={s.id}>{s.start_time} – {s.end_time}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                   <div className="flex justify-between space-x-3 mt-6">
@@ -477,7 +496,7 @@ const EmploiDuTempsPage = () => {
               const data = new FormData(form);
               const lesson_id = String(data.get('lesson_id') || '').trim();
               const new_teacher_id = String(data.get('new_teacher_id') || '').trim();
-              const validated_by = String(data.get('validated_by') || '').trim();
+              const validated_by = String(data.get('validated_by') || currentUserId).trim();
               if (!lesson_id || !new_teacher_id || !validated_by) {
                 toast.error(t('fill_required_fields', 'Veuillez remplir les champs obligatoires'));
                 return;
@@ -504,14 +523,64 @@ const EmploiDuTempsPage = () => {
       {activeTab === 'ics' && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">{t('ics_feed', 'Flux ICS')}</h3>
+          <div className="rounded-lg border border-amber-200 bg-amber-50 text-amber-800 px-3 py-2 text-sm">{t('ics_privacy_notice', 'Le lien ICS est public. Partagez-le avec précaution.')}</div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('class_id', 'ID classe')}</label>
               <input value={icsClassId} onChange={(e) => setIcsClassId(e.target.value)} placeholder="uuid-classe" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+              {!!icsClassId && !/^([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i.test(icsClassId) && (
+                <div className="text-xs text-red-600 mt-1">{t('invalid_uuid', 'Format d\'UUID invalide')}</div>
+              )}
             </div>
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 space-y-2">
               <div className="text-sm text-gray-700 break-all">{icsClassId ? `${TIMETABLE_API_BASE_URL}feed/${icsClassId}.ics` : t('enter_class_id_to_get_link', 'Saisissez un ID de classe pour obtenir le lien')}</div>
-              {icsClassId && (<a href={`${TIMETABLE_API_BASE_URL}feed/${icsClassId}.ics`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 mt-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded"><LinkIcon className="w-4 h-4" /> {t('open_ics_link', 'Ouvrir le lien ICS')}</a>)}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!icsClassId) return;
+                    try {
+                      await navigator.clipboard.writeText(`${TIMETABLE_API_BASE_URL}feed/${icsClassId}.ics`);
+                      toast.success(t('copied', 'Lien copié'));
+                    } catch {
+                      toast.error(t('copy_failed', 'Échec de la copie'));
+                    }
+                  }}
+                  disabled={!icsClassId}
+                  className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded disabled:opacity-50"
+                >
+                  {t('copy_link', 'Copier le lien')}
+                </button>
+                <a
+                  href={icsClassId ? `${TIMETABLE_API_BASE_URL}feed/${icsClassId}.ics` : undefined}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded ${icsClassId ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                  onClick={(e) => { if (!icsClassId) e.preventDefault(); }}
+                >
+                  <LinkIcon className="w-4 h-4" /> {t('open_ics_link', 'Ouvrir le lien ICS')}
+                </a>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!icsClassId) return;
+                    try {
+                      const res = await fetch(`${TIMETABLE_API_BASE_URL}feed/${icsClassId}.ics`, { method: 'HEAD' });
+                      if (res.ok) {
+                        toast.success(t('ics_ok', 'Flux accessible'));
+                      } else {
+                        toast.error(t('ics_not_found', 'Flux indisponible'));
+                      }
+                    } catch {
+                      toast.error(t('ics_check_error', 'Erreur lors du test du lien'));
+                    }
+                  }}
+                  disabled={!icsClassId}
+                  className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded disabled:opacity-50"
+                >
+                  {t('test_link', 'Tester le lien')}
+                </button>
+              </div>
             </div>
           </div>
         </div>
