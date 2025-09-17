@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **reason** | **string** |  | [default to undefined]
 **status** | [**AbsenceStatus**](AbsenceStatus.md) |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
+**created_by** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -26,6 +27,7 @@ const instance: AbsenceRead = {
     reason,
     status,
     created_at,
+    created_by,
 };
 ```
 

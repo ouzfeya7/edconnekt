@@ -71,7 +71,7 @@
                     "Rooms"
                 ],
                 "summary": "List Rooms",
-                "description": "Lister les salles.",
+                "description": "Lister les salles (optionnellement filtrées par établissement).",
                 "operationId": "list_rooms_rooms__get",
                 "parameters": [
                     {
@@ -93,6 +93,23 @@
                             "default": 100,
                             "title": "Limit"
                         }
+                    },
+                    {
+                        "name": "establishment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Establishment Id"
+                        }
                     }
                 ],
                 "responses": {
@@ -106,6 +123,144 @@
                                         "$ref": "#/components/schemas/RoomRead"
                                     },
                                     "title": "Response List Rooms Rooms  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/rooms/{room_id}": {
+            "get": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Get Room",
+                "description": "Récupérer une salle par ID.",
+                "operationId": "get_room_rooms__room_id__get",
+                "parameters": [
+                    {
+                        "name": "room_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Room Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoomRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Update Room",
+                "description": "Mettre à jour une salle. Rôles: ADMIN, COORDONNATEUR",
+                "operationId": "update_room_rooms__room_id__patch",
+                "parameters": [
+                    {
+                        "name": "room_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Room Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RoomUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoomRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Delete Room",
+                "description": "Supprimer une salle. Rôles: ADMIN, COORDONNATEUR",
+                "operationId": "delete_room_rooms__room_id__delete",
+                "parameters": [
+                    {
+                        "name": "room_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Room Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoomRead"
                                 }
                             }
                         }
@@ -169,7 +324,7 @@
                     "Timeslots"
                 ],
                 "summary": "List Timeslots",
-                "description": "Lister les créneaux horaires.",
+                "description": "Lister les créneaux horaires (optionnellement filtrés par établissement).",
                 "operationId": "list_timeslots_timeslots__get",
                 "parameters": [
                     {
@@ -191,6 +346,23 @@
                             "default": 100,
                             "title": "Limit"
                         }
+                    },
+                    {
+                        "name": "establishment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Establishment Id"
+                        }
                     }
                 ],
                 "responses": {
@@ -204,6 +376,144 @@
                                         "$ref": "#/components/schemas/TimeslotRead"
                                     },
                                     "title": "Response List Timeslots Timeslots  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/timeslots/{timeslot_id}": {
+            "get": {
+                "tags": [
+                    "Timeslots"
+                ],
+                "summary": "Get Timeslot",
+                "description": "Récupérer un créneau horaire par ID.",
+                "operationId": "get_timeslot_timeslots__timeslot_id__get",
+                "parameters": [
+                    {
+                        "name": "timeslot_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Timeslot Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimeslotRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Timeslots"
+                ],
+                "summary": "Update Timeslot",
+                "description": "Mettre à jour un créneau horaire. Rôles: ADMIN, COORDONNATEUR",
+                "operationId": "update_timeslot_timeslots__timeslot_id__patch",
+                "parameters": [
+                    {
+                        "name": "timeslot_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Timeslot Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TimeslotUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimeslotRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Timeslots"
+                ],
+                "summary": "Delete Timeslot",
+                "description": "Supprimer un créneau horaire. Rôles: ADMIN, COORDONNATEUR",
+                "operationId": "delete_timeslot_timeslots__timeslot_id__delete",
+                "parameters": [
+                    {
+                        "name": "timeslot_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Timeslot Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimeslotRead"
                                 }
                             }
                         }
@@ -492,14 +802,14 @@
                 "description": "Déclarer une absence (status REPORTED). Rôles: ENSEIGNANT, COORDONNATEUR, ADMIN",
                 "operationId": "create_absence_absences__post",
                 "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/AbsenceCreate"
                             }
                         }
-                    },
-                    "required": true
+                    }
                 },
                 "responses": {
                     "201": {
@@ -508,6 +818,62 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/AbsenceRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Absences"
+                ],
+                "summary": "List Absences",
+                "description": "Lister les absences.",
+                "operationId": "list_absences_absences__get",
+                "parameters": [
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AbsenceRead"
+                                    },
+                                    "title": "Response List Absences Absences  Get"
                                 }
                             }
                         }
@@ -622,14 +988,14 @@
                 "description": "Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTION, ADMIN",
                 "operationId": "create_replacement_replacements__post",
                 "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/ReplacementCreate"
                             }
                         }
-                    },
-                    "required": true
+                    }
                 },
                 "responses": {
                     "201": {
@@ -638,6 +1004,62 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ReplacementRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Replacements"
+                ],
+                "summary": "List Replacements",
+                "description": "Lister les remplacements.",
+                "operationId": "list_replacements_replacements__get",
+                "parameters": [
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ReplacementRead"
+                                    },
+                                    "title": "Response List Replacements Replacements  Get"
                                 }
                             }
                         }
@@ -788,6 +1210,64 @@
                     }
                 }
             }
+        },
+        "/audit/": {
+            "get": {
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Get Audit Trail",
+                "description": "Journal d'audit complet. Rôle: DIRECTION, ADMIN",
+                "operationId": "get_audit_trail_audit__get",
+                "parameters": [
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TimetableAuditRead"
+                                    },
+                                    "title": "Response Get Audit Trail Audit  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -860,6 +1340,11 @@
                         "type": "string",
                         "format": "date-time",
                         "title": "Created At"
+                    },
+                    "created_by": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Created By"
                     }
                 },
                 "type": "object",
@@ -870,7 +1355,8 @@
                     "timeslot_id",
                     "reason",
                     "status",
-                    "created_at"
+                    "created_at",
+                    "created_by"
                 ],
                 "title": "AbsenceRead"
             },
@@ -993,10 +1479,10 @@
                         "format": "date-time",
                         "title": "Created At"
                     },
-                    "updated_at": {
+                    "created_by": {
                         "type": "string",
-                        "format": "date-time",
-                        "title": "Updated At"
+                        "format": "uuid",
+                        "title": "Created By"
                     }
                 },
                 "type": "object",
@@ -1010,7 +1496,7 @@
                     "room_id",
                     "status",
                     "created_at",
-                    "updated_at"
+                    "created_by"
                 ],
                 "title": "LessonRead"
             },
@@ -1112,8 +1598,15 @@
                         "title": "New Teacher Id"
                     },
                     "validated_by": {
-                        "type": "string",
-                        "format": "uuid",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Validated By"
                     },
                     "validated_at": {
@@ -1127,6 +1620,16 @@
                             }
                         ],
                         "title": "Validated At"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "created_by": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Created By"
                     }
                 },
                 "type": "object",
@@ -1135,7 +1638,8 @@
                     "lesson_id",
                     "old_teacher_id",
                     "new_teacher_id",
-                    "validated_by"
+                    "created_at",
+                    "created_by"
                 ],
                 "title": "ReplacementRead"
             },
@@ -1148,12 +1652,30 @@
                     "capacity": {
                         "type": "integer",
                         "title": "Capacity"
+                    },
+                    "establishment_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Establishment Id"
+                    },
+                    "building_id": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Building Id"
                     }
                 },
                 "type": "object",
                 "required": [
                     "name",
-                    "capacity"
+                    "capacity",
+                    "establishment_id"
                 ],
                 "title": "RoomCreate"
             },
@@ -1171,15 +1693,85 @@
                     "capacity": {
                         "type": "integer",
                         "title": "Capacity"
+                    },
+                    "establishment_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Establishment Id"
+                    },
+                    "building_id": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Building Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "created_by": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Created By"
                     }
                 },
                 "type": "object",
                 "required": [
                     "id",
                     "name",
-                    "capacity"
+                    "capacity",
+                    "establishment_id",
+                    "created_at",
+                    "created_by"
                 ],
                 "title": "RoomRead"
+            },
+            "RoomUpdate": {
+                "properties": {
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "capacity": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Capacity"
+                    },
+                    "building_id": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Building Id"
+                    }
+                },
+                "type": "object",
+                "title": "RoomUpdate"
             },
             "TimeslotCreate": {
                 "properties": {
@@ -1192,12 +1784,18 @@
                         "type": "string",
                         "format": "time",
                         "title": "End Time"
+                    },
+                    "establishment_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Establishment Id"
                     }
                 },
                 "type": "object",
                 "required": [
                     "start_time",
-                    "end_time"
+                    "end_time",
+                    "establishment_id"
                 ],
                 "title": "TimeslotCreate"
             },
@@ -1217,15 +1815,63 @@
                         "type": "string",
                         "format": "time",
                         "title": "End Time"
+                    },
+                    "establishment_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Establishment Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "created_by": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Created By"
                     }
                 },
                 "type": "object",
                 "required": [
                     "id",
                     "start_time",
-                    "end_time"
+                    "end_time",
+                    "establishment_id",
+                    "created_at",
+                    "created_by"
                 ],
                 "title": "TimeslotRead"
+            },
+            "TimeslotUpdate": {
+                "properties": {
+                    "start_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Start Time"
+                    },
+                    "end_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "End Time"
+                    }
+                },
+                "type": "object",
+                "title": "TimeslotUpdate"
             },
             "TimetableAuditRead": {
                 "properties": {
@@ -1265,6 +1911,54 @@
                         "type": "string",
                         "format": "date-time",
                         "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    },
+                    "updated_by": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated By"
+                    },
+                    "deleted_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Deleted At"
+                    },
+                    "deleted_by": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Deleted By"
                     }
                 },
                 "type": "object",

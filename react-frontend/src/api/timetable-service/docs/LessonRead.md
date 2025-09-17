@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 **room_id** | **string** |  | [default to undefined]
 **status** | [**LessonStatus**](LessonStatus.md) |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
-**updated_at** | **string** |  | [default to undefined]
+**created_by** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -31,7 +31,7 @@ const instance: LessonRead = {
     room_id,
     status,
     created_at,
-    updated_at,
+    created_by,
 };
 ```
 

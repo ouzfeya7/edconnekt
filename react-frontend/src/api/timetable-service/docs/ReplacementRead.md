@@ -9,8 +9,10 @@ Name | Type | Description | Notes
 **lesson_id** | **string** |  | [default to undefined]
 **old_teacher_id** | **string** |  | [default to undefined]
 **new_teacher_id** | **string** |  | [default to undefined]
-**validated_by** | **string** |  | [default to undefined]
+**validated_by** | **string** |  | [optional] [default to undefined]
 **validated_at** | **string** |  | [optional] [default to undefined]
+**created_at** | **string** |  | [default to undefined]
+**created_by** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -24,6 +26,8 @@ const instance: ReplacementRead = {
     new_teacher_id,
     validated_by,
     validated_at,
+    created_at,
+    created_by,
 };
 ```
 

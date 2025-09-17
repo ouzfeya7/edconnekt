@@ -22,9 +22,11 @@ docs/ReplacementRead.md
 docs/ReplacementsApi.md
 docs/RoomCreate.md
 docs/RoomRead.md
+docs/RoomUpdate.md
 docs/RoomsApi.md
 docs/TimeslotCreate.md
 docs/TimeslotRead.md
+docs/TimeslotUpdate.md
 docs/TimeslotsApi.md
 docs/TimetableAuditRead.md
 docs/ValidationError.md
