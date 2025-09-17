@@ -1,24 +1,22 @@
-# RoomCreate
+# RoomUpdate
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **string** |  | [default to undefined]
-**capacity** | **number** |  | [default to undefined]
-**establishment_id** | **string** |  | [default to undefined]
+**name** | **string** |  | [optional] [default to undefined]
+**capacity** | **number** |  | [optional] [default to undefined]
 **building_id** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { RoomCreate } from './api';
+import { RoomUpdate } from './api';
 
-const instance: RoomCreate = {
+const instance: RoomUpdate = {
     name,
     capacity,
-    establishment_id,
     building_id,
 };
 ```

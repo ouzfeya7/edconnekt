@@ -1,23 +1,21 @@
-# TimeslotCreate
+# TimeslotUpdate
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**start_time** | **string** |  | [default to undefined]
-**end_time** | **string** |  | [default to undefined]
-**establishment_id** | **string** |  | [default to undefined]
+**start_time** | **string** |  | [optional] [default to undefined]
+**end_time** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { TimeslotCreate } from './api';
+import { TimeslotUpdate } from './api';
 
-const instance: TimeslotCreate = {
+const instance: TimeslotUpdate = {
     start_time,
     end_time,
-    establishment_id,
 };
 ```
 

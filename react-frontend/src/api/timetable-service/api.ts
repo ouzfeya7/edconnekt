@@ -110,6 +110,12 @@ export interface AbsenceRead {
      * @memberof AbsenceRead
      */
     'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AbsenceRead
+     */
+    'created_by': string;
 }
 
 
@@ -262,7 +268,7 @@ export interface LessonRead {
      * @type {string}
      * @memberof LessonRead
      */
-    'updated_at': string;
+    'created_by': string;
 }
 
 
@@ -368,13 +374,25 @@ export interface ReplacementRead {
      * @type {string}
      * @memberof ReplacementRead
      */
-    'validated_by': string;
+    'validated_by'?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ReplacementRead
      */
     'validated_at'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ReplacementRead
+     */
+    'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ReplacementRead
+     */
+    'created_by': string;
 }
 /**
  * 
@@ -394,6 +412,18 @@ export interface RoomCreate {
      * @memberof RoomCreate
      */
     'capacity': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomCreate
+     */
+    'establishment_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomCreate
+     */
+    'building_id'?: string | null;
 }
 /**
  * 
@@ -419,6 +449,55 @@ export interface RoomRead {
      * @memberof RoomRead
      */
     'capacity': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomRead
+     */
+    'establishment_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomRead
+     */
+    'building_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomRead
+     */
+    'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomRead
+     */
+    'created_by': string;
+}
+/**
+ * 
+ * @export
+ * @interface RoomUpdate
+ */
+export interface RoomUpdate {
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomUpdate
+     */
+    'name'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof RoomUpdate
+     */
+    'capacity'?: number | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomUpdate
+     */
+    'building_id'?: string | null;
 }
 /**
  * 
@@ -438,6 +517,12 @@ export interface TimeslotCreate {
      * @memberof TimeslotCreate
      */
     'end_time': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TimeslotCreate
+     */
+    'establishment_id': string;
 }
 /**
  * 
@@ -463,6 +548,43 @@ export interface TimeslotRead {
      * @memberof TimeslotRead
      */
     'end_time': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TimeslotRead
+     */
+    'establishment_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TimeslotRead
+     */
+    'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TimeslotRead
+     */
+    'created_by': string;
+}
+/**
+ * 
+ * @export
+ * @interface TimeslotUpdate
+ */
+export interface TimeslotUpdate {
+    /**
+     * 
+     * @type {string}
+     * @memberof TimeslotUpdate
+     */
+    'start_time'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TimeslotUpdate
+     */
+    'end_time'?: string | null;
 }
 /**
  * 
@@ -518,6 +640,30 @@ export interface TimetableAuditRead {
      * @memberof TimetableAuditRead
      */
     'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TimetableAuditRead
+     */
+    'updated_at'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TimetableAuditRead
+     */
+    'updated_by'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TimetableAuditRead
+     */
+    'deleted_at'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TimetableAuditRead
+     */
+    'deleted_by'?: string | null;
 }
 /**
  * 
@@ -629,6 +775,46 @@ export const AbsencesApiAxiosParamCreator = function (configuration?: Configurat
             };
         },
         /**
+         * Lister les absences.
+         * @summary List Absences
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAbsencesAbsencesGet: async (skip?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/absences/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (skip !== undefined) {
+                localVarQueryParameter['skip'] = skip;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.
          * @summary Validate Absence
          * @param {string} absenceId 
@@ -699,6 +885,20 @@ export const AbsencesApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Lister les absences.
+         * @summary List Absences
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listAbsencesAbsencesGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<AbsenceRead>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listAbsencesAbsencesGet(skip, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AbsencesApi.listAbsencesAbsencesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.
          * @summary Validate Absence
          * @param {string} absenceId 
@@ -740,6 +940,17 @@ export const AbsencesApiFactory = function (configuration?: Configuration, baseP
          */
         deleteAbsenceAbsencesAbsenceIdDelete(absenceId: string, options?: RawAxiosRequestConfig): AxiosPromise<AbsenceRead> {
             return localVarFp.deleteAbsenceAbsencesAbsenceIdDelete(absenceId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Lister les absences.
+         * @summary List Absences
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAbsencesAbsencesGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<AbsenceRead>> {
+            return localVarFp.listAbsencesAbsencesGet(skip, limit, options).then((request) => request(axios, basePath));
         },
         /**
          * Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.
@@ -786,6 +997,19 @@ export class AbsencesApi extends BaseAPI {
     }
 
     /**
+     * Lister les absences.
+     * @summary List Absences
+     * @param {number} [skip] 
+     * @param {number} [limit] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AbsencesApi
+     */
+    public listAbsencesAbsencesGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return AbsencesApiFp(this.configuration).listAbsencesAbsencesGet(skip, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.
      * @summary Validate Absence
      * @param {string} absenceId 
@@ -806,6 +1030,46 @@ export class AbsencesApi extends BaseAPI {
  */
 export const AuditApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * Journal d\'audit complet. Rôle: DIRECTION, ADMIN
+         * @summary Get Audit Trail
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAuditTrailAuditGet: async (skip?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/audit/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (skip !== undefined) {
+                localVarQueryParameter['skip'] = skip;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * Journal d\'audit pour un cours. Rôle: DIRECTION
          * @summary Get Lesson Audit
@@ -851,6 +1115,20 @@ export const AuditApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = AuditApiAxiosParamCreator(configuration)
     return {
         /**
+         * Journal d\'audit complet. Rôle: DIRECTION, ADMIN
+         * @summary Get Audit Trail
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAuditTrailAuditGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TimetableAuditRead>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAuditTrailAuditGet(skip, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuditApi.getAuditTrailAuditGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Journal d\'audit pour un cours. Rôle: DIRECTION
          * @summary Get Lesson Audit
          * @param {string} lessonId 
@@ -874,6 +1152,17 @@ export const AuditApiFactory = function (configuration?: Configuration, basePath
     const localVarFp = AuditApiFp(configuration)
     return {
         /**
+         * Journal d\'audit complet. Rôle: DIRECTION, ADMIN
+         * @summary Get Audit Trail
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAuditTrailAuditGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<TimetableAuditRead>> {
+            return localVarFp.getAuditTrailAuditGet(skip, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Journal d\'audit pour un cours. Rôle: DIRECTION
          * @summary Get Lesson Audit
          * @param {string} lessonId 
@@ -893,6 +1182,19 @@ export const AuditApiFactory = function (configuration?: Configuration, basePath
  * @extends {BaseAPI}
  */
 export class AuditApi extends BaseAPI {
+    /**
+     * Journal d\'audit complet. Rôle: DIRECTION, ADMIN
+     * @summary Get Audit Trail
+     * @param {number} [skip] 
+     * @param {number} [limit] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuditApi
+     */
+    public getAuditTrailAuditGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return AuditApiFp(this.configuration).getAuditTrailAuditGet(skip, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * Journal d\'audit pour un cours. Rôle: DIRECTION
      * @summary Get Lesson Audit
@@ -1564,6 +1866,46 @@ export const ReplacementsApiAxiosParamCreator = function (configuration?: Config
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Lister les remplacements.
+         * @summary List Replacements
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listReplacementsReplacementsGet: async (skip?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/replacements/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (skip !== undefined) {
+                localVarQueryParameter['skip'] = skip;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -1600,6 +1942,20 @@ export const ReplacementsApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['ReplacementsApi.deleteReplacementReplacementsReplacementIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * Lister les remplacements.
+         * @summary List Replacements
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listReplacementsReplacementsGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ReplacementRead>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listReplacementsReplacementsGet(skip, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReplacementsApi.listReplacementsReplacementsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -1629,6 +1985,17 @@ export const ReplacementsApiFactory = function (configuration?: Configuration, b
          */
         deleteReplacementReplacementsReplacementIdDelete(replacementId: string, options?: RawAxiosRequestConfig): AxiosPromise<ReplacementRead> {
             return localVarFp.deleteReplacementReplacementsReplacementIdDelete(replacementId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Lister les remplacements.
+         * @summary List Replacements
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listReplacementsReplacementsGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<ReplacementRead>> {
+            return localVarFp.listReplacementsReplacementsGet(skip, limit, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1662,6 +2029,19 @@ export class ReplacementsApi extends BaseAPI {
      */
     public deleteReplacementReplacementsReplacementIdDelete(replacementId: string, options?: RawAxiosRequestConfig) {
         return ReplacementsApiFp(this.configuration).deleteReplacementReplacementsReplacementIdDelete(replacementId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Lister les remplacements.
+     * @summary List Replacements
+     * @param {number} [skip] 
+     * @param {number} [limit] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReplacementsApi
+     */
+    public listReplacementsReplacementsGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return ReplacementsApiFp(this.configuration).listReplacementsReplacementsGet(skip, limit, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1710,14 +2090,83 @@ export const RoomsApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * Lister les salles.
-         * @summary List Rooms
-         * @param {number} [skip] 
-         * @param {number} [limit] 
+         * Supprimer une salle. Rôles: ADMIN, COORDONNATEUR
+         * @summary Delete Room
+         * @param {string} roomId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listRoomsRoomsGet: async (skip?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteRoomRoomsRoomIdDelete: async (roomId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'roomId' is not null or undefined
+            assertParamExists('deleteRoomRoomsRoomIdDelete', 'roomId', roomId)
+            const localVarPath = `/rooms/{room_id}`
+                .replace(`{${"room_id"}}`, encodeURIComponent(String(roomId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupérer une salle par ID.
+         * @summary Get Room
+         * @param {string} roomId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRoomRoomsRoomIdGet: async (roomId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'roomId' is not null or undefined
+            assertParamExists('getRoomRoomsRoomIdGet', 'roomId', roomId)
+            const localVarPath = `/rooms/{room_id}`
+                .replace(`{${"room_id"}}`, encodeURIComponent(String(roomId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Lister les salles (optionnellement filtrées par établissement).
+         * @summary List Rooms
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {string | null} [establishmentId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRoomsRoomsGet: async (skip?: number, limit?: number, establishmentId?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/rooms/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1738,11 +2187,55 @@ export const RoomsApiAxiosParamCreator = function (configuration?: Configuration
                 localVarQueryParameter['limit'] = limit;
             }
 
+            if (establishmentId !== undefined) {
+                localVarQueryParameter['establishment_id'] = establishmentId;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Mettre à jour une salle. Rôles: ADMIN, COORDONNATEUR
+         * @summary Update Room
+         * @param {string} roomId 
+         * @param {RoomUpdate} roomUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateRoomRoomsRoomIdPatch: async (roomId: string, roomUpdate: RoomUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'roomId' is not null or undefined
+            assertParamExists('updateRoomRoomsRoomIdPatch', 'roomId', roomId)
+            // verify required parameter 'roomUpdate' is not null or undefined
+            assertParamExists('updateRoomRoomsRoomIdPatch', 'roomUpdate', roomUpdate)
+            const localVarPath = `/rooms/{room_id}`
+                .replace(`{${"room_id"}}`, encodeURIComponent(String(roomId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(roomUpdate, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1773,17 +2266,58 @@ export const RoomsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Lister les salles.
-         * @summary List Rooms
-         * @param {number} [skip] 
-         * @param {number} [limit] 
+         * Supprimer une salle. Rôles: ADMIN, COORDONNATEUR
+         * @summary Delete Room
+         * @param {string} roomId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listRoomsRoomsGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<RoomRead>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listRoomsRoomsGet(skip, limit, options);
+        async deleteRoomRoomsRoomIdDelete(roomId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RoomRead>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteRoomRoomsRoomIdDelete(roomId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['RoomsApi.deleteRoomRoomsRoomIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupérer une salle par ID.
+         * @summary Get Room
+         * @param {string} roomId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getRoomRoomsRoomIdGet(roomId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RoomRead>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getRoomRoomsRoomIdGet(roomId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['RoomsApi.getRoomRoomsRoomIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Lister les salles (optionnellement filtrées par établissement).
+         * @summary List Rooms
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {string | null} [establishmentId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listRoomsRoomsGet(skip?: number, limit?: number, establishmentId?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<RoomRead>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listRoomsRoomsGet(skip, limit, establishmentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RoomsApi.listRoomsRoomsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Mettre à jour une salle. Rôles: ADMIN, COORDONNATEUR
+         * @summary Update Room
+         * @param {string} roomId 
+         * @param {RoomUpdate} roomUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateRoomRoomsRoomIdPatch(roomId: string, roomUpdate: RoomUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RoomRead>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateRoomRoomsRoomIdPatch(roomId, roomUpdate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['RoomsApi.updateRoomRoomsRoomIdPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -1807,15 +2341,47 @@ export const RoomsApiFactory = function (configuration?: Configuration, basePath
             return localVarFp.createRoomRoomsPost(roomCreate, options).then((request) => request(axios, basePath));
         },
         /**
-         * Lister les salles.
-         * @summary List Rooms
-         * @param {number} [skip] 
-         * @param {number} [limit] 
+         * Supprimer une salle. Rôles: ADMIN, COORDONNATEUR
+         * @summary Delete Room
+         * @param {string} roomId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listRoomsRoomsGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<RoomRead>> {
-            return localVarFp.listRoomsRoomsGet(skip, limit, options).then((request) => request(axios, basePath));
+        deleteRoomRoomsRoomIdDelete(roomId: string, options?: RawAxiosRequestConfig): AxiosPromise<RoomRead> {
+            return localVarFp.deleteRoomRoomsRoomIdDelete(roomId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupérer une salle par ID.
+         * @summary Get Room
+         * @param {string} roomId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRoomRoomsRoomIdGet(roomId: string, options?: RawAxiosRequestConfig): AxiosPromise<RoomRead> {
+            return localVarFp.getRoomRoomsRoomIdGet(roomId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Lister les salles (optionnellement filtrées par établissement).
+         * @summary List Rooms
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {string | null} [establishmentId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRoomsRoomsGet(skip?: number, limit?: number, establishmentId?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<Array<RoomRead>> {
+            return localVarFp.listRoomsRoomsGet(skip, limit, establishmentId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Mettre à jour une salle. Rôles: ADMIN, COORDONNATEUR
+         * @summary Update Room
+         * @param {string} roomId 
+         * @param {RoomUpdate} roomUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateRoomRoomsRoomIdPatch(roomId: string, roomUpdate: RoomUpdate, options?: RawAxiosRequestConfig): AxiosPromise<RoomRead> {
+            return localVarFp.updateRoomRoomsRoomIdPatch(roomId, roomUpdate, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1840,16 +2406,54 @@ export class RoomsApi extends BaseAPI {
     }
 
     /**
-     * Lister les salles.
-     * @summary List Rooms
-     * @param {number} [skip] 
-     * @param {number} [limit] 
+     * Supprimer une salle. Rôles: ADMIN, COORDONNATEUR
+     * @summary Delete Room
+     * @param {string} roomId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof RoomsApi
      */
-    public listRoomsRoomsGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig) {
-        return RoomsApiFp(this.configuration).listRoomsRoomsGet(skip, limit, options).then((request) => request(this.axios, this.basePath));
+    public deleteRoomRoomsRoomIdDelete(roomId: string, options?: RawAxiosRequestConfig) {
+        return RoomsApiFp(this.configuration).deleteRoomRoomsRoomIdDelete(roomId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupérer une salle par ID.
+     * @summary Get Room
+     * @param {string} roomId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof RoomsApi
+     */
+    public getRoomRoomsRoomIdGet(roomId: string, options?: RawAxiosRequestConfig) {
+        return RoomsApiFp(this.configuration).getRoomRoomsRoomIdGet(roomId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Lister les salles (optionnellement filtrées par établissement).
+     * @summary List Rooms
+     * @param {number} [skip] 
+     * @param {number} [limit] 
+     * @param {string | null} [establishmentId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof RoomsApi
+     */
+    public listRoomsRoomsGet(skip?: number, limit?: number, establishmentId?: string | null, options?: RawAxiosRequestConfig) {
+        return RoomsApiFp(this.configuration).listRoomsRoomsGet(skip, limit, establishmentId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Mettre à jour une salle. Rôles: ADMIN, COORDONNATEUR
+     * @summary Update Room
+     * @param {string} roomId 
+     * @param {RoomUpdate} roomUpdate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof RoomsApi
+     */
+    public updateRoomRoomsRoomIdPatch(roomId: string, roomUpdate: RoomUpdate, options?: RawAxiosRequestConfig) {
+        return RoomsApiFp(this.configuration).updateRoomRoomsRoomIdPatch(roomId, roomUpdate, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1898,14 +2502,83 @@ export const TimeslotsApiAxiosParamCreator = function (configuration?: Configura
             };
         },
         /**
-         * Lister les créneaux horaires.
-         * @summary List Timeslots
-         * @param {number} [skip] 
-         * @param {number} [limit] 
+         * Supprimer un créneau horaire. Rôles: ADMIN, COORDONNATEUR
+         * @summary Delete Timeslot
+         * @param {string} timeslotId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listTimeslotsTimeslotsGet: async (skip?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteTimeslotTimeslotsTimeslotIdDelete: async (timeslotId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'timeslotId' is not null or undefined
+            assertParamExists('deleteTimeslotTimeslotsTimeslotIdDelete', 'timeslotId', timeslotId)
+            const localVarPath = `/timeslots/{timeslot_id}`
+                .replace(`{${"timeslot_id"}}`, encodeURIComponent(String(timeslotId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupérer un créneau horaire par ID.
+         * @summary Get Timeslot
+         * @param {string} timeslotId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTimeslotTimeslotsTimeslotIdGet: async (timeslotId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'timeslotId' is not null or undefined
+            assertParamExists('getTimeslotTimeslotsTimeslotIdGet', 'timeslotId', timeslotId)
+            const localVarPath = `/timeslots/{timeslot_id}`
+                .replace(`{${"timeslot_id"}}`, encodeURIComponent(String(timeslotId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Lister les créneaux horaires (optionnellement filtrés par établissement).
+         * @summary List Timeslots
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {string | null} [establishmentId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listTimeslotsTimeslotsGet: async (skip?: number, limit?: number, establishmentId?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/timeslots/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1926,11 +2599,55 @@ export const TimeslotsApiAxiosParamCreator = function (configuration?: Configura
                 localVarQueryParameter['limit'] = limit;
             }
 
+            if (establishmentId !== undefined) {
+                localVarQueryParameter['establishment_id'] = establishmentId;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Mettre à jour un créneau horaire. Rôles: ADMIN, COORDONNATEUR
+         * @summary Update Timeslot
+         * @param {string} timeslotId 
+         * @param {TimeslotUpdate} timeslotUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateTimeslotTimeslotsTimeslotIdPatch: async (timeslotId: string, timeslotUpdate: TimeslotUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'timeslotId' is not null or undefined
+            assertParamExists('updateTimeslotTimeslotsTimeslotIdPatch', 'timeslotId', timeslotId)
+            // verify required parameter 'timeslotUpdate' is not null or undefined
+            assertParamExists('updateTimeslotTimeslotsTimeslotIdPatch', 'timeslotUpdate', timeslotUpdate)
+            const localVarPath = `/timeslots/{timeslot_id}`
+                .replace(`{${"timeslot_id"}}`, encodeURIComponent(String(timeslotId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(timeslotUpdate, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1961,17 +2678,58 @@ export const TimeslotsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Lister les créneaux horaires.
-         * @summary List Timeslots
-         * @param {number} [skip] 
-         * @param {number} [limit] 
+         * Supprimer un créneau horaire. Rôles: ADMIN, COORDONNATEUR
+         * @summary Delete Timeslot
+         * @param {string} timeslotId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listTimeslotsTimeslotsGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TimeslotRead>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listTimeslotsTimeslotsGet(skip, limit, options);
+        async deleteTimeslotTimeslotsTimeslotIdDelete(timeslotId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TimeslotRead>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteTimeslotTimeslotsTimeslotIdDelete(timeslotId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TimeslotsApi.deleteTimeslotTimeslotsTimeslotIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupérer un créneau horaire par ID.
+         * @summary Get Timeslot
+         * @param {string} timeslotId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getTimeslotTimeslotsTimeslotIdGet(timeslotId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TimeslotRead>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getTimeslotTimeslotsTimeslotIdGet(timeslotId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TimeslotsApi.getTimeslotTimeslotsTimeslotIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Lister les créneaux horaires (optionnellement filtrés par établissement).
+         * @summary List Timeslots
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {string | null} [establishmentId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listTimeslotsTimeslotsGet(skip?: number, limit?: number, establishmentId?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TimeslotRead>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listTimeslotsTimeslotsGet(skip, limit, establishmentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TimeslotsApi.listTimeslotsTimeslotsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Mettre à jour un créneau horaire. Rôles: ADMIN, COORDONNATEUR
+         * @summary Update Timeslot
+         * @param {string} timeslotId 
+         * @param {TimeslotUpdate} timeslotUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateTimeslotTimeslotsTimeslotIdPatch(timeslotId: string, timeslotUpdate: TimeslotUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TimeslotRead>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateTimeslotTimeslotsTimeslotIdPatch(timeslotId, timeslotUpdate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TimeslotsApi.updateTimeslotTimeslotsTimeslotIdPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -1995,15 +2753,47 @@ export const TimeslotsApiFactory = function (configuration?: Configuration, base
             return localVarFp.createTimeslotTimeslotsPost(timeslotCreate, options).then((request) => request(axios, basePath));
         },
         /**
-         * Lister les créneaux horaires.
-         * @summary List Timeslots
-         * @param {number} [skip] 
-         * @param {number} [limit] 
+         * Supprimer un créneau horaire. Rôles: ADMIN, COORDONNATEUR
+         * @summary Delete Timeslot
+         * @param {string} timeslotId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listTimeslotsTimeslotsGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<TimeslotRead>> {
-            return localVarFp.listTimeslotsTimeslotsGet(skip, limit, options).then((request) => request(axios, basePath));
+        deleteTimeslotTimeslotsTimeslotIdDelete(timeslotId: string, options?: RawAxiosRequestConfig): AxiosPromise<TimeslotRead> {
+            return localVarFp.deleteTimeslotTimeslotsTimeslotIdDelete(timeslotId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupérer un créneau horaire par ID.
+         * @summary Get Timeslot
+         * @param {string} timeslotId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTimeslotTimeslotsTimeslotIdGet(timeslotId: string, options?: RawAxiosRequestConfig): AxiosPromise<TimeslotRead> {
+            return localVarFp.getTimeslotTimeslotsTimeslotIdGet(timeslotId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Lister les créneaux horaires (optionnellement filtrés par établissement).
+         * @summary List Timeslots
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {string | null} [establishmentId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listTimeslotsTimeslotsGet(skip?: number, limit?: number, establishmentId?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<Array<TimeslotRead>> {
+            return localVarFp.listTimeslotsTimeslotsGet(skip, limit, establishmentId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Mettre à jour un créneau horaire. Rôles: ADMIN, COORDONNATEUR
+         * @summary Update Timeslot
+         * @param {string} timeslotId 
+         * @param {TimeslotUpdate} timeslotUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateTimeslotTimeslotsTimeslotIdPatch(timeslotId: string, timeslotUpdate: TimeslotUpdate, options?: RawAxiosRequestConfig): AxiosPromise<TimeslotRead> {
+            return localVarFp.updateTimeslotTimeslotsTimeslotIdPatch(timeslotId, timeslotUpdate, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2028,16 +2818,54 @@ export class TimeslotsApi extends BaseAPI {
     }
 
     /**
-     * Lister les créneaux horaires.
-     * @summary List Timeslots
-     * @param {number} [skip] 
-     * @param {number} [limit] 
+     * Supprimer un créneau horaire. Rôles: ADMIN, COORDONNATEUR
+     * @summary Delete Timeslot
+     * @param {string} timeslotId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TimeslotsApi
      */
-    public listTimeslotsTimeslotsGet(skip?: number, limit?: number, options?: RawAxiosRequestConfig) {
-        return TimeslotsApiFp(this.configuration).listTimeslotsTimeslotsGet(skip, limit, options).then((request) => request(this.axios, this.basePath));
+    public deleteTimeslotTimeslotsTimeslotIdDelete(timeslotId: string, options?: RawAxiosRequestConfig) {
+        return TimeslotsApiFp(this.configuration).deleteTimeslotTimeslotsTimeslotIdDelete(timeslotId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupérer un créneau horaire par ID.
+     * @summary Get Timeslot
+     * @param {string} timeslotId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TimeslotsApi
+     */
+    public getTimeslotTimeslotsTimeslotIdGet(timeslotId: string, options?: RawAxiosRequestConfig) {
+        return TimeslotsApiFp(this.configuration).getTimeslotTimeslotsTimeslotIdGet(timeslotId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Lister les créneaux horaires (optionnellement filtrés par établissement).
+     * @summary List Timeslots
+     * @param {number} [skip] 
+     * @param {number} [limit] 
+     * @param {string | null} [establishmentId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TimeslotsApi
+     */
+    public listTimeslotsTimeslotsGet(skip?: number, limit?: number, establishmentId?: string | null, options?: RawAxiosRequestConfig) {
+        return TimeslotsApiFp(this.configuration).listTimeslotsTimeslotsGet(skip, limit, establishmentId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Mettre à jour un créneau horaire. Rôles: ADMIN, COORDONNATEUR
+     * @summary Update Timeslot
+     * @param {string} timeslotId 
+     * @param {TimeslotUpdate} timeslotUpdate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TimeslotsApi
+     */
+    public updateTimeslotTimeslotsTimeslotIdPatch(timeslotId: string, timeslotUpdate: TimeslotUpdate, options?: RawAxiosRequestConfig) {
+        return TimeslotsApiFp(this.configuration).updateTimeslotTimeslotsTimeslotIdPatch(timeslotId, timeslotUpdate, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

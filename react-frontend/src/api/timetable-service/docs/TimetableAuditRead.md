@@ -13,6 +13,10 @@ Name | Type | Description | Notes
 **actor_role** | **string** |  | [default to undefined]
 **diff** | **{ [key: string]: any; }** |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
+**updated_at** | **string** |  | [optional] [default to undefined]
+**updated_by** | **string** |  | [optional] [default to undefined]
+**deleted_at** | **string** |  | [optional] [default to undefined]
+**deleted_by** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -28,6 +32,10 @@ const instance: TimetableAuditRead = {
     actor_role,
     diff,
     created_at,
+    updated_at,
+    updated_by,
+    deleted_at,
+    deleted_by,
 };
 ```
 
