@@ -30,18 +30,20 @@ export function useEvents(params?: {
   category?: string | null;
   startDate?: string | null;
   endDate?: string | null;
+  etablissementId?: string | null;
 }) {
   const page = params?.page ?? 1;
   const size = params?.size ?? 20;
   const category = params?.category ?? null;
   const startDate = params?.startDate ?? null;
   const endDate = params?.endDate ?? null;
+  const etablissementId = params?.etablissementId ?? null;
 
   return useQuery<unknown, Error>({
-    queryKey: ['event-service', 'events', { page, size, category, startDate, endDate }],
+    queryKey: ['event-service', 'events', { page, size, category, startDate, endDate, etablissementId }],
     queryFn: async () => {
       try {
-        const res = await eventsApi.listEventsApiV1EventsGet(page, size, category, startDate, endDate);
+        const res = await eventsApi.listEventsApiV1EventsGet(page, size, category, startDate, endDate, etablissementId);
         return res.data;
       } catch (err: unknown) {
         throw new Error(getErrorMessage(err));

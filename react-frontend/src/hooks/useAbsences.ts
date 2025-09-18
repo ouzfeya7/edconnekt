@@ -2,13 +2,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { absencesApi } from '../api/timetable-service/client';
 import type { AbsenceCreate, AbsenceRead } from '../api/timetable-service/api';
 
-export function useAbsencesList(params?: { teacherId?: string | null; fromDate?: string | null; toDate?: string | null }) {
-  // Pas d'endpoint list dans l'API fournie, à ajouter quand dispo
+export function useAbsencesList(params?: { skip?: number; limit?: number }) {
+  const { skip = 0, limit = 100 } = params || {};
   return useQuery<AbsenceRead[], Error>({
-    queryKey: ['absences', params],
+    queryKey: ['absences', { skip, limit }],
     queryFn: async () => {
-      // Placeholder: retourner un tableau vide tant que l'API list n'existe pas
-      return [];
+      const res = await absencesApi.listAbsencesAbsencesGet(skip, limit);
+      return res.data;
     },
     staleTime: 30_000,
   });

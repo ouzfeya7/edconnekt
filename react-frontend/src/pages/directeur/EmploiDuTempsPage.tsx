@@ -4,7 +4,7 @@ import { Calendar, Plus, ChevronLeft, ChevronRight, Download, AlertTriangle, Che
 import AbsenceValidationPanel from '../../components/directeur/emploi-du-temps/AbsenceValidationPanel';
 import { useLessons } from '../../hooks/useLessons';
 import { useTimeslots } from '../../hooks/useTimeslots';
-import { useCreateReplacement } from '../../hooks/useReplacements';
+import { useCreateReplacement, useReplacements, useDeleteReplacement } from '../../hooks/useReplacements';
 import { TIMETABLE_API_BASE_URL } from '../../api/timetable-service/http';
 import toast from 'react-hot-toast';
 import { useUpdateLesson, useDeleteLesson, useCreateLesson } from '../../hooks/useLessonMutations';
@@ -13,10 +13,8 @@ import { useEstablishments } from '../../hooks/useEstablishments';
 import { useClasses } from '../../hooks/useClasses';
 import { useClasseEnseignants } from '../../hooks/useClasseEnseignants';
 import { useDirector } from '../../contexts/DirectorContext';
-import { useEvents } from '../../hooks/useEvents';
-import { useCreateEvent, usePublishEventById } from '../../hooks/useEventMutations';
-import type { EventCreateCategoryEnum } from '../../api/event-service/api';
 import { useAuth } from '../authentification/useAuth';
+import { useIcsFeed } from '../../hooks/useIcsFeed';
 
 interface NormalizedCourse {
   id: string | number;
@@ -44,17 +42,26 @@ const EmploiDuTempsPage = () => {
   const [selectedView, setSelectedView] = useState('global');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [conflicts, setConflicts] = useState<Conflict[]>([]);
-  const [activeTab, setActiveTab] = useState<'calendar' | 'replacements' | 'conflicts' | 'validation' | 'audit' | 'ics' | 'events'>('calendar');
+  const [activeTab, setActiveTab] = useState<'calendar' | 'replacements' | 'conflicts' | 'validation' | 'audit' | 'ics'>('calendar');
   const [icsClassId, setIcsClassId] = useState<string>('');
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<NormalizedCourse | null>(null);
-  const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
   const { user: authUser } = useAuth();
   const currentUserId = (authUser as unknown as { sub?: string })?.sub || authUser?.username || 'unknown';
+  const authRoles: string[] = Array.isArray((authUser as any)?.realm_access?.roles)
+    ? (authUser as any).realm_access.roles
+    : Array.isArray((authUser as any)?.roles)
+      ? (authUser as any).roles
+      : Array.isArray((authUser as any)?.resource_access?.account?.roles)
+        ? (authUser as any).resource_access.account.roles
+        : [];
+  const canCreateLesson = authRoles.includes('ENSEIGNANT') || authRoles.includes('COORDONNATEUR') || authRoles.includes('ADMIN');
 
   // Nouveaux états pour le formulaire d'ajout
   const [selectedEtabId, setSelectedEtabId] = useState<string>(currentEtablissementId || '');
   const [selectedClasseId, setSelectedClasseId] = useState<string>('');
+  const [replacementsSkip, setReplacementsSkip] = useState(0);
+  const [replacementsLimit, setReplacementsLimit] = useState(20);
 
   // Suit le contexte: l'établissement est figé pour le directeur
   React.useEffect(() => {
@@ -62,6 +69,15 @@ const EmploiDuTempsPage = () => {
       setSelectedEtabId(currentEtablissementId);
     }
   }, [currentEtablissementId]);
+
+  // Persister l'établissement courant pour l'en-tête X-Establishment-Id côté API timetable
+  React.useEffect(() => {
+    if (selectedEtabId) {
+      try {
+        localStorage.setItem('current-etab-id', selectedEtabId);
+      } catch {}
+    }
+  }, [selectedEtabId]);
 
   // Calcul des dates de la semaine affichée (avant les appels API)
   const weekDates = useMemo(() => {
@@ -82,20 +98,20 @@ const EmploiDuTempsPage = () => {
     toDate: weekDates[4]?.toISOString?.().slice(0,10),
     limit: 500,
   });
-  const { data: timeslots, isLoading: tsLoading, isError: tsError } = useTimeslots();
-  const { data: rooms } = useRooms();
+  const { data: timeslots, isLoading: tsLoading, isError: tsError } = useTimeslots({ establishmentId: selectedEtabId });
+  const { data: rooms } = useRooms({ establishmentId: selectedEtabId });
   const { data: establishments } = useEstablishments({ limit: 100 });
   const { data: classesResp } = useClasses({ etablissementId: selectedEtabId, limit: 100 });
   const classes = classesResp?.data ?? [];
   const { data: enseignants } = useClasseEnseignants(selectedClasseId || undefined);
-  const { data: eventsList } = useEvents({ page: 1, size: 50 });
-  const createEvent = useCreateEvent();
-  const publishEventById = usePublishEventById();
 
   const createReplacement = useCreateReplacement();
+  const { data: replacements } = useReplacements({ skip: replacementsSkip, limit: replacementsLimit });
+  const deleteReplacement = useDeleteReplacement();
   const updateLesson = useUpdateLesson();
   const deleteLesson = useDeleteLesson();
   const createLesson = useCreateLesson();
+  const { data: icsText, isLoading: icsLoading, isError: icsError, refetch: refetchIcs } = useIcsFeed(icsClassId || undefined);
 
   // utilitaires
   const dayNames = useMemo(() => (['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'] as const), []);
@@ -231,9 +247,6 @@ const EmploiDuTempsPage = () => {
             <button onClick={() => setActiveTab('ics')} className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'ics' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
               <div className="flex items-center space-x-2"><LinkIcon className="w-4 h-4" /><span>{t('ics_feed', 'Flux ICS')}</span></div>
             </button>
-            <button onClick={() => setActiveTab('events')} className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'events' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-              <div className="flex items-center space-x-2"><Calendar className="w-4 h-4" /><span>{t('events', 'Événements')}</span></div>
-            </button>
           </nav>
         </div>
       </div>
@@ -260,7 +273,17 @@ const EmploiDuTempsPage = () => {
                 <button onClick={() => setSelectedView('enseignant')} className={`px-4 py-2 text-sm font-medium border-l border-gray-300 rounded-r-lg ${selectedView === 'enseignant' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>{t('by_teacher', 'Par enseignant')}</button>
               </div>
               <div className="flex items-center space-x-2">
-                <button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2"><Plus className="w-4 h-4" /><span>{t('add_course', 'Ajouter un cours')}</span></button>
+                {canCreateLesson ? (
+                  <button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2"><Plus className="w-4 h-4" /><span>{t('add_course', 'Ajouter un cours')}</span></button>
+                ) : (
+                  <button
+                    onClick={() => toast.error(t('not_authorized_create_lesson', 'Vous n\'êtes pas autorisé à créer un cours'))}
+                    className="bg-gray-200 text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed flex items-center space-x-2"
+                    disabled
+                  >
+                    <Plus className="w-4 h-4" /><span>{t('add_course', 'Ajouter un cours')}</span>
+                  </button>
+                )}
                 <button onClick={handleExport} className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center space-x-2"><Download className="w-4 h-4" /><span>{t('export', 'Exporter')}</span></button>
               </div>
             </div>
@@ -309,12 +332,16 @@ const EmploiDuTempsPage = () => {
           </div>
 
           {/* Modal d'ajout de cours avec listes déroulantes */}
-          {isModalOpen && (
+          {isModalOpen && canCreateLesson && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white rounded-lg p-6 w-full max-w-xl">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('add_course', 'Ajouter un cours')}</h3>
                 <form onSubmit={async (e) => {
                   e.preventDefault();
+                  if (!canCreateLesson) {
+                    toast.error(t('not_authorized_create_lesson', 'Vous n\'êtes pas autorisé à créer un cours'));
+                    return;
+                  }
                   const form = e.currentTarget as HTMLFormElement;
                   const data = new FormData(form);
                   const subject_id = String(data.get('subject_id') || '').trim();
@@ -419,6 +446,8 @@ const EmploiDuTempsPage = () => {
             </div>
           )}
 
+          {/* Événements déplacés vers la page DirecteurEventsPage */}
+
           {/* Modal d'édition de cours */}
           {editModalOpen && editingCourse && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -517,6 +546,98 @@ const EmploiDuTempsPage = () => {
             <div><label className="block text-sm font-medium text-gray-700 mb-1">{t('validated_by', 'Validé par (ID)')} *</label><input name="validated_by" className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
             <div className="md:col-span-3 flex justify-end"><button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" disabled={createReplacement.isPending}>{createReplacement.isPending ? t('saving', 'Enregistrement...') : t('create_replacement', 'Créer le remplacement')}</button></div>
           </form>
+
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <table className="min-w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">ID</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('lesson_id', 'ID cours')}</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('old_teacher', 'Ancien prof')}</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('new_teacher', 'Nouveau prof')}</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('validated_by', 'Validé par')}</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('validated_at', 'Validé le')}</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('created_at', 'Créé le')}</th>
+                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('actions', 'Actions')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.isArray(replacements) && replacements.length > 0 ? (
+                  replacements.map((r) => (
+                    <tr key={r.id} className="border-t">
+                      <td className="px-4 py-2 text-sm text-gray-800">{r.id}</td>
+                      <td className="px-4 py-2 text-sm text-gray-600">{r.lesson_id}</td>
+                      <td className="px-4 py-2 text-sm text-gray-600">{r.old_teacher_id}</td>
+                      <td className="px-4 py-2 text-sm text-gray-600">{r.new_teacher_id}</td>
+                      <td className="px-4 py-2 text-sm text-gray-600">{r.validated_by ?? '—'}</td>
+                      <td className="px-4 py-2 text-sm text-gray-600">{r.validated_at ? new Date(r.validated_at).toLocaleString() : '—'}</td>
+                      <td className="px-4 py-2 text-sm text-gray-600">{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
+                      <td className="px-4 py-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            className="px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs"
+                            onClick={async () => {
+                              if (!r.id) return;
+                              if (window.confirm(t('confirm_delete_replacement', 'Supprimer ce remplacement ?'))) {
+                                try {
+                                  await deleteReplacement.mutateAsync(String(r.id));
+                                  toast.success(t('replacement_deleted', 'Remplacement supprimé'));
+                                } catch (err: unknown) {
+                                  const msg = (err as { response?: { data?: unknown }; message?: string })?.response?.data || (err as { message?: string })?.message || 'Erreur inconnue';
+                                  toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+                                }
+                              }
+                            }}
+                            disabled={deleteReplacement.isPending}
+                          >
+                            {deleteReplacement.isPending ? t('deleting', 'Suppression...') : t('delete', 'Supprimer')}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className="border-t">
+                    <td className="px-4 py-6 text-center text-gray-500" colSpan={8}>{t('no_replacements', 'Aucun remplacement')}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-gray-600">
+              {t('page', 'Page')}: {Math.floor(replacementsSkip / replacementsLimit) + 1}
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                className="border rounded px-2 py-1 text-sm"
+                value={replacementsLimit}
+                onChange={(e) => { const next = Number(e.target.value); setReplacementsLimit(next); setReplacementsSkip(0); }}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+              <button
+                type="button"
+                className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded disabled:opacity-50"
+                onClick={() => setReplacementsSkip((s) => Math.max(0, s - replacementsLimit))}
+                disabled={replacementsSkip <= 0}
+              >
+                {t('prev', 'Précédent')}
+              </button>
+              <button
+                type="button"
+                className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded disabled:opacity-50"
+                onClick={() => setReplacementsSkip((s) => s + replacementsLimit)}
+                disabled={(replacements?.length ?? 0) < replacementsLimit}
+              >
+                {t('next', 'Suivant')}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -580,168 +701,45 @@ const EmploiDuTempsPage = () => {
                 >
                   {t('test_link', 'Tester le lien')}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => refetchIcs()}
+                  disabled={!icsClassId || icsLoading}
+                  className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded disabled:opacity-50"
+                >
+                  {icsLoading ? t('loading', 'Chargement...') : t('preview', 'Prévisualiser')}
+                </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'events' && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">{t('events', 'Événements')}</h3>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">{t('count', 'Nombre')} : {(() => {
-                const asArr = eventsList as unknown[] | undefined;
-                if (Array.isArray(asArr)) return asArr.length;
-                const asObj = eventsList as { total?: number } | undefined;
-                return asObj?.total ?? 0;
-              })()}</span>
-              <button onClick={() => setIsCreateEventOpen(true)} className="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">{t('create', 'Créer')}</button>
-            </div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <table className="min-w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('title', 'Titre')}</th>
-                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('category', 'Catégorie')}</th>
-                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('start', 'Début')}</th>
-                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('end', 'Fin')}</th>
-                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('status', 'Statut')}</th>
-                  <th className="px-4 py-2 text-left text-sm text-gray-600">{t('actions', 'Actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray((eventsList as { items?: unknown } | undefined)?.items) && (eventsList as { items: unknown[] }).items.length > 0 ? (
-                  (eventsList as { items: unknown[] }).items.map((evUnknown) => {
-                    const ev = evUnknown as { id: string; title: string; category?: string | null; start_time?: string | null; end_time?: string | null; status?: string | null };
-                    const id = ev?.id;
-                    return (
-                    <tr key={ev.id} className="border-t hover:bg-gray-50">
-                      <td className="px-4 py-2 text-sm text-gray-800">{ev.title}</td>
-                      <td className="px-4 py-2 text-sm text-gray-600">{ev.category ?? '—'}</td>
-                      <td className="px-4 py-2 text-sm text-gray-600">{ev.start_time ? new Date(ev.start_time).toLocaleString() : '—'}</td>
-                      <td className="px-4 py-2 text-sm text-gray-600">{ev.end_time ? new Date(ev.end_time).toLocaleString() : '—'}</td>
-                      <td className="px-4 py-2 text-sm">
-                        <span className={`px-2 py-1 rounded text-xs ${ev.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : ev.status === 'DRAFT' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>{ev.status}</span>
-                      </td>
-                      <td className="px-4 py-2 text-sm">
-                        {ev.status !== 'PUBLISHED' && (
-                          <button
-                            className="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs"
-                            onClick={async () => {
-                              try {
-                                if (!id) throw new Error('eventId manquant');
-                                await publishEventById.mutateAsync(id);
-                                toast.success(t('event_published', 'Événement publié'));
-                              } catch (errUnknown) {
-                                const err = errUnknown as { message?: string };
-                                toast.error(typeof err?.message === 'string' ? err.message : 'Erreur publication');
-                              }
-                            }}
-                          >
-                            {t('publish', 'Publier')}
-                          </button>
+              {icsClassId && (
+                <div className="mt-3 p-3 border rounded bg-gray-50">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-medium">{t('ics_preview', 'Prévisualisation ICS')}</div>
+                    <button type="button" onClick={() => refetchIcs()} disabled={icsLoading} className="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">
+                      {t('refresh', 'Rafraîchir')}
+                    </button>
+                  </div>
+                  {icsLoading && (<div className="text-sm text-gray-500">{t('loading', 'Chargement...')}</div>)}
+                  {icsError && !icsLoading && (<div className="text-sm text-red-600">{t('ics_load_error', 'Erreur lors du chargement du flux')}</div>)}
+                  {!icsLoading && !icsError && icsText && (
+                    <>
+                      <div className="text-xs mb-2">
+                        {icsText.includes('BEGIN:VCALENDAR') ? (
+                          <span className="px-2 py-1 rounded bg-green-100 text-green-700">{t('ics_valid', 'Flux ICS valide')}</span>
+                        ) : (
+                          <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-700">{t('ics_maybe_invalid', 'Flux ICS non standard')}</span>
                         )}
-                      </td>
-                    </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-6 text-center text-gray-500">{t('no_events', 'Aucun événement')}</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {isCreateEventOpen && (
-            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg p-4 w-full max-w-2xl max-h-[70vh] overflow-y-auto">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('create_event', 'Créer un événement')}</h3>
-                <form onSubmit={async (e) => {
-                  e.preventDefault();
-                  const form = e.currentTarget as HTMLFormElement;
-                  const fd = new FormData(form);
-                  const title = String(fd.get('title') || '').trim();
-                  const category = String(fd.get('category') || '').trim() || 'Autre';
-                  const start_time = String(fd.get('start_time') || '').trim();
-                  const end_time = String(fd.get('end_time') || '').trim();
-                  const description = String(fd.get('description') || '').trim() || undefined;
-                  const location = String(fd.get('location') || '').trim() || undefined;
-                  const capacityStr = String(fd.get('capacity') || '').trim();
-                  const capacity = capacityStr !== '' && !Number.isNaN(Number(capacityStr)) ? Number(capacityStr) : undefined;
-                  if (!title || !category || !start_time || !end_time) {
-                    toast.error(t('fill_required_fields', 'Veuillez remplir les champs obligatoires'));
-                    return;
-                  }
-
-                  try {
-                    const etablissement_id = selectedEtabId || currentEtablissementId || '';
-                    if (!etablissement_id) {
-                      toast.error(t('missing_establishment', "Établissement manquant"));
-                      return;
-                    }
-                    await createEvent.mutateAsync({ title, category: category as EventCreateCategoryEnum, start_time, end_time, description, location, capacity, etablissement_id });
-                    toast.success(t('event_created', 'Événement créé'));
-                    setIsCreateEventOpen(false);
-                    form.reset();
-                  } catch (errUnknown) {
-                    const err = errUnknown as { message?: string };
-                    toast.error(typeof err?.message === 'string' ? err.message : 'Erreur inconnue');
-                  }
-                }}>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('title', 'Titre')} *</label>
-                      <input name="title" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('category', 'Catégorie')} *</label>
-                      <select name="category" className="w-full border border-gray-300 rounded-lg px-3 py-2">
-                        <option value="Sortie">Sortie</option>
-                        <option value="Cérémonie">Cérémonie</option>
-                        <option value="Club">Club</option>
-                        <option value="Autre">Autre</option>
-                      </select>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('start', 'Début')} *</label>
-                        <input type="datetime-local" name="start_time" className="w-full border border-gray-300 rounded-lg px-3 py-2" step="1" />
-                        <p className="text-xs text-gray-500 mt-1">{t('timezone_hint', 'Le fuseau sera normalisé automatiquement (UTC)')}</p>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('end', 'Fin')} *</label>
-                        <input type="datetime-local" name="end_time" className="w-full border border-gray-300 rounded-lg px-3 py-2" step="1" />
-                        <p className="text-xs text-gray-500 mt-1">{t('timezone_hint', 'Le fuseau sera normalisé automatiquement (UTC)')}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('location', 'Lieu')}</label>
-                      <input name="location" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('description', 'Description')}</label>
-                      <textarea name="description" className="w-full border border-gray-300 rounded-lg px-3 py-2" rows={3} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('capacity', 'Capacité')}</label>
-                      <input name="capacity" type="number" min={0} step={1} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-2 mt-5">
-                    <button type="button" className="px-4 py-2 border rounded-lg" onClick={() => setIsCreateEventOpen(false)}>{t('cancel', 'Annuler')}</button>
-                    <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg" disabled={createEvent.isPending}>{createEvent.isPending ? t('saving', 'Enregistrement...') : t('create', 'Créer')}</button>
-                  </div>
-                </form>
-              </div>
+                      <pre className="text-xs overflow-auto max-h-64 whitespace-pre-wrap bg-white p-2 rounded border">{icsText.slice(0, 5000)}</pre>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       )}
+
+      {/* L'onglet Événements a été retiré de cette page */}
 
       {activeTab === 'conflicts' && (
         <div className="space-y-6">

@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { replacementsApi } from '../api/timetable-service/client';
 import type { ReplacementCreate, ReplacementRead } from '../api/timetable-service/api';
 
@@ -32,4 +32,14 @@ export function useDeleteReplacement() {
   });
 }
 
-
+export function useReplacements(params?: { skip?: number; limit?: number }) {
+  const { skip = 0, limit = 100 } = params || {};
+  return useQuery<ReplacementRead[], Error>({
+    queryKey: ['replacements', { skip, limit }],
+    queryFn: async () => {
+      const res = await replacementsApi.listReplacementsReplacementsGet(skip, limit);
+      return res.data;
+    },
+    staleTime: 30_000,
+  });
+}

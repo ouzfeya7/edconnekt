@@ -14,4 +14,16 @@ export function useLessonAudit(lessonId?: string) {
   });
 }
 
+export function useAuditTrail(params?: { skip?: number; limit?: number }) {
+  const { skip = 0, limit = 100 } = params || {};
+  return useQuery<TimetableAuditRead[], Error>({
+    queryKey: ['timetable:audit:trail', { skip, limit }],
+    queryFn: async () => {
+      const res = await auditApi.getAuditTrailAuditGet(skip, limit);
+      return res.data;
+    },
+    staleTime: 30_000,
+  });
+}
+
 
