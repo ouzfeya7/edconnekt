@@ -50,11 +50,13 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
         { titleKey: "parametres", to: "/parametres", icon: <FaCog /> },
         { titleKey: "supplies", to: "/fournitures", icon: <FaClipboardList /> },
         { titleKey: "seances_pdi", to: "/direction/pdi", icon: <FaChartLine /> },
+        { titleKey: "events", to: "/direction/evenements", icon: <FaCalendarAlt /> },
       ]
     },
     { titleKey: "parametres", to: "/parametres", icon: <FaCog />, hideInNavbar: true },
     { titleKey: "supplies", to: "/fournitures", icon: <FaClipboardList />, hideInNavbar: true },
     { titleKey: "seances_pdi", to: "/direction/pdi", icon: <FaChartLine />, hideInNavbar: true },
+    { titleKey: "events", to: "/direction/evenements", icon: <FaCalendarAlt />, hideInNavbar: true },
     { titleKey: "Profile", to: "/profile", icon: <FaUser />, hideInNavbar: true },
   ],
   eleve: [

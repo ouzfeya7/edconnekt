@@ -75,6 +75,8 @@ import ParametresPage from './pages/directeur/ParametresPage';
 import RessourcesAuditPage from './pages/directeur/RessourcesAuditPage';
 import DirectorSuppliesPage from './pages/directeur/DirectorSuppliesPage';
 import PublicSuppliesListPage from './pages/famille/PublicSuppliesListPage';
+import DirecteurEventsPage from './pages/directeur/DirecteurEventsPage';
+import EventDetailPage from './pages/events/EventDetailPage';
 
 // Import des pages de l'administrateur
 import AdminDashboard from './pages/admin/dashboard/AdminDashboard';
@@ -140,6 +142,8 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/parametres", element: <ParametresPage /> },
     { path: "/fournitures/*", element: <DirectorSuppliesPage /> },
     { path: "/direction/pdi", element: <DirectorPdiPage /> },
+    { path: "/direction/evenements", element: <DirecteurEventsPage /> },
+    { path: "/evenements/:eventId", element: <EventDetailPage /> },
     { path: "/messages", element: <MessagePage /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "*", element: <NotFound /> },
@@ -187,6 +191,7 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/admissions/:admissionId", element: <AdmissionDetailPage /> },
     { path: "/etablissements", element: <EtablissementsPage /> },
     { path: "/etablissements/:etabId", element: <EtablissementDetailPage /> },
+    { path: "/evenements/:eventId", element: <EventDetailPage /> },
     { path: "/admin/classes/:classeId", element: <ClasseDetailPage /> },
     { path: "/utilisateurs", element: <UsersPage /> },
     { path: "/abonnements", element: <AbonnementsPage /> },

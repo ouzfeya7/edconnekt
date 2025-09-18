@@ -1,21 +1,36 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock, CheckCircle, User, Calendar, AlertTriangle } from 'lucide-react';
-import { useDirectorTimetable } from '../../../contexts/DirectorTimetableContext';
 import toast from 'react-hot-toast';
+import { useAbsencesList, useValidateAbsence } from '../../../hooks/useAbsences';
 
 const AbsenceValidationPanel: React.FC = () => {
   const { t } = useTranslation();
-  const { absencesEnAttente, validateAbsence, isLoading } = useDirectorTimetable();
+  const { data: absences, isLoading } = useAbsencesList({ skip: 0, limit: 100 });
+  const validateAbsence = useValidateAbsence();
+
+  const absencesEnAttente = (absences ?? []).filter((a) => a.status === 'REPORTED');
 
   const handleValidateAbsence = async (absenceId: string) => {
     try {
-      await validateAbsence(absenceId);
+      await validateAbsence.mutateAsync(absenceId);
       toast.success(t('absence_validated', 'Absence validée'));
     } catch (e) {
       toast.error(t('error_validating_absence', 'Erreur lors de la validation'));
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex items-center space-x-2 mb-2">
+          <Clock className="w-5 h-5 text-gray-400" />
+          <h3 className="text-lg font-semibold text-gray-900">{t('absence_validation', 'Validation des Absences')}</h3>
+        </div>
+        <div className="text-sm text-gray-500">{t('loading', 'Chargement...')}</div>
+      </div>
+    );
+  }
 
   if (absencesEnAttente.length === 0) {
     return (
@@ -118,11 +133,11 @@ const AbsenceValidationPanel: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
                     onClick={() => handleValidateAbsence(absence.id)}
-                    disabled={isLoading}
+                    disabled={validateAbsence.isPending}
                     className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <CheckCircle className="w-3 h-3 mr-1" />
-                    {t('validate', 'Valider')}
+                    {validateAbsence.isPending ? t('saving', 'Enregistrement...') : t('validate', 'Valider')}
                   </button>
                 </td>
               </tr>

@@ -84,6 +84,7 @@ export function useUpdateEvent(eventId?: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['event-service', 'events'] });
       if (eventId) void queryClient.invalidateQueries({ queryKey: ['event-service', 'events', eventId] });
+      if (eventId) void queryClient.invalidateQueries({ queryKey: ['event-service', 'events', eventId, 'participants'] });
     },
   });
 }
@@ -103,6 +104,7 @@ export function usePublishEvent(eventId?: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['event-service', 'events'] });
       if (eventId) void queryClient.invalidateQueries({ queryKey: ['event-service', 'events', eventId] });
+      if (eventId) void queryClient.invalidateQueries({ queryKey: ['event-service', 'events', eventId, 'participants'] });
     },
   });
 }
@@ -142,6 +144,7 @@ export function useRegisterToEvent(eventId?: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['event-service', 'events'] });
       if (eventId) void queryClient.invalidateQueries({ queryKey: ['event-service', 'events', eventId] });
+      if (eventId) void queryClient.invalidateQueries({ queryKey: ['event-service', 'events', eventId, 'participants'] });
     },
   });
 }
@@ -161,6 +164,7 @@ export function useCancelRegistration(eventId?: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['event-service', 'events'] });
       if (eventId) void queryClient.invalidateQueries({ queryKey: ['event-service', 'events', eventId] });
+      if (eventId) void queryClient.invalidateQueries({ queryKey: ['event-service', 'events', eventId, 'participants'] });
     },
   });
 }
