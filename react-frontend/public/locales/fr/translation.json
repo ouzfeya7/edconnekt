@@ -432,7 +432,7 @@
     "view_alerts": "Voir les alertes",
     "planning": "Planifier les cours",
     "manage_references": "Gérer les référentiels",
-    "welcome_director": "Bienvenue, Directeur",
+    "welcome_to_the_dashboard_of_the_director": "Bienvenue sur le tableau de bord de la direction.",
     "dashboard_subtitle": "Tableau de bord de votre établissement",
     "quick_actions": "Actions Rapides",
     "recent_activities": "Activités Récentes",
@@ -495,5 +495,7 @@
     "plans": "Plans",
     "imports": "Imports",
     "classes": "Classes",
-    "events": "Événements"
+    "events": "Événements",
+    "admissions": "Admissions",
+    "admission": "Admission"
 }

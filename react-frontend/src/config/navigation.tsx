@@ -49,12 +49,14 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
       dropdownItems: [
         { titleKey: "parametres", to: "/parametres", icon: <FaCog /> },
         { titleKey: "supplies", to: "/fournitures", icon: <FaClipboardList /> },
+        { titleKey: "admissions", to: "/admissions", icon: <FaFileAlt />, activePaths: ["/admissions", "/admissions/:admissionId"] },
         { titleKey: "seances_pdi", to: "/direction/pdi", icon: <FaChartLine /> },
         { titleKey: "events", to: "/direction/evenements", icon: <FaCalendarAlt /> },
       ]
     },
     { titleKey: "parametres", to: "/parametres", icon: <FaCog />, hideInNavbar: true },
     { titleKey: "supplies", to: "/fournitures", icon: <FaClipboardList />, hideInNavbar: true },
+    { titleKey: "admissions", to: "/admissions", icon: <FaFileAlt />, hideInNavbar: true },
     { titleKey: "seances_pdi", to: "/direction/pdi", icon: <FaChartLine />, hideInNavbar: true },
     { titleKey: "events", to: "/direction/evenements", icon: <FaCalendarAlt />, hideInNavbar: true },
     { titleKey: "Profile", to: "/profile", icon: <FaUser />, hideInNavbar: true },
@@ -73,6 +75,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
     { titleKey: "home", to: "/", icon: <FaHome /> },
     { titleKey: "Notes", to: "/mes-notes", icon: <FaFileAlt /> },
     { titleKey: "Rapport", to: "/rapport", icon: <FaChartLine /> }, // Icône différencié
+    { titleKey: "admission", to: "/admission", icon: <FaFileAlt /> },
     { titleKey: "Remediation", to: "/remediation", icon: <FaChalkboardTeacher />, activePaths: ["/remediation", "/remediation/:remediationId"] },
     { titleKey: "supplies", to: "/fournitures", icon: <FaClipboardList /> },
     { titleKey: "Ressources", to: "/ressources", icon: <FaBook /> },

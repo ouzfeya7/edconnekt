@@ -1,6 +1,7 @@
 import React from 'react';
-import { useIdentities, useIdentityCreate, useIdentityUpdate, useIdentityDelete } from '../../../hooks/useIdentity';
-import type { IdentityCreate, IdentityUpdate, IdentityResponse, IdentityStatus } from '../../../api/identity-service/api';
+import { toast } from 'react-hot-toast';
+import { useIdentities, useIdentityCreate, useIdentityUpdate, useIdentityDelete, useIdentityGet, useIdentityLinkToEstablishment, useIdentityUnlinkFromEstablishment } from '../../../hooks/useIdentity';
+import type { IdentityCreate, IdentityUpdate, IdentityResponse, IdentityStatus, EstablishmentRole } from '../../../api/identity-service/api';
 
 type NullableString = string | null | undefined;
 
@@ -11,11 +12,19 @@ export default function IdentitiesManagement(): JSX.Element {
   const [createOpen, setCreateOpen] = React.useState<boolean>(false);
   const [editOpen, setEditOpen] = React.useState<boolean>(false);
   const [editing, setEditing] = React.useState<IdentityResponse | null>(null);
+  const [detailOpen, setDetailOpen] = React.useState<boolean>(false);
+  const [detailId, setDetailId] = React.useState<string | null>(null);
+  const [linkEstablishmentId, setLinkEstablishmentId] = React.useState<string>('');
+  const [linkRole, setLinkRole] = React.useState<EstablishmentRole | ''>('');
+  const [unlinkEstablishmentId, setUnlinkEstablishmentId] = React.useState<string>('');
 
   const { data, isLoading, isError } = useIdentities({ page, size, search: search || undefined });
   const createMutation = useIdentityCreate();
   const updateMutation = useIdentityUpdate(editing?.id);
   const deleteMutation = useIdentityDelete();
+  const { data: detailData, isLoading: detailLoading } = useIdentityGet(detailId || undefined);
+  const linkMutation = useIdentityLinkToEstablishment(detailId || undefined);
+  const unlinkMutation = useIdentityUnlinkFromEstablishment(detailId || undefined);
 
   const items = (data?.items ?? []) as IdentityResponse[];
   const total = data?.total ?? 0;
@@ -33,9 +42,18 @@ export default function IdentitiesManagement(): JSX.Element {
       external_id: normalizeOptional(fd.get('external_id')),
     };
     if (!payload.firstname || !payload.lastname) return;
-    await createMutation.mutateAsync(payload);
-    setCreateOpen(false);
-    form.reset();
+    try {
+      await toast.promise(
+        createMutation.mutateAsync(payload),
+        {
+          loading: 'Création…',
+          success: 'Identité créée',
+          error: (e) => errorMessage(e, 'Échec de la création'),
+        }
+      );
+      setCreateOpen(false);
+      form.reset();
+    } catch {}
   };
 
   const handleSubmitEdit: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -50,9 +68,51 @@ export default function IdentitiesManagement(): JSX.Element {
       phone: normalizeOptional(fd.get('phone')) as NullableString,
       status: normalizeOptional(fd.get('status')) as IdentityStatus | null | undefined,
     };
-    await updateMutation.mutateAsync(payload);
-    setEditOpen(false);
-    setEditing(null);
+    try {
+      await toast.promise(
+        updateMutation.mutateAsync(payload),
+        {
+          loading: 'Enregistrement…',
+          success: 'Identité mise à jour',
+          error: (e) => errorMessage(e, "Échec de la mise à jour"),
+        }
+      );
+      setEditOpen(false);
+      setEditing(null);
+    } catch {}
+  };
+
+  const handleSubmitLink: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    if (!detailId || !linkEstablishmentId || !linkRole) return;
+    try {
+      await toast.promise(
+        linkMutation.mutateAsync({ establishment_id: linkEstablishmentId, role: linkRole as EstablishmentRole }),
+        {
+          loading: 'Liaison…',
+          success: "Identité liée à l'établissement",
+          error: (e) => errorMessage(e, 'Échec de la liaison'),
+        }
+      );
+      setLinkEstablishmentId('');
+      setLinkRole('');
+    } catch {}
+  };
+
+  const handleSubmitUnlink: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    if (!detailId || !unlinkEstablishmentId) return;
+    try {
+      await toast.promise(
+        unlinkMutation.mutateAsync({ establishmentId: unlinkEstablishmentId }),
+        {
+          loading: 'Déliaison…',
+          success: "Identité déliée de l'établissement",
+          error: (e) => errorMessage(e, 'Échec de la déliaison'),
+        }
+      );
+      setUnlinkEstablishmentId('');
+    } catch {}
   };
 
   return (
@@ -101,10 +161,23 @@ export default function IdentitiesManagement(): JSX.Element {
                   <td className="px-3 py-2 text-sm">{it.phone ?? '—'}</td>
                   <td className="px-3 py-2 text-sm">{it.status ?? '—'}</td>
                   <td className="px-3 py-2 text-sm flex gap-2">
+                    <button className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-700 hover:bg-gray-200" onClick={() => { setDetailId(it.id); setDetailOpen(true); }}>Détails</button>
                     <button className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200" onClick={() => { setEditing(it); setEditOpen(true); }}>Éditer</button>
                     <button
                       className="px-2 py-1 text-xs rounded bg-red-100 text-red-700 hover:bg-red-200"
-                      onClick={async () => { if (confirm('Supprimer cette identité ?')) await deleteMutation.mutateAsync({ identityId: it.id }); }}
+                      onClick={async () => {
+                        if (!confirm('Supprimer cette identité ?')) return;
+                        try {
+                          await toast.promise(
+                            deleteMutation.mutateAsync({ identityId: it.id }),
+                            {
+                              loading: 'Suppression…',
+                              success: 'Identité supprimée',
+                              error: (e) => errorMessage(e, 'Échec de la suppression'),
+                            }
+                          );
+                        } catch {}
+                      }}
                     >Supprimer</button>
                   </td>
                 </tr>
@@ -165,6 +238,85 @@ export default function IdentitiesManagement(): JSX.Element {
           </div>
         </div>
       )}
+
+      {detailOpen && detailId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
+          <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Détails de l'identité</h3>
+              <button className="px-3 py-1 border rounded" onClick={() => { setDetailOpen(false); setDetailId(null); }}>Fermer</button>
+            </div>
+
+            {detailLoading && <div className="text-gray-500">Chargement…</div>}
+            {!detailLoading && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <div className="text-sm text-gray-500">Prénom</div>
+                  <div className="text-sm font-medium">{detailData?.firstname ?? '—'}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Nom</div>
+                  <div className="text-sm font-medium">{detailData?.lastname ?? '—'}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Email</div>
+                  <div className="text-sm font-medium break-all">{detailData?.email ?? '—'}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Téléphone</div>
+                  <div className="text-sm font-medium">{detailData?.phone ?? '—'}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Statut</div>
+                  <div className="text-sm font-medium">{detailData?.status ?? '—'}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">ID</div>
+                  <div className="text-sm font-medium break-all">{detailData?.id ?? detailId}</div>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmitLink} className="border rounded-lg p-4 space-y-3">
+                <h4 className="font-semibold text-sm">Lier à un établissement</h4>
+                <div>
+                  <label className="block text-sm mb-1">Établissement ID</label>
+                  <input value={linkEstablishmentId} onChange={(e) => setLinkEstablishmentId(e.target.value)} className="w-full border rounded px-3 py-2 text-sm" required />
+                </div>
+                <div>
+                  <label className="block text-sm mb-1">Rôle</label>
+                  <select value={linkRole} onChange={(e) => setLinkRole(e.target.value as EstablishmentRole)} className="w-full border rounded px-3 py-2 text-sm" required>
+                    <option value="" disabled>Choisir un rôle…</option>
+                    <option value="student">Élève</option>
+                    <option value="parent">Parent</option>
+                    <option value="teacher">Enseignant</option>
+                    <option value="admin_staff">Personnel administratif</option>
+                  </select>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded text-sm" disabled={linkMutation.isPending}>
+                    {linkMutation.isPending ? 'Liaison…' : 'Lier'}
+                  </button>
+                </div>
+              </form>
+
+              <form onSubmit={handleSubmitUnlink} className="border rounded-lg p-4 space-y-3">
+                <h4 className="font-semibold text-sm">Délier de l'établissement</h4>
+                <div>
+                  <label className="block text-sm mb-1">Établissement ID</label>
+                  <input value={unlinkEstablishmentId} onChange={(e) => setUnlinkEstablishmentId(e.target.value)} className="w-full border rounded px-3 py-2 text-sm" required />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button type="submit" className="px-4 py-2 bg-red-600 text-white rounded text-sm" disabled={unlinkMutation.isPending}>
+                    {unlinkMutation.isPending ? 'Déliaison…' : 'Délier'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -176,3 +328,14 @@ function normalizeOptional(value: FormDataEntryValue | null): string | undefined
 }
 
 
+function errorMessage(e: unknown, fallback: string): string {
+  // AxiosError-like shape support
+  if (typeof e === 'string') return e || fallback;
+  if (e && typeof e === 'object') {
+    const anyErr = e as { response?: { data?: any }; message?: string };
+    const apiMsg = anyErr?.response?.data?.message;
+    if (typeof apiMsg === 'string' && apiMsg.trim()) return apiMsg;
+    if (anyErr?.message) return anyErr.message;
+  }
+  return fallback;
+}

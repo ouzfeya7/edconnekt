@@ -69,7 +69,7 @@ const DirecteurDashboard = () => {
       <div className="mb-8 flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {t('welcome_director', 'Bienvenue, Directeur')}
+            {t('welcome_to_the_dashboard_of_the_director', 'Bienvenue sur le tableau de bord de la direction.')}
           </h1>
           <p className="text-gray-600">
             {t('dashboard_subtitle', 'Tableau de bord de votre établissement')}

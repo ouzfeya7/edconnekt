@@ -418,7 +418,7 @@ const ReferentielsManager: React.FC = () => {
     <div className="bg-white min-h-screen p-4 md:p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestion des Référentiels</h1>
-        <p className="text-gray-600">Administrez les référentiels, matières et compétences exposés par l'API.</p>
+        <p className="text-gray-600">Administrez les référentiels, matières et compétences.</p>
       </div>
 
       <div className="border-b border-gray-200 mb-8">
