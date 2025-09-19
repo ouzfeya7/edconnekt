@@ -219,6 +219,7 @@
     "new_course": "New course",
     "conflicts_detected": "Conflicts detected! Check details.",
     "svt": "SVT",
-    "file_read_error": "Error reading file"
+    "file_read_error": "Error reading file",
+    "admissions": "Admissions",
+    "admission": "Admission"
   }
-  
