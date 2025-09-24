@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { getActiveContext, setActiveContext } from '../../utils/contextStorage';
+import { attachAuthRefresh } from '../httpAuth';
 
 // Base URL configurable via Vite env, avec fallback par défaut
 const DEFAULT_BASE_URL = 'https://api.uat1-engy-partners.com/timetable';
@@ -24,12 +26,15 @@ timetableAxios.interceptors.request.use((config) => {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
-  // Mapping établissement temporaire (en attendant Identity Service)
-  const viteEnv = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
-  const etabId = localStorage.getItem('current-etab-id') || viteEnv?.VITE_DEFAULT_ETAB_ID;
-  if (etabId) {
+  // Multi-tenant: en-têtes de sélection
+  const { etabId: activeEtabId, role: activeRole } = getActiveContext();
+  if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Establishment-Id'] = etabId;
+    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+  }
+  if (activeRole) {
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
   }
   return config;
 });
@@ -39,3 +44,19 @@ if (import.meta.env.DEV) {
 }
 
 export default timetableAxios;
+
+// Persistance du contexte confirmé par le Gateway
+timetableAxios.interceptors.response.use(
+  (response) => {
+    try {
+      const xEtab = response.headers?.['x-etab'] as string | undefined;
+      const xRole = response.headers?.['x-role'] as string | undefined;
+      if (xEtab && xRole) setActiveContext(xEtab, xRole as any);
+    } catch {}
+    return response;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Attach centralized auth refresh interceptor (last added -> first run on errors)
+attachAuthRefresh(timetableAxios);

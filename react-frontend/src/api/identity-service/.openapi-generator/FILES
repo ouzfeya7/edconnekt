@@ -16,6 +16,9 @@ docs/IdentityListResponse.md
 docs/IdentityResponse.md
 docs/IdentityStatus.md
 docs/IdentityUpdate.md
+docs/UserEstablishmentResponse.md
+docs/UserEstablishmentsResponse.md
+docs/UserRolesResponse.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 git_push.sh

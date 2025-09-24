@@ -1,3 +1,5 @@
+import { getActiveContext } from '../utils/contextStorage';
+
 interface WebSocketMessage {
   type: 'message_received' | 'typing_start' | 'typing_stop' | 'presence_update' | 'conversation_updated';
   payload: unknown;
@@ -76,11 +78,8 @@ class WebSocketService {
 
   private async getAuthHeaders(): Promise<Record<string, string>> {
     const token = sessionStorage.getItem('keycloak-token');
-    const establishmentId = localStorage.getItem('current-etab-id') || import.meta.env.VITE_DEFAULT_ETAB_ID || '';
-
     return {
       'Authorization': token ? `Bearer ${token}` : '',
-      'X-Establishment-Id': establishmentId,
     };
   }
 
@@ -111,15 +110,14 @@ class WebSocketService {
       // dans le navigateur. L'authentification devra être gérée côté serveur via des query params
       // ou un protocole d'authentification WebSocket spécifique.
       const token = sessionStorage.getItem('keycloak-token');
-      const establishmentId = localStorage.getItem('current-etab-id') || import.meta.env.VITE_DEFAULT_ETAB_ID || '';
+      const { etabId: activeEtabId, role: activeRole } = getActiveContext();
       
       const urlWithAuth = new URL(wsUrl);
       if (token) {
         urlWithAuth.searchParams.set('token', token);
       }
-      if (establishmentId) {
-        urlWithAuth.searchParams.set('establishment_id', establishmentId);
-      }
+      if (activeEtabId) urlWithAuth.searchParams.set('etab_id', activeEtabId);
+      if (activeRole) urlWithAuth.searchParams.set('role', activeRole);
 
       this.ws = new WebSocket(urlWithAuth.toString());
 

@@ -9,8 +9,7 @@ export function useTransferStudentClass() {
     mutationFn: async ({ studentId, update, etabId }) => {
       const { data } = await studentsApi.transferStudentClassApiStudentsStudentIdClassPatch(
         studentId,
-        update,
-        etabId ? { headers: { 'X-Establishment-Id': etabId } } : undefined
+        update
       );
       return data;
     },

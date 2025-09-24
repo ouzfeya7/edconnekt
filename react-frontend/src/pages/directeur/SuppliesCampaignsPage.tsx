@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useSuppliesCampaignDashboard, useSuppliesCampaignList } from '../../hooks/useSuppliesCampaigns';
 import { useCreateCampaign, useOpenCampaign, useValidateCampaign, usePublishCampaign, useCloseCampaign } from '../../hooks/useSuppliesCampaignMutations';
 import { Toaster, toast } from 'react-hot-toast';
+import { getActiveContext } from '../../utils/contextStorage';
+
 import { 
   Calendar, 
   Plus, 
@@ -313,9 +315,9 @@ const SuppliesCampaignsPage: React.FC = () => {
                     disabled={!newName.trim() || !newSchoolYear.trim() || create.isPending}
                     onClick={async () => {
                       try {
-                        const etabId = localStorage.getItem('current-etab-id') || '';
+                        const { etabId } = getActiveContext();
                         if (!etabId) {
-                          toast.error(t("Aucun établissement courant (current-etab-id)", 'Aucun établissement courant'));
+                          toast.error(t("Aucun établissement sélectionné", 'Aucun établissement sélectionné'));
                           return;
                         }
                         const created = await create.mutateAsync({ name: newName.trim(), establishmentId: etabId, schoolYear: newSchoolYear.trim() });

@@ -365,6 +365,63 @@ export interface IdentityUpdate {
 
 
 /**
+ * Schéma de réponse pour un établissement d\'utilisateur.
+ * @export
+ * @interface UserEstablishmentResponse
+ */
+export interface UserEstablishmentResponse {
+    /**
+     * ID de l\'établissement
+     * @type {string}
+     * @memberof UserEstablishmentResponse
+     */
+    'establishment_id': string;
+    /**
+     * Rôles de l\'utilisateur dans cet établissement
+     * @type {Array<EstablishmentRole>}
+     * @memberof UserEstablishmentResponse
+     */
+    'roles': Array<EstablishmentRole>;
+}
+/**
+ * Schéma de réponse pour la liste des établissements d\'un utilisateur.
+ * @export
+ * @interface UserEstablishmentsResponse
+ */
+export interface UserEstablishmentsResponse {
+    /**
+     * Liste des établissements de l\'utilisateur
+     * @type {Array<UserEstablishmentResponse>}
+     * @memberof UserEstablishmentsResponse
+     */
+    'establishments': Array<UserEstablishmentResponse>;
+    /**
+     * Nombre total d\'établissements
+     * @type {number}
+     * @memberof UserEstablishmentsResponse
+     */
+    'total': number;
+}
+/**
+ * Schéma de réponse pour les rôles d\'un utilisateur dans un établissement.
+ * @export
+ * @interface UserRolesResponse
+ */
+export interface UserRolesResponse {
+    /**
+     * ID de l\'établissement
+     * @type {string}
+     * @memberof UserRolesResponse
+     */
+    'establishment_id': string;
+    /**
+     * Rôles de l\'utilisateur dans cet établissement
+     * @type {Array<EstablishmentRole>}
+     * @memberof UserRolesResponse
+     */
+    'roles': Array<EstablishmentRole>;
+}
+/**
  * 
  * @export
  * @interface ValidationError
@@ -1147,6 +1204,73 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * Récupère la liste des établissements de l\'utilisateur connecté.  Source: identity_establishment(identity_id, establishment_id) Retourne 403 si aucun rattachement.  Args:     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserEstablishmentsResponse: Liste des établissements avec leurs rôles
+         * @summary Get User Establishments
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserEstablishmentsApiV1IdentityMeEstablishmentsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/me/establishments`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère les rôles de l\'utilisateur dans un établissement spécifique.  Source: identity_establishment.role (ENUM: student|parent|teacher|admin_staff) Retourne 403 si l\'utilisateur n\'est pas rattaché à l\'établissement.  Args:     etab: UUID de l\'établissement     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserRolesResponse: Rôles de l\'utilisateur dans l\'établissement
+         * @summary Get User Roles In Establishment
+         * @param {string} etab UUID de l\&#39;établissement
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserRolesInEstablishmentApiV1IdentityMeRolesGet: async (etab: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'etab' is not null or undefined
+            assertParamExists('getUserRolesInEstablishmentApiV1IdentityMeRolesGet', 'etab', etab)
+            const localVarPath = `/api/v1/identity/me/roles`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (etab !== undefined) {
+                localVarQueryParameter['etab'] = etab;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Endpoint de vérification de santé du service.
          * @summary Health Check
          * @param {*} [options] Override http request option.
@@ -1614,6 +1738,31 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Récupère la liste des établissements de l\'utilisateur connecté.  Source: identity_establishment(identity_id, establishment_id) Retourne 403 si aucun rattachement.  Args:     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserEstablishmentsResponse: Liste des établissements avec leurs rôles
+         * @summary Get User Establishments
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserEstablishmentsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getUserEstablishmentsApiV1IdentityMeEstablishmentsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère les rôles de l\'utilisateur dans un établissement spécifique.  Source: identity_establishment.role (ENUM: student|parent|teacher|admin_staff) Retourne 403 si l\'utilisateur n\'est pas rattaché à l\'établissement.  Args:     etab: UUID de l\'établissement     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserRolesResponse: Rôles de l\'utilisateur dans l\'établissement
+         * @summary Get User Roles In Establishment
+         * @param {string} etab UUID de l\&#39;établissement
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserRolesInEstablishmentApiV1IdentityMeRolesGet(etab: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserRolesResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserRolesInEstablishmentApiV1IdentityMeRolesGet(etab, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getUserRolesInEstablishmentApiV1IdentityMeRolesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Endpoint de vérification de santé du service.
          * @summary Health Check
          * @param {*} [options] Override http request option.
@@ -1834,6 +1983,25 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getSseStatsApiV1IdentityBulkimportSseStatsGet(options).then((request) => request(axios, basePath));
         },
         /**
+         * Récupère la liste des établissements de l\'utilisateur connecté.  Source: identity_establishment(identity_id, establishment_id) Retourne 403 si aucun rattachement.  Args:     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserEstablishmentsResponse: Liste des établissements avec leurs rôles
+         * @summary Get User Establishments
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options?: RawAxiosRequestConfig): AxiosPromise<UserEstablishmentsResponse> {
+            return localVarFp.getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère les rôles de l\'utilisateur dans un établissement spécifique.  Source: identity_establishment.role (ENUM: student|parent|teacher|admin_staff) Retourne 403 si l\'utilisateur n\'est pas rattaché à l\'établissement.  Args:     etab: UUID de l\'établissement     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserRolesResponse: Rôles de l\'utilisateur dans l\'établissement
+         * @summary Get User Roles In Establishment
+         * @param {string} etab UUID de l\&#39;établissement
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserRolesInEstablishmentApiV1IdentityMeRolesGet(etab: string, options?: RawAxiosRequestConfig): AxiosPromise<UserRolesResponse> {
+            return localVarFp.getUserRolesInEstablishmentApiV1IdentityMeRolesGet(etab, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Endpoint de vérification de santé du service.
          * @summary Health Check
          * @param {*} [options] Override http request option.
@@ -2045,6 +2213,29 @@ export class DefaultApi extends BaseAPI {
      */
     public getSseStatsApiV1IdentityBulkimportSseStatsGet(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getSseStatsApiV1IdentityBulkimportSseStatsGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère la liste des établissements de l\'utilisateur connecté.  Source: identity_establishment(identity_id, establishment_id) Retourne 403 si aucun rattachement.  Args:     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserEstablishmentsResponse: Liste des établissements avec leurs rôles
+     * @summary Get User Establishments
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère les rôles de l\'utilisateur dans un établissement spécifique.  Source: identity_establishment.role (ENUM: student|parent|teacher|admin_staff) Retourne 403 si l\'utilisateur n\'est pas rattaché à l\'établissement.  Args:     etab: UUID de l\'établissement     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserRolesResponse: Rôles de l\'utilisateur dans l\'établissement
+     * @summary Get User Roles In Establishment
+     * @param {string} etab UUID de l\&#39;établissement
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getUserRolesInEstablishmentApiV1IdentityMeRolesGet(etab: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getUserRolesInEstablishmentApiV1IdentityMeRolesGet(etab, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

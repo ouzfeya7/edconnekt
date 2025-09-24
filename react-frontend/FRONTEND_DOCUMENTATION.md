@@ -1,4 +1,4 @@
- # Documentation Technique du Frontend Ed-Connect
+# Documentation Technique du Frontend Edconnekt
 
 ## Table des Matières
 
@@ -53,7 +53,14 @@
 
 ## Introduction
 
-Ce document fournit une documentation technique complète du frontend de l'application Ed-Connect. Il est destiné aux développeurs rejoignant le projet et vise à faciliter leur intégration en décrivant l'architecture, les technologies utilisées, les composants clés, et les procédures de développement.
+Ce document fournit une documentation technique complète du frontend de l'application Edconnekt. Il est destiné aux développeurs rejoignant le projet et vise à faciliter leur intégration en décrivant l'architecture, les technologies utilisées, les composants clés, et les procédures de développement.
+
+Points clés récents:
+- Multi-tenant généralisé via intercepteurs HTTP: envoi `X-Etab-Select`/`X-Role-Select`, réception `X-Etab`/`X-Role` et mise à jour du contexte global.
+- Contexte d'identité global (`IdentityContextProvider`) et sélecteur de contexte (`ContextSelectModal`) permettant de choisir établissement et rôle.
+- Utilisation étendue de TanStack Query pour l'état serveur (cache, invalidations, revalidation).
+
+Voir également `docs/IDENTITY_CONTEXT.md` pour les détails d’implémentation multi-tenant.
 
 Pour des informations spécifiques sur l'avancement des fonctionnalités et les décisions de conception, veuillez également consulter le fichier `DEVBOOK.md` situé à la racine de ce projet frontend.
 
@@ -69,7 +76,7 @@ L'application frontend Ed-Connect est une **Single Page Application (SPA)** con�
 *   **Styling :** Tailwind CSS
 *   **Composants UI :** shadcn/ui (basé sur Radix UI)
 *   **Routage :** React Router DOM v6
-*   **Gestion d'État :** React Context API (avec des pistes pour TanStack Query et Zustand)
+*   **Gestion d'État :** React Context API + TanStack Query (état serveur). Zustand reste optionnel pour de futurs besoins d’état client complexe.
 *   **Authentification :** Keycloak
 
 ### Structure des Répertoires
@@ -83,8 +90,11 @@ La structure du code source (`react-frontend/src/`) est modulaire pour une meill
 *   **`components/`**: Héberge tous les composants réutilisables.
     *   **`ui/`**: Composants UI de base (issus de `shadcn/ui` comme `Button`, `Card`, `Input`).
     *   Autres sous-répertoires pour des composants plus spécifiques (ex: `charts/`, `agenda/`, `Header/`).
+*   **`api/`**: Clients API organisés par service (ex: `identity-service/`, `student-service/`, `timetable-service/`, etc.) contenant:
+    *   `client.ts`/`api.ts` générés ou écrits pour chaque service
+    *   `http.ts` avec intercepteurs multi-tenant (envoi `X-Etab-Select`/`X-Role-Select`, réception `X-Etab`/`X-Role`).
 *   **`layouts/`**: Composants de mise en page (ex: `DashboardLayout.tsx`).
-*   **`contexts/`**: Providers pour la gestion d'état partagé via React Context API (ex: `AuthContext.tsx`, `EventContext.tsx`).
+*   **`contexts/`**: Providers pour la gestion d'état partagé via React Context API (ex: `AuthContext.tsx`, `IdentityContextProvider.tsx`, `EventContext.tsx`).
 *   **`hooks/`**: Hooks React personnalisés pour la logique réutilisable (ex: `useAuth.tsx`, `useDarkMode.ts`).
 *   **`lib/`**: Fonctions utilitaires, constantes, et actuellement, les données mockées (ex: `utils.ts`, `mock-data.ts`).
 *   **`config/`**: Configurations spécifiques à l'application (ex: `navigation.tsx` pour les menus).
@@ -126,9 +136,9 @@ La structure du code source (`react-frontend/src/`) est modulaire pour une meill
 
 ### Gestion d'État
 
-*   **React Context API :** Principal mécanisme actuel pour la gestion d'état global (voir section dédiée).
-*   **Zustand (suggestion) :** Mentionné dans `DEVBOOK.md` comme une option pour une gestion d'état client plus complexe à l'avenir.
-*   **TanStack Query (React Query) (suggestion) :** Recommandé dans `DEVBOOK.md` pour la gestion de l'état serveur (appels API, cache, etc.).
+*   **React Context API :** Pour l’état global (authentification, contexte d’identité multi-tenant, préférences UI, etc.).
+*   **TanStack Query (React Query) :** Utilisé pour l’état serveur (appels API, cache, revalidation, invalidation ciblée).
+*   **Zustand (optionnel) :** Potentiel pour des besoins d’état client plus complexes.
 
 ### Authentification
 
@@ -178,12 +188,20 @@ La structure du code source (`react-frontend/src/`) est modulaire pour une meill
 ### `EnseignantDashboard.tsx`
 
 *   **Rôle :** Page d'accueil pour les enseignants (`src/pages/enseignants/`), citée dans `DEVBOOK.md` comme un exemple d'interface utilisateur avancée.
-*   **Fonctionnement :** Agrège et affiche des informations, des graphiques (`recharts`), et des éléments interactifs. Utilise actuellement des données mockées.
+*   **Fonctionnement :** Agrège et affiche des informations, des graphiques (`recharts`), et des éléments interactifs. Peut recourir à des données mockées en développement.
 
 ### `AuthContext.tsx` & `useAuth.tsx`
 
 *   **Rôle :** Situés dans `src/pages/authentification/`, ils centralisent la logique et l'état d'authentification avec Keycloak.
 *   **Fonctionnement :** `AuthContext` gère l'initialisation de Keycloak, l'état de l'utilisateur (`isAuthenticated`, `user`, `roles`), les fonctions `login`/`logout`, et un mode mock. `useAuth` est un hook pour consommer facilement ce contexte.
+
+### `IdentityContextProvider.tsx` & `ContextSelectModal.tsx` & `Topbar`
+
+*   **Rôle :** Gèrent le contexte multi-tenant (établissement et rôle actifs) et exposent une UI pour la sélection/modification.
+*   **Fonctionnement :**
+    * `IdentityContextProvider` synchronise le contexte global avec les en-têtes reçus (`X-Etab`, `X-Role`) et fournit `activeEtabId`/`activeRole`.
+    * `ContextSelectModal` permet à l’utilisateur de choisir l’établissement/le rôle disponibles.
+    * La barre supérieure (`Topbar`) expose un bouton pour ouvrir le sélecteur de contexte.
 
 ## Gestion d'État
 
@@ -194,6 +212,7 @@ L'état de l'application est géré via une combinaison de l'API React Context e
 Utilisé pour l'état global ou partagé à travers de multiples composants :
 
 *   **`AuthProvider` (`AuthContext`) :** État d'authentification, informations utilisateur, rôles.
+*   **`IdentityContextProvider` :** Contexte multi-tenant (établissement/rôle actifs), intégré aux intercepteurs HTTP.
 *   **`ResourceProvider` (`ResourceContext`) :** Gestion des ressources pédagogiques (actuellement mock).
 *   **`EventProvider` (`EventContext`) :** Gestion des événements (pour l'agenda, etc.).
 *   **`StudentProvider` (`StudentContext`) :** Gestion des données des élèves.
@@ -206,10 +225,11 @@ Utilisé pour l'état global ou partagé à travers de multiples composants :
 3.  **Mise à Jour :** Via des fonctions exposées par le contexte, modifiant son état.
 4.  **Re-rendu :** Les composants consommateurs sont re-rendus lors des changements d'état du contexte.
 
-### Considérations Futures (TanStack Query, Zustand)
+### État Serveur avec TanStack Query
 
-*   **TanStack Query (React Query) :** Recommandé dans `DEVBOOK.md` pour la gestion de l'état serveur (appels API, cache, synchronisation). C'est une prochaine étape clé pour remplacer les données mockées.
-*   **Zustand :** Suggéré pour la gestion d'état client global plus complexe, offrant une alternative plus légère à Redux et parfois plus optimisée que Context pour certains cas d'usage.
+*   **Cache & Revalidation :** Gestion automatique du cache, `staleTime`, `placeholderData`, `refetchOnWindowFocus` configurable.
+*   **Invalidations ciblées :** Utiliser `queryClient.invalidateQueries({ queryKey: [...] })` après mutations.
+*   **Clés de requête stables :** Preférez des clés structurées (ex: `['students', { page, classId, search }]`).
 
 ### État Local des Composants
 
@@ -294,7 +314,7 @@ Géré par `react-router-dom` v6, configuré principalement dans `src/App.tsx`.
     ```bash
     npm run dev  # ou yarn dev
     ```
-    Le serveur démarre généralement sur `http://localhost:8000` (configurable via `--port` dans le script `dev`).
+    Le serveur démarre sur `http://localhost:8000` (configurable via `--port` dans le script `dev`).
 2.  **Accéder à l'Application :** Ouvrir l'URL dans un navigateur.
 
 ### Autres Scripts Utiles
@@ -324,8 +344,10 @@ Géré par `react-router-dom` v6, configuré principalement dans `src/App.tsx`.
 
 ### Intégration Backend (État Actuel et Futur)
 
-*   **Actuellement : Données Mockées** (principalement dans `src/lib/`).
-*   **Futur : API Réelles.** Remplacer les mocks par des appels API, idéalement avec TanStack Query (React Query) comme suggéré dans `DEVBOOK.md`.
+*   **APIs Réelles :** L’intégration backend s’appuie sur des clients par service sous `src/api/*-service/`.
+*   **Intercepteurs Multi-tenant :** Chaque `http.ts` envoie `X-Etab-Select`/`X-Role-Select` et persiste le contexte confirmé via `X-Etab`/`X-Role`.
+*   **Legacy supprimé :** Plus d’utilisation de `X-Establishment-Id` ni de `current-etab-id` pour les headers. Voir `docs/IDENTITY_CONTEXT.md`.
+*   **TanStack Query :** Utilisé pour l’état serveur (fetch, cache, invalidations) et la cohérence des écrans.
 
 ### Tests
 
@@ -336,7 +358,8 @@ Géré par `react-router-dom` v6, configuré principalement dans `src/App.tsx`.
 *   **Outils Navigateur :** Inspecteur, Console, Réseau.
 *   **React DevTools (Extension) :** Indispensable pour inspecter les composants React.
 *   `console.log()`, `debugger;`.
+*   **Vérification Multi-tenant :** Sur l’onglet Réseau, confirmer l’envoi des en-têtes `X-Etab-Select`/`X-Role-Select` et la réception de `X-Etab`/`X-Role`.
 
 ---
 
-Cette documentation devrait servir de guide complet pour comprendre et contribuer efficacement au projet frontend Ed-Connect.
+Cette documentation devrait servir de guide complet pour comprendre et contribuer efficacement au projet frontend Edconnekt.

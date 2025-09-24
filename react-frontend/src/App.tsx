@@ -77,6 +77,8 @@ import DirectorSuppliesPage from './pages/directeur/DirectorSuppliesPage';
 import PublicSuppliesListPage from './pages/famille/PublicSuppliesListPage';
 import DirecteurEventsPage from './pages/directeur/DirecteurEventsPage';
 import EventDetailPage from './pages/events/EventDetailPage';
+import IdentityContextProvider, { useIdentityContext } from './contexts/IdentityContextProvider';
+import SelectContextPage from './pages/context/SelectContextPage';
 
 // Import des pages de l'administrateur
 import AdminDashboard from './pages/admin/dashboard/AdminDashboard';
@@ -223,6 +225,8 @@ const rolesPriority: Role[] = [
 // Composant qui gère la logique de routage
 const AppContent = () => {
   const { isAuthenticated, roles, loading } = useAuth();
+  const { activeEtabId, activeRole } = useIdentityContext();
+  const isAdmin = roles.includes('administrateur');
 
   // Affiche un message de chargement pendant l'initialisation de Keycloak
   if (loading) {
@@ -237,6 +241,16 @@ const AppContent = () => {
         <Route path="/admission" element={<AdmissionPublicPage />} />
         {/* Redirige toutes les autres tentatives d'accès vers la page de connexion */}
         <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+
+  // Utilisateur authentifié mais contexte non sélectionné -> écran intermédiaire de sélection (sauf administrateur)
+  if (!isAdmin && (!activeEtabId || !activeRole)) {
+    return (
+      <Routes>
+        <Route path="/select-contexte" element={<SelectContextPage />} />
+        <Route path="*" element={<Navigate to="/select-contexte" replace />} />
       </Routes>
     );
   }
@@ -286,7 +300,9 @@ const App = () => {
               <ScheduleProvider>
                 <SettingsProvider>
                   <DirectorTimetableProvider>
-                    <AppContent />
+                    <IdentityContextProvider>
+                      <AppContent />
+                    </IdentityContextProvider>
                   </DirectorTimetableProvider>
                 </SettingsProvider>
               </ScheduleProvider>

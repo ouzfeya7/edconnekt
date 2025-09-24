@@ -10,7 +10,7 @@ export function useLinkParent() {
       const { data } = await studentsApi.linkParentToStudentApiStudentsStudentIdParentsPost(
         payload.student_id,
         payload,
-        etabId ? { headers: { 'X-Establishment-Id': etabId } } : undefined
+        undefined
       );
       return data;
     },

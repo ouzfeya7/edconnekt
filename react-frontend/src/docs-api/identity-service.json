@@ -1209,6 +1209,67 @@
                     }
                 }
             }
+        },
+        "/api/v1/identity/me/establishments": {
+            "get": {
+                "summary": "Get User Establishments",
+                "description": "Récupère la liste des établissements de l'utilisateur connecté.\n\nSource: identity_establishment(identity_id, establishment_id)\nRetourne 403 si aucun rattachement.\n\nArgs:\n    current_user: Utilisateur connecté\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    UserEstablishmentsResponse: Liste des établissements avec leurs rôles",
+                "operationId": "get_user_establishments_api_v1_identity_me_establishments_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserEstablishmentsResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/me/roles": {
+            "get": {
+                "summary": "Get User Roles In Establishment",
+                "description": "Récupère les rôles de l'utilisateur dans un établissement spécifique.\n\nSource: identity_establishment.role (ENUM: student|parent|teacher|admin_staff)\nRetourne 403 si l'utilisateur n'est pas rattaché à l'établissement.\n\nArgs:\n    etab: UUID de l'établissement\n    current_user: Utilisateur connecté\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    UserRolesResponse: Rôles de l'utilisateur dans l'établissement",
+                "operationId": "get_user_roles_in_establishment_api_v1_identity_me_roles_get",
+                "parameters": [
+                    {
+                        "name": "etab",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "UUID de l'établissement",
+                            "title": "Etab"
+                        },
+                        "description": "UUID de l'établissement"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserRolesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -1381,11 +1442,7 @@
                     "role"
                 ],
                 "title": "EstablishmentLinkCreate",
-                "description": "Schéma pour la création d'un lien avec un établissement.",
-                "example": {
-                    "establishment_id": "EST-001",
-                    "role": "ROLE_ELEVE"
-                }
+                "description": "Schéma pour la création d'un lien avec un établissement."
             },
             "EstablishmentRole": {
                 "type": "string",
@@ -1477,14 +1534,7 @@
                     "lastname"
                 ],
                 "title": "IdentityCreate",
-                "description": "Schéma pour la création d'une identité.",
-                "example": {
-                    "email": "jean.dupont@example.com",
-                    "firstname": "Jean",
-                    "lastname": "Dupont",
-                    "phone": "+33123456789",
-                    "status": "ACTIVE"
-                }
+                "description": "Schéma pour la création d'une identité."
             },
             "IdentityListResponse": {
                 "properties": {
@@ -1526,22 +1576,7 @@
                     "pages"
                 ],
                 "title": "IdentityListResponse",
-                "description": "Schéma pour la liste des identités.",
-                "example": {
-                    "items": [
-                        {
-                            "email": "jean.dupont@example.com",
-                            "firstname": "Jean",
-                            "id": "123e4567-e89b-12d3-a456-426614174000",
-                            "lastname": "Dupont",
-                            "status": "ACTIVE"
-                        }
-                    ],
-                    "page": 1,
-                    "pages": 1,
-                    "size": 10,
-                    "total": 1
-                }
+                "description": "Schéma pour la liste des identités."
             },
             "IdentityResponse": {
                 "properties": {
@@ -1636,18 +1671,7 @@
                     "created_at"
                 ],
                 "title": "IdentityResponse",
-                "description": "Schéma pour la réponse d'une identité.",
-                "example": {
-                    "created_at": "2024-01-15T10:30:00",
-                    "email": "jean.dupont@example.com",
-                    "external_id": "keycloak-user-123",
-                    "firstname": "Jean",
-                    "id": "123e4567-e89b-12d3-a456-426614174000",
-                    "lastname": "Dupont",
-                    "phone": "+33123456789",
-                    "status": "ACTIVE",
-                    "updated_at": "2024-01-20T14:45:00"
-                }
+                "description": "Schéma pour la réponse d'une identité."
             },
             "IdentityStatus": {
                 "type": "string",
@@ -1729,12 +1753,79 @@
                 },
                 "type": "object",
                 "title": "IdentityUpdate",
-                "description": "Schéma pour la modification d'une identité.",
-                "example": {
-                    "email": "jean-pierre.dupont@example.com",
-                    "firstname": "Jean-Pierre",
-                    "status": "ACTIVE"
-                }
+                "description": "Schéma pour la modification d'une identité."
+            },
+            "UserEstablishmentResponse": {
+                "properties": {
+                    "establishment_id": {
+                        "type": "string",
+                        "title": "Establishment Id",
+                        "description": "ID de l'établissement"
+                    },
+                    "roles": {
+                        "items": {
+                            "$ref": "#/components/schemas/EstablishmentRole"
+                        },
+                        "type": "array",
+                        "title": "Roles",
+                        "description": "Rôles de l'utilisateur dans cet établissement"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "establishment_id",
+                    "roles"
+                ],
+                "title": "UserEstablishmentResponse",
+                "description": "Schéma de réponse pour un établissement d'utilisateur."
+            },
+            "UserEstablishmentsResponse": {
+                "properties": {
+                    "establishments": {
+                        "items": {
+                            "$ref": "#/components/schemas/UserEstablishmentResponse"
+                        },
+                        "type": "array",
+                        "title": "Establishments",
+                        "description": "Liste des établissements de l'utilisateur"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total",
+                        "description": "Nombre total d'établissements"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "establishments",
+                    "total"
+                ],
+                "title": "UserEstablishmentsResponse",
+                "description": "Schéma de réponse pour la liste des établissements d'un utilisateur."
+            },
+            "UserRolesResponse": {
+                "properties": {
+                    "establishment_id": {
+                        "type": "string",
+                        "title": "Establishment Id",
+                        "description": "ID de l'établissement"
+                    },
+                    "roles": {
+                        "items": {
+                            "$ref": "#/components/schemas/EstablishmentRole"
+                        },
+                        "type": "array",
+                        "title": "Roles",
+                        "description": "Rôles de l'utilisateur dans cet établissement"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "establishment_id",
+                    "roles"
+                ],
+                "title": "UserRolesResponse",
+                "description": "Schéma de réponse pour les rôles d'un utilisateur dans un établissement."
             },
             "ValidationError": {
                 "properties": {

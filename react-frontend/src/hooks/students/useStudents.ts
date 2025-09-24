@@ -18,8 +18,7 @@ export function useStudents(params?: { page?: number; size?: number; classId?: s
         size,
         classId,
         status,
-        search,
-        etabId ? { headers: { 'X-Establishment-Id': etabId } } : undefined
+        search
       );
       return data;
     },

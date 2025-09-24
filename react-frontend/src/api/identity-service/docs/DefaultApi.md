@@ -13,6 +13,8 @@ All URIs are relative to *http://localhost*
 |[**getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet**](#getcsvtemplateapiv1identitybulkimporttemplatedomainget) | **GET** /api/v1/identity/bulkimport/template/{domain} | Get Csv Template|
 |[**getIdentityApiV1IdentityIdentitiesIdentityIdGet**](#getidentityapiv1identityidentitiesidentityidget) | **GET** /api/v1/identity/identities/{identity_id} | Get Identity|
 |[**getSseStatsApiV1IdentityBulkimportSseStatsGet**](#getssestatsapiv1identitybulkimportssestatsget) | **GET** /api/v1/identity/bulkimport/sse/stats | Get Sse Stats|
+|[**getUserEstablishmentsApiV1IdentityMeEstablishmentsGet**](#getuserestablishmentsapiv1identitymeestablishmentsget) | **GET** /api/v1/identity/me/establishments | Get User Establishments|
+|[**getUserRolesInEstablishmentApiV1IdentityMeRolesGet**](#getuserrolesinestablishmentapiv1identitymerolesget) | **GET** /api/v1/identity/me/roles | Get User Roles In Establishment|
 |[**healthCheckHealthGet**](#healthcheckhealthget) | **GET** /health | Health Check|
 |[**linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost**](#linkidentitytoestablishmentapiv1identityidentitiesidentityidestablishmentspost) | **POST** /api/v1/identity/identities/{identity_id}/establishments | Link Identity To Establishment|
 |[**listIdentitiesApiV1IdentityIdentitiesGet**](#listidentitiesapiv1identityidentitiesget) | **GET** /api/v1/identity/identities | List Identities|
@@ -495,6 +497,102 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Successful Response |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getUserEstablishmentsApiV1IdentityMeEstablishmentsGet**
+> UserEstablishmentsResponse getUserEstablishmentsApiV1IdentityMeEstablishmentsGet()
+
+Récupère la liste des établissements de l\'utilisateur connecté.  Source: identity_establishment(identity_id, establishment_id) Retourne 403 si aucun rattachement.  Args:     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserEstablishmentsResponse: Liste des établissements avec leurs rôles
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.getUserEstablishmentsApiV1IdentityMeEstablishmentsGet();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**UserEstablishmentsResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getUserRolesInEstablishmentApiV1IdentityMeRolesGet**
+> UserRolesResponse getUserRolesInEstablishmentApiV1IdentityMeRolesGet()
+
+Récupère les rôles de l\'utilisateur dans un établissement spécifique.  Source: identity_establishment.role (ENUM: student|parent|teacher|admin_staff) Retourne 403 si l\'utilisateur n\'est pas rattaché à l\'établissement.  Args:     etab: UUID de l\'établissement     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserRolesResponse: Rôles de l\'utilisateur dans l\'établissement
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let etab: string; //UUID de l\'établissement (default to undefined)
+
+const { status, data } = await apiInstance.getUserRolesInEstablishmentApiV1IdentityMeRolesGet(
+    etab
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **etab** | [**string**] | UUID de l\&#39;établissement | defaults to undefined|
+
+
+### Return type
+
+**UserRolesResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
