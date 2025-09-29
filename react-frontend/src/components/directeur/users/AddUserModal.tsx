@@ -9,7 +9,7 @@ interface AddUserModalProps {
 
 const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
-  const [role, setRole] = useState('student');
+  const [role, setRole] = useState('STUDENT');
 
   if (!isOpen) return null;
 
@@ -51,10 +51,10 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose }) => {
               onChange={(e) => setRole(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="student">{t('student', 'Élève')}</option>
-              <option value="teacher">{t('teacher', 'Enseignant')}</option>
-              <option value="parent">{t('parent', 'Parent')}</option>
-              <option value="staff">{t('administrative_staff', 'Personnel administratif')}</option>
+              <option value="STUDENT">{t('student', 'Élève')}</option>
+              <option value="TEACHER">{t('teacher', 'Enseignant')}</option>
+              <option value="PARENT">{t('parent', 'Parent')}</option>
+              <option value="ADMIN_STAFF">{t('administrative_staff', 'Personnel administratif')}</option>
             </select>
           </div>
           <div className="flex justify-end space-x-4">

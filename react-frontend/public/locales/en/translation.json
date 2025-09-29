@@ -221,5 +221,79 @@
     "svt": "SVT",
     "file_read_error": "Error reading file",
     "admissions": "Admissions",
-    "admission": "Admission"
+    "admission": "Admission",
+  "competency_lookup": "Lookup by code",
+  "competency": {
+    "common": {
+      "retry": "Retry",
+      "back": "Back",
+      "open_referentials": "Open referentials",
+      "error_title": "Error",
+      "created_at": "Created at",
+      "updated_at": "Updated at"
+    },
+    "detail": {
+      "subject": {
+        "title": "Subject",
+        "info": "Key information",
+        "metadata": "Metadata",
+        "name": "Name",
+        "code": "Code",
+        "coefficient": "Coefficient",
+        "credit": "Credit",
+        "color": "Color",
+        "order": "Order",
+        "referential": "Referential",
+        "version": "Version",
+        "domain_id": "Domain ID",
+        "created_at": "Created at",
+        "updated_at": "Updated at",
+        "view_competencies": "View competencies",
+        "not_found": "Subject not found (404)",
+        "load_error_toast": "An error occurred while loading the subject."
+      },
+      "competency": {
+        "title": "Competency",
+        "info": "Information",
+        "metadata": "Metadata",
+        "label": "Label",
+        "code": "Code",
+        "description": "Description",
+        "levels": "Levels",
+        "order": "Order",
+        "subject_id": "Subject ID",
+        "referential": "Referential",
+        "version": "Version",
+        "open_ref": "Open referential",
+{{ ... }}
+        "not_found": "Competency not found (404)",
+        "load_error_toast": "An error occurred while loading the competency."
+      },
+      "assignment": {
+        "title": "Assignment",
+        "info": "Information",
+        "scope": "Scope",
+        "type": "Type",
+        "value": "Value",
+        "referential": "Referential",
+        "version": "Version",
+        "open_ref": "Open referential",
+        "not_found": "Assignment not found (404)",
+        "load_error_toast": "An error occurred while loading the assignment."
+      }
+    },
+    "lookup": {
+      "title": "Lookup competency by code",
+      "code_label": "Competency code",
+      "referential_label": "Referential (optional)",
+      "version_label": "Version (optional)",
+      "submit": "Search",
+      "searching": "Searching...",
+      "not_found_title": "No competency found (404)",
+      "not_found_hint": "Check the entered code and try again.",
+      "open_detail": "Open detail",
+      "open_ref": "Open referential",
+      "load_error_toast": "An error occurred during lookup."
+    }
   }
+}

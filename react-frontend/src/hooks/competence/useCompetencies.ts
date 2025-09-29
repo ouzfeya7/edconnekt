@@ -33,6 +33,20 @@ export function useCompetencies(params: UseCompetenciesParams) {
   });
 }
 
+export function useCompetency(competencyId?: string) {
+  return useQuery<CompetencyResponse, Error>({
+    queryKey: ['competence:competency', competencyId],
+    enabled: Boolean(competencyId),
+    queryFn: async () => {
+      if (!competencyId) throw new Error('competencyId requis');
+      const { data } = await competenceReferentialsApi.getCompetencyApiCompetenceCompetenciesCompetencyIdGet(competencyId);
+      return data;
+    },
+    staleTime: 60_000,
+    retry: 0,
+  });
+}
+
 export function usePublicCompetenciesForSubject(subjectId?: string) {
   return useQuery<CompetencyResponse[], Error>({
     queryKey: ['competence:public-competencies-by-subject', subjectId],
@@ -43,6 +57,25 @@ export function usePublicCompetenciesForSubject(subjectId?: string) {
       return data;
     },
     staleTime: 60_000,
+  });
+}
+
+export function useLookupCompetencyByCode(params: { code?: string; referentialId?: string; version?: number }) {
+  const { code, referentialId, version } = params;
+  return useQuery<CompetencyResponse, Error>({
+    queryKey: ['competence:competency:lookup-by-code', { code, referentialId, version }],
+    enabled: Boolean(code),
+    queryFn: async () => {
+      if (!code) throw new Error('code requis');
+      const { data } = await competencePublicApi.lookupCompetencyByCodeApiCompetencePublicCompetenciesByCodeCodeGet(
+        code,
+        referentialId,
+        version
+      );
+      return data;
+    },
+    staleTime: 60_000,
+    retry: 0,
   });
 }
 

@@ -5,29 +5,37 @@ All URIs are relative to *http://localhost*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**bulkImportIdentitiesApiV1IdentityBulkimportPost**](#bulkimportidentitiesapiv1identitybulkimportpost) | **POST** /api/v1/identity/bulkimport | Bulk Import Identities|
-|[**cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost**](#cancelbulkimportapiv1identitybulkimportcancelbatchidpost) | **POST** /api/v1/identity/bulkimport/cancel/{batch_id} | Cancel Bulk Import|
-|[**createIdentityApiV1IdentityIdentitiesPost**](#createidentityapiv1identityidentitiespost) | **POST** /api/v1/identity/identities | Create Identity|
-|[**deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete**](#deleteidentityapiv1identityidentitiesidentityiddelete) | **DELETE** /api/v1/identity/identities/{identity_id} | Delete Identity|
-|[**getAuditHistoryApiV1IdentityBulkimportAuditGet**](#getaudithistoryapiv1identitybulkimportauditget) | **GET** /api/v1/identity/bulkimport/audit | Get Audit History|
-|[**getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet**](#getbulkimportprogressapiv1identitybulkimportprogressbatchidget) | **GET** /api/v1/identity/bulkimport/progress/{batch_id} | Get Bulk Import Progress|
-|[**getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet**](#getcsvtemplateapiv1identitybulkimporttemplatedomainget) | **GET** /api/v1/identity/bulkimport/template/{domain} | Get Csv Template|
-|[**getIdentityApiV1IdentityIdentitiesIdentityIdGet**](#getidentityapiv1identityidentitiesidentityidget) | **GET** /api/v1/identity/identities/{identity_id} | Get Identity|
-|[**getSseStatsApiV1IdentityBulkimportSseStatsGet**](#getssestatsapiv1identitybulkimportssestatsget) | **GET** /api/v1/identity/bulkimport/sse/stats | Get Sse Stats|
-|[**getUserEstablishmentsApiV1IdentityMeEstablishmentsGet**](#getuserestablishmentsapiv1identitymeestablishmentsget) | **GET** /api/v1/identity/me/establishments | Get User Establishments|
-|[**getUserRolesInEstablishmentApiV1IdentityMeRolesGet**](#getuserrolesinestablishmentapiv1identitymerolesget) | **GET** /api/v1/identity/me/roles | Get User Roles In Establishment|
+|[**createIdentityApiV1IdentityPost**](#createidentityapiv1identitypost) | **POST** /api/v1/identity/ | Create Identity|
+|[**createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost**](#createroleassignmentapiv1identityidentitiesidentityidrolespost) | **POST** /api/v1/identity/identities/{identity_id}/roles | Create Role Assignment|
+|[**deleteIdentityApiV1IdentityIdentityIdDelete**](#deleteidentityapiv1identityidentityiddelete) | **DELETE** /api/v1/identity/{identity_id} | Delete Identity|
+|[**deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete**](#deleteroleassignmentapiv1identityidentitiesidentityidrolesroleiddelete) | **DELETE** /api/v1/identity/identities/{identity_id}/roles/{role_id} | Delete Role Assignment|
+|[**getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet**](#getbatchdetailsapiv1identitybulkimportbatchesbatchidget) | **GET** /api/v1/identity/bulkimport/batches/{batch_id} | Get Batch Details|
+|[**getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet**](#getbatchstatusapiv1identitybulkimportbatchesbatchidstatusget) | **GET** /api/v1/identity/bulkimport/batches/{batch_id}/status | Get Batch Status|
+|[**getCyclesApiV1IdentityCatalogsCyclesGet**](#getcyclesapiv1identitycatalogscyclesget) | **GET** /api/v1/identity/catalogs/cycles | Get Cycles|
+|[**getIdentityApiV1IdentityIdentityIdGet**](#getidentityapiv1identityidentityidget) | **GET** /api/v1/identity/{identity_id} | Get Identity|
+|[**getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet**](#getidentityrolesapiv1identityidentitiesidentityidrolesget) | **GET** /api/v1/identity/identities/{identity_id}/roles | Get Identity Roles|
+|[**getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet**](#getidentitywithrolesapiv1identityidentitiesidentityidfullget) | **GET** /api/v1/identity/identities/{identity_id}/full | Get Identity With Roles|
+|[**getImportTemplateApiV1IdentityBulkimportTemplateRoleGet**](#getimporttemplateapiv1identitybulkimporttemplateroleget) | **GET** /api/v1/identity/bulkimport/template/{role} | Get Import Template|
+|[**getLastCodeIdentiteApiV1IdentityLastCodeGet**](#getlastcodeidentiteapiv1identitylastcodeget) | **GET** /api/v1/identity/last-code | Get Last Code Identite|
+|[**getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet**](#getroleassignmentapiv1identityidentitiesidentityidrolesroleidget) | **GET** /api/v1/identity/identities/{identity_id}/roles/{role_id} | Get Role Assignment|
+|[**getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet**](#getroleseffectifsapiv1identitycatalogsroleseffectifsget) | **GET** /api/v1/identity/catalogs/roles-effectifs | Get Roles Effectifs|
+|[**getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet**](#getrolesprincipauxapiv1identitycatalogsrolesprincipauxget) | **GET** /api/v1/identity/catalogs/roles-principaux | Get Roles Principaux|
+|[**getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet**](#gettemplateinfoapiv1identitybulkimporttemplateroleinfoget) | **GET** /api/v1/identity/bulkimport/template/{role}/info | Get Template Info|
 |[**healthCheckHealthGet**](#healthcheckhealthget) | **GET** /health | Health Check|
-|[**linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost**](#linkidentitytoestablishmentapiv1identityidentitiesidentityidestablishmentspost) | **POST** /api/v1/identity/identities/{identity_id}/establishments | Link Identity To Establishment|
-|[**listIdentitiesApiV1IdentityIdentitiesGet**](#listidentitiesapiv1identityidentitiesget) | **GET** /api/v1/identity/identities | List Identities|
+|[**linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost**](#linkidentitytoestablishmentapiv1identityidentityidestablishmentspost) | **POST** /api/v1/identity/{identity_id}/establishments | Link Identity To Establishment|
+|[**listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet**](#listavailabletemplatesapiv1identitybulkimporttemplatesget) | **GET** /api/v1/identity/bulkimport/templates | List Available Templates|
+|[**listBatchesApiV1IdentityBulkimportBatchesGet**](#listbatchesapiv1identitybulkimportbatchesget) | **GET** /api/v1/identity/bulkimport/batches | List Batches|
+|[**listIdentitiesApiV1IdentityGet**](#listidentitiesapiv1identityget) | **GET** /api/v1/identity/ | List Identities|
 |[**rootGet**](#rootget) | **GET** / | Root|
-|[**sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions**](#sseoptionsapiv1identitybulkimportstreambatchidoptions) | **OPTIONS** /api/v1/identity/bulkimport/stream/{batch_id} | Sse Options|
-|[**streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet**](#streambatchprogressapiv1identitybulkimportstreambatchidget) | **GET** /api/v1/identity/bulkimport/stream/{batch_id} | Stream Batch Progress|
-|[**unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete**](#unlinkidentityfromestablishmentapiv1identityidentitiesidentityidestablishmentsestablishmentiddelete) | **DELETE** /api/v1/identity/identities/{identity_id}/establishments/{establishment_id} | Unlink Identity From Establishment|
-|[**updateIdentityApiV1IdentityIdentitiesIdentityIdPut**](#updateidentityapiv1identityidentitiesidentityidput) | **PUT** /api/v1/identity/identities/{identity_id} | Update Identity|
+|[**streamImportProgressApiV1IdentityBulkimportSseBatchIdGet**](#streamimportprogressapiv1identitybulkimportssebatchidget) | **GET** /api/v1/identity/bulkimport/sse/{batch_id} | Stream Import Progress|
+|[**unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete**](#unlinkidentityfromestablishmentapiv1identityidentityidestablishmentsestablishmentiddelete) | **DELETE** /api/v1/identity/{identity_id}/establishments/{establishment_id} | Unlink Identity From Establishment|
+|[**updateIdentityApiV1IdentityIdentityIdPatch**](#updateidentityapiv1identityidentityidpatch) | **PATCH** /api/v1/identity/{identity_id} | Update Identity|
+|[**updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut**](#updateroleassignmentapiv1identityidentitiesidentityidrolesroleidput) | **PUT** /api/v1/identity/identities/{identity_id}/roles/{role_id} | Update Role Assignment|
 
 # **bulkImportIdentitiesApiV1IdentityBulkimportPost**
-> BulkImportResponse bulkImportIdentitiesApiV1IdentityBulkimportPost()
+> ImportResponse bulkImportIdentitiesApiV1IdentityBulkimportPost()
 
-Import en masse d\'identités via fichier CSV.  Accepte les formats CSV avec les schémas suivants : - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone - **parents.csv** : establishment_id;firstname;lastname;email;phone - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date  Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.  Le domaine est automatiquement détecté à partir des en-têtes du CSV.
+Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée
 
 ### Example
 
@@ -40,14 +48,12 @@ import {
 const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
-let file: File; //Fichier CSV à importer (default to undefined)
+let file: File; //Fichier CSV ou Excel à importer (default to undefined)
 let establishmentId: string; //ID de l\\\'établissement (default to undefined)
-let sourceFileUrl: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.bulkImportIdentitiesApiV1IdentityBulkimportPost(
     file,
-    establishmentId,
-    sourceFileUrl
+    establishmentId
 );
 ```
 
@@ -55,14 +61,13 @@ const { status, data } = await apiInstance.bulkImportIdentitiesApiV1IdentityBulk
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **file** | [**File**] | Fichier CSV à importer | defaults to undefined|
+| **file** | [**File**] | Fichier CSV ou Excel à importer | defaults to undefined|
 | **establishmentId** | [**string**] | ID de l\\\&#39;établissement | defaults to undefined|
-| **sourceFileUrl** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
 
-**BulkImportResponse**
+**ImportResponse**
 
 ### Authorization
 
@@ -82,62 +87,10 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost**
-> any cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost()
+# **createIdentityApiV1IdentityPost**
+> StandardSuccessResponse createIdentityApiV1IdentityPost(identityCreate)
 
-Annule un batch d\'import en cours.  Args:     batch_id: ID du batch
-
-### Example
-
-```typescript
-import {
-    DefaultApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new DefaultApi(configuration);
-
-let batchId: string; // (default to undefined)
-
-const { status, data } = await apiInstance.cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(
-    batchId
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **batchId** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-**any**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Successful Response |  -  |
-|**422** | Validation Error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **createIdentityApiV1IdentityIdentitiesPost**
-> IdentityResponse createIdentityApiV1IdentityIdentitiesPost(identityCreate)
-
-Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité créée
+Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité créée
 
 ### Example
 
@@ -153,7 +106,7 @@ const apiInstance = new DefaultApi(configuration);
 
 let identityCreate: IdentityCreate; //
 
-const { status, data } = await apiInstance.createIdentityApiV1IdentityIdentitiesPost(
+const { status, data } = await apiInstance.createIdentityApiV1IdentityPost(
     identityCreate
 );
 ```
@@ -167,7 +120,7 @@ const { status, data } = await apiInstance.createIdentityApiV1IdentityIdentities
 
 ### Return type
 
-**IdentityResponse**
+**StandardSuccessResponse**
 
 ### Authorization
 
@@ -187,10 +140,66 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete**
-> any deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete()
+# **createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost**
+> RoleAssignmentResponse createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost(roleAssignmentCreate)
 
-Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+Crée un nouveau rôle complexe pour une identité.  Args:     identity_id: ID de l\'identité     role_data: Données du rôle à créer      Returns:     RoleAssignmentResponse: Rôle créé avec succès
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    RoleAssignmentCreate
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let identityId: string; // (default to undefined)
+let roleAssignmentCreate: RoleAssignmentCreate; //
+
+const { status, data } = await apiInstance.createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost(
+    identityId,
+    roleAssignmentCreate
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **roleAssignmentCreate** | **RoleAssignmentCreate**|  | |
+| **identityId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**RoleAssignmentResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteIdentityApiV1IdentityIdentityIdDelete**
+> StandardSuccessResponse deleteIdentityApiV1IdentityIdentityIdDelete()
+
+Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
 
 ### Example
 
@@ -205,7 +214,7 @@ const apiInstance = new DefaultApi(configuration);
 
 let identityId: string; // (default to undefined)
 
-const { status, data } = await apiInstance.deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(
+const { status, data } = await apiInstance.deleteIdentityApiV1IdentityIdentityIdDelete(
     identityId
 );
 ```
@@ -219,7 +228,7 @@ const { status, data } = await apiInstance.deleteIdentityApiV1IdentityIdentities
 
 ### Return type
 
-**any**
+**StandardSuccessResponse**
 
 ### Authorization
 
@@ -239,10 +248,10 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getAuditHistoryApiV1IdentityBulkimportAuditGet**
-> any getAuditHistoryApiV1IdentityBulkimportAuditGet()
+# **deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete**
+> any deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete()
 
-Récupère l\'historique d\'audit des opérations de bulk import.  Args:     user_id: Filtrer par utilisateur     establishment_id: Filtrer par établissement     batch_id: Filtrer par batch     limit: Limite du nombre de résultats
+Supprime un rôle complexe d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle      Returns:     dict: Message de confirmation
 
 ### Example
 
@@ -255,16 +264,12 @@ import {
 const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
-let userId: string; // (optional) (default to undefined)
-let establishmentId: string; // (optional) (default to undefined)
-let batchId: string; // (optional) (default to undefined)
-let limit: number; // (optional) (default to 100)
+let identityId: string; // (default to undefined)
+let roleId: string; // (default to undefined)
 
-const { status, data } = await apiInstance.getAuditHistoryApiV1IdentityBulkimportAuditGet(
-    userId,
-    establishmentId,
-    batchId,
-    limit
+const { status, data } = await apiInstance.deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete(
+    identityId,
+    roleId
 );
 ```
 
@@ -272,10 +277,8 @@ const { status, data } = await apiInstance.getAuditHistoryApiV1IdentityBulkimpor
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **userId** | [**string**] |  | (optional) defaults to undefined|
-| **establishmentId** | [**string**] |  | (optional) defaults to undefined|
-| **batchId** | [**string**] |  | (optional) defaults to undefined|
-| **limit** | [**number**] |  | (optional) defaults to 100|
+| **identityId** | [**string**] |  | defaults to undefined|
+| **roleId** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -300,10 +303,10 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet**
-> any getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet()
+# **getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet**
+> any getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet()
 
-Récupère la progression d\'un batch d\'import.  Args:     batch_id: ID du batch
+Récupère les détails d\'un batch spécifique.  Args:     batch_id: ID du batch      Returns:     Dict: Détails du batch
 
 ### Example
 
@@ -318,7 +321,7 @@ const apiInstance = new DefaultApi(configuration);
 
 let batchId: string; // (default to undefined)
 
-const { status, data } = await apiInstance.getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(
+const { status, data } = await apiInstance.getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet(
     batchId
 );
 ```
@@ -352,10 +355,10 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet**
-> any getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet()
+# **getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet**
+> any getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet()
 
-Récupère un template CSV pour un domaine donné.  Args:     domain: Domaine (student, parent, teacher, admin_staff)
+Récupère le statut actuel d\'un batch.  Args:     batch_id: ID du batch      Returns:     Dict: Statut du batch
 
 ### Example
 
@@ -368,10 +371,10 @@ import {
 const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
-let domain: string; // (default to undefined)
+let batchId: string; // (default to undefined)
 
-const { status, data } = await apiInstance.getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(
-    domain
+const { status, data } = await apiInstance.getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(
+    batchId
 );
 ```
 
@@ -379,7 +382,7 @@ const { status, data } = await apiInstance.getCsvTemplateApiV1IdentityBulkimport
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **domain** | [**string**] |  | defaults to undefined|
+| **batchId** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -404,10 +407,71 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getIdentityApiV1IdentityIdentitiesIdentityIdGet**
-> IdentityResponse getIdentityApiV1IdentityIdentitiesIdentityIdGet()
+# **getCyclesApiV1IdentityCatalogsCyclesGet**
+> StandardListResponse getCyclesApiV1IdentityCatalogsCyclesGet()
 
-Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité trouvée
+Récupère la liste des cycles pédagogiques.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[CycleResponse]: Liste des cycles
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let page: number; //Numéro de page (optional) (default to 1)
+let size: number; //Taille de la page (optional) (default to 10)
+let search: string; //Terme de recherche (optional) (default to undefined)
+let isActive: boolean; //Filtrer par statut actif (optional) (default to undefined)
+
+const { status, data } = await apiInstance.getCyclesApiV1IdentityCatalogsCyclesGet(
+    page,
+    size,
+    search,
+    isActive
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] | Numéro de page | (optional) defaults to 1|
+| **size** | [**number**] | Taille de la page | (optional) defaults to 10|
+| **search** | [**string**] | Terme de recherche | (optional) defaults to undefined|
+| **isActive** | [**boolean**] | Filtrer par statut actif | (optional) defaults to undefined|
+
+
+### Return type
+
+**StandardListResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getIdentityApiV1IdentityIdentityIdGet**
+> StandardSingleResponse getIdentityApiV1IdentityIdentityIdGet()
+
+Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité trouvée
 
 ### Example
 
@@ -422,7 +486,7 @@ const apiInstance = new DefaultApi(configuration);
 
 let identityId: string; // (default to undefined)
 
-const { status, data } = await apiInstance.getIdentityApiV1IdentityIdentitiesIdentityIdGet(
+const { status, data } = await apiInstance.getIdentityApiV1IdentityIdentityIdGet(
     identityId
 );
 ```
@@ -436,7 +500,7 @@ const { status, data } = await apiInstance.getIdentityApiV1IdentityIdentitiesIde
 
 ### Return type
 
-**IdentityResponse**
+**StandardSingleResponse**
 
 ### Authorization
 
@@ -456,10 +520,10 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getSseStatsApiV1IdentityBulkimportSseStatsGet**
-> any getSseStatsApiV1IdentityBulkimportSseStatsGet()
+# **getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet**
+> Array<RoleAssignmentResponse> getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet()
 
-Récupère les statistiques des connexions SSE.  Returns:     Dict: Statistiques des connexions
+Récupère tous les rôles d\'une identité.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement (optionnel)      Returns:     List[RoleAssignmentResponse]: Liste des rôles de l\'identité
 
 ### Example
 
@@ -472,11 +536,128 @@ import {
 const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
-const { status, data } = await apiInstance.getSseStatsApiV1IdentityBulkimportSseStatsGet();
+let identityId: string; // (default to undefined)
+let establishmentId: string; //Filtrer par établissement (optional) (default to undefined)
+
+const { status, data } = await apiInstance.getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet(
+    identityId,
+    establishmentId
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **identityId** | [**string**] |  | defaults to undefined|
+| **establishmentId** | [**string**] | Filtrer par établissement | (optional) defaults to undefined|
+
+
+### Return type
+
+**Array<RoleAssignmentResponse>**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet**
+> IdentityWithRoles getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet()
+
+Récupère une identité avec tous ses rôles complexes.  Args:     identity_id: ID de l\'identité      Returns:     IdentityWithRoles: Identité avec ses rôles
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let identityId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet(
+    identityId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **identityId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**IdentityWithRoles**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getImportTemplateApiV1IdentityBulkimportTemplateRoleGet**
+> any getImportTemplateApiV1IdentityBulkimportTemplateRoleGet()
+
+Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let role: string; // (default to undefined)
+let formatType: string; // (optional) (default to 'csv')
+
+const { status, data } = await apiInstance.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(
+    role,
+    formatType
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **role** | [**string**] |  | defaults to undefined|
+| **formatType** | [**string**] |  | (optional) defaults to 'csv'|
 
 
 ### Return type
@@ -497,13 +678,14 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getUserEstablishmentsApiV1IdentityMeEstablishmentsGet**
-> UserEstablishmentsResponse getUserEstablishmentsApiV1IdentityMeEstablishmentsGet()
+# **getLastCodeIdentiteApiV1IdentityLastCodeGet**
+> StandardSingleResponse getLastCodeIdentiteApiV1IdentityLastCodeGet()
 
-Récupère la liste des établissements de l\'utilisateur connecté.  Source: identity_establishment(identity_id, establishment_id) Retourne 403 si aucun rattachement.  Args:     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserEstablishmentsResponse: Liste des établissements avec leurs rôles
+Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement
 
 ### Example
 
@@ -516,7 +698,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
-const { status, data } = await apiInstance.getUserEstablishmentsApiV1IdentityMeEstablishmentsGet();
+const { status, data } = await apiInstance.getLastCodeIdentiteApiV1IdentityLastCodeGet();
 ```
 
 ### Parameters
@@ -525,7 +707,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**UserEstablishmentsResponse**
+**StandardSingleResponse**
 
 ### Authorization
 
@@ -544,10 +726,10 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getUserRolesInEstablishmentApiV1IdentityMeRolesGet**
-> UserRolesResponse getUserRolesInEstablishmentApiV1IdentityMeRolesGet()
+# **getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet**
+> RoleAssignmentResponse getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet()
 
-Récupère les rôles de l\'utilisateur dans un établissement spécifique.  Source: identity_establishment.role (ENUM: student|parent|teacher|admin_staff) Retourne 403 si l\'utilisateur n\'est pas rattaché à l\'établissement.  Args:     etab: UUID de l\'établissement     current_user: Utilisateur connecté     identity_crud_service: Service CRUD des identités      Returns:     UserRolesResponse: Rôles de l\'utilisateur dans l\'établissement
+Récupère un rôle spécifique d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle      Returns:     RoleAssignmentResponse: Rôle demandé
 
 ### Example
 
@@ -560,10 +742,12 @@ import {
 const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
-let etab: string; //UUID de l\'établissement (default to undefined)
+let identityId: string; // (default to undefined)
+let roleId: string; // (default to undefined)
 
-const { status, data } = await apiInstance.getUserRolesInEstablishmentApiV1IdentityMeRolesGet(
-    etab
+const { status, data } = await apiInstance.getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet(
+    identityId,
+    roleId
 );
 ```
 
@@ -571,12 +755,193 @@ const { status, data } = await apiInstance.getUserRolesInEstablishmentApiV1Ident
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **etab** | [**string**] | UUID de l\&#39;établissement | defaults to undefined|
+| **identityId** | [**string**] |  | defaults to undefined|
+| **roleId** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
 
-**UserRolesResponse**
+**RoleAssignmentResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet**
+> StandardListResponse getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet()
+
+Récupère la liste des rôles effectifs.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     group_key: Filtrer par groupe fonctionnel     is_sensitive: Filtrer par sensibilité     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RoleEffectifResponse]: Liste des rôles effectifs
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let page: number; //Numéro de page (optional) (default to 1)
+let size: number; //Taille de la page (optional) (default to 10)
+let search: string; //Terme de recherche (optional) (default to undefined)
+let groupKey: string; //Filtrer par groupe (optional) (default to undefined)
+let isSensitive: boolean; //Filtrer par sensibilité (optional) (default to undefined)
+let isActive: boolean; //Filtrer par statut actif (optional) (default to undefined)
+
+const { status, data } = await apiInstance.getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(
+    page,
+    size,
+    search,
+    groupKey,
+    isSensitive,
+    isActive
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] | Numéro de page | (optional) defaults to 1|
+| **size** | [**number**] | Taille de la page | (optional) defaults to 10|
+| **search** | [**string**] | Terme de recherche | (optional) defaults to undefined|
+| **groupKey** | [**string**] | Filtrer par groupe | (optional) defaults to undefined|
+| **isSensitive** | [**boolean**] | Filtrer par sensibilité | (optional) defaults to undefined|
+| **isActive** | [**boolean**] | Filtrer par statut actif | (optional) defaults to undefined|
+
+
+### Return type
+
+**StandardListResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet**
+> StandardListResponse getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet()
+
+Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let page: number; //Numéro de page (optional) (default to 1)
+let size: number; //Taille de la page (optional) (default to 10)
+let search: string; //Terme de recherche (optional) (default to undefined)
+let isActive: boolean; //Filtrer par statut actif (optional) (default to undefined)
+
+const { status, data } = await apiInstance.getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet(
+    page,
+    size,
+    search,
+    isActive
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] | Numéro de page | (optional) defaults to 1|
+| **size** | [**number**] | Taille de la page | (optional) defaults to 10|
+| **search** | [**string**] | Terme de recherche | (optional) defaults to undefined|
+| **isActive** | [**boolean**] | Filtrer par statut actif | (optional) defaults to undefined|
+
+
+### Return type
+
+**StandardListResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet**
+> TemplateResponse getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet()
+
+Obtenir les informations sur un template d\'import.  **Paramètres :** - `role` : Rôle du template (admin_staff, teacher, student, parent)  **Réponse :** - Informations sur le template - Colonnes disponibles - Nombre d\'exemples - Description du template
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let role: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet(
+    role
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **role** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**TemplateResponse**
 
 ### Authorization
 
@@ -597,7 +962,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **healthCheckHealthGet**
-> any healthCheckHealthGet()
+> StandardSingleResponse healthCheckHealthGet()
 
 Endpoint de vérification de santé du service.
 
@@ -621,7 +986,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**any**
+**StandardSingleResponse**
 
 ### Authorization
 
@@ -640,10 +1005,10 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost**
-> any linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(establishmentLinkCreate)
+# **linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost**
+> StandardSuccessResponse linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost(establishmentLinkCreate)
 
-Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
 
 ### Example
 
@@ -660,7 +1025,7 @@ const apiInstance = new DefaultApi(configuration);
 let identityId: string; // (default to undefined)
 let establishmentLinkCreate: EstablishmentLinkCreate; //
 
-const { status, data } = await apiInstance.linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(
+const { status, data } = await apiInstance.linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost(
     identityId,
     establishmentLinkCreate
 );
@@ -676,7 +1041,7 @@ const { status, data } = await apiInstance.linkIdentityToEstablishmentApiV1Ident
 
 ### Return type
 
-**any**
+**StandardSuccessResponse**
 
 ### Authorization
 
@@ -696,10 +1061,112 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **listIdentitiesApiV1IdentityIdentitiesGet**
-> IdentityListResponse listIdentitiesApiV1IdentityIdentitiesGet()
+# **listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet**
+> any listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet()
 
-Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityListResponse: Liste paginée des identités
+Lister les templates d\'import disponibles.  **Réponse :** - Liste des rôles supportés - Formats disponibles pour chaque rôle - Informations générales sur les templates
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**any**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listBatchesApiV1IdentityBulkimportBatchesGet**
+> any listBatchesApiV1IdentityBulkimportBatchesGet()
+
+Liste les batches d\'import avec pagination.  Args:     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 10, max: 100)     status: Statut pour filtrer (optionnel)      Returns:     Dict: Liste paginée des batches
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let page: number; //Numéro de page (optional) (default to 1)
+let size: number; //Taille de page (optional) (default to 10)
+let status: string; //Filtrer par statut (optional) (default to undefined)
+
+const { status, data } = await apiInstance.listBatchesApiV1IdentityBulkimportBatchesGet(
+    page,
+    size,
+    status
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] | Numéro de page | (optional) defaults to 1|
+| **size** | [**number**] | Taille de page | (optional) defaults to 10|
+| **status** | [**string**] | Filtrer par statut | (optional) defaults to undefined|
+
+
+### Return type
+
+**any**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listIdentitiesApiV1IdentityGet**
+> StandardListResponse listIdentitiesApiV1IdentityGet()
+
+Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityListResponse: Liste paginée des identités
 
 ### Example
 
@@ -724,7 +1191,7 @@ let status: string; //Filtrer par statut (optional) (default to undefined)
 let establishmentId: string; //Filtrer par établissement (optional) (default to undefined)
 let role: string; //Filtrer par rôle (optional) (default to undefined)
 
-const { status, data } = await apiInstance.listIdentitiesApiV1IdentityIdentitiesGet(
+const { status, data } = await apiInstance.listIdentitiesApiV1IdentityGet(
     page,
     size,
     search,
@@ -758,7 +1225,7 @@ const { status, data } = await apiInstance.listIdentitiesApiV1IdentityIdentities
 
 ### Return type
 
-**IdentityListResponse**
+**StandardListResponse**
 
 ### Authorization
 
@@ -779,7 +1246,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **rootGet**
-> any rootGet()
+> StandardSingleResponse rootGet()
 
 Endpoint racine pour vérifier que le service fonctionne.
 
@@ -803,7 +1270,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**any**
+**StandardSingleResponse**
 
 ### Authorization
 
@@ -822,62 +1289,10 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions**
-> any sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions()
+# **streamImportProgressApiV1IdentityBulkimportSseBatchIdGet**
+> any streamImportProgressApiV1IdentityBulkimportSseBatchIdGet()
 
-Gestion des requêtes OPTIONS pour CORS.  Args:     batch_id: ID du batch      Returns:     Response: Headers CORS
-
-### Example
-
-```typescript
-import {
-    DefaultApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new DefaultApi(configuration);
-
-let batchId: string; // (default to undefined)
-
-const { status, data } = await apiInstance.sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(
-    batchId
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **batchId** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-**any**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Successful Response |  -  |
-|**422** | Validation Error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet**
-> any streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet()
-
-Stream Server-Sent Events pour la progression d\'un batch.  Args:     batch_id: ID du batch à suivre     timeout: Timeout en secondes (5 minutes par défaut)     request: Requête HTTP     bulk_import_service: Service de bulk import      Returns:     StreamingResponse: Flux SSE de la progression
+Stream Server-Sent Events pour suivre la progression d\'un import en masse.  Args:     batch_id: ID du batch d\'import à suivre     user_id: ID de l\'utilisateur (pour l\'authentification)     timeout: Timeout de la connexion SSE en secondes      Returns:     StreamingResponse: Stream SSE avec les événements de progression      Events:     - PROGRESS: Progression de l\'import (pourcentage, éléments traités)     - COMPLETED: Import terminé avec succès     - ERROR: Erreur lors de l\'import     - CANCELLED: Import annulé     - TIMEOUT: Connexion expirée
 
 ### Example
 
@@ -891,10 +1306,12 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let batchId: string; // (default to undefined)
-let timeout: number; // (optional) (default to undefined)
+let userId: string; //ID de l\'utilisateur pour l\'authentification (optional) (default to undefined)
+let timeout: number; //Timeout en secondes (défaut: 5 minutes) (optional) (default to 300)
 
-const { status, data } = await apiInstance.streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(
+const { status, data } = await apiInstance.streamImportProgressApiV1IdentityBulkimportSseBatchIdGet(
     batchId,
+    userId,
     timeout
 );
 ```
@@ -904,7 +1321,8 @@ const { status, data } = await apiInstance.streamBatchProgressApiV1IdentityBulki
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **batchId** | [**string**] |  | defaults to undefined|
-| **timeout** | [**number**] |  | (optional) defaults to undefined|
+| **userId** | [**string**] | ID de l\&#39;utilisateur pour l\&#39;authentification | (optional) defaults to undefined|
+| **timeout** | [**number**] | Timeout en secondes (défaut: 5 minutes) | (optional) defaults to 300|
 
 
 ### Return type
@@ -929,10 +1347,10 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete**
-> any unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete()
+# **unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete**
+> StandardSuccessResponse unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete()
 
-Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
 
 ### Example
 
@@ -948,7 +1366,7 @@ const apiInstance = new DefaultApi(configuration);
 let identityId: string; // (default to undefined)
 let establishmentId: string; // (default to undefined)
 
-const { status, data } = await apiInstance.unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(
+const { status, data } = await apiInstance.unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete(
     identityId,
     establishmentId
 );
@@ -964,7 +1382,7 @@ const { status, data } = await apiInstance.unlinkIdentityFromEstablishmentApiV1I
 
 ### Return type
 
-**any**
+**StandardSuccessResponse**
 
 ### Authorization
 
@@ -984,10 +1402,10 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **updateIdentityApiV1IdentityIdentitiesIdentityIdPut**
-> IdentityResponse updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityUpdate)
+# **updateIdentityApiV1IdentityIdentityIdPatch**
+> StandardSuccessResponse updateIdentityApiV1IdentityIdentityIdPatch(identityUpdate)
 
-Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité mise à jour
+Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité mise à jour
 
 ### Example
 
@@ -1004,7 +1422,7 @@ const apiInstance = new DefaultApi(configuration);
 let identityId: string; // (default to undefined)
 let identityUpdate: IdentityUpdate; //
 
-const { status, data } = await apiInstance.updateIdentityApiV1IdentityIdentitiesIdentityIdPut(
+const { status, data } = await apiInstance.updateIdentityApiV1IdentityIdentityIdPatch(
     identityId,
     identityUpdate
 );
@@ -1020,7 +1438,66 @@ const { status, data } = await apiInstance.updateIdentityApiV1IdentityIdentities
 
 ### Return type
 
-**IdentityResponse**
+**StandardSuccessResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut**
+> RoleAssignmentResponse updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut(roleAssignmentUpdate)
+
+Met à jour un rôle complexe d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle     role_data: Nouvelles données du rôle      Returns:     RoleAssignmentResponse: Rôle mis à jour
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    RoleAssignmentUpdate
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let identityId: string; // (default to undefined)
+let roleId: string; // (default to undefined)
+let roleAssignmentUpdate: RoleAssignmentUpdate; //
+
+const { status, data } = await apiInstance.updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut(
+    identityId,
+    roleId,
+    roleAssignmentUpdate
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **roleAssignmentUpdate** | **RoleAssignmentUpdate**|  | |
+| **identityId** | [**string**] |  | defaults to undefined|
+| **roleId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**RoleAssignmentResponse**
 
 ### Authorization
 

@@ -80,6 +80,12 @@ import EventDetailPage from './pages/events/EventDetailPage';
 import IdentityContextProvider, { useIdentityContext } from './contexts/IdentityContextProvider';
 import SelectContextPage from './pages/context/SelectContextPage';
 
+// Pages de détail Référentiels / Compétences
+import CompetencyDetailPage from './pages/referentiels/CompetencyDetailPage';
+import SubjectDetailPage from './pages/referentiels/SubjectDetailPage';
+import AssignmentDetailPage from './pages/referentiels/AssignmentDetailPage';
+import CompetencyLookupPage from './pages/referentiels/CompetencyLookupPage';
+
 // Import des pages de l'administrateur
 import AdminDashboard from './pages/admin/dashboard/AdminDashboard';
 import EtablissementsPage from './pages/admin/etablissements/EtablissementsPage';
@@ -138,6 +144,10 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/admissions/:admissionId", element: <AdmissionDetailPage /> },
     { path: "/utilisateurs", element: <UsersPage /> }, // Mis à jour
     { path: "/referentiels", element: <ReferentielsPage /> },
+    { path: "/referentiels/competencies/lookup", element: <CompetencyLookupPage /> },
+    { path: "/referentiels/competencies/:competencyId", element: <CompetencyDetailPage /> },
+    { path: "/referentiels/subjects/:subjectId", element: <SubjectDetailPage /> },
+    { path: "/referentiels/assignments/:assignmentId", element: <AssignmentDetailPage /> },
     { path: "/alertes", element: <CentreAlertesPage /> },
     { path: "/emploi-du-temps", element: <EmploiDuTempsPage /> },
     { path: "/audit-ressources", element: <RessourcesAuditPage /> },
@@ -199,6 +209,10 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/abonnements", element: <AbonnementsPage /> },
     { path: "/plans", element: <PlansPage /> },
     { path: "/referentiels", element: <ReferentielsAdminPage /> },
+    { path: "/referentiels/competencies/lookup", element: <CompetencyLookupPage /> },
+    { path: "/referentiels/competencies/:competencyId", element: <CompetencyDetailPage /> },
+    { path: "/referentiels/subjects/:subjectId", element: <SubjectDetailPage /> },
+    { path: "/referentiels/assignments/:assignmentId", element: <AssignmentDetailPage /> },
     { path: "/imports", element: <ImportsPage /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "*", element: <NotFound /> },

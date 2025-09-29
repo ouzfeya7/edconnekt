@@ -351,10 +351,10 @@ export default function IdentitiesManagement(): JSX.Element {
                 <label className="block text-sm mb-1">Rôle</label>
                 <select value={linkRole} onChange={(e) => setLinkRole(e.target.value as EstablishmentRole)} className="w-full border rounded px-3 py-2 text-sm" required>
                   <option value="" disabled>Choisir un rôle…</option>
-                  <option value="student">Élève</option>
-                  <option value="parent">Parent</option>
-                  <option value="teacher">Enseignant</option>
-                  <option value="admin_staff">Personnel administratif</option>
+                  <option value="STUDENT">Élève</option>
+                  <option value="PARENT">Parent</option>
+                  <option value="TEACHER">Enseignant</option>
+                  <option value="ADMIN_STAFF">Personnel administratif</option>
                 </select>
               </div>
               <div className="flex justify-end gap-2">

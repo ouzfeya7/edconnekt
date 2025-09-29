@@ -1,13 +1,11 @@
-# EstablishmentLinkCreate
+# RoleAssignmentUpdate
 
-Schéma pour la création d\'un lien avec un établissement (version enrichie).
+Schéma pour la modification d\'un rôle complexe.
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**establishment_id** | **string** | ID de l\&#39;établissement | [default to undefined]
-**role_principal_code** | **string** | Code du rôle principal (ex: \&#39;teacher\&#39;) | [default to undefined]
 **role_effectif_code** | **string** |  | [optional] [default to undefined]
 **function_display** | **string** |  | [optional] [default to undefined]
 **cycle_codes** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
@@ -16,11 +14,9 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { EstablishmentLinkCreate } from './api';
+import { RoleAssignmentUpdate } from './api';
 
-const instance: EstablishmentLinkCreate = {
-    establishment_id,
-    role_principal_code,
+const instance: RoleAssignmentUpdate = {
     role_effectif_code,
     function_display,
     cycle_codes,
