@@ -9,6 +9,9 @@ import type {
   EstablishmentLinkCreate,
   IdentityWithRoles,
   ImportResponse,
+  RoleAssignmentCreate,
+  RoleAssignmentResponse,
+  RoleAssignmentUpdate,
 } from '../api/identity-service/api';
 
 // Types locaux pour typer les items d'un batch et la réponse paginée
@@ -40,7 +43,19 @@ export function useIdentityBatches(params?: { page?: number; size?: number; stat
         params?.size,
         params?.status ?? undefined,
       );
-      return data as StandardListResponse;
+      // Normalize response into StandardListResponse-like shape { data, total, page, size }
+      const obj: any = data as any;
+      const list = Array.isArray(obj?.data)
+        ? obj.data
+        : Array.isArray(obj?.items)
+          ? obj.items
+          : Array.isArray(obj)
+            ? obj
+            : [];
+      const page = obj?.page ?? params?.page ?? 1;
+      const size = obj?.size ?? params?.size ?? list.length;
+      const total = obj?.total ?? obj?.count ?? list.length;
+      return { data: list, page, size, total } as unknown as StandardListResponse;
     },
     placeholderData: (prev: StandardListResponse | undefined) => prev as StandardListResponse | undefined,
   });
@@ -69,11 +84,13 @@ export function useIdentityBatchItems(
       if (!params.batchId) throw new Error('batchId requis');
       const { data } = await identityApi.getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet(params.batchId);
       const obj = data as any;
-      const items = Array.isArray(obj?.items) ? (obj.items as IdentityBatchItem[]) : [];
-      const page = obj?.page ?? params.page ?? 0;
-      const size = obj?.size ?? params.size ?? items.length;
-      const total = obj?.total ?? items.length;
-      const pages = obj?.pages ?? undefined;
+      // Some APIs return { items, page, size, total }, others return { data: { items, ... } }
+      const root = obj?.items ? obj : (obj?.data && (typeof obj.data === 'object') ? obj.data : obj);
+      const items = Array.isArray(root?.items) ? (root.items as IdentityBatchItem[]) : [];
+      const page = root?.page ?? params.page ?? 1;
+      const size = root?.size ?? params.size ?? items.length;
+      const total = root?.total ?? items.length;
+      const pages = root?.pages ?? undefined;
       return { items, total, page, size, pages };
     },
     placeholderData: (prev: IdentityBatchItemsResult | undefined) => prev as IdentityBatchItemsResult | undefined,
@@ -226,6 +243,18 @@ export function useIdentityGet(identityId?: string) {
   });
 }
 
+export function useIdentityGetFull(identityId?: string) {
+  return useQuery<IdentityWithRoles | unknown, Error>({
+    queryKey: ['identity:identity:full', identityId],
+    enabled: !!identityId,
+    queryFn: async () => {
+      if (!identityId) throw new Error('identityId requis');
+      const { data } = await identityApi.getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet(identityId);
+      return data as IdentityWithRoles;
+    },
+  });
+}
+
 export function useIdentityCreate() {
   const queryClient = useQueryClient();
   return useMutation<StandardSuccessResponse, Error, IdentityCreate>({
@@ -343,5 +372,185 @@ export function useIdentitySseOptions(batchId?: string) {
       // Endpoint non disponible
       throw new Error('Options SSE non supportées par l’API actuelle');
     },
+  });
+}
+
+export function useIdentityLastCode() {
+  return useQuery<string | undefined, Error>({
+    queryKey: ['identity:last-code'],
+    queryFn: async () => {
+      const { data } = await identityApi.getLastCodeIdentiteApiV1IdentityLastCodeGet();
+      // API may return:
+      // 1) StandardSingleResponse { data: "IDT000151" }
+      // 2) StandardSingleResponse { data: { last_code: "IDT000151" } }
+      // 3) raw string "IDT000151"
+      const single = data as StandardSingleResponse | string | { last_code?: unknown } | { data?: unknown };
+      if (typeof single === 'string') return single;
+      const inner = (single as any)?.data ?? single;
+      if (typeof inner === 'string') return inner;
+      if (inner && typeof inner === 'object' && 'last_code' in inner) {
+        const v = (inner as any).last_code;
+        return typeof v === 'string' ? v : (v != null ? String(v) : undefined);
+      }
+      return undefined;
+    },
+    placeholderData: (prev) => prev,
+  });
+}
+
+// Catalogs hooks
+export function useIdentityCatalogRolesPrincipaux(params?: { page?: number; size?: number; search?: string; isActive?: boolean }) {
+  return useQuery<StandardListResponse, Error>({
+    queryKey: ['identity:catalog:roles-principaux', params],
+    queryFn: async () => {
+      const { data } = await identityApi.getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet(
+        params?.page,
+        params?.size,
+        params?.search ?? undefined,
+        params?.isActive ?? undefined,
+      );
+      return data as StandardListResponse;
+    },
+    placeholderData: (prev) => prev,
+  });
+}
+
+export function useIdentityCatalogRolesEffectifs(params?: { page?: number; size?: number; search?: string; groupKey?: string; isSensitive?: boolean; isActive?: boolean }) {
+  return useQuery<StandardListResponse, Error>({
+    queryKey: ['identity:catalog:roles-effectifs', params],
+    queryFn: async () => {
+      const { data } = await identityApi.getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(
+        params?.page,
+        params?.size,
+        params?.search ?? undefined,
+        params?.groupKey ?? undefined,
+        params?.isSensitive ?? undefined,
+        params?.isActive ?? undefined,
+      );
+      return data as StandardListResponse;
+    },
+    placeholderData: (prev) => prev,
+  });
+}
+
+export function useIdentityCatalogCycles(params?: { page?: number; size?: number; search?: string; isActive?: boolean }) {
+  return useQuery<StandardListResponse, Error>({
+    queryKey: ['identity:catalog:cycles', params],
+    queryFn: async () => {
+      const { data } = await identityApi.getCyclesApiV1IdentityCatalogsCyclesGet(
+        params?.page,
+        params?.size,
+        params?.search ?? undefined,
+        params?.isActive ?? undefined,
+      );
+      return data as StandardListResponse;
+    },
+    placeholderData: (prev) => prev,
+  });
+}
+
+// Role assignments hooks
+export function useIdentityRoles(identityId?: string, establishmentId?: string) {
+  return useQuery<RoleAssignmentResponse[], Error>({
+    queryKey: ['identity:roles', identityId, establishmentId],
+    enabled: !!identityId,
+    queryFn: async () => {
+      if (!identityId) throw new Error('identityId requis');
+      const { data } = await identityApi.getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet(identityId, establishmentId ?? undefined);
+      return (data as RoleAssignmentResponse[]) ?? [];
+    },
+    placeholderData: (prev) => prev,
+  });
+}
+
+export function useIdentityRole(identityId?: string, roleId?: string) {
+  return useQuery<RoleAssignmentResponse | undefined, Error>({
+    queryKey: ['identity:role', identityId, roleId],
+    enabled: !!identityId && !!roleId,
+    queryFn: async () => {
+      if (!identityId || !roleId) throw new Error('identityId et roleId requis');
+      const { data } = await identityApi.getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet(identityId, roleId);
+      return data as RoleAssignmentResponse;
+    },
+    placeholderData: (prev) => prev,
+  });
+}
+
+export function useIdentityRoleCreate(identityId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation<RoleAssignmentResponse, Error, RoleAssignmentCreate>({
+    mutationKey: ['identity:role:create', identityId],
+    mutationFn: async (payload) => {
+      if (!identityId) throw new Error('identityId requis');
+      const { data } = await identityApi.createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost(identityId, payload);
+      return data as RoleAssignmentResponse;
+    },
+    onSuccess: () => {
+      if (identityId) {
+        queryClient.invalidateQueries({ queryKey: ['identity:roles', identityId] });
+        queryClient.invalidateQueries({ queryKey: ['identity:identity:full', identityId] });
+      }
+    },
+  });
+}
+
+export function useIdentityRoleUpdate(identityId?: string, roleId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation<RoleAssignmentResponse, Error, RoleAssignmentUpdate>({
+    mutationKey: ['identity:role:update', identityId, roleId],
+    mutationFn: async (payload) => {
+      if (!identityId || !roleId) throw new Error('identityId et roleId requis');
+      const { data } = await identityApi.updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut(identityId, roleId, payload);
+      return data as RoleAssignmentResponse;
+    },
+    onSuccess: () => {
+      if (identityId) {
+        queryClient.invalidateQueries({ queryKey: ['identity:roles', identityId] });
+        queryClient.invalidateQueries({ queryKey: ['identity:identity:full', identityId] });
+      }
+    },
+  });
+}
+
+export function useIdentityRoleDelete(identityId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation<unknown, Error, { roleId: string }>({
+    mutationKey: ['identity:role:delete', identityId],
+    mutationFn: async ({ roleId }) => {
+      if (!identityId || !roleId) throw new Error('identityId et roleId requis');
+      const { data } = await identityApi.deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete(identityId, roleId);
+      return data as unknown;
+    },
+    onSuccess: () => {
+      if (identityId) {
+        queryClient.invalidateQueries({ queryKey: ['identity:roles', identityId] });
+        queryClient.invalidateQueries({ queryKey: ['identity:identity:full', identityId] });
+      }
+    },
+  });
+}
+
+// Templates info/list
+export function useIdentityTemplateInfo(role?: string) {
+  return useQuery<unknown, Error>({
+    queryKey: ['identity:bulkimport:template-info', role],
+    enabled: !!role,
+    queryFn: async () => {
+      if (!role) throw new Error('role requis');
+      const { data } = await identityApi.getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet(role);
+      return data as unknown;
+    },
+    placeholderData: (prev: unknown) => prev,
+  });
+}
+
+export function useIdentityTemplatesList() {
+  return useQuery<unknown, Error>({
+    queryKey: ['identity:bulkimport:templates'],
+    queryFn: async () => {
+      const { data } = await identityApi.listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet();
+      return data as unknown;
+    },
+    placeholderData: (prev: unknown) => prev,
   });
 }

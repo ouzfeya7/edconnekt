@@ -31,7 +31,8 @@ Utilitaires: `src/utils/contextStorage.ts`
 - Sinon → choix explicite dans le modal
 
 3) Validation
-- Persistance locale via `setActiveContext(etabId, role)`
+- Appel backend: `POST /api/v1/identity/me/context/select` via `identityMeApi.selectContextApiV1IdentityMeContextSelectPost({ etab_id, role })`
+- En cas de succès: persistance locale via `setActiveContext(etabId, role)`
 - Invalidation des queries React Query liées à l’identité (`queryKey` débutant par `identity:`)
 
 Implémentation: `src/contexts/IdentityContextProvider.tsx` + `src/components/context/ContextSelectModal.tsx`
@@ -48,6 +49,8 @@ Intercepteur: `src/api/identity-service/http.ts`
   - Si `X-Etab` et `X-Role` sont présents → persistance via `setActiveContext(...)`
 
 Note: L’ancien header `X-Establishment-Id` a été retiré (dépréciation terminée côté frontend).
+
+Les en-têtes de sélection (`X-Etab-Select`, `X-Role-Select`) restent envoyés automatiquement par l’intercepteur pour les appels suivants. Le Gateway peut renvoyer `X-Etab`/`X-Role` confirmés, qui sont alors persistés localement.
 
 ## Points d’intégration
 
@@ -79,5 +82,6 @@ Note: L’ancien header `X-Establishment-Id` a été retiré (dépréciation ter
 
 ## Notes
 
-- La voie “POST /me/context/select” n’existe pas dans le client actuel. Le flux s’appuie sur les en-têtes de **sélection** (`X-Etab-Select`, `X-Role-Select`) validés par le Gateway, qui renvoie ensuite `X-Etab`/`X-Role` confirmés.
+- La voie `POST /api/v1/identity/me/context/select` est utilisée pour valider explicitement la sélection d’établissement/rôle côté backend.
+- Les en-têtes de **sélection** (`X-Etab-Select`, `X-Role-Select`) sont toujours envoyés; le Gateway renvoie `X-Etab`/`X-Role` confirmés lorsque applicable.
 - Le SSE de progression de batch peut rester en polling si non prioritaire (EventSource possible si nécessaire).

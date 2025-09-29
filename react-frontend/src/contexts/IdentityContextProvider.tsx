@@ -26,7 +26,8 @@ export const useIdentityContext = (): IdentityContextState => {
 
 const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, roles } = useAuth();
+  const isAdmin = Array.isArray(roles) && roles.includes('administrateur');
 
   const initial = getActiveContext();
   const [activeEtabId, setActiveEtabId] = useState<string | null>(initial.etabId ?? null);
@@ -36,13 +37,14 @@ const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [selectedEtabId, setSelectedEtabId] = useState<string | null>(null);
   const [selectionError, setSelectionError] = useState<string | undefined>(undefined);
 
-  // Load my establishments when needed: either no context yet or user opened the modal to change context
-  const enableEstabQuery = isAuthenticated && (((!activeEtabId || !activeRole)) || modalOpen);
+  // Load my establishments when needed (skip for administrators):
+  // either no context yet or user opened the modal to change context
+  const enableEstabQuery = isAuthenticated && !isAdmin && (((!activeEtabId || !activeRole)) || modalOpen);
   const { data: myEstabs, isLoading: estabsLoading, isError: estabsError } = useIdentityMyEstablishments({ enabled: enableEstabQuery });
 
   // Load roles for selected etab in modal
   const { data: rolesResp, isLoading: rolesLoading } = useIdentityMyRoles(selectedEtabId ?? undefined, { enabled: !!selectedEtabId && modalOpen });
-  const rolesForSelected = (Array.isArray(rolesResp?.data) ? (rolesResp?.data as EstablishmentRole[]) : []) ?? [];
+  const rolesForSelected: EstablishmentRole[] = Array.isArray(rolesResp) ? rolesResp : [];
 
   const openContextSelector = useCallback(() => {
     setSelectionError(undefined);
@@ -90,7 +92,7 @@ const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }), [activeEtabId, activeRole, openContextSelector, selectContext, handleClear]);
 
   // Compute establishments list for modal (API returns list of UUID strings)
-  const establishments = (Array.isArray(myEstabs?.data) ? (myEstabs?.data as string[]) : []);
+  const establishments: string[] = Array.isArray(myEstabs) ? myEstabs : [];
 
   return (
     <IdentityContext.Provider value={contextValue}>

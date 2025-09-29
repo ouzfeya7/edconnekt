@@ -10,7 +10,3 @@ export const identityMeApi = new MeContexteUtilisateurApi(configuration, undefin
 
 // Backward-compatibility alias (to be deprecated):
 export const identityDefaultApi = new DefaultApi(configuration, undefined, identityAxios);
-
-// Temporary shim to keep compatibility until hooks are fully migrated
-// TODO: remove once `src/hooks/useIdentity.ts` is refactored
-export const batchesApi: any = identityApi as any;

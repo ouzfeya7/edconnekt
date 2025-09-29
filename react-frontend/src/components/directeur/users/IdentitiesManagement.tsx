@@ -1,8 +1,8 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { useIdentities, useIdentityCreate, useIdentityUpdate, useIdentityDelete, useIdentityGet, useIdentityLinkToEstablishment, useIdentityUnlinkFromEstablishment } from '../../../hooks/useIdentity';
-import type { IdentityCreate, IdentityUpdate, IdentityStatus, IdentityWithRoles, EstablishmentLinkCreate } from '../../../api/identity-service/api';
+import { useIdentities, useIdentityCreate, useIdentityUpdate, useIdentityDelete, useIdentityGet, useIdentityGetFull, useIdentityLinkToEstablishment, useIdentityUnlinkFromEstablishment, useIdentityLastCode, useIdentityCatalogRolesEffectifs, useIdentityCatalogCycles, useIdentityCatalogRolesPrincipaux, useIdentityRoles, useIdentityRoleCreate, useIdentityRoleUpdate, useIdentityRoleDelete } from '../../../hooks/useIdentity';
+import type { IdentityCreate, IdentityUpdate, IdentityStatus, IdentityWithRoles, EstablishmentLinkCreate, RoleAssignmentCreate, RoleAssignmentUpdate, RoleAssignmentResponse } from '../../../api/identity-service/api';
 import type { EstablishmentRole } from '../../../utils/contextStorage';
 
 type NullableString = string | null | undefined;
@@ -11,6 +11,11 @@ export default function IdentitiesManagement(): JSX.Element {
   const [page, setPage] = React.useState<number>(1);
   const [size, setSize] = React.useState<number>(10);
   const [search, setSearch] = React.useState<string>('');
+  const [statusFilter, setStatusFilter] = React.useState<string>('');
+  const [roleFilter, setRoleFilter] = React.useState<EstablishmentRole | ''>('');
+  const [establishmentFilter, setEstablishmentFilter] = React.useState<string>('');
+  const [sortBy, setSortBy] = React.useState<string>('');
+  const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
   const [createOpen, setCreateOpen] = React.useState<boolean>(false);
   // Separate modals and states
   const [detailsOpen, setDetailsOpen] = React.useState<boolean>(false);
@@ -24,17 +29,52 @@ export default function IdentitiesManagement(): JSX.Element {
   const [linkId, setLinkId] = React.useState<string | null>(null);
   const [linkEstablishmentId, setLinkEstablishmentId] = React.useState<string>('');
   const [linkRole, setLinkRole] = React.useState<EstablishmentRole | ''>('');
+  const [linkRoleEffectif, setLinkRoleEffectif] = React.useState<string>('');
+  const [linkFunctionDisplay, setLinkFunctionDisplay] = React.useState<string>('');
+  const [linkCycles, setLinkCycles] = React.useState<string[]>([]);
 
   const [unlinkOpen, setUnlinkOpen] = React.useState<boolean>(false);
   const [unlinkId, setUnlinkId] = React.useState<string | null>(null);
   const [unlinkEstablishmentId, setUnlinkEstablishmentId] = React.useState<string>('');
 
-  const { data, isLoading, isError } = useIdentities({ page, size, search: search || undefined });
+  // Roles management modal state
+  const [rolesOpen, setRolesOpen] = React.useState<boolean>(false);
+  const [rolesIdentityId, setRolesIdentityId] = React.useState<string | null>(null);
+  const [editRoleId, setEditRoleId] = React.useState<string | null>(null);
+  const [roleEstabId, setRoleEstabId] = React.useState<string>('');
+  const [rolePrincipalCode, setRolePrincipalCode] = React.useState<string>('');
+  const [roleEffectifCode, setRoleEffectifCode] = React.useState<string>('');
+  const [roleFunctionDisplay, setRoleFunctionDisplay] = React.useState<string>('');
+  const [roleCycleCodes, setRoleCycleCodes] = React.useState<string[]>([]);
+  const [roleSubjectCodes, setRoleSubjectCodes] = React.useState<string[]>([]);
+
+  const { data, isLoading, isError } = useIdentities({
+    page,
+    size,
+    search: search || undefined,
+    status: statusFilter || undefined,
+    role: roleFilter || undefined,
+    establishmentId: establishmentFilter || undefined,
+    sortBy: sortBy || undefined,
+    sortOrder,
+  });
   const createMutation = useIdentityCreate();
   const updateMutation = useIdentityUpdate(editingId || undefined);
   const deleteMutation = useIdentityDelete();
-  const { data: detailData, isLoading: detailLoading } = useIdentityGet(detailsId || undefined);
+  const { data: detailData, isLoading: detailLoading } = useIdentityGetFull(detailsId || undefined);
   const { data: editDetailData, isLoading: editDetailLoading } = useIdentityGet(editingId || undefined);
+  const { data: lastCode } = useIdentityLastCode();
+  const { data: rolesEffResp } = useIdentityCatalogRolesEffectifs({ page: 1, size: 100, isActive: true });
+  const { data: cyclesResp } = useIdentityCatalogCycles({ page: 1, size: 100, isActive: true });
+  const { data: rolesPrinResp } = useIdentityCatalogRolesPrincipaux({ page: 1, size: 100, isActive: true });
+  const rolesEffList: any[] = Array.isArray(rolesEffResp?.data) ? (rolesEffResp?.data as any[]) : [];
+  const cyclesList: any[] = Array.isArray(cyclesResp?.data) ? (cyclesResp?.data as any[]) : [];
+  const rolesPrinList: any[] = Array.isArray(rolesPrinResp?.data) ? (rolesPrinResp?.data as any[]) : [];
+
+  const { data: rolesList, isLoading: rolesLoading } = useIdentityRoles(rolesIdentityId || undefined);
+  const roleCreate = useIdentityRoleCreate(rolesIdentityId || undefined);
+  const roleUpdate = useIdentityRoleUpdate(rolesIdentityId || undefined, editRoleId || undefined);
+  const roleDelete = useIdentityRoleDelete(rolesIdentityId || undefined);
   const detail = (detailData ?? undefined) as IdentityWithRoles | undefined;
   const editDetail = (editDetailData ?? undefined) as IdentityWithRoles | undefined;
   const linkMutation = useIdentityLinkToEstablishment(linkId || undefined);
@@ -106,6 +146,9 @@ export default function IdentitiesManagement(): JSX.Element {
     if (!linkId || !linkEstablishmentId || !linkRole) return;
     try {
       const payload: EstablishmentLinkCreate = { establishment_id: linkEstablishmentId, role_principal_code: linkRole as string };
+      if (linkRoleEffectif) (payload as any).role_effectif_code = linkRoleEffectif;
+      if (linkFunctionDisplay) (payload as any).function_display = linkFunctionDisplay;
+      if (linkCycles && linkCycles.length > 0) (payload as any).cycle_codes = linkCycles;
       await toast.promise(
         linkMutation.mutateAsync(payload),
         {
@@ -116,6 +159,9 @@ export default function IdentitiesManagement(): JSX.Element {
       );
       setLinkEstablishmentId('');
       setLinkRole('');
+      setLinkRoleEffectif('');
+      setLinkFunctionDisplay('');
+      setLinkCycles([]);
       setLinkOpen(false);
       setLinkId(null);
     } catch {}
@@ -143,7 +189,7 @@ export default function IdentitiesManagement(): JSX.Element {
     <div className="border rounded-lg p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Identités</h3>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
           <input
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
@@ -156,6 +202,53 @@ export default function IdentitiesManagement(): JSX.Element {
             onChange={(e) => { setPage(1); setSize(Number(e.target.value)); }}
           >
             {[10, 20, 50, 100].map((n) => (<option key={n} value={n}>{n}</option>))}
+          </select>
+          <select
+            className="px-2 py-1 border rounded text-sm"
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+          >
+            <option value="">Statut: Tous</option>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="ARCHIVED">ARCHIVED</option>
+            <option value="TRANSFERRED">TRANSFERRED</option>
+          </select>
+          <select
+            className="px-2 py-1 border rounded text-sm"
+            value={roleFilter}
+            onChange={(e) => { setRoleFilter(e.target.value as EstablishmentRole | ''); setPage(1); }}
+          >
+            <option value="">Rôle: Tous</option>
+            <option value="student">Élève</option>
+            <option value="parent">Parent</option>
+            <option value="teacher">Enseignant</option>
+            <option value="admin_staff">Admin staff</option>
+          </select>
+          <input
+            value={establishmentFilter}
+            onChange={(e) => { setEstablishmentFilter(e.target.value); setPage(1); }}
+            placeholder="Etablissement ID"
+            className="px-3 py-1.5 border rounded text-sm"
+            style={{ minWidth: 180 }}
+          />
+          <select
+            className="px-2 py-1 border rounded text-sm"
+            value={sortBy}
+            onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+          >
+            <option value="">Tri: défaut</option>
+            <option value="firstname">firstname</option>
+            <option value="lastname">lastname</option>
+            <option value="email">email</option>
+            <option value="status">status</option>
+          </select>
+          <select
+            className="px-2 py-1 border rounded text-sm"
+            value={sortOrder}
+            onChange={(e) => { setSortOrder(e.target.value as 'asc' | 'desc'); setPage(1); }}
+          >
+            <option value="asc">asc</option>
+            <option value="desc">desc</option>
           </select>
           <button onClick={() => setCreateOpen(true)} className="px-3 py-1.5 bg-blue-500 text-white rounded text-sm">Créer</button>
         </div>
@@ -189,6 +282,7 @@ export default function IdentitiesManagement(): JSX.Element {
                     <button className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200" onClick={() => { setEditingId(it.id); setEditing(it); setEditOpen(true); }}>Éditer</button>
                     <button className="px-2 py-1 text-xs rounded bg-indigo-100 text-indigo-700 hover:bg-indigo-200" onClick={() => { setLinkId(it.id); setLinkOpen(true); }}>Lier étab.</button>
                     <button className="px-2 py-1 text-xs rounded bg-orange-100 text-orange-700 hover:bg-orange-200" onClick={() => { setUnlinkId(it.id); setUnlinkOpen(true); }}>Délier étab.</button>
+                    <button className="px-2 py-1 text-xs rounded bg-purple-100 text-purple-700 hover:bg-purple-200" onClick={() => { setRolesIdentityId(it.id); setRolesOpen(true); }}>Rôles</button>
                     <button
                       className="px-2 py-1 text-xs rounded bg-red-100 text-red-700 hover:bg-red-200"
                       onClick={async () => {
@@ -223,6 +317,186 @@ export default function IdentitiesManagement(): JSX.Element {
         </div>
       )}
 
+      {/* Roles Management Modal */}
+      {rolesOpen && rolesIdentityId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
+          <div className="bg-white rounded-lg w-full max-w-3xl p-6 relative shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Rôles de l'identité</h3>
+              <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => { setRolesOpen(false); setRolesIdentityId(null); setEditRoleId(null); }}>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Roles list */}
+            <div className="mb-4">
+              <div className="text-sm text-gray-600 mb-2">Rôles existants</div>
+              {rolesLoading && <div className="text-gray-500">Chargement…</div>}
+              {!rolesLoading && (
+                <div className="border rounded divide-y">
+                  {(Array.isArray(rolesList) ? rolesList as RoleAssignmentResponse[] : []).map((r) => (
+                    <div key={r.id} className="p-3 flex items-center justify-between gap-2">
+                      <div className="text-sm">
+                        <div className="font-medium">{(r as any)?.role_principal?.code ?? '—'} { (r as any)?.role_effectif?.code ? `· ${(r as any)?.role_effectif?.code}` : '' }</div>
+                        <div className="text-gray-500">Etab: {(r as any)?.identity_establishment_id ?? '—'} · Fonction: {r.function_display ?? '—'}</div>
+                        {Array.isArray((r as any)?.subjects) && (r as any).subjects.length > 0 && (
+                          <div className="text-gray-500">Matières: {((r as any).subjects as any[]).map((s: any) => s?.code ?? s).filter(Boolean).join(', ')}</div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200" onClick={() => {
+                          setEditRoleId(r.id);
+                          setRoleEstabId((r as any)?.identity_establishment_id ?? '');
+                          setRolePrincipalCode((r as any)?.role_principal?.code ?? '');
+                          setRoleEffectifCode((r as any)?.role_effectif?.code ?? '');
+                          setRoleFunctionDisplay(r.function_display ?? '');
+                          setRoleCycleCodes(((r as any)?.cycles ?? []).map((c: any) => c.code));
+                          setRoleSubjectCodes(((r as any)?.subjects ?? []).map((s: any) => s.code));
+                        }}>Éditer</button>
+                        <button className="px-2 py-1 text-xs rounded bg-red-100 text-red-700 hover:bg-red-200" onClick={async () => {
+                          if (!confirm('Supprimer ce rôle ?')) return;
+                          try {
+                            await toast.promise(
+                              roleDelete.mutateAsync({ roleId: r.id }),
+                              { loading: 'Suppression…', success: 'Rôle supprimé', error: (e) => errorMessage(e, 'Échec de la suppression') }
+                            );
+                          } catch { }
+                        }}>Supprimer</button>
+                      </div>
+                    </div>
+                  ))}
+                  {(Array.isArray(rolesList) ? (rolesList as RoleAssignmentResponse[]).length === 0 : true) && (
+                    <div className="p-3 text-sm text-gray-500">Aucun rôle</div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Create/Update form */}
+            <div className="border-t pt-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium">{editRoleId ? 'Modifier le rôle' : 'Ajouter un rôle'}</div>
+                {editRoleId && (
+                  <button className="text-xs text-gray-600 hover:text-gray-800" onClick={() => {
+                    setEditRoleId(null);
+                    setRoleEstabId('');
+                    setRolePrincipalCode('');
+                    setRoleEffectifCode('');
+                    setRoleFunctionDisplay('');
+                    setRoleCycleCodes([]);
+                  }}>Réinitialiser</button>
+                )}
+              </div>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                if (!rolesIdentityId) return;
+                if (!roleEstabId || !rolePrincipalCode) return;
+                try {
+                  if (editRoleId) {
+                    const payload: RoleAssignmentUpdate = {
+                      establishment_id: roleEstabId,
+                      role_principal_code: rolePrincipalCode,
+                      role_effectif_code: roleEffectifCode || undefined,
+                      function_display: roleFunctionDisplay || undefined,
+                      cycle_codes: roleCycleCodes.length ? roleCycleCodes : undefined,
+                      subject_codes: roleSubjectCodes.length ? roleSubjectCodes : undefined,
+                    } as any;
+                    await toast.promise(
+                      roleUpdate.mutateAsync(payload),
+                      { loading: 'Enregistrement…', success: 'Rôle mis à jour', error: (e) => errorMessage(e, 'Échec de la mise à jour') }
+                    );
+                  } else {
+                    const payload: RoleAssignmentCreate = {
+                      establishment_id: roleEstabId,
+                      role_principal_code: rolePrincipalCode,
+                      role_effectif_code: roleEffectifCode || undefined,
+                      function_display: roleFunctionDisplay || undefined,
+                      cycle_codes: roleCycleCodes.length ? roleCycleCodes : undefined,
+                      subject_codes: roleSubjectCodes.length ? roleSubjectCodes : undefined,
+                    } as any;
+                    await toast.promise(
+                      roleCreate.mutateAsync(payload),
+                      { loading: 'Création…', success: 'Rôle créé', error: (e) => errorMessage(e, 'Échec de la création') }
+                    );
+                  }
+                  setEditRoleId(null);
+                  setRoleEstabId('');
+                  setRolePrincipalCode('');
+                  setRoleEffectifCode('');
+                  setRoleFunctionDisplay('');
+                  setRoleCycleCodes([]);
+                  setRoleSubjectCodes([]);
+                } catch {}
+              }} className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm mb-1">Établissement ID *</label>
+                  <input value={roleEstabId} onChange={(e) => setRoleEstabId(e.target.value)} className="w-full border rounded px-3 py-2 text-sm" required />
+                </div>
+                <div>
+                  <label className="block text-sm mb-1">Rôle principal *</label>
+                  <select value={rolePrincipalCode} onChange={(e) => setRolePrincipalCode(e.target.value)} className="w-full border rounded px-3 py-2 text-sm" required>
+                    <option value="" disabled>Choisir…</option>
+                    {rolesPrinList.map((r: any) => (
+                      <option key={r.id ?? r.code} value={r.code}>{r.label_key ?? r.code}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm mb-1">Rôle effectif</label>
+                  <select value={roleEffectifCode} onChange={(e) => setRoleEffectifCode(e.target.value)} className="w-full border rounded px-3 py-2 text-sm">
+                    <option value="">(aucun)</option>
+                    {rolesEffList.map((r: any) => (
+                      <option key={r.id ?? r.code} value={r.code}>{r.label_key ?? r.code}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm mb-1">Fonction affichée</label>
+                  <input value={roleFunctionDisplay} onChange={(e) => setRoleFunctionDisplay(e.target.value)} className="w-full border rounded px-3 py-2 text-sm" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm mb-1">Cycles</label>
+                  <div className="flex flex-wrap gap-2 max-h-32 overflow-auto border rounded p-2">
+                    {cyclesList.map((c: any) => {
+                      const checked = roleCycleCodes.includes(c.code);
+                      return (
+                        <label key={c.id ?? c.code} className="inline-flex items-center gap-1 text-sm">
+                          <input type="checkbox" checked={checked} onChange={(e) => {
+                            setRoleCycleCodes((prev) => e.target.checked ? [...prev, c.code] : prev.filter((x) => x !== c.code));
+                          }} />
+                          <span>{c.label_key ?? c.code}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm mb-1">Matières (codes, séparés par des virgules)</label>
+                  <input
+                    value={roleSubjectCodes.join(',')}
+                    onChange={(e) => {
+                      const arr = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                      // dédupliquer
+                      setRoleSubjectCodes(Array.from(new Set(arr)));
+                    }}
+                    placeholder="ex: MATH, PHYS, HIST"
+                    className="w-full border rounded px-3 py-2 text-sm"
+                  />
+                  {roleSubjectCodes.length > 0 && (
+                    <div className="text-xs text-gray-500 mt-1">Sélection: {roleSubjectCodes.join(', ')}</div>
+                  )}
+                </div>
+                <div className="md:col-span-2 flex justify-end gap-2">
+                  <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded text-sm" disabled={roleCreate.isPending || roleUpdate.isPending}>
+                    {editRoleId ? (roleUpdate.isPending ? 'Enregistrement…' : 'Enregistrer') : (roleCreate.isPending ? 'Création…' : 'Créer')}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {createOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
           <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl">
@@ -230,6 +504,11 @@ export default function IdentitiesManagement(): JSX.Element {
             <form onSubmit={handleSubmitCreate} className="space-y-3">
               <div><label className="block text-sm mb-1">Prénom *</label><input name="firstname" className="w-full border rounded px-3 py-2" required /></div>
               <div><label className="block text-sm mb-1">Nom *</label><input name="lastname" className="w-full border rounded px-3 py-2" required /></div>
+              <div>
+                <label className="block text-sm mb-1">Code identité *</label>
+                <input name="code_identite" className="w-full border rounded px-3 py-2" required placeholder="Ex: IDT000151" />
+                <div className="text-xs text-gray-500 mt-1">Dernier code utilisé: {lastCode ?? '—'}</div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div><label className="block text-sm mb-1">Email</label><input name="email" className="w-full border rounded px-3 py-2" /></div>
                 <div><label className="block text-sm mb-1">Téléphone</label><input name="phone" className="w-full border rounded px-3 py-2" /></div>
@@ -280,6 +559,36 @@ export default function IdentitiesManagement(): JSX.Element {
                 <div>
                   <div className="text-sm text-gray-500">ID</div>
                   <div className="text-sm font-medium break-all">{detail?.id ?? detailsId}</div>
+                </div>
+                {/* Rôles complexes */}
+                <div className="md:col-span-2">
+                  <div className="mt-2 text-sm text-gray-600 font-medium">Rôles complexes</div>
+                  {Array.isArray((detail as any)?.role_assignments) && (detail as any).role_assignments.length > 0 ? (
+                    <div className="mt-2 space-y-2">
+                      {((detail as any).role_assignments as any[]).map((r: any) => (
+                        <div key={r.id} className="p-3 border rounded-lg bg-gray-50">
+                          <div className="flex flex-wrap items-center gap-2 text-sm">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 text-blue-700">{r?.role_principal?.code ?? '—'}</span>
+                            {r?.role_effectif?.code && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded bg-indigo-100 text-indigo-700">{r.role_effectif.code}</span>
+                            )}
+                            {r?.function_display && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-gray-700">{r.function_display}</span>
+                            )}
+                          </div>
+                          {(Array.isArray(r?.cycles) && r.cycles.length > 0) && (
+                            <div className="mt-1 text-xs text-gray-600">Cycles: {r.cycles.map((c: any) => c?.code ?? c).filter(Boolean).join(', ')}</div>
+                          )}
+                          {(Array.isArray(r?.subjects) && r.subjects.length > 0) && (
+                            <div className="mt-1 text-xs text-gray-600">Matières: {r.subjects.map((s: any) => s?.code ?? s).filter(Boolean).join(', ')}</div>
+                          )}
+                          <div className="mt-1 text-[11px] text-gray-400">Etab: {r?.identity_establishment_id ?? '—'}</div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-sm text-gray-500">Aucun rôle</div>
+                  )}
                 </div>
               </div>
             )}
@@ -362,6 +671,35 @@ export default function IdentitiesManagement(): JSX.Element {
                   <option value="teacher">Enseignant</option>
                   <option value="admin_staff">Personnel administratif</option>
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Rôle effectif (optionnel)</label>
+                <select value={linkRoleEffectif} onChange={(e) => setLinkRoleEffectif(e.target.value)} className="w-full border rounded px-3 py-2 text-sm">
+                  <option value="">(aucun)</option>
+                  {rolesEffList.map((r: any) => (
+                    <option key={r.id ?? r.code} value={r.code}>{r.label_key ?? r.code}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Fonction affichée (optionnel)</label>
+                <input value={linkFunctionDisplay} onChange={(e) => setLinkFunctionDisplay(e.target.value)} className="w-full border rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Cycles (optionnel)</label>
+                <div className="flex flex-wrap gap-2 max-h-32 overflow-auto border rounded p-2">
+                  {cyclesList.map((c: any) => {
+                    const checked = linkCycles.includes(c.code);
+                    return (
+                      <label key={c.id ?? c.code} className="inline-flex items-center gap-1 text-sm">
+                        <input type="checkbox" checked={checked} onChange={(e) => {
+                          setLinkCycles((prev) => e.target.checked ? [...prev, c.code] : prev.filter((x) => x !== c.code));
+                        }} />
+                        <span>{c.label_key ?? c.code}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
               <div className="flex justify-end gap-2">
                 <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded text-sm" disabled={linkMutation.isPending}>

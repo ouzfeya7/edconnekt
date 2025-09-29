@@ -1,20 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useMemo, useState } from 'react';
 import { useIdentityBatches } from '../../../hooks/useIdentity';
-import { useDirector } from '../../../contexts/DirectorContext';
 import { useOnboarding } from '../../../contexts/OnboardingContext';
 
 const IdentityBatchesList: React.FC = () => {
-  const { currentEtablissementId } = useDirector();
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(20);
   const [q, setQ] = useState('');
 
-  const { data, isLoading, isError } = useIdentityBatches({ establishmentId: currentEtablissementId || undefined, page, size });
+  const { data, isLoading, isError } = useIdentityBatches({ page, size });
   const { focusIdentityBatch, setShouldFocusTracking } = useOnboarding();
 
   const rows: any[] = useMemo(() => {
-    const list = Array.isArray(data) ? data : (data as { items?: any[] })?.items ?? [];
+    const list = (data as { data?: any[] } | undefined)?.data ?? [];
     const query = q.trim().toLowerCase();
     if (!query) return list;
     return list.filter((b: any) => {
