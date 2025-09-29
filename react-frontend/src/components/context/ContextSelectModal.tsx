@@ -1,13 +1,12 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import type { EstablishmentRole } from '../../utils/contextStorage';
-import type { UserEstablishmentResponse } from '../../api/identity-service/api';
 
 interface Props {
   open: boolean;
   onClose: () => void;
   blockClose?: boolean;
-  establishments: UserEstablishmentResponse[];
+  establishments: string[];
   selectedEtabId: string | null;
   onSelectEtab: (id: string) => void;
   roles: EstablishmentRole[];
@@ -79,14 +78,13 @@ const ContextSelectModal: React.FC<Props> = ({
                   <div className="p-3 text-sm text-gray-500">Aucun établissement</div>
                 ) : (
                   <ul>
-                    {establishments.map((e) => (
-                      <li key={e.establishment_id}>
+                    {establishments.map((etabId) => (
+                      <li key={etabId}>
                         <button
-                          className={`w-full text-left px-3 py-2 text-sm border-b last:border-b-0 hover:bg-gray-50 ${selectedEtabId === e.establishment_id ? 'bg-indigo-50' : ''}`}
-                          onClick={() => onSelectEtab(e.establishment_id)}
+                          className={`w-full text-left px-3 py-2 text-sm border-b last:border-b-0 hover:bg-gray-50 ${selectedEtabId === etabId ? 'bg-indigo-50' : ''}`}
+                          onClick={() => onSelectEtab(etabId)}
                         >
-                          <div className="font-medium">{e.establishment_id}</div>
-                          <div className="text-xs text-gray-500">Rôles: {(e.roles || []).join(', ') || '—'}</div>
+                          <div className="font-medium">{etabId}</div>
                         </button>
                       </li>
                     ))}

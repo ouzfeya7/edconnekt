@@ -4,7 +4,6 @@ import { Building2, Users, CheckCircle, LogOut, RefreshCw, ArrowRight } from 'lu
 import { useIdentityContext } from '../../contexts/IdentityContextProvider';
 import { useIdentityMyEstablishments, useIdentityMyRoles } from '../../hooks/useIdentityContext';
 import type { EstablishmentRole } from '../../utils/contextStorage';
-import type { UserEstablishmentResponse } from '../../api/identity-service/api';
 import { useAuth } from '../../pages/authentification/useAuth';
 
 const SelectContextPage: React.FC = () => {
@@ -21,7 +20,7 @@ const SelectContextPage: React.FC = () => {
 
   // Load user establishments
   const { data: estabsResp, isLoading: estabsLoading, isError: estabsError } = useIdentityMyEstablishments({ enabled: true });
-  const establishments = (estabsResp?.establishments ?? []) as UserEstablishmentResponse[];
+  const establishments = (Array.isArray(estabsResp?.data) ? (estabsResp?.data as string[]) : []);
 
   const [selectedEtabId, setSelectedEtabId] = React.useState<string | null>(null);
   const [selectedRole, setSelectedRole] = React.useState<EstablishmentRole | ''>('');
@@ -34,23 +33,15 @@ const SelectContextPage: React.FC = () => {
         return;
       }
       if (establishments.length === 1) {
-        const only = establishments[0];
-        const onlyEtabId = only.establishment_id;
-        const roles = (only.roles || []) as EstablishmentRole[];
-        if (roles.length === 1) {
-          // Direct selection and navigation
-          selectContext(onlyEtabId, roles[0]);
-          navigate('/', { replace: true });
-        } else {
-          setSelectedEtabId(onlyEtabId);
-        }
+        const onlyEtabId = establishments[0];
+        setSelectedEtabId(onlyEtabId);
       }
     }
   }, [estabsLoading, estabsError, establishments, selectContext, navigate]);
 
   // Load roles for selected establishment
   const { data: rolesResp, isLoading: rolesLoading } = useIdentityMyRoles(selectedEtabId ?? undefined, { enabled: !!selectedEtabId });
-  const rolesForSelected = (rolesResp as unknown as { roles?: EstablishmentRole[] })?.roles ?? [];
+  const rolesForSelected = (Array.isArray(rolesResp?.data) ? (rolesResp?.data as EstablishmentRole[]) : []);
 
   // Auto-select role if only one is available for chosen establishment
   React.useEffect(() => {
@@ -130,29 +121,26 @@ const SelectContextPage: React.FC = () => {
                 </div>
                 <div className="max-h-80 overflow-auto">
                   <div className="p-2 space-y-1">
-                    {establishments.map((e) => (
+                    {establishments.map((etabId) => (
                       <button
-                        key={e.establishment_id}
+                        key={etabId}
                         className={`w-full text-left p-4 rounded-lg transition-all duration-200 group ${
-                          selectedEtabId === e.establishment_id 
+                          selectedEtabId === etabId 
                             ? 'bg-indigo-50 border-2 border-indigo-200 shadow-sm' 
                             : 'bg-white hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 hover:shadow-sm'
                         }`}
                         onClick={() => {
-                          setSelectedEtabId(e.establishment_id);
+                          setSelectedEtabId(etabId);
                           setSelectedRole('');
                         }}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <div className={`font-medium ${selectedEtabId === e.establishment_id ? 'text-indigo-900' : 'text-gray-900'}`}>
-                              {e.establishment_id}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {(e.roles || []).length > 0 ? `${(e.roles || []).length} rôle(s) disponible(s)` : 'Aucun rôle'}
+                            <div className={`font-medium ${selectedEtabId === etabId ? 'text-indigo-900' : 'text-gray-900'}`}>
+                              {etabId}
                             </div>
                           </div>
-                          {selectedEtabId === e.establishment_id && (
+                          {selectedEtabId === etabId && (
                             <CheckCircle className="h-5 w-5 text-indigo-600 flex-shrink-0" />
                           )}
                         </div>
