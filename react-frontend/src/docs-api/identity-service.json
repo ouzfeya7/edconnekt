@@ -16,7 +16,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardSingleResponse"
+                                }
                             }
                         }
                     }
@@ -33,127 +35,8 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/identity/batches": {
-            "get": {
-                "tags": [
-                    "batches"
-                ],
-                "summary": "List Batches",
-                "description": "Lister les batches d'identités avec pagination et filtres.\n\nArgs:\n    establishment_id: ID de l'établissement pour filtrer\n    uploaded_by: ID de l'uploader pour filtrer\n    pagination: Paramètres de pagination et tri\n    batch_service: Service de gestion des batches\n    current_user: Utilisateur authentifié\n\nReturns:\n    dict: Liste paginée des batches",
-                "operationId": "list_batches_api_v1_identity_batches_get",
-                "parameters": [
-                    {
-                        "name": "establishment_id",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "title": "Establishment Id"
-                        }
-                    },
-                    {
-                        "name": "uploaded_by",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "title": "Uploaded By"
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "description": "Numéro de page",
-                            "default": 1,
-                            "title": "Page"
-                        },
-                        "description": "Numéro de page"
-                    },
-                    {
-                        "name": "size",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "maximum": 100,
-                            "minimum": 1,
-                            "description": "Taille de page",
-                            "default": 10,
-                            "title": "Size"
-                        },
-                        "description": "Taille de page"
-                    },
-                    {
-                        "name": "order_by",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "description": "Colonne de tri",
-                            "title": "Order By"
-                        },
-                        "description": "Colonne de tri"
-                    },
-                    {
-                        "name": "order_dir",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "description": "Sens de tri (asc/desc)",
-                            "default": "desc",
-                            "title": "Order Dir"
-                        },
-                        "description": "Sens de tri (asc/desc)"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                    "$ref": "#/components/schemas/StandardSingleResponse"
                                 }
                             }
                         }
@@ -161,576 +44,11 @@
                 }
             }
         },
-        "/api/v1/identity/batches/{batch_id}": {
-            "get": {
-                "tags": [
-                    "batches"
-                ],
-                "summary": "Get Batch",
-                "description": "Récupérer un batch par son ID.\n\nArgs:\n    batch_id: ID du batch\n    batch_service: Service de gestion des batches\n    current_user: Utilisateur authentifié\n\nReturns:\n    BatchRead: Détails du batch\n\nRaises:\n    404: Batch non trouvé",
-                "operationId": "get_batch_api_v1_identity_batches__batch_id__get",
-                "parameters": [
-                    {
-                        "name": "batch_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid",
-                            "title": "Batch Id"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BatchRead"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/identity/batches/{batch_id}/items": {
-            "get": {
-                "tags": [
-                    "batches"
-                ],
-                "summary": "Get Batch Items",
-                "description": "Lister les items d'un batch avec pagination et filtres.\n\nArgs:\n    batch_id: ID du batch\n    item_status: Statut des items pour filtrer (NEW, UPDATED, SKIPPED, INVALID)\n    domain: Domaine des items pour filtrer (student, parent, teacher, admin_staff)\n    pagination: Paramètres de pagination et tri\n    identity_service: Service d'identité\n    current_user: Utilisateur authentifié\n\nReturns:\n    dict: Liste paginée des items du batch\n\nRaises:\n    404: Batch non trouvé",
-                "operationId": "get_batch_items_api_v1_identity_batches__batch_id__items_get",
-                "parameters": [
-                    {
-                        "name": "batch_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid",
-                            "title": "Batch Id"
-                        }
-                    },
-                    {
-                        "name": "item_status",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "title": "Item Status"
-                        }
-                    },
-                    {
-                        "name": "domain",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "title": "Domain"
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "description": "Numéro de page",
-                            "default": 1,
-                            "title": "Page"
-                        },
-                        "description": "Numéro de page"
-                    },
-                    {
-                        "name": "size",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "maximum": 100,
-                            "minimum": 1,
-                            "description": "Taille de page",
-                            "default": 10,
-                            "title": "Size"
-                        },
-                        "description": "Taille de page"
-                    },
-                    {
-                        "name": "order_by",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "description": "Colonne de tri",
-                            "title": "Order By"
-                        },
-                        "description": "Colonne de tri"
-                    },
-                    {
-                        "name": "order_dir",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "description": "Sens de tri (asc/desc)",
-                            "default": "desc",
-                            "title": "Order Dir"
-                        },
-                        "description": "Sens de tri (asc/desc)"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/identity/batches/{batch_id}/commit": {
-            "post": {
-                "tags": [
-                    "batches"
-                ],
-                "summary": "Commit Batch",
-                "description": "Marquer un batch comme COMMITTED (optionnel).\n\nArgs:\n    batch_id: ID du batch\n    identity_service: Service d'identité\n    current_user: Utilisateur authentifié\n\nReturns:\n    dict: Message de confirmation\n\nRaises:\n    404: Batch non trouvé\n    400: Erreur lors du commit",
-                "operationId": "commit_batch_api_v1_identity_batches__batch_id__commit_post",
-                "parameters": [
-                    {
-                        "name": "batch_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid",
-                            "title": "Batch Id"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/identity/bulkimport": {
-            "post": {
-                "summary": "Bulk Import Identities",
-                "description": "Import en masse d'identités via fichier CSV.\n\nAccepte les formats CSV avec les schémas suivants :\n- **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone\n- **parents.csv** : establishment_id;firstname;lastname;email;phone\n- **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date\n- **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date\n\nNote: L'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.\n\nLe domaine est automatiquement détecté à partir des en-têtes du CSV.",
-                "operationId": "bulk_import_identities_api_v1_identity_bulkimport_post",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Body_bulk_import_identities_api_v1_identity_bulkimport_post"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BulkImportResponse"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/identity/bulkimport/progress/{batch_id}": {
-            "get": {
-                "summary": "Get Bulk Import Progress",
-                "description": "Récupère la progression d'un batch d'import.\n\nArgs:\n    batch_id: ID du batch",
-                "operationId": "get_bulk_import_progress_api_v1_identity_bulkimport_progress__batch_id__get",
-                "parameters": [
-                    {
-                        "name": "batch_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "title": "Batch Id"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/identity/bulkimport/cancel/{batch_id}": {
-            "post": {
-                "summary": "Cancel Bulk Import",
-                "description": "Annule un batch d'import en cours.\n\nArgs:\n    batch_id: ID du batch",
-                "operationId": "cancel_bulk_import_api_v1_identity_bulkimport_cancel__batch_id__post",
-                "parameters": [
-                    {
-                        "name": "batch_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "title": "Batch Id"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/identity/bulkimport/template/{domain}": {
-            "get": {
-                "summary": "Get Csv Template",
-                "description": "Récupère un template CSV pour un domaine donné.\n\nArgs:\n    domain: Domaine (student, parent, teacher, admin_staff)",
-                "operationId": "get_csv_template_api_v1_identity_bulkimport_template__domain__get",
-                "parameters": [
-                    {
-                        "name": "domain",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "title": "Domain"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/identity/bulkimport/audit": {
-            "get": {
-                "summary": "Get Audit History",
-                "description": "Récupère l'historique d'audit des opérations de bulk import.\n\nArgs:\n    user_id: Filtrer par utilisateur\n    establishment_id: Filtrer par établissement\n    batch_id: Filtrer par batch\n    limit: Limite du nombre de résultats",
-                "operationId": "get_audit_history_api_v1_identity_bulkimport_audit_get",
-                "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "title": "User Id"
-                        }
-                    },
-                    {
-                        "name": "establishment_id",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "title": "Establishment Id"
-                        }
-                    },
-                    {
-                        "name": "batch_id",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "title": "Batch Id"
-                        }
-                    },
-                    {
-                        "name": "limit",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 100,
-                            "title": "Limit"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/identity/bulkimport/stream/{batch_id}": {
-            "get": {
-                "summary": "Stream Batch Progress",
-                "description": "Stream Server-Sent Events pour la progression d'un batch.\n\nArgs:\n    batch_id: ID du batch à suivre\n    timeout: Timeout en secondes (5 minutes par défaut)\n    request: Requête HTTP\n    bulk_import_service: Service de bulk import\n    \nReturns:\n    StreamingResponse: Flux SSE de la progression",
-                "operationId": "stream_batch_progress_api_v1_identity_bulkimport_stream__batch_id__get",
-                "parameters": [
-                    {
-                        "name": "batch_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "title": "Batch Id"
-                        }
-                    },
-                    {
-                        "name": "timeout",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "integer"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "default": 300,
-                            "title": "Timeout"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "options": {
-                "summary": "Sse Options",
-                "description": "Gestion des requêtes OPTIONS pour CORS.\n\nArgs:\n    batch_id: ID du batch\n    \nReturns:\n    Response: Headers CORS",
-                "operationId": "sse_options_api_v1_identity_bulkimport_stream__batch_id__options",
-                "parameters": [
-                    {
-                        "name": "batch_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "title": "Batch Id"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/identity/bulkimport/sse/stats": {
-            "get": {
-                "summary": "Get Sse Stats",
-                "description": "Récupère les statistiques des connexions SSE.\n\nReturns:\n    Dict: Statistiques des connexions",
-                "operationId": "get_sse_stats_api_v1_identity_bulkimport_sse_stats_get",
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/identity/identities": {
+        "/api/v1/identity/": {
             "post": {
                 "summary": "Create Identity",
-                "description": "Crée une nouvelle identité.\n\nArgs:\n    identity_data: Données de l'identité à créer\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    IdentityResponse: Identité créée",
-                "operationId": "create_identity_api_v1_identity_identities_post",
+                "description": "Crée une nouvelle identité.\n\nArgs:\n    identity_data: Données de l'identité à créer\n    identity_crud_service: Service CRUD des identités\n    tenant_context: Contexte tenant avec rôles et établissement\n    \nReturns:\n    IdentityResponse: Identité créée",
+                "operationId": "create_identity_api_v1_identity__post",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -747,7 +65,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/IdentityResponse"
+                                    "$ref": "#/components/schemas/StandardSuccessResponse"
                                 }
                             }
                         }
@@ -766,8 +84,8 @@
             },
             "get": {
                 "summary": "List Identities",
-                "description": "Liste les identités avec pagination et filtres.\n\nArgs:\n    page: Numéro de page\n    size: Taille de la page\n    search: Terme de recherche global\n    sort_by: Champ de tri\n    sort_order: Ordre de tri\n    firstname: Filtre par prénom\n    lastname: Filtre par nom\n    email: Filtre par email\n    status: Filtre par statut\n    establishment_id: Filtre par établissement\n    role: Filtre par rôle\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    IdentityListResponse: Liste paginée des identités",
-                "operationId": "list_identities_api_v1_identity_identities_get",
+                "description": "Liste les identités avec pagination et filtres.\n\nArgs:\n    page: Numéro de page\n    size: Taille de la page\n    search: Terme de recherche global\n    sort_by: Champ de tri\n    sort_order: Ordre de tri\n    firstname: Filtre par prénom\n    lastname: Filtre par nom\n    email: Filtre par email\n    status: Filtre par statut\n    establishment_id: Filtre par établissement\n    role: Filtre par rôle\n    identity_crud_service: Service CRUD des identités\n    tenant_context: Contexte tenant avec rôles et établissement\n    \nReturns:\n    IdentityListResponse: Liste paginée des identités",
+                "operationId": "list_identities_api_v1_identity__get",
                 "parameters": [
                     {
                         "name": "page",
@@ -968,7 +286,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/IdentityListResponse"
+                                    "$ref": "#/components/schemas/StandardListResponse"
                                 }
                             }
                         }
@@ -986,11 +304,30 @@
                 }
             }
         },
-        "/api/v1/identity/identities/{identity_id}": {
+        "/api/v1/identity/last-code": {
+            "get": {
+                "summary": "Get Last Code Identite",
+                "description": "Récupère le dernier code d'identité utilisé.\n\n**Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF\n\n**Réponse :**\n- Dernier code utilisé uniquement",
+                "operationId": "get_last_code_identite_api_v1_identity_last_code_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardSingleResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/{identity_id}": {
             "get": {
                 "summary": "Get Identity",
-                "description": "Récupère une identité par son ID.\n\nArgs:\n    identity_id: ID de l'identité\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    IdentityResponse: Identité trouvée",
-                "operationId": "get_identity_api_v1_identity_identities__identity_id__get",
+                "description": "Récupère une identité par son ID.\n\nArgs:\n    identity_id: ID de l'identité\n    identity_crud_service: Service CRUD des identités\n    tenant_context: Contexte tenant avec rôles et établissement\n    \nReturns:\n    IdentityResponse: Identité trouvée",
+                "operationId": "get_identity_api_v1_identity__identity_id__get",
                 "parameters": [
                     {
                         "name": "identity_id",
@@ -1009,7 +346,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/IdentityResponse"
+                                    "$ref": "#/components/schemas/StandardSingleResponse"
                                 }
                             }
                         }
@@ -1026,10 +363,10 @@
                     }
                 }
             },
-            "put": {
+            "patch": {
                 "summary": "Update Identity",
-                "description": "Met à jour une identité.\n\nArgs:\n    identity_id: ID de l'identité à mettre à jour\n    identity_data: Nouvelles données\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    IdentityResponse: Identité mise à jour",
-                "operationId": "update_identity_api_v1_identity_identities__identity_id__put",
+                "description": "Met à jour une identité.\n\nArgs:\n    identity_id: ID de l'identité à mettre à jour\n    identity_data: Nouvelles données\n    identity_crud_service: Service CRUD des identités\n    tenant_context: Contexte tenant avec rôles et établissement\n    \nReturns:\n    IdentityResponse: Identité mise à jour",
+                "operationId": "update_identity_api_v1_identity__identity_id__patch",
                 "parameters": [
                     {
                         "name": "identity_id",
@@ -1058,7 +395,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/IdentityResponse"
+                                    "$ref": "#/components/schemas/StandardSuccessResponse"
                                 }
                             }
                         }
@@ -1077,8 +414,8 @@
             },
             "delete": {
                 "summary": "Delete Identity",
-                "description": "Supprime une identité.\n\nArgs:\n    identity_id: ID de l'identité à supprimer\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    Dict: Message de confirmation",
-                "operationId": "delete_identity_api_v1_identity_identities__identity_id__delete",
+                "description": "Supprime une identité.\n\nArgs:\n    identity_id: ID de l'identité à supprimer\n    identity_crud_service: Service CRUD des identités\n    tenant_context: Contexte tenant avec rôles et établissement\n    \nReturns:\n    Dict: Message de confirmation",
+                "operationId": "delete_identity_api_v1_identity__identity_id__delete",
                 "parameters": [
                     {
                         "name": "identity_id",
@@ -1096,7 +433,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardSuccessResponse"
+                                }
                             }
                         }
                     },
@@ -1113,11 +452,11 @@
                 }
             }
         },
-        "/api/v1/identity/identities/{identity_id}/establishments": {
+        "/api/v1/identity/{identity_id}/establishments": {
             "post": {
                 "summary": "Link Identity To Establishment",
-                "description": "Lie une identité à un établissement.\n\nArgs:\n    identity_id: ID de l'identité\n    link_data: Données du lien\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    Dict: Message de confirmation",
-                "operationId": "link_identity_to_establishment_api_v1_identity_identities__identity_id__establishments_post",
+                "description": "Lie une identité à un établissement.\n\nArgs:\n    identity_id: ID de l'identité\n    link_data: Données du lien\n    tenant_context: Contexte tenant avec rôles et établissement\n    \nReturns:\n    Dict: Message de confirmation",
+                "operationId": "link_identity_to_establishment_api_v1_identity__identity_id__establishments_post",
                 "parameters": [
                     {
                         "name": "identity_id",
@@ -1145,7 +484,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardSuccessResponse"
+                                }
                             }
                         }
                     },
@@ -1162,11 +503,11 @@
                 }
             }
         },
-        "/api/v1/identity/identities/{identity_id}/establishments/{establishment_id}": {
+        "/api/v1/identity/{identity_id}/establishments/{establishment_id}": {
             "delete": {
                 "summary": "Unlink Identity From Establishment",
-                "description": "Supprime le lien entre une identité et un établissement.\n\nArgs:\n    identity_id: ID de l'identité\n    establishment_id: ID de l'établissement\n    request: Requête HTTP\n    identity_crud_service: Service CRUD des identités\n    \nReturns:\n    Dict: Message de confirmation",
-                "operationId": "unlink_identity_from_establishment_api_v1_identity_identities__identity_id__establishments__establishment_id__delete",
+                "description": "Supprime le lien entre une identité et un établissement.\n\nArgs:\n    identity_id: ID de l'identité\n    establishment_id: ID de l'établissement\n    identity_crud_service: Service CRUD des identités\n    tenant_context: Contexte tenant avec rôles et établissement\n    \nReturns:\n    Dict: Message de confirmation",
+                "operationId": "unlink_identity_from_establishment_api_v1_identity__identity_id__establishments__establishment_id__delete",
                 "parameters": [
                     {
                         "name": "identity_id",
@@ -1193,7 +534,1198 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardSuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport": {
+            "post": {
+                "summary": "Bulk Import Identities",
+                "description": "Import en masse d'identités via fichier CSV ou Excel.\n\n**Formats supportés :**\n- **CSV** : Fichier avec séparateur point-virgule (;)\n- **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)\n\n**Colonnes attendues :**\n- `nom` : Nom de famille (requis)\n- `prenom` : Prénom (requis)\n- `email` : Adresse email (requis, unique)\n- `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni)\n- `role_principal` : Rôle principal (student, parent, teacher, admin_staff)\n- `role_effectif` : Rôle effectif (optionnel)\n- `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)\n\n**Exemple de fichier CSV :**\n```csv\nnom;prenom;email;numero_telephone;role_principal;role_effectif;cycle\nMartin;Jean;jean.martin@example.com;0123456789;student;;primary\nBernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle\n```\n\n**Exemple de fichier Excel :**\n- Onglet \"identities\" : Données de base des identités\n- Onglet \"roles\" : Rôles et établissements\n- Onglet \"cycles\" : Cycles couverts par chaque identité\n\n**Réponse :**\n- Rapport détaillé de l'import\n- Statistiques (succès, erreurs, nouvelles identités)\n- Détails par identité traitée",
+                "operationId": "bulk_import_identities_api_v1_identity_bulkimport_post",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_bulk_import_identities_api_v1_identity_bulkimport_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ImportResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/template/{role}": {
+            "get": {
+                "summary": "Get Import Template",
+                "description": "Exporter un template pour l'import d'identités.\n\n**Rôles supportés :**\n- `admin_staff` : Personnel administratif\n- `teacher` : Enseignants\n- `student` : Élèves\n- `parent` : Parents\n\n**Formats supportés :**\n- `csv` : Fichier CSV avec séparateur point-virgule\n- `xlsx` : Fichier Excel avec onglet\n\n**Colonnes du template :**\n- `nom` : Nom de famille\n- `prenom` : Prénom\n- `email` : Adresse email\n- `numero_telephone` : Numéro de téléphone\n- `role_principal` : Rôle principal\n- `role_effectif` : Rôle effectif (optionnel)\n- `cycle` : Cycles couverts\n\n**Exemples inclus :**\nChaque template contient 2 lignes d'exemple pour montrer\nla structure des données attendue.\n\n**Réponse :**\n- Fichier téléchargeable au format demandé\n- Headers appropriés pour le téléchargement",
+                "operationId": "get_import_template_api_v1_identity_bulkimport_template__role__get",
+                "parameters": [
+                    {
+                        "name": "role",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Role"
+                        }
+                    },
+                    {
+                        "name": "format_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "csv",
+                            "title": "Format Type"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
                                 "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/template/{role}/info": {
+            "get": {
+                "summary": "Get Template Info",
+                "description": "Obtenir les informations sur un template d'import.\n\n**Paramètres :**\n- `role` : Rôle du template (admin_staff, teacher, student, parent)\n\n**Réponse :**\n- Informations sur le template\n- Colonnes disponibles\n- Nombre d'exemples\n- Description du template",
+                "operationId": "get_template_info_api_v1_identity_bulkimport_template__role__info_get",
+                "parameters": [
+                    {
+                        "name": "role",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Role"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TemplateResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/templates": {
+            "get": {
+                "summary": "List Available Templates",
+                "description": "Lister les templates d'import disponibles.\n\n**Réponse :**\n- Liste des rôles supportés\n- Formats disponibles pour chaque rôle\n- Informations générales sur les templates",
+                "operationId": "list_available_templates_api_v1_identity_bulkimport_templates_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/sse/{batch_id}": {
+            "get": {
+                "summary": "Stream Import Progress",
+                "description": "Stream Server-Sent Events pour suivre la progression d'un import en masse.\n\nArgs:\n    batch_id: ID du batch d'import à suivre\n    user_id: ID de l'utilisateur (pour l'authentification)\n    timeout: Timeout de la connexion SSE en secondes\n    \nReturns:\n    StreamingResponse: Stream SSE avec les événements de progression\n    \nEvents:\n    - PROGRESS: Progression de l'import (pourcentage, éléments traités)\n    - COMPLETED: Import terminé avec succès\n    - ERROR: Erreur lors de l'import\n    - CANCELLED: Import annulé\n    - TIMEOUT: Connexion expirée",
+                "operationId": "stream_import_progress_api_v1_identity_bulkimport_sse__batch_id__get",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Batch Id"
+                        }
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ID de l'utilisateur pour l'authentification",
+                            "title": "User Id"
+                        },
+                        "description": "ID de l'utilisateur pour l'authentification"
+                    },
+                    {
+                        "name": "timeout",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Timeout en secondes (défaut: 5 minutes)",
+                            "default": 300,
+                            "title": "Timeout"
+                        },
+                        "description": "Timeout en secondes (défaut: 5 minutes)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/batches": {
+            "get": {
+                "summary": "List Batches",
+                "description": "Liste les batches d'import avec pagination.\n\nArgs:\n    page: Numéro de page (défaut: 1)\n    size: Taille de page (défaut: 10, max: 100)\n    status: Statut pour filtrer (optionnel)\n    \nReturns:\n    Dict: Liste paginée des batches",
+                "operationId": "list_batches_api_v1_identity_bulkimport_batches_get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de page",
+                            "default": 10,
+                            "title": "Size"
+                        },
+                        "description": "Taille de page"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par statut",
+                            "title": "Status"
+                        },
+                        "description": "Filtrer par statut"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/batches/{batch_id}": {
+            "get": {
+                "summary": "Get Batch Details",
+                "description": "Récupère les détails d'un batch spécifique.\n\nArgs:\n    batch_id: ID du batch\n    \nReturns:\n    Dict: Détails du batch",
+                "operationId": "get_batch_details_api_v1_identity_bulkimport_batches__batch_id__get",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Batch Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/bulkimport/batches/{batch_id}/status": {
+            "get": {
+                "summary": "Get Batch Status",
+                "description": "Récupère le statut actuel d'un batch.\n\nArgs:\n    batch_id: ID du batch\n    \nReturns:\n    Dict: Statut du batch",
+                "operationId": "get_batch_status_api_v1_identity_bulkimport_batches__batch_id__status_get",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Batch Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/identities/{identity_id}/roles": {
+            "post": {
+                "summary": "Create Role Assignment",
+                "description": "Crée un nouveau rôle complexe pour une identité.\n\nArgs:\n    identity_id: ID de l'identité\n    role_data: Données du rôle à créer\n    \nReturns:\n    RoleAssignmentResponse: Rôle créé avec succès",
+                "operationId": "create_role_assignment_api_v1_identity_identities__identity_id__roles_post",
+                "parameters": [
+                    {
+                        "name": "identity_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Identity Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RoleAssignmentCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleAssignmentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get Identity Roles",
+                "description": "Récupère tous les rôles d'une identité.\n\nArgs:\n    identity_id: ID de l'identité\n    establishment_id: ID de l'établissement (optionnel)\n    \nReturns:\n    List[RoleAssignmentResponse]: Liste des rôles de l'identité",
+                "operationId": "get_identity_roles_api_v1_identity_identities__identity_id__roles_get",
+                "parameters": [
+                    {
+                        "name": "identity_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Identity Id"
+                        }
+                    },
+                    {
+                        "name": "establishment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par établissement",
+                            "title": "Establishment Id"
+                        },
+                        "description": "Filtrer par établissement"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/RoleAssignmentResponse"
+                                    },
+                                    "title": "Response Get Identity Roles Api V1 Identity Identities  Identity Id  Roles Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/identities/{identity_id}/roles/{role_id}": {
+            "get": {
+                "summary": "Get Role Assignment",
+                "description": "Récupère un rôle spécifique d'une identité.\n\nArgs:\n    identity_id: ID de l'identité\n    role_id: ID du rôle\n    \nReturns:\n    RoleAssignmentResponse: Rôle demandé",
+                "operationId": "get_role_assignment_api_v1_identity_identities__identity_id__roles__role_id__get",
+                "parameters": [
+                    {
+                        "name": "identity_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Identity Id"
+                        }
+                    },
+                    {
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Role Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleAssignmentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update Role Assignment",
+                "description": "Met à jour un rôle complexe d'une identité.\n\nArgs:\n    identity_id: ID de l'identité\n    role_id: ID du rôle\n    role_data: Nouvelles données du rôle\n    \nReturns:\n    RoleAssignmentResponse: Rôle mis à jour",
+                "operationId": "update_role_assignment_api_v1_identity_identities__identity_id__roles__role_id__put",
+                "parameters": [
+                    {
+                        "name": "identity_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Identity Id"
+                        }
+                    },
+                    {
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Role Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RoleAssignmentUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleAssignmentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete Role Assignment",
+                "description": "Supprime un rôle complexe d'une identité.\n\nArgs:\n    identity_id: ID de l'identité\n    role_id: ID du rôle\n    \nReturns:\n    dict: Message de confirmation",
+                "operationId": "delete_role_assignment_api_v1_identity_identities__identity_id__roles__role_id__delete",
+                "parameters": [
+                    {
+                        "name": "identity_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Identity Id"
+                        }
+                    },
+                    {
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Role Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/identities/{identity_id}/full": {
+            "get": {
+                "summary": "Get Identity With Roles",
+                "description": "Récupère une identité avec tous ses rôles complexes.\n\nArgs:\n    identity_id: ID de l'identité\n    \nReturns:\n    IdentityWithRoles: Identité avec ses rôles",
+                "operationId": "get_identity_with_roles_api_v1_identity_identities__identity_id__full_get",
+                "parameters": [
+                    {
+                        "name": "identity_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Identity Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IdentityWithRoles"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/catalogs/roles-principaux": {
+            "get": {
+                "summary": "Get Roles Principaux",
+                "description": "Récupère la liste des rôles principaux.\n\nArgs:\n    page: Numéro de page\n    size: Taille de la page\n    search: Terme de recherche\n    is_active: Filtrer par statut actif\n    db: Session de base de données\n    \nReturns:\n    List[RolePrincipalResponse]: Liste des rôles principaux",
+                "operationId": "get_roles_principaux_api_v1_identity_catalogs_roles_principaux_get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de la page",
+                            "default": 10,
+                            "title": "Size"
+                        },
+                        "description": "Taille de la page"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Terme de recherche",
+                            "title": "Search"
+                        },
+                        "description": "Terme de recherche"
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par statut actif",
+                            "title": "Is Active"
+                        },
+                        "description": "Filtrer par statut actif"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/catalogs/roles-effectifs": {
+            "get": {
+                "summary": "Get Roles Effectifs",
+                "description": "Récupère la liste des rôles effectifs.\n\nArgs:\n    page: Numéro de page\n    size: Taille de la page\n    search: Terme de recherche\n    group_key: Filtrer par groupe fonctionnel\n    is_sensitive: Filtrer par sensibilité\n    is_active: Filtrer par statut actif\n    db: Session de base de données\n    \nReturns:\n    List[RoleEffectifResponse]: Liste des rôles effectifs",
+                "operationId": "get_roles_effectifs_api_v1_identity_catalogs_roles_effectifs_get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de la page",
+                            "default": 10,
+                            "title": "Size"
+                        },
+                        "description": "Taille de la page"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Terme de recherche",
+                            "title": "Search"
+                        },
+                        "description": "Terme de recherche"
+                    },
+                    {
+                        "name": "group_key",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par groupe",
+                            "title": "Group Key"
+                        },
+                        "description": "Filtrer par groupe"
+                    },
+                    {
+                        "name": "is_sensitive",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par sensibilité",
+                            "title": "Is Sensitive"
+                        },
+                        "description": "Filtrer par sensibilité"
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par statut actif",
+                            "title": "Is Active"
+                        },
+                        "description": "Filtrer par statut actif"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/catalogs/cycles": {
+            "get": {
+                "summary": "Get Cycles",
+                "description": "Récupère la liste des cycles pédagogiques.\n\nArgs:\n    page: Numéro de page\n    size: Taille de la page\n    search: Terme de recherche\n    is_active: Filtrer par statut actif\n    db: Session de base de données\n    \nReturns:\n    List[CycleResponse]: Liste des cycles",
+                "operationId": "get_cycles_api_v1_identity_catalogs_cycles_get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de la page",
+                            "default": 10,
+                            "title": "Size"
+                        },
+                        "description": "Taille de la page"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Terme de recherche",
+                            "title": "Search"
+                        },
+                        "description": "Terme de recherche"
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par statut actif",
+                            "title": "Is Active"
+                        },
+                        "description": "Filtrer par statut actif"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/me/establishments": {
+            "get": {
+                "tags": [
+                    "Me - Contexte utilisateur"
+                ],
+                "summary": "Liste des établissements de l'utilisateur",
+                "description": "Récupère la liste des établissements auxquels l'utilisateur est rattaché.\n    \n    **Source de données :** `identity_establishment` table\n    **Authentification :** Requiert en-tête `X-User`\n    **Réponse :** Liste des UUIDs d'établissements\n    \n    **Erreurs :**\n    - `403` : Aucun rattachement à un établissement\n    - `404` : Utilisateur non trouvé",
+                "operationId": "get_user_establishments_api_v1_identity_me_establishments_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Accès non autorisé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ressource non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/me/roles": {
+            "get": {
+                "tags": [
+                    "Me - Contexte utilisateur"
+                ],
+                "summary": "Rôles de l'utilisateur dans un établissement",
+                "description": "Récupère les rôles de l'utilisateur dans un établissement spécifique.\n    \n    **Source de données :** `identity_establishment_role` avec jointures sur les catalogues\n    **Authentification :** Requiert en-têtes `X-User`\n    **Paramètres :** `etab` (UUID de l'établissement)\n    **Réponse :** Liste des rôles avec détails (principal, effectif, cycles, matières)\n    \n    **Erreurs :**\n    - `403` : Utilisateur non rattaché à l'établissement ou aucun rôle\n    - `404` : Utilisateur non trouvé",
+                "operationId": "get_user_roles_api_v1_identity_me_roles_get",
+                "parameters": [
+                    {
+                        "name": "etab",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "UUID de l'établissement",
+                            "title": "Etab"
+                        },
+                        "description": "UUID de l'établissement"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Accès non autorisé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ressource non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/identity/me/context/select": {
+            "post": {
+                "tags": [
+                    "Me - Contexte utilisateur"
+                ],
+                "summary": "Validation de la sélection de contexte",
+                "description": "Valide la sélection de contexte (établissement + rôle) par l'utilisateur.\n    \n    **Validation :** Vérifie que l'utilisateur a ce rôle dans cet établissement\n    **Authentification :** Requiert en-tête `X-User`\n    **Action :** auth-service s'occupe de l'injection des en-têtes après validation\n    \n    **Erreurs :**\n    - `403` : Sélection non autorisée (rôle non valide pour l'établissement)\n    - `404` : Utilisateur non trouvé",
+                "operationId": "select_context_api_v1_identity_me_context_select_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ContextSelectRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContextSelectResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Accès non autorisé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ressource non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
                             }
                         }
                     },
@@ -1213,79 +1745,18 @@
     },
     "components": {
         "schemas": {
-            "BatchRead": {
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "title": "Id",
-                        "description": "ID du batch"
-                    },
-                    "establishment_id": {
-                        "type": "string",
-                        "title": "Establishment Id",
-                        "description": "ID de l'établissement"
-                    },
-                    "uploaded_by": {
-                        "type": "string",
-                        "format": "uuid",
-                        "title": "Uploaded By",
-                        "description": "ID de l'uploader"
-                    },
-                    "source_file_url": {
-                        "type": "string",
-                        "title": "Source File Url",
-                        "description": "URL du fichier source"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "title": "Created At",
-                        "description": "Date de création"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "id",
-                    "establishment_id",
-                    "uploaded_by",
-                    "source_file_url",
-                    "created_at"
-                ],
-                "title": "BatchRead",
-                "description": "Schéma pour lire un batch d'identités.",
-                "example": {
-                    "created_at": "2024-01-01T00:00:00",
-                    "establishment_id": "EST001",
-                    "id": "123e4567-e89b-12d3-a456-426614174000",
-                    "source_file_url": "https://example.com/batch_2024_01.csv",
-                    "uploaded_by": "789e0123-e89b-12d3-a456-426614174002"
-                }
-            },
             "Body_bulk_import_identities_api_v1_identity_bulkimport_post": {
                 "properties": {
                     "file": {
                         "type": "string",
                         "format": "binary",
                         "title": "File",
-                        "description": "Fichier CSV à importer"
+                        "description": "Fichier CSV ou Excel à importer"
                     },
                     "establishment_id": {
                         "type": "string",
                         "title": "Establishment Id",
                         "description": "ID de l'établissement"
-                    },
-                    "source_file_url": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Source File Url",
-                        "description": "URL du fichier source (optionnel)"
                     }
                 },
                 "type": "object",
@@ -1295,73 +1766,108 @@
                 ],
                 "title": "Body_bulk_import_identities_api_v1_identity_bulkimport_post"
             },
-            "BulkImportResponse": {
+            "ContextSelectRequest": {
                 "properties": {
-                    "batch_id": {
+                    "etab_id": {
                         "type": "string",
-                        "format": "uuid",
-                        "title": "Batch Id",
-                        "description": "ID du batch créé"
+                        "minLength": 1,
+                        "title": "Etab Id",
+                        "description": "UUID de l'établissement"
                     },
-                    "status": {
+                    "role": {
                         "type": "string",
-                        "title": "Status",
-                        "description": "Statut de l'import"
-                    },
-                    "message": {
-                        "type": "string",
-                        "title": "Message",
-                        "description": "Message d'information"
-                    },
-                    "total_items": {
-                        "type": "integer",
-                        "title": "Total Items",
-                        "description": "Nombre total d'éléments traités"
-                    },
-                    "new_count": {
-                        "type": "integer",
-                        "title": "New Count",
-                        "description": "Nombre d'éléments créés"
-                    },
-                    "updated_count": {
-                        "type": "integer",
-                        "title": "Updated Count",
-                        "description": "Nombre d'éléments mis à jour"
-                    },
-                    "skipped_count": {
-                        "type": "integer",
-                        "title": "Skipped Count",
-                        "description": "Nombre d'éléments ignorés"
-                    },
-                    "invalid_count": {
-                        "type": "integer",
-                        "title": "Invalid Count",
-                        "description": "Nombre d'éléments invalides"
+                        "minLength": 1,
+                        "title": "Role",
+                        "description": "Code du rôle principal"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "batch_id",
-                    "status",
-                    "message",
-                    "total_items",
-                    "new_count",
-                    "updated_count",
-                    "skipped_count",
-                    "invalid_count"
+                    "etab_id",
+                    "role"
                 ],
-                "title": "BulkImportResponse",
-                "description": "Schéma pour la réponse de bulk import.",
-                "example": {
-                    "batch_id": "123e4567-e89b-12d3-a456-426614174000",
-                    "invalid_count": 5,
-                    "message": "Import terminé avec succès",
-                    "new_count": 50,
-                    "skipped_count": 15,
-                    "status": "COMPLETED",
-                    "total_items": 100,
-                    "updated_count": 30
-                }
+                "title": "ContextSelectRequest",
+                "description": "Requête pour la sélection de contexte.\n\nUtilisée par le frontend pour valider le contexte choisi\navant que auth-service injecte les en-têtes."
+            },
+            "ContextSelectResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success",
+                        "description": "Contexte validé avec succès",
+                        "default": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "Message de confirmation",
+                        "default": "Contexte validé"
+                    }
+                },
+                "type": "object",
+                "title": "ContextSelectResponse",
+                "description": "Réponse pour la sélection de contexte.\n\nConfirme que le contexte est valide et peut être utilisé."
+            },
+            "CycleInfo": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id",
+                        "description": "ID du cycle"
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "Code",
+                        "description": "Code du cycle"
+                    },
+                    "label_key": {
+                        "type": "string",
+                        "title": "Label Key",
+                        "description": "Clé de libellé du cycle"
+                    },
+                    "sort_order": {
+                        "type": "integer",
+                        "title": "Sort Order",
+                        "description": "Ordre de tri"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "code",
+                    "label_key",
+                    "sort_order"
+                ],
+                "title": "CycleInfo",
+                "description": "Information sur un cycle."
+            },
+            "ErrorResponse": {
+                "properties": {
+                    "detail": {
+                        "type": "string",
+                        "title": "Detail",
+                        "description": "Message d'erreur"
+                    },
+                    "code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Code",
+                        "description": "Code d'erreur"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "detail"
+                ],
+                "title": "ErrorResponse",
+                "description": "Réponse d'erreur standardisée."
             },
             "EstablishmentLinkCreate": {
                 "properties": {
@@ -1370,33 +1876,83 @@
                         "title": "Establishment Id",
                         "description": "ID de l'établissement"
                     },
-                    "role": {
-                        "$ref": "#/components/schemas/EstablishmentRole",
-                        "description": "Rôle dans l'établissement"
+                    "role_principal_code": {
+                        "type": "string",
+                        "title": "Role Principal Code",
+                        "description": "Code du rôle principal (ex: 'teacher')"
+                    },
+                    "role_effectif_code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Role Effectif Code",
+                        "description": "Code du rôle effectif (ex: 'enseignant')"
+                    },
+                    "function_display": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Function Display",
+                        "description": "Fonction affichée"
+                    },
+                    "cycle_codes": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Cycle Codes",
+                        "description": "Liste des codes de cycles associés"
+                    },
+                    "subject_codes": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Subject Codes",
+                        "description": "Liste des codes de matières associées"
                     }
                 },
                 "type": "object",
                 "required": [
                     "establishment_id",
-                    "role"
+                    "role_principal_code"
                 ],
                 "title": "EstablishmentLinkCreate",
-                "description": "Schéma pour la création d'un lien avec un établissement.",
+                "description": "Schéma pour la création d'un lien avec un établissement (version enrichie).",
                 "example": {
+                    "cycle_codes": [
+                        "primary",
+                        "middle"
+                    ],
                     "establishment_id": "EST-001",
-                    "role": "ROLE_ELEVE"
+                    "function_display": "Professeur de Mathématiques",
+                    "role_effectif_code": "enseignant",
+                    "role_principal_code": "teacher"
                 }
-            },
-            "EstablishmentRole": {
-                "type": "string",
-                "enum": [
-                    "student",
-                    "parent",
-                    "teacher",
-                    "admin_staff"
-                ],
-                "title": "EstablishmentRole",
-                "description": "Énumération des rôles possibles dans un établissement."
             },
             "HTTPValidationError": {
                 "properties": {
@@ -1458,6 +2014,24 @@
                         "description": "Statut de l'identité",
                         "default": "ACTIVE"
                     },
+                    "account_required": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Account Required",
+                        "description": "Compte requis (true/false) - Recyclé de StudentCSVRow",
+                        "default": "true"
+                    },
+                    "code_identite": {
+                        "type": "string",
+                        "title": "Code Identite",
+                        "description": "Code d'identité fourni par le client"
+                    },
                     "external_id": {
                         "anyOf": [
                             {
@@ -1469,134 +2043,8 @@
                         ],
                         "title": "External Id",
                         "description": "ID externe (généré par Keycloak)"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "firstname",
-                    "lastname"
-                ],
-                "title": "IdentityCreate",
-                "description": "Schéma pour la création d'une identité.",
-                "example": {
-                    "email": "jean.dupont@example.com",
-                    "firstname": "Jean",
-                    "lastname": "Dupont",
-                    "phone": "+33123456789",
-                    "status": "ACTIVE"
-                }
-            },
-            "IdentityListResponse": {
-                "properties": {
-                    "items": {
-                        "items": {
-                            "$ref": "#/components/schemas/IdentityResponse"
-                        },
-                        "type": "array",
-                        "title": "Items",
-                        "description": "Liste des identités"
                     },
-                    "total": {
-                        "type": "integer",
-                        "title": "Total",
-                        "description": "Nombre total d'identités"
-                    },
-                    "page": {
-                        "type": "integer",
-                        "title": "Page",
-                        "description": "Page actuelle"
-                    },
-                    "size": {
-                        "type": "integer",
-                        "title": "Size",
-                        "description": "Taille de la page"
-                    },
-                    "pages": {
-                        "type": "integer",
-                        "title": "Pages",
-                        "description": "Nombre total de pages"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "items",
-                    "total",
-                    "page",
-                    "size",
-                    "pages"
-                ],
-                "title": "IdentityListResponse",
-                "description": "Schéma pour la liste des identités.",
-                "example": {
-                    "items": [
-                        {
-                            "email": "jean.dupont@example.com",
-                            "firstname": "Jean",
-                            "id": "123e4567-e89b-12d3-a456-426614174000",
-                            "lastname": "Dupont",
-                            "status": "ACTIVE"
-                        }
-                    ],
-                    "page": 1,
-                    "pages": 1,
-                    "size": 10,
-                    "total": 1
-                }
-            },
-            "IdentityResponse": {
-                "properties": {
-                    "firstname": {
-                        "type": "string",
-                        "maxLength": 100,
-                        "minLength": 1,
-                        "title": "Firstname",
-                        "description": "Prénom"
-                    },
-                    "lastname": {
-                        "type": "string",
-                        "maxLength": 100,
-                        "minLength": 1,
-                        "title": "Lastname",
-                        "description": "Nom de famille"
-                    },
-                    "email": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "maxLength": 255
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Email",
-                        "description": "Adresse email"
-                    },
-                    "phone": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "maxLength": 20
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Phone",
-                        "description": "Numéro de téléphone"
-                    },
-                    "status": {
-                        "$ref": "#/components/schemas/IdentityStatus",
-                        "description": "Statut de l'identité",
-                        "default": "ACTIVE"
-                    },
-                    "id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "title": "Id",
-                        "description": "ID unique de l'identité"
-                    },
-                    "external_id": {
+                    "establishment_id": {
                         "anyOf": [
                             {
                                 "type": "string"
@@ -1605,48 +2053,84 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "External Id",
-                        "description": "ID externe (Keycloak)"
+                        "title": "Establishment Id",
+                        "description": "ID de l'établissement à lier"
                     },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "title": "Created At",
-                        "description": "Date de création"
-                    },
-                    "updated_at": {
+                    "role_principal_code": {
                         "anyOf": [
                             {
-                                "type": "string",
-                                "format": "date-time"
+                                "type": "string"
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Updated At",
-                        "description": "Date de dernière modification"
+                        "title": "Role Principal Code",
+                        "description": "Code du rôle principal"
+                    },
+                    "role_effectif_code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Role Effectif Code",
+                        "description": "Code du rôle effectif"
+                    },
+                    "function_display": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Function Display",
+                        "description": "Fonction affichée"
+                    },
+                    "cycle_codes": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Cycle Codes",
+                        "description": "Liste des codes de cycles"
                     }
                 },
                 "type": "object",
                 "required": [
                     "firstname",
                     "lastname",
-                    "id",
-                    "created_at"
+                    "code_identite"
                 ],
-                "title": "IdentityResponse",
-                "description": "Schéma pour la réponse d'une identité.",
+                "title": "IdentityCreate",
+                "description": "Schéma pour la création d'une identité avec code fourni.",
                 "example": {
-                    "created_at": "2024-01-15T10:30:00",
+                    "code_identite": "IDT000151",
+                    "cycle_codes": [
+                        "primary",
+                        "middle"
+                    ],
                     "email": "jean.dupont@example.com",
-                    "external_id": "keycloak-user-123",
+                    "establishment_id": "EST-001",
                     "firstname": "Jean",
-                    "id": "123e4567-e89b-12d3-a456-426614174000",
+                    "function_display": "Professeur de Mathématiques",
                     "lastname": "Dupont",
                     "phone": "+33123456789",
-                    "status": "ACTIVE",
-                    "updated_at": "2024-01-20T14:45:00"
+                    "role_effectif_code": "enseignant",
+                    "role_principal_code": "teacher",
+                    "status": "ACTIVE"
                 }
             },
             "IdentityStatus": {
@@ -1725,15 +2209,1058 @@
                             }
                         ],
                         "description": "Statut de l'identité"
+                    },
+                    "account_required": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Account Required",
+                        "description": "Compte requis (true/false)"
+                    },
+                    "establishment_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Establishment Id",
+                        "description": "ID de l'établissement à mettre à jour"
+                    },
+                    "role_principal_code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Role Principal Code",
+                        "description": "Code du rôle principal"
+                    },
+                    "role_effectif_code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Role Effectif Code",
+                        "description": "Code du rôle effectif"
+                    },
+                    "function_display": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Function Display",
+                        "description": "Fonction affichée"
+                    },
+                    "cycle_codes": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Cycle Codes",
+                        "description": "Liste des codes de cycles associés"
                     }
                 },
                 "type": "object",
                 "title": "IdentityUpdate",
-                "description": "Schéma pour la modification d'une identité.",
+                "description": "Schéma pour la modification partielle d'une identité avec rôles.",
                 "example": {
                     "email": "jean-pierre.dupont@example.com",
                     "firstname": "Jean-Pierre",
                     "status": "ACTIVE"
+                }
+            },
+            "IdentityWithRoles": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id",
+                        "description": "ID de l'identité"
+                    },
+                    "firstname": {
+                        "type": "string",
+                        "title": "Firstname",
+                        "description": "Prénom"
+                    },
+                    "lastname": {
+                        "type": "string",
+                        "title": "Lastname",
+                        "description": "Nom de famille"
+                    },
+                    "email": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Email",
+                        "description": "Adresse email"
+                    },
+                    "phone": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Phone",
+                        "description": "Numéro de téléphone"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status",
+                        "description": "Statut de l'identité"
+                    },
+                    "external_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "External Id",
+                        "description": "ID externe (Keycloak)"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At",
+                        "description": "Date de création"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At",
+                        "description": "Date de dernière modification"
+                    },
+                    "role_assignments": {
+                        "items": {
+                            "$ref": "#/components/schemas/RoleAssignmentResponse"
+                        },
+                        "type": "array",
+                        "title": "Role Assignments",
+                        "description": "Rôles complexes de l'identité"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "firstname",
+                    "lastname",
+                    "status",
+                    "created_at"
+                ],
+                "title": "IdentityWithRoles",
+                "description": "Schéma pour une identité avec ses rôles complexes."
+            },
+            "ImportResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success",
+                        "description": "True si l'import s'est bien déroulé"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "Message global de l'import"
+                    },
+                    "summary": {
+                        "$ref": "#/components/schemas/ImportSummary",
+                        "description": "Résumé de l'import"
+                    },
+                    "results": {
+                        "items": {
+                            "$ref": "#/components/schemas/ImportResult"
+                        },
+                        "type": "array",
+                        "title": "Results",
+                        "description": "Détails par identité"
+                    },
+                    "file_info": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "File Info",
+                        "description": "Informations sur le fichier traité"
+                    },
+                    "processed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Processed At",
+                        "description": "Date/heure de traitement"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "success",
+                    "message",
+                    "summary",
+                    "results",
+                    "file_info"
+                ],
+                "title": "ImportResponse",
+                "description": "Réponse de l'import en masse.",
+                "example": {
+                    "file_info": {
+                        "filename": "import_identities.xlsx",
+                        "format": "excel",
+                        "row_count": 10
+                    },
+                    "message": "Import terminé avec succès",
+                    "processed_at": "2024-01-15T10:30:00",
+                    "results": [
+                        {
+                            "email": "jean.martin@example.com",
+                            "identity_id": "123e4567-e89b-12d3-a456-426614174000",
+                            "is_new": true,
+                            "message": "Identité créée avec succès",
+                            "status": "SUCCESS"
+                        }
+                    ],
+                    "success": true,
+                    "summary": {
+                        "error_count": 1,
+                        "new_identities": 8,
+                        "skipped_count": 0,
+                        "success_count": 9,
+                        "total_processed": 10,
+                        "updated_identities": 1
+                    }
+                }
+            },
+            "ImportResult": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "title": "Email",
+                        "description": "Email de l'identité"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status",
+                        "description": "Statut de l'import (SUCCESS, ERROR, SKIPPED)"
+                    },
+                    "message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Message",
+                        "description": "Message détaillé"
+                    },
+                    "identity_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Identity Id",
+                        "description": "ID de l'identité créée/mise à jour"
+                    },
+                    "is_new": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Is New",
+                        "description": "True si nouvelle identité, False si mise à jour"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "email",
+                    "status"
+                ],
+                "title": "ImportResult",
+                "description": "Résultat d'import pour une identité."
+            },
+            "ImportSummary": {
+                "properties": {
+                    "total_processed": {
+                        "type": "integer",
+                        "title": "Total Processed",
+                        "description": "Nombre total d'identités traitées"
+                    },
+                    "success_count": {
+                        "type": "integer",
+                        "title": "Success Count",
+                        "description": "Nombre d'imports réussis"
+                    },
+                    "error_count": {
+                        "type": "integer",
+                        "title": "Error Count",
+                        "description": "Nombre d'erreurs"
+                    },
+                    "skipped_count": {
+                        "type": "integer",
+                        "title": "Skipped Count",
+                        "description": "Nombre d'identités ignorées"
+                    },
+                    "new_identities": {
+                        "type": "integer",
+                        "title": "New Identities",
+                        "description": "Nombre de nouvelles identités créées"
+                    },
+                    "updated_identities": {
+                        "type": "integer",
+                        "title": "Updated Identities",
+                        "description": "Nombre d'identités mises à jour"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "total_processed",
+                    "success_count",
+                    "error_count",
+                    "skipped_count",
+                    "new_identities",
+                    "updated_identities"
+                ],
+                "title": "ImportSummary",
+                "description": "Résumé de l'import."
+            },
+            "RoleAssignmentCreate": {
+                "properties": {
+                    "establishment_id": {
+                        "type": "string",
+                        "title": "Establishment Id",
+                        "description": "ID de l'établissement"
+                    },
+                    "role_principal_code": {
+                        "type": "string",
+                        "title": "Role Principal Code",
+                        "description": "Code du rôle principal"
+                    },
+                    "role_effectif_code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Role Effectif Code",
+                        "description": "Code du rôle effectif"
+                    },
+                    "function_display": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Function Display",
+                        "description": "Fonction personnalisée"
+                    },
+                    "cycle_codes": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Cycle Codes",
+                        "description": "Codes des cycles"
+                    },
+                    "subject_codes": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Subject Codes",
+                        "description": "Codes des matières"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "establishment_id",
+                    "role_principal_code"
+                ],
+                "title": "RoleAssignmentCreate",
+                "description": "Schéma pour la création d'un rôle complexe.",
+                "example": {
+                    "cycle_codes": [
+                        "primary",
+                        "middle"
+                    ],
+                    "establishment_id": "EST-001",
+                    "function_display": "Professeur de Mathématiques",
+                    "role_effectif_code": "enseignant",
+                    "role_principal_code": "teacher",
+                    "subject_codes": [
+                        "mathematiques",
+                        "sciences"
+                    ]
+                }
+            },
+            "RoleAssignmentResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id",
+                        "description": "ID du rôle"
+                    },
+                    "identity_establishment_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Identity Establishment Id",
+                        "description": "ID du lien identité-établissement"
+                    },
+                    "role_principal": {
+                        "$ref": "#/components/schemas/RolePrincipalInfo",
+                        "description": "Rôle principal"
+                    },
+                    "role_effectif": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/RoleEffectifInfo"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Rôle effectif"
+                    },
+                    "function_display": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Function Display",
+                        "description": "Fonction personnalisée"
+                    },
+                    "cycles": {
+                        "items": {
+                            "$ref": "#/components/schemas/CycleInfo"
+                        },
+                        "type": "array",
+                        "title": "Cycles",
+                        "description": "Cycles assignés"
+                    },
+                    "subjects": {
+                        "items": {
+                            "$ref": "#/components/schemas/SubjectInfo"
+                        },
+                        "type": "array",
+                        "title": "Subjects",
+                        "description": "Matières assignées"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At",
+                        "description": "Date de création"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At",
+                        "description": "Date de dernière modification"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "identity_establishment_id",
+                    "role_principal",
+                    "created_at"
+                ],
+                "title": "RoleAssignmentResponse",
+                "description": "Schéma pour la réponse d'un rôle complexe.",
+                "example": {
+                    "created_at": "2024-01-15T10:30:00",
+                    "cycles": [
+                        {
+                            "code": "primary",
+                            "id": "345e6789-e89b-12d3-a456-426614174000",
+                            "label_key": "cycle.primary",
+                            "sort_order": 20
+                        }
+                    ],
+                    "function_display": "Professeur de Mathématiques",
+                    "id": "123e4567-e89b-12d3-a456-426614174000",
+                    "identity_establishment_id": "456e7890-e89b-12d3-a456-426614174000",
+                    "role_effectif": {
+                        "code": "enseignant",
+                        "group_key": "pedagogy",
+                        "id": "012e3456-e89b-12d3-a456-426614174000",
+                        "is_sensitive": false,
+                        "label_key": "role.effectif.enseignant",
+                        "sort_order": 30
+                    },
+                    "role_principal": {
+                        "code": "teacher",
+                        "id": "789e0123-e89b-12d3-a456-426614174000",
+                        "label_key": "role.principal.teacher",
+                        "sort_order": 30
+                    },
+                    "subjects": [
+                        {
+                            "code": "mathematiques",
+                            "id": "678e9012-e89b-12d3-a456-426614174000",
+                            "label_key": "subject.mathematiques",
+                            "sort_order": 10
+                        }
+                    ],
+                    "updated_at": "2024-01-20T14:45:00"
+                }
+            },
+            "RoleAssignmentUpdate": {
+                "properties": {
+                    "role_effectif_code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Role Effectif Code",
+                        "description": "Code du rôle effectif"
+                    },
+                    "function_display": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Function Display",
+                        "description": "Fonction personnalisée"
+                    },
+                    "cycle_codes": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Cycle Codes",
+                        "description": "Codes des cycles"
+                    },
+                    "subject_codes": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Subject Codes",
+                        "description": "Codes des matières"
+                    }
+                },
+                "type": "object",
+                "title": "RoleAssignmentUpdate",
+                "description": "Schéma pour la modification d'un rôle complexe.",
+                "example": {
+                    "cycle_codes": [
+                        "primary",
+                        "middle",
+                        "high"
+                    ],
+                    "function_display": "Directeur Pédagogique",
+                    "role_effectif_code": "dir_pedagogique",
+                    "subject_codes": [
+                        "mathematiques"
+                    ]
+                }
+            },
+            "RoleEffectifInfo": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id",
+                        "description": "ID du rôle effectif"
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "Code",
+                        "description": "Code du rôle effectif"
+                    },
+                    "label_key": {
+                        "type": "string",
+                        "title": "Label Key",
+                        "description": "Clé de libellé du rôle effectif"
+                    },
+                    "group_key": {
+                        "type": "string",
+                        "title": "Group Key",
+                        "description": "Groupe du rôle effectif"
+                    },
+                    "is_sensitive": {
+                        "type": "boolean",
+                        "title": "Is Sensitive",
+                        "description": "Rôle sensible"
+                    },
+                    "sort_order": {
+                        "type": "integer",
+                        "title": "Sort Order",
+                        "description": "Ordre de tri"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "code",
+                    "label_key",
+                    "group_key",
+                    "is_sensitive",
+                    "sort_order"
+                ],
+                "title": "RoleEffectifInfo",
+                "description": "Information sur un rôle effectif."
+            },
+            "RolePrincipalInfo": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id",
+                        "description": "ID du rôle principal"
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "Code",
+                        "description": "Code du rôle principal"
+                    },
+                    "label_key": {
+                        "type": "string",
+                        "title": "Label Key",
+                        "description": "Clé de libellé du rôle principal"
+                    },
+                    "sort_order": {
+                        "type": "integer",
+                        "title": "Sort Order",
+                        "description": "Ordre de tri"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "code",
+                    "label_key",
+                    "sort_order"
+                ],
+                "title": "RolePrincipalInfo",
+                "description": "Information sur un rôle principal."
+            },
+            "StandardListResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success",
+                        "description": "Indique si l'opération a réussi",
+                        "default": true
+                    },
+                    "data": {
+                        "items": {},
+                        "type": "array",
+                        "title": "Data",
+                        "description": "Liste des données"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total",
+                        "description": "Nombre total d'éléments"
+                    },
+                    "page": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Page",
+                        "description": "Page actuelle (si pagination)"
+                    },
+                    "page_size": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Page Size",
+                        "description": "Taille de la page (si pagination)"
+                    },
+                    "pages": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pages",
+                        "description": "Nombre total de pages (si pagination)"
+                    },
+                    "message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Message",
+                        "description": "Message informatif"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Timestamp",
+                        "description": "Horodatage de la réponse"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "data",
+                    "total"
+                ],
+                "title": "StandardListResponse",
+                "description": "Format standardisé pour les réponses contenant une liste d'éléments.\n\nUtilisé pour : GET /identities, GET /catalogs/*, GET /me/roles, etc.",
+                "example": {
+                    "data": [
+                        {
+                            "firstname": "Jean",
+                            "id": "123e4567-e89b-12d3-a456-426614174000",
+                            "lastname": "Dupont"
+                        },
+                        {
+                            "firstname": "Marie",
+                            "id": "123e4567-e89b-12d3-a456-426614174001",
+                            "lastname": "Martin"
+                        }
+                    ],
+                    "message": "Liste récupérée avec succès",
+                    "page": 1,
+                    "page_size": 10,
+                    "pages": 1,
+                    "success": true,
+                    "timestamp": "2024-01-15T10:30:00Z",
+                    "total": 2
+                }
+            },
+            "StandardSingleResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success",
+                        "description": "Indique si l'opération a réussi",
+                        "default": true
+                    },
+                    "data": {
+                        "title": "Data",
+                        "description": "Données de la réponse"
+                    },
+                    "message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Message",
+                        "description": "Message informatif"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Timestamp",
+                        "description": "Horodatage de la réponse"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "data"
+                ],
+                "title": "StandardSingleResponse",
+                "description": "Format standardisé pour les réponses contenant un seul élément.\n\nUtilisé pour : GET /identities/{id}, GET /roles/{id}, etc.",
+                "example": {
+                    "data": {
+                        "email": "jean.dupont@example.com",
+                        "firstname": "Jean",
+                        "id": "123e4567-e89b-12d3-a456-426614174000",
+                        "lastname": "Dupont"
+                    },
+                    "message": "Identité récupérée avec succès",
+                    "success": true,
+                    "timestamp": "2024-01-15T10:30:00Z"
+                }
+            },
+            "StandardSuccessResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success",
+                        "description": "Indique que l'opération a réussi",
+                        "default": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "Message de succès"
+                    },
+                    "data": {
+                        "anyOf": [
+                            {},
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Data",
+                        "description": "Données optionnelles de la réponse"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Timestamp",
+                        "description": "Horodatage de la réponse"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message"
+                ],
+                "title": "StandardSuccessResponse",
+                "description": "Format standardisé pour les réponses de succès (opérations de création/modification).\n\nUtilisé pour : POST /identities, PUT /identities/{id}, DELETE /identities/{id}, etc.",
+                "example": {
+                    "data": {
+                        "firstname": "Jean",
+                        "id": "123e4567-e89b-12d3-a456-426614174000",
+                        "lastname": "Dupont"
+                    },
+                    "message": "Identité créée avec succès",
+                    "success": true,
+                    "timestamp": "2024-01-15T10:30:00Z"
+                }
+            },
+            "SubjectInfo": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id",
+                        "description": "ID de la matière"
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "Code",
+                        "description": "Code de la matière"
+                    },
+                    "label_key": {
+                        "type": "string",
+                        "title": "Label Key",
+                        "description": "Clé de libellé de la matière"
+                    },
+                    "sort_order": {
+                        "type": "integer",
+                        "title": "Sort Order",
+                        "description": "Ordre de tri"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "code",
+                    "label_key",
+                    "sort_order"
+                ],
+                "title": "SubjectInfo",
+                "description": "Information sur une matière."
+            },
+            "TemplateInfo": {
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "title": "Role",
+                        "description": "Rôle du template"
+                    },
+                    "format": {
+                        "type": "string",
+                        "title": "Format",
+                        "description": "Format du template (csv ou xlsx)"
+                    },
+                    "columns": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Columns",
+                        "description": "Colonnes du template"
+                    },
+                    "example_data": {
+                        "items": {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Example Data",
+                        "description": "Données d'exemple"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "role",
+                    "format",
+                    "columns",
+                    "example_data"
+                ],
+                "title": "TemplateInfo",
+                "description": "Informations sur un template."
+            },
+            "TemplateResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success",
+                        "description": "True si l'export s'est bien déroulé"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "Message de l'export"
+                    },
+                    "template_info": {
+                        "$ref": "#/components/schemas/TemplateInfo",
+                        "description": "Informations sur le template"
+                    },
+                    "download_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Download Url",
+                        "description": "URL de téléchargement (si applicable)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "success",
+                    "message",
+                    "template_info"
+                ],
+                "title": "TemplateResponse",
+                "description": "Réponse pour l'export de template.",
+                "example": {
+                    "message": "Template généré avec succès",
+                    "success": true,
+                    "template_info": {
+                        "columns": [
+                            "nom",
+                            "prenom",
+                            "email",
+                            "numero_telephone",
+                            "role_principal",
+                            "role_effectif",
+                            "cycle"
+                        ],
+                        "example_data": [
+                            {
+                                "cycle": "primary",
+                                "email": "jean.martin@example.com",
+                                "nom": "Martin",
+                                "numero_telephone": "0123456789",
+                                "prenom": "Jean",
+                                "role_effectif": "",
+                                "role_principal": "student"
+                            }
+                        ],
+                        "format": "csv",
+                        "role": "student"
+                    }
                 }
             },
             "ValidationError": {

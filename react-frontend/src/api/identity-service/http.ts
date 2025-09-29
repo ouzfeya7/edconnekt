@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { getActiveContext, setActiveContext } from '../../utils/contextStorage';
+import { attachAuthRefresh } from '../httpAuth';
 
 const DEFAULT_BASE_URL = 'https://api.uat1-engy-partners.com/identity';
 const RAW_BASE_URL = import.meta.env.VITE_IDENTITY_API_BASE_URL ?? DEFAULT_BASE_URL;
@@ -20,11 +22,15 @@ identityAxios.interceptors.request.use((config) => {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
-  const viteEnv = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
-  const etabId = localStorage.getItem('current-etab-id') || viteEnv?.VITE_DEFAULT_ETAB_ID;
-  if (etabId) {
+  // Context selection headers (Gateway will confirm and inject X-Etab/X-Role)
+  const { etabId: activeEtabId, role: activeRole } = getActiveContext();
+  if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Establishment-Id'] = etabId;
+    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+  }
+  if (activeRole) {
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
   }
   if (import.meta.env.DEV) {
     const headers = { ...(config.headers as Record<string, unknown>) };
@@ -42,6 +48,14 @@ identityAxios.interceptors.request.use((config) => {
 
 identityAxios.interceptors.response.use(
   (response) => {
+    // Persist confirmed context from Gateway if present
+    try {
+      const xEtab = response.headers?.['x-etab'] as string | undefined;
+      const xRole = response.headers?.['x-role'] as string | undefined;
+      if (xEtab && xRole) {
+        setActiveContext(xEtab, xRole as any);
+      }
+    } catch {}
     if (import.meta.env.DEV) {
       console.debug('[identity-api][response]', {
         status: response.status,
@@ -60,6 +74,9 @@ identityAxios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Attach centralized auth refresh interceptor
+attachAuthRefresh(identityAxios);
 
 if (import.meta.env.DEV) {
   console.info('[identity-api] baseURL =', identityAxios.defaults.baseURL);

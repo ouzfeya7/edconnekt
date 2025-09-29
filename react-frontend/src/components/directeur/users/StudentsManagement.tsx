@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Edit, Trash, Search, PlusCircle, Link as LinkIcon, ArrowLeftRight, Clock, MinusCircle } from 'lucide-react';
+import { Edit, Trash, Search, PlusCircle, Link as LinkIcon, ArrowLeftRight, Clock, MinusCircle, X } from 'lucide-react';
 import { useStudents } from '../../../hooks/students/useStudents';
 import { useCreateStudent } from '../../../hooks/students/useCreateStudent';
 import { useUpdateStudent } from '../../../hooks/students/useUpdateStudent';
@@ -11,7 +11,6 @@ import { useTransferStudentClass } from '../../../hooks/students/useTransferStud
 import { useStudentAudit } from '../../../hooks/students/useStudentAudit';
 import { useClasses } from '../../../hooks/useClasses';
 import { useEstablishments } from '../../../hooks/useEstablishments';
-import { setStudentServiceEstablishmentId } from '../../../api/student-service/http';
 
 const StudentsManagement = () => {
   const { t } = useTranslation();
@@ -129,7 +128,7 @@ const StudentsManagement = () => {
 
       {/* Filtres */}
       <div className="grid grid-cols-1 md:grid-cols-6 gap-3 mb-4">
-        <select className="border rounded-md px-2 py-2" value={selectedEtabId} onChange={(e) => { const id = e.target.value; setSelectedEtabId(id); setStudentServiceEstablishmentId(id || undefined); setPage(1); setClassId(null); }}>
+        <select className="border rounded-md px-2 py-2" value={selectedEtabId} onChange={(e) => { const id = e.target.value; setSelectedEtabId(id); setPage(1); setClassId(null); }}>
           <option value="">{t('select_establishment','Sélectionner un établissement')}</option>
           {(establishments || []).map((etab) => (
             <option key={etab.id} value={etab.id}>{etab.nom}</option>
@@ -374,7 +373,9 @@ function StudentAuditModal({ studentId, onClose }: { studentId: string; onClose:
       <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-4 max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold">{t('student_audit','Audit de l\'élève')}</h3>
-          <button className="px-3 py-1 border rounded" onClick={onClose}>{t('close','Fermer')}</button>
+          <button aria-label={t('close','Fermer') || 'Fermer'} className="p-2 rounded hover:bg-gray-100" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </button>
         </div>
         {isLoading && <div className="text-gray-500">{t('loading','Chargement...')}</div>}
         {isError && <div className="text-red-600">{t('error_loading','Erreur de chargement')}</div>}

@@ -33,6 +33,20 @@ export function useSubjects(params: UseSubjectsParams) {
   });
 }
 
+export function useSubject(subjectId?: string) {
+  return useQuery<SubjectResponse, Error>({
+    queryKey: ['competence:subject', subjectId],
+    enabled: Boolean(subjectId),
+    queryFn: async () => {
+      if (!subjectId) throw new Error('subjectId requis');
+      const { data } = await competenceReferentialsApi.getSubjectApiCompetenceSubjectsSubjectIdGet(subjectId);
+      return data;
+    },
+    staleTime: 60_000,
+    retry: 0,
+  });
+}
+
 export function usePublicSubjectsByScope(params: { cycle: string; level: string }) {
   const { cycle, level } = params;
   return useQuery<SubjectResponse[], Error>({

@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
+import { getActiveContext, setActiveContext } from '../../utils/contextStorage';
+import { attachAuthRefresh } from '../httpAuth';
 
 // Base URL configurable via Vite env, avec fallback par défaut
 const DEFAULT_BASE_URL = 'https://api.uat1-engy-partners.com/student';
@@ -16,9 +18,11 @@ export const studentAxios = axios.create({
   baseURL: BASE_URL,
 });
 
+// Déprécié: ancien scoping par service
 let inMemoryEstablishmentId: string | undefined;
-export function setStudentServiceEstablishmentId(id?: string) {
-  inMemoryEstablishmentId = id || undefined;
+export function setStudentServiceEstablishmentId(_id?: string) {
+  // NOOP pour compat : le service se base désormais sur le contexte global (X-Etab-Select/X-Role-Select)
+  inMemoryEstablishmentId = undefined;
 }
 
 // Intercepteur: normalise l'URL, injecte le token et l'établissement
@@ -31,12 +35,15 @@ studentAxios.interceptors.request.use((config) => {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
-  const viteEnv = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
-  const etabId = inMemoryEstablishmentId ?? viteEnv?.VITE_DEFAULT_ETAB_ID;
-  const hasScopedHeader = Boolean((config.headers as Record<string, string | undefined>)?.['X-Establishment-Id']);
-  if (etabId && !hasScopedHeader) {
+  // Multi-tenant: en-têtes de sélection (le contexte global prévaut)
+  const { etabId: activeEtabId, role: activeRole } = getActiveContext();
+  if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Establishment-Id'] = etabId;
+    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+  }
+  if (activeRole) {
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
   }
   if ((import.meta as any)?.env?.DEV) {
     const headers = { ...(config.headers as Record<string, unknown>) };
@@ -53,6 +60,11 @@ studentAxios.interceptors.request.use((config) => {
 
 studentAxios.interceptors.response.use(
   (response) => {
+    try {
+      const xEtab = response.headers?.['x-etab'] as string | undefined;
+      const xRole = response.headers?.['x-role'] as string | undefined;
+      if (xEtab && xRole) setActiveContext(xEtab, xRole as any);
+    } catch {}
     if ((import.meta as any)?.env?.DEV) {
       console.debug('[student-api][response]', {
         status: response.status,
@@ -75,6 +87,9 @@ studentAxios.interceptors.response.use(
 if ((import.meta as any)?.env?.DEV) {
   console.info('[student-api] baseURL =', studentAxios.defaults.baseURL);
 }
+
+// Attach centralized auth refresh interceptor (last added -> first run on errors)
+attachAuthRefresh(studentAxios);
 
 export default studentAxios;
 

@@ -16,6 +16,20 @@ export function useAssignments(params: { referentialId?: string; versionNumber?:
   });
 }
 
+export function useAssignment(assignmentId?: string) {
+  return useQuery<AssignmentResponse, Error>({
+    queryKey: ['competence:assignment', assignmentId],
+    enabled: Boolean(assignmentId),
+    queryFn: async () => {
+      if (!assignmentId) throw new Error('assignmentId requis');
+      const { data } = await competenceReferentialsApi.getAssignmentApiCompetenceAssignmentsAssignmentIdGet(assignmentId);
+      return data;
+    },
+    staleTime: 60_000,
+    retry: 0,
+  });
+}
+
 export function useCreateAssignment() {
   const qc = useQueryClient();
   return useMutation<AssignmentResponse[], Error, AssignmentCreate>({

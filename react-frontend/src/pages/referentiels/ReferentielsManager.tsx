@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useReferentials } from '../../hooks/competence/useReferentials';
 import { useSubjects } from '../../hooks/competence/useSubjects';
 import { useCompetencies } from '../../hooks/competence/useCompetencies';
@@ -7,8 +7,11 @@ import { useCreateReferential, usePublishReferential, useDeleteReferential, useC
 import toast from 'react-hot-toast';
 import { GraduationCap, BookOpen, Award } from 'lucide-react';
 import { CycleEnum, VisibilityEnum } from '../../api/competence-service/api';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const ReferentielsManager: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(20);
   const [q, setQ] = useState<string>('');
@@ -64,6 +67,19 @@ const ReferentielsManager: React.FC = () => {
   const totalDomains = (domains ?? []).length;
   const totalSubjects = subjectsPage?.total ?? 0;
   const totalCompetencies = competenciesPage?.total ?? 0;
+
+  // Hydrate state from URL query params
+  useEffect(() => {
+    const initialRefId = searchParams.get('refId');
+    const initialVersion = searchParams.get('version');
+    const tab = searchParams.get('tab') as 'referentials' | 'domains' | 'subjects' | 'competencies' | null;
+    const initialSubjectFilter = searchParams.get('subjectId');
+
+    if (initialRefId) setSelectedReferentialId(initialRefId);
+    if (initialVersion && !Number.isNaN(Number(initialVersion))) setVersionNumber(Number(initialVersion));
+    if (tab) setActiveTab(tab);
+    if (initialSubjectFilter) setCompetencyFilter(initialSubjectFilter);
+  }, [searchParams]);
 
   const createRef = useCreateReferential();
   const publishRef = usePublishReferential();
@@ -810,6 +826,7 @@ const ReferentielsManager: React.FC = () => {
               <div className="font-semibold">Compétences</div>
               <div className="flex items-center gap-3">
                 <button className="px-3 py-1.5 text-sm rounded bg-blue-600 text-white" onClick={openCreateCompetency} disabled={!effectiveReferentialId || effectiveVersion === null}>Créer</button>
+                <button className="px-3 py-1.5 text-sm rounded border" onClick={() => navigate('/referentiels/competencies/lookup')}>Recherche par code</button>
                 <div className="text-sm text-gray-600">{compLoading ? 'Chargement…' : `${totalCompetencies} élément(s)`}</div>
               </div>
             </div>

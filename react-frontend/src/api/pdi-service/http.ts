@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { getActiveContext, setActiveContext } from '../../utils/contextStorage';
+import { attachAuthRefresh } from '../httpAuth';
 
 // Base URL par défaut (inclut le slash final)
 export const DEFAULT_BASE_URL = 'https://api.uat1-engy-partners.com/pdi/';
@@ -25,7 +27,16 @@ axiosInstance.interceptors.request.use((config) => {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
-
+  // Multi-tenant: en-têtes de sélection
+  const { etabId: activeEtabId, role: activeRole } = getActiveContext();
+  if (activeEtabId) {
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+  }
+  if (activeRole) {
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
+  }
   return config;
 });
 
@@ -34,5 +45,21 @@ axiosInstance.interceptors.request.use((config) => {
 console.log(`[pdi-api] baseURL = ${PDI_API_BASE_URL}`);
 
 export default axiosInstance;
+
+// Persistance du contexte confirmé par le Gateway
+axiosInstance.interceptors.response.use(
+  (response) => {
+    try {
+      const xEtab = response.headers?.['x-etab'] as string | undefined;
+      const xRole = response.headers?.['x-role'] as string | undefined;
+      if (xEtab && xRole) setActiveContext(xEtab, xRole as any);
+    } catch {}
+    return response;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Attach centralized auth refresh interceptor (last added -> first run on errors)
+attachAuthRefresh(axiosInstance);
 
 

@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import keycloak from './keycloak';
+import { clearActiveContext } from '../../utils/contextStorage';
 import { KeycloakProfile } from 'keycloak-js';
 
 type AuthUser = KeycloakProfile | null;
@@ -104,10 +105,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     initAuth();
 
     keycloak.onTokenExpired = () => {
-      keycloak.updateToken(30).catch(() => {
-        console.error('Échec du rafraîchissement du token');
-        logout();
-      });
+      keycloak
+        .updateToken(30)
+        .then(() => {
+          if (keycloak.token) {
+            sessionStorage.setItem('keycloak-token', keycloak.token);
+          }
+          if (keycloak.refreshToken) {
+            sessionStorage.setItem('keycloak-refresh-token', keycloak.refreshToken);
+          }
+        })
+        .catch(() => {
+          console.error('Échec du rafraîchissement du token');
+          logout();
+        });
     };
 
   }, []);
@@ -122,12 +133,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     if (!MOCK_AUTH) {
+      // Nettoyage local avant redirection
+      try {
+        sessionStorage.removeItem('keycloak-token');
+        sessionStorage.removeItem('keycloak-refresh-token');
+        clearActiveContext();
+      } catch {}
       keycloak.logout({ redirectUri: 'http://localhost:8000/' });
     } else {
       setIsAuthenticated(false);
       setUser(null);
       setRoles([]);
       sessionStorage.removeItem('keycloak-token');
+      sessionStorage.removeItem('keycloak-refresh-token');
+      clearActiveContext();
       console.log("Déconnexion simulée en mode mock.");
     }
   };

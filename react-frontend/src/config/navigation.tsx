@@ -39,6 +39,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
     { titleKey: "home", to: "/", icon: <FaHome /> },
     { titleKey: "onboarding", to: "/utilisateurs", icon: <FaUsers /> },
     { titleKey: "referentiels", to: "/referentiels", icon: <FaGraduationCap /> },
+    { titleKey: "competency_lookup", to: "/referentiels/competencies/lookup", icon: <FaBook /> },
     { titleKey: "alertes", to: "/alertes", icon: <FaExclamationTriangle /> },
     { titleKey: "emploi_du_temps", to: "/emploi-du-temps", icon: <FaCalendarAlt /> },
     { 
@@ -90,6 +91,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
     { titleKey: "abonnements", to: "/abonnements", icon: <FaFileInvoiceDollar /> },
     { titleKey: "plans", to: "/plans", icon: <FaTags /> },
     { titleKey: "referentiels", to: "/referentiels", icon: <FaGraduationCap /> },
+    { titleKey: "competency_lookup", to: "/referentiels/competencies/lookup", icon: <FaBook /> },
     { titleKey: "imports", to: "/imports", icon: <FaUpload /> },
     { titleKey: "Profile", to: "/profile", icon: <FaUser />, hideInNavbar: true },
   ],

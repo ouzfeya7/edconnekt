@@ -70,14 +70,7 @@ const EmploiDuTempsPage = () => {
     }
   }, [currentEtablissementId]);
 
-  // Persister l'établissement courant pour l'en-tête X-Establishment-Id côté API timetable
-  React.useEffect(() => {
-    if (selectedEtabId) {
-      try {
-        localStorage.setItem('current-etab-id', selectedEtabId);
-      } catch {}
-    }
-  }, [selectedEtabId]);
+  // Plus besoin de persister un header legacy: l'intercepteur multi-tenant envoie X-Etab-Select/X-Role-Select
 
   // Calcul des dates de la semaine affichée (avant les appels API)
   const weekDates = useMemo(() => {

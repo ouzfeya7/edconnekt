@@ -7,10 +7,7 @@ export function useCreateStudent() {
   return useMutation<StudentResponse, Error, { payload: StudentCreate; etabId?: string }>({
     mutationKey: ['student:create'],
     mutationFn: async ({ payload, etabId }) => {
-      const { data } = await studentsApi.createStudentApiStudentsPost(
-        payload,
-        etabId ? { headers: { 'X-Establishment-Id': etabId } } : undefined
-      );
+      const { data } = await studentsApi.createStudentApiStudentsPost(payload);
       return data;
     },
     onSuccess: () => {

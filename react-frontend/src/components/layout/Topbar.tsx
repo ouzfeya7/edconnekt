@@ -6,6 +6,7 @@ import { User } from "../../layouts/DashboardLayout";
 import Navbar from "./Navbar";
 import { Role } from "../../config/navigation";
 import { useAuth } from "../../pages/authentification/useAuth";
+import { useIdentityContext } from "../../contexts/IdentityContextProvider";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 
@@ -38,6 +39,8 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
   const { t } = useTranslation();
   const { events } = useEvents();
   const { logout } = useAuth();
+  const { openContextSelector, activeEtabId, activeRole } = useIdentityContext();
+
   const location = useLocation();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -45,6 +48,7 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
   // Les données sont maintenant reçues via les props
   const userName = user.name;
   const role = user.role as Role;
+  const isAdmin = role === 'administrateur';
 
   const getInitials = (name: string) => {
     return name
@@ -118,6 +122,15 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
       {/* Section Droite: Notifications, Emploi du temps, Profil Utilisateur */}
       <div className="flex items-center gap-4">
         <LanguageSwitcher />
+        {!isAdmin && (
+          <button
+            onClick={openContextSelector}
+            className="px-2 py-1 text-xs rounded border hover:bg-gray-50"
+            title={activeEtabId && activeRole ? `Etab: ${activeEtabId} | Rôle: ${activeRole}` : 'Sélectionner le contexte'}
+          >
+            Contexte
+          </button>
+        )}
         <Link 
           to="/calendar" 
           className={`relative p-2 rounded-full transition-colors ${

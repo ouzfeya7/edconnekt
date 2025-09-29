@@ -498,4 +498,77 @@
     "events": "Événements",
     "admissions": "Admissions",
     "admission": "Admission"
+  ,
+  "competency_lookup": "Recherche par code",
+  "competency": {
+    "common": {
+      "retry": "Réessayer",
+      "back": "Retour",
+      "open_referentials": "Ouvrir les référentiels",
+      "error_title": "Erreur",
+      "created_at": "Créé le",
+      "updated_at": "Mis à jour le"
+    },
+    "detail": {
+      "subject": {
+        "title": "Matière",
+        "info": "Informations essentielles",
+        "metadata": "Métadonnées",
+        "name": "Nom",
+        "code": "Code",
+        "coefficient": "Coefficient",
+        "credit": "Crédit",
+        "color": "Couleur",
+        "order": "Ordre",
+        "referential": "Référentiel",
+        "version": "Version",
+        "domain_id": "Domaine ID",
+        "created_at": "Créé le",
+        "updated_at": "Mis à jour le",
+        "view_competencies": "Voir compétences",
+        "not_found": "Matière introuvable (404)",
+        "load_error_toast": "Une erreur est survenue lors du chargement de la matière."
+      },
+      "competency": {
+        "title": "Compétence",
+        "info": "Informations",
+        "metadata": "Métadonnées",
+        "label": "Libellé",
+        "code": "Code",
+        "description": "Description",
+        "levels": "Niveaux",
+        "order": "Ordre",
+        "subject_id": "Matière ID",
+        "referential": "Référentiel",
+        "version": "Version",
+        "open_ref": "Ouvrir le référentiel",
+        "not_found": "Compétence introuvable (404)",
+        "load_error_toast": "Une erreur est survenue lors du chargement de la compétence."
+      },
+      "assignment": {
+        "title": "Affectation",
+        "info": "Informations",
+        "scope": "Portée",
+        "type": "Type",
+        "value": "Valeur",
+        "referential": "Référentiel",
+        "version": "Version",
+        "open_ref": "Ouvrir le référentiel",
+        "not_found": "Affectation introuvable (404)",
+        "load_error_toast": "Une erreur est survenue lors du chargement de l'affectation."
+      }
+    },
+    "lookup": {
+      "title": "Recherche de compétence par code",
+      "code_label": "Code de la compétence",
+      "referential_label": "Référentiel (optionnel)",
+      "version_label": "Version (optionnel)",
+      "submit": "Rechercher",
+      "searching": "Recherche...",
+      "not_found_title": "Aucune compétence trouvée (404)",
+      "not_found_hint": "Vérifiez le code saisi et réessayez.",
+      "open_detail": "Ouvrir la fiche",
+      "open_ref": "Ouvrir le référentiel"
+    }
+  }     
 }

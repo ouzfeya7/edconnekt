@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { getActiveContext, setActiveContext } from '../../utils/contextStorage';
+import { attachAuthRefresh } from '../httpAuth';
 
 // Étape 1 — http.ts pour Message Service
 // Exigences: baseURL issue des envs, normalisation des URLs, interceptor Keycloak, log explicite
@@ -24,12 +26,15 @@ messageAxios.interceptors.request.use((config) => {
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
 
-  // Propager l'établissement si disponible (aligné avec le pattern existant)
-  const viteEnv = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
-  const etabId = localStorage.getItem('current-etab-id') || viteEnv?.VITE_DEFAULT_ETAB_ID;
-  if (etabId) {
+  // Multi-tenant: en-têtes de sélection (sélection côté client, confirmation par Gateway)
+  const { etabId: activeEtabId, role: activeRole } = getActiveContext();
+  if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Establishment-Id'] = etabId;
+    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+  }
+  if (activeRole) {
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
   }
 
   return config;
@@ -42,7 +47,14 @@ if ((import.meta as unknown as { env?: Record<string, string | undefined> }).env
 
 // Log utile pour 401/403 afin de diagnostiquer les rôles/permissions
 messageAxios.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    try {
+      const xEtab = response.headers?.['x-etab'] as string | undefined;
+      const xRole = response.headers?.['x-role'] as string | undefined;
+      if (xEtab && xRole) setActiveContext(xEtab, xRole as any);
+    } catch {}
+    return response;
+  },
   (error) => {
     const status = (error as { response?: { status?: number; data?: unknown } }).response?.status;
     if (status === 401 || status === 403) {
@@ -52,6 +64,8 @@ messageAxios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+// Attach centralized auth refresh interceptor (last added -> first run on errors)
+attachAuthRefresh(messageAxios);
 
 export default messageAxios;
 

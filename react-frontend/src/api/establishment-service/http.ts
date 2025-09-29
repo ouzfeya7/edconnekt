@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
+import { getActiveContext, setActiveContext } from '../../utils/contextStorage';
+import { attachAuthRefresh } from '../httpAuth';
 
 // Base URL configurable via Vite env, avec fallback par défaut
 const DEFAULT_BASE_URL = 'https://api.uat1-engy-partners.com/establishment';
@@ -26,6 +28,16 @@ establishmentAxios.interceptors.request.use((config) => {
 		config.headers = config.headers ?? {};
 		(config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
 	}
+  // Multi-tenant: en-têtes de sélection
+  const { etabId: activeEtabId, role: activeRole } = getActiveContext();
+  if (activeEtabId) {
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+  }
+  if (activeRole) {
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
+  }
 	return config;
 });
 
@@ -33,5 +45,20 @@ establishmentAxios.interceptors.request.use((config) => {
 if ((import.meta as any)?.env?.DEV) {
 	console.info('[establishment-api] baseURL =', establishmentAxios.defaults.baseURL);
 }
+
+// Persistance du contexte confirmé par le Gateway
+establishmentAxios.interceptors.response.use(
+  (response) => {
+    try {
+      const xEtab = response.headers?.['x-etab'] as string | undefined;
+      const xRole = response.headers?.['x-role'] as string | undefined;
+      if (xEtab && xRole) setActiveContext(xEtab, xRole as any);
+    } catch {}
+    return response;
+  },
+  (error) => Promise.reject(error)
+);
+
+attachAuthRefresh(establishmentAxios);
 
 export default establishmentAxios;

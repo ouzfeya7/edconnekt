@@ -4,12 +4,12 @@
 
 ## Enum
 
-* `Student` (value: `'student'`)
+* `Student` (value: `'STUDENT'`)
 
-* `Parent` (value: `'parent'`)
+* `Parent` (value: `'PARENT'`)
 
-* `Teacher` (value: `'teacher'`)
+* `Teacher` (value: `'TEACHER'`)
 
-* `AdminStaff` (value: `'admin_staff'`)
+* `AdminStaff` (value: `'ADMIN_STAFF'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

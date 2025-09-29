@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { getActiveContext, setActiveContext } from '../../utils/contextStorage';
+import { attachAuthRefresh } from '../httpAuth';
 
 const DEFAULT_BASE_URL = 'https://api.uat1-engy-partners.com/competence';
 const RAW_BASE_URL = import.meta.env.VITE_COMPETENCE_API_BASE_URL ?? DEFAULT_BASE_URL;
@@ -20,11 +22,15 @@ competenceAxios.interceptors.request.use((config) => {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
-  const viteEnv = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
-  const etabId = localStorage.getItem('current-etab-id') || viteEnv?.VITE_DEFAULT_ETAB_ID;
-  if (etabId) {
+  // Multi-tenant: en-têtes de sélection
+  const { etabId: activeEtabId, role: activeRole } = getActiveContext();
+  if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Establishment-Id'] = etabId;
+    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+  }
+  if (activeRole) {
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
   }
   if (import.meta.env.DEV) {
     const headers = { ...(config.headers as Record<string, unknown>) };
@@ -41,6 +47,11 @@ competenceAxios.interceptors.request.use((config) => {
 
 competenceAxios.interceptors.response.use(
   (response) => {
+    try {
+      const xEtab = response.headers?.['x-etab'] as string | undefined;
+      const xRole = response.headers?.['x-role'] as string | undefined;
+      if (xEtab && xRole) setActiveContext(xEtab, xRole as any);
+    } catch {}
     if (import.meta.env.DEV) {
       console.debug('[competence-api][response]', {
         status: response.status,
@@ -63,6 +74,9 @@ competenceAxios.interceptors.response.use(
 if (import.meta.env.DEV) {
   console.info('[competence-api] baseURL =', competenceAxios.defaults.baseURL);
 }
+
+// Attach centralized auth refresh interceptor (last added -> first run on errors)
+attachAuthRefresh(competenceAxios);
 
 export default competenceAxios;
 

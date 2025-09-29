@@ -8,8 +8,7 @@ export function useUnlinkParent() {
     mutationFn: async ({ studentId, parentId, etabId }) => {
       await studentsApi.unlinkParentFromStudentApiStudentsStudentIdParentsParentIdDelete(
         studentId,
-        parentId,
-        etabId ? { headers: { 'X-Establishment-Id': etabId } } : undefined
+        parentId
       );
     },
     onSuccess: (_d, vars) => {

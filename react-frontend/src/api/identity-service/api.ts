@@ -24,99 +24,95 @@ import type { RequestArgs } from './base';
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
 /**
- * Schéma pour lire un batch d\'identités.
+ * Requête pour la sélection de contexte.  Utilisée par le frontend pour valider le contexte choisi avant que auth-service injecte les en-têtes.
  * @export
- * @interface BatchRead
+ * @interface ContextSelectRequest
  */
-export interface BatchRead {
+export interface ContextSelectRequest {
     /**
-     * ID du batch
+     * UUID de l\'établissement
      * @type {string}
-     * @memberof BatchRead
+     * @memberof ContextSelectRequest
+     */
+    'etab_id': string;
+    /**
+     * Code du rôle principal
+     * @type {string}
+     * @memberof ContextSelectRequest
+     */
+    'role': string;
+}
+/**
+ * Réponse pour la sélection de contexte.  Confirme que le contexte est valide et peut être utilisé.
+ * @export
+ * @interface ContextSelectResponse
+ */
+export interface ContextSelectResponse {
+    /**
+     * Contexte validé avec succès
+     * @type {boolean}
+     * @memberof ContextSelectResponse
+     */
+    'success'?: boolean;
+    /**
+     * Message de confirmation
+     * @type {string}
+     * @memberof ContextSelectResponse
+     */
+    'message'?: string;
+}
+/**
+ * Information sur un cycle.
+ * @export
+ * @interface CycleInfo
+ */
+export interface CycleInfo {
+    /**
+     * ID du cycle
+     * @type {string}
+     * @memberof CycleInfo
      */
     'id': string;
     /**
-     * ID de l\'établissement
+     * Code du cycle
      * @type {string}
-     * @memberof BatchRead
+     * @memberof CycleInfo
      */
-    'establishment_id': string;
+    'code': string;
     /**
-     * ID de l\'uploader
+     * Clé de libellé du cycle
      * @type {string}
-     * @memberof BatchRead
+     * @memberof CycleInfo
      */
-    'uploaded_by': string;
+    'label_key': string;
     /**
-     * URL du fichier source
-     * @type {string}
-     * @memberof BatchRead
+     * Ordre de tri
+     * @type {number}
+     * @memberof CycleInfo
      */
-    'source_file_url': string;
-    /**
-     * Date de création
-     * @type {string}
-     * @memberof BatchRead
-     */
-    'created_at': string;
+    'sort_order': number;
 }
 /**
- * Schéma pour la réponse de bulk import.
+ * Réponse d\'erreur standardisée.
  * @export
- * @interface BulkImportResponse
+ * @interface ErrorResponse
  */
-export interface BulkImportResponse {
+export interface ErrorResponse {
     /**
-     * ID du batch créé
+     * Message d\'erreur
      * @type {string}
-     * @memberof BulkImportResponse
+     * @memberof ErrorResponse
      */
-    'batch_id': string;
+    'detail': string;
     /**
-     * Statut de l\'import
+     * 
      * @type {string}
-     * @memberof BulkImportResponse
+     * @memberof ErrorResponse
      */
-    'status': string;
-    /**
-     * Message d\'information
-     * @type {string}
-     * @memberof BulkImportResponse
-     */
-    'message': string;
-    /**
-     * Nombre total d\'éléments traités
-     * @type {number}
-     * @memberof BulkImportResponse
-     */
-    'total_items': number;
-    /**
-     * Nombre d\'éléments créés
-     * @type {number}
-     * @memberof BulkImportResponse
-     */
-    'new_count': number;
-    /**
-     * Nombre d\'éléments mis à jour
-     * @type {number}
-     * @memberof BulkImportResponse
-     */
-    'updated_count': number;
-    /**
-     * Nombre d\'éléments ignorés
-     * @type {number}
-     * @memberof BulkImportResponse
-     */
-    'skipped_count': number;
-    /**
-     * Nombre d\'éléments invalides
-     * @type {number}
-     * @memberof BulkImportResponse
-     */
-    'invalid_count': number;
+    'code'?: string | null;
 }
 /**
- * Schéma pour la création d\'un lien avec un établissement.
+ * Schéma pour la création d\'un lien avec un établissement (version enrichie).
  * @export
  * @interface EstablishmentLinkCreate
  */
@@ -128,30 +124,36 @@ export interface EstablishmentLinkCreate {
      */
     'establishment_id': string;
     /**
-     * Rôle dans l\'établissement
-     * @type {EstablishmentRole}
+     * Code du rôle principal (ex: \'teacher\')
+     * @type {string}
      * @memberof EstablishmentLinkCreate
      */
-    'role': EstablishmentRole;
+    'role_principal_code': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EstablishmentLinkCreate
+     */
+    'role_effectif_code'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof EstablishmentLinkCreate
+     */
+    'function_display'?: string | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof EstablishmentLinkCreate
+     */
+    'cycle_codes'?: Array<string> | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof EstablishmentLinkCreate
+     */
+    'subject_codes'?: Array<string> | null;
 }
-
-
-/**
- * Énumération des rôles possibles dans un établissement.
- * @export
- * @enum {string}
- */
-
-export const EstablishmentRole = {
-    Student: 'student',
-    Parent: 'parent',
-    Teacher: 'teacher',
-    AdminStaff: 'admin_staff'
-} as const;
-
-export type EstablishmentRole = typeof EstablishmentRole[keyof typeof EstablishmentRole];
-
-
 /**
  * 
  * @export
@@ -166,7 +168,7 @@ export interface HTTPValidationError {
     'detail'?: Array<ValidationError>;
 }
 /**
- * Schéma pour la création d\'une identité.
+ * Schéma pour la création d\'une identité avec code fourni.
  * @export
  * @interface IdentityCreate
  */
@@ -206,107 +208,49 @@ export interface IdentityCreate {
      * @type {string}
      * @memberof IdentityCreate
      */
-    'external_id'?: string | null;
-}
-
-
-/**
- * Schéma pour la liste des identités.
- * @export
- * @interface IdentityListResponse
- */
-export interface IdentityListResponse {
+    'account_required'?: string | null;
     /**
-     * Liste des identités
-     * @type {Array<IdentityResponse>}
-     * @memberof IdentityListResponse
-     */
-    'items': Array<IdentityResponse>;
-    /**
-     * Nombre total d\'identités
-     * @type {number}
-     * @memberof IdentityListResponse
-     */
-    'total': number;
-    /**
-     * Page actuelle
-     * @type {number}
-     * @memberof IdentityListResponse
-     */
-    'page': number;
-    /**
-     * Taille de la page
-     * @type {number}
-     * @memberof IdentityListResponse
-     */
-    'size': number;
-    /**
-     * Nombre total de pages
-     * @type {number}
-     * @memberof IdentityListResponse
-     */
-    'pages': number;
-}
-/**
- * Schéma pour la réponse d\'une identité.
- * @export
- * @interface IdentityResponse
- */
-export interface IdentityResponse {
-    /**
-     * Prénom
+     * Code d\'identité fourni par le client
      * @type {string}
-     * @memberof IdentityResponse
+     * @memberof IdentityCreate
      */
-    'firstname': string;
-    /**
-     * Nom de famille
-     * @type {string}
-     * @memberof IdentityResponse
-     */
-    'lastname': string;
+    'code_identite': string;
     /**
      * 
      * @type {string}
-     * @memberof IdentityResponse
-     */
-    'email'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof IdentityResponse
-     */
-    'phone'?: string | null;
-    /**
-     * Statut de l\'identité
-     * @type {IdentityStatus}
-     * @memberof IdentityResponse
-     */
-    'status'?: IdentityStatus;
-    /**
-     * ID unique de l\'identité
-     * @type {string}
-     * @memberof IdentityResponse
-     */
-    'id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof IdentityResponse
+     * @memberof IdentityCreate
      */
     'external_id'?: string | null;
     /**
-     * Date de création
+     * 
      * @type {string}
-     * @memberof IdentityResponse
+     * @memberof IdentityCreate
      */
-    'created_at': string;
+    'establishment_id'?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof IdentityResponse
+     * @memberof IdentityCreate
      */
-    'updated_at'?: string | null;
+    'role_principal_code'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityCreate
+     */
+    'role_effectif_code'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityCreate
+     */
+    'function_display'?: string | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof IdentityCreate
+     */
+    'cycle_codes'?: Array<string> | null;
 }
 
 
@@ -326,7 +270,7 @@ export type IdentityStatus = typeof IdentityStatus[keyof typeof IdentityStatus];
 
 
 /**
- * Schéma pour la modification d\'une identité.
+ * Schéma pour la modification partielle d\'une identité avec rôles.
  * @export
  * @interface IdentityUpdate
  */
@@ -361,9 +305,654 @@ export interface IdentityUpdate {
      * @memberof IdentityUpdate
      */
     'status'?: IdentityStatus | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityUpdate
+     */
+    'account_required'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityUpdate
+     */
+    'establishment_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityUpdate
+     */
+    'role_principal_code'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityUpdate
+     */
+    'role_effectif_code'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityUpdate
+     */
+    'function_display'?: string | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof IdentityUpdate
+     */
+    'cycle_codes'?: Array<string> | null;
 }
 
 
+/**
+ * Schéma pour une identité avec ses rôles complexes.
+ * @export
+ * @interface IdentityWithRoles
+ */
+export interface IdentityWithRoles {
+    /**
+     * ID de l\'identité
+     * @type {string}
+     * @memberof IdentityWithRoles
+     */
+    'id': string;
+    /**
+     * Prénom
+     * @type {string}
+     * @memberof IdentityWithRoles
+     */
+    'firstname': string;
+    /**
+     * Nom de famille
+     * @type {string}
+     * @memberof IdentityWithRoles
+     */
+    'lastname': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityWithRoles
+     */
+    'email'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityWithRoles
+     */
+    'phone'?: string | null;
+    /**
+     * Statut de l\'identité
+     * @type {string}
+     * @memberof IdentityWithRoles
+     */
+    'status': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityWithRoles
+     */
+    'external_id'?: string | null;
+    /**
+     * Date de création
+     * @type {string}
+     * @memberof IdentityWithRoles
+     */
+    'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof IdentityWithRoles
+     */
+    'updated_at'?: string | null;
+    /**
+     * Rôles complexes de l\'identité
+     * @type {Array<RoleAssignmentResponse>}
+     * @memberof IdentityWithRoles
+     */
+    'role_assignments'?: Array<RoleAssignmentResponse>;
+}
+/**
+ * Réponse de l\'import en masse.
+ * @export
+ * @interface ImportResponse
+ */
+export interface ImportResponse {
+    /**
+     * True si l\'import s\'est bien déroulé
+     * @type {boolean}
+     * @memberof ImportResponse
+     */
+    'success': boolean;
+    /**
+     * Message global de l\'import
+     * @type {string}
+     * @memberof ImportResponse
+     */
+    'message': string;
+    /**
+     * Résumé de l\'import
+     * @type {ImportSummary}
+     * @memberof ImportResponse
+     */
+    'summary': ImportSummary;
+    /**
+     * Détails par identité
+     * @type {Array<ImportResult>}
+     * @memberof ImportResponse
+     */
+    'results': Array<ImportResult>;
+    /**
+     * Informations sur le fichier traité
+     * @type {{ [key: string]: any; }}
+     * @memberof ImportResponse
+     */
+    'file_info': { [key: string]: any; };
+    /**
+     * Date/heure de traitement
+     * @type {string}
+     * @memberof ImportResponse
+     */
+    'processed_at'?: string;
+}
+/**
+ * Résultat d\'import pour une identité.
+ * @export
+ * @interface ImportResult
+ */
+export interface ImportResult {
+    /**
+     * Email de l\'identité
+     * @type {string}
+     * @memberof ImportResult
+     */
+    'email': string;
+    /**
+     * Statut de l\'import (SUCCESS, ERROR, SKIPPED)
+     * @type {string}
+     * @memberof ImportResult
+     */
+    'status': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ImportResult
+     */
+    'message'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ImportResult
+     */
+    'identity_id'?: string | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ImportResult
+     */
+    'is_new'?: boolean | null;
+}
+/**
+ * Résumé de l\'import.
+ * @export
+ * @interface ImportSummary
+ */
+export interface ImportSummary {
+    /**
+     * Nombre total d\'identités traitées
+     * @type {number}
+     * @memberof ImportSummary
+     */
+    'total_processed': number;
+    /**
+     * Nombre d\'imports réussis
+     * @type {number}
+     * @memberof ImportSummary
+     */
+    'success_count': number;
+    /**
+     * Nombre d\'erreurs
+     * @type {number}
+     * @memberof ImportSummary
+     */
+    'error_count': number;
+    /**
+     * Nombre d\'identités ignorées
+     * @type {number}
+     * @memberof ImportSummary
+     */
+    'skipped_count': number;
+    /**
+     * Nombre de nouvelles identités créées
+     * @type {number}
+     * @memberof ImportSummary
+     */
+    'new_identities': number;
+    /**
+     * Nombre d\'identités mises à jour
+     * @type {number}
+     * @memberof ImportSummary
+     */
+    'updated_identities': number;
+}
+/**
+ * Schéma pour la création d\'un rôle complexe.
+ * @export
+ * @interface RoleAssignmentCreate
+ */
+export interface RoleAssignmentCreate {
+    /**
+     * ID de l\'établissement
+     * @type {string}
+     * @memberof RoleAssignmentCreate
+     */
+    'establishment_id': string;
+    /**
+     * Code du rôle principal
+     * @type {string}
+     * @memberof RoleAssignmentCreate
+     */
+    'role_principal_code': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoleAssignmentCreate
+     */
+    'role_effectif_code'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoleAssignmentCreate
+     */
+    'function_display'?: string | null;
+    /**
+     * Codes des cycles
+     * @type {Array<string>}
+     * @memberof RoleAssignmentCreate
+     */
+    'cycle_codes'?: Array<string>;
+    /**
+     * Codes des matières
+     * @type {Array<string>}
+     * @memberof RoleAssignmentCreate
+     */
+    'subject_codes'?: Array<string>;
+}
+/**
+ * Schéma pour la réponse d\'un rôle complexe.
+ * @export
+ * @interface RoleAssignmentResponse
+ */
+export interface RoleAssignmentResponse {
+    /**
+     * ID du rôle
+     * @type {string}
+     * @memberof RoleAssignmentResponse
+     */
+    'id': string;
+    /**
+     * ID du lien identité-établissement
+     * @type {string}
+     * @memberof RoleAssignmentResponse
+     */
+    'identity_establishment_id': string;
+    /**
+     * Rôle principal
+     * @type {RolePrincipalInfo}
+     * @memberof RoleAssignmentResponse
+     */
+    'role_principal': RolePrincipalInfo;
+    /**
+     * 
+     * @type {RoleEffectifInfo}
+     * @memberof RoleAssignmentResponse
+     */
+    'role_effectif'?: RoleEffectifInfo | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoleAssignmentResponse
+     */
+    'function_display'?: string | null;
+    /**
+     * Cycles assignés
+     * @type {Array<CycleInfo>}
+     * @memberof RoleAssignmentResponse
+     */
+    'cycles'?: Array<CycleInfo>;
+    /**
+     * Matières assignées
+     * @type {Array<SubjectInfo>}
+     * @memberof RoleAssignmentResponse
+     */
+    'subjects'?: Array<SubjectInfo>;
+    /**
+     * Date de création
+     * @type {string}
+     * @memberof RoleAssignmentResponse
+     */
+    'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoleAssignmentResponse
+     */
+    'updated_at'?: string | null;
+}
+/**
+ * Schéma pour la modification d\'un rôle complexe.
+ * @export
+ * @interface RoleAssignmentUpdate
+ */
+export interface RoleAssignmentUpdate {
+    /**
+     * 
+     * @type {string}
+     * @memberof RoleAssignmentUpdate
+     */
+    'role_effectif_code'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoleAssignmentUpdate
+     */
+    'function_display'?: string | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof RoleAssignmentUpdate
+     */
+    'cycle_codes'?: Array<string> | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof RoleAssignmentUpdate
+     */
+    'subject_codes'?: Array<string> | null;
+}
+/**
+ * Information sur un rôle effectif.
+ * @export
+ * @interface RoleEffectifInfo
+ */
+export interface RoleEffectifInfo {
+    /**
+     * ID du rôle effectif
+     * @type {string}
+     * @memberof RoleEffectifInfo
+     */
+    'id': string;
+    /**
+     * Code du rôle effectif
+     * @type {string}
+     * @memberof RoleEffectifInfo
+     */
+    'code': string;
+    /**
+     * Clé de libellé du rôle effectif
+     * @type {string}
+     * @memberof RoleEffectifInfo
+     */
+    'label_key': string;
+    /**
+     * Groupe du rôle effectif
+     * @type {string}
+     * @memberof RoleEffectifInfo
+     */
+    'group_key': string;
+    /**
+     * Rôle sensible
+     * @type {boolean}
+     * @memberof RoleEffectifInfo
+     */
+    'is_sensitive': boolean;
+    /**
+     * Ordre de tri
+     * @type {number}
+     * @memberof RoleEffectifInfo
+     */
+    'sort_order': number;
+}
+/**
+ * Information sur un rôle principal.
+ * @export
+ * @interface RolePrincipalInfo
+ */
+export interface RolePrincipalInfo {
+    /**
+     * ID du rôle principal
+     * @type {string}
+     * @memberof RolePrincipalInfo
+     */
+    'id': string;
+    /**
+     * Code du rôle principal
+     * @type {string}
+     * @memberof RolePrincipalInfo
+     */
+    'code': string;
+    /**
+     * Clé de libellé du rôle principal
+     * @type {string}
+     * @memberof RolePrincipalInfo
+     */
+    'label_key': string;
+    /**
+     * Ordre de tri
+     * @type {number}
+     * @memberof RolePrincipalInfo
+     */
+    'sort_order': number;
+}
+/**
+ * Format standardisé pour les réponses contenant une liste d\'éléments.  Utilisé pour : GET /identities, GET /catalogs/_*, GET /me/roles, etc.
+ * @export
+ * @interface StandardListResponse
+ */
+export interface StandardListResponse {
+    /**
+     * Indique si l\'opération a réussi
+     * @type {boolean}
+     * @memberof StandardListResponse
+     */
+    'success'?: boolean;
+    /**
+     * Liste des données
+     * @type {Array<any>}
+     * @memberof StandardListResponse
+     */
+    'data': Array<any>;
+    /**
+     * Nombre total d\'éléments
+     * @type {number}
+     * @memberof StandardListResponse
+     */
+    'total': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof StandardListResponse
+     */
+    'page'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof StandardListResponse
+     */
+    'page_size'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof StandardListResponse
+     */
+    'pages'?: number | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof StandardListResponse
+     */
+    'message'?: string | null;
+    /**
+     * Horodatage de la réponse
+     * @type {string}
+     * @memberof StandardListResponse
+     */
+    'timestamp'?: string;
+}
+/**
+ * Format standardisé pour les réponses contenant un seul élément.  Utilisé pour : GET /identities/{id}, GET /roles/{id}, etc.
+ * @export
+ * @interface StandardSingleResponse
+ */
+export interface StandardSingleResponse {
+    /**
+     * Indique si l\'opération a réussi
+     * @type {boolean}
+     * @memberof StandardSingleResponse
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {any}
+     * @memberof StandardSingleResponse
+     */
+    'data': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof StandardSingleResponse
+     */
+    'message'?: string | null;
+    /**
+     * Horodatage de la réponse
+     * @type {string}
+     * @memberof StandardSingleResponse
+     */
+    'timestamp'?: string;
+}
+/**
+ * Format standardisé pour les réponses de succès (opérations de création/modification).  Utilisé pour : POST /identities, PUT /identities/{id}, DELETE /identities/{id}, etc.
+ * @export
+ * @interface StandardSuccessResponse
+ */
+export interface StandardSuccessResponse {
+    /**
+     * Indique que l\'opération a réussi
+     * @type {boolean}
+     * @memberof StandardSuccessResponse
+     */
+    'success'?: boolean;
+    /**
+     * Message de succès
+     * @type {string}
+     * @memberof StandardSuccessResponse
+     */
+    'message': string;
+    /**
+     * Données optionnelles de la réponse
+     * @type {}
+     * @memberof StandardSuccessResponse
+     */
+    'data'?:  | null;
+    /**
+     * Horodatage de la réponse
+     * @type {string}
+     * @memberof StandardSuccessResponse
+     */
+    'timestamp'?: string;
+}
+/**
+ * Information sur une matière.
+ * @export
+ * @interface SubjectInfo
+ */
+export interface SubjectInfo {
+    /**
+     * ID de la matière
+     * @type {string}
+     * @memberof SubjectInfo
+     */
+    'id': string;
+    /**
+     * Code de la matière
+     * @type {string}
+     * @memberof SubjectInfo
+     */
+    'code': string;
+    /**
+     * Clé de libellé de la matière
+     * @type {string}
+     * @memberof SubjectInfo
+     */
+    'label_key': string;
+    /**
+     * Ordre de tri
+     * @type {number}
+     * @memberof SubjectInfo
+     */
+    'sort_order': number;
+}
+/**
+ * Informations sur un template.
+ * @export
+ * @interface TemplateInfo
+ */
+export interface TemplateInfo {
+    /**
+     * Rôle du template
+     * @type {string}
+     * @memberof TemplateInfo
+     */
+    'role': string;
+    /**
+     * Format du template (csv ou xlsx)
+     * @type {string}
+     * @memberof TemplateInfo
+     */
+    'format': string;
+    /**
+     * Colonnes du template
+     * @type {Array<string>}
+     * @memberof TemplateInfo
+     */
+    'columns': Array<string>;
+    /**
+     * Données d\'exemple
+     * @type {Array<{ [key: string]: any; }>}
+     * @memberof TemplateInfo
+     */
+    'example_data': Array<{ [key: string]: any; }>;
+}
+/**
+ * Réponse pour l\'export de template.
+ * @export
+ * @interface TemplateResponse
+ */
+export interface TemplateResponse {
+    /**
+     * True si l\'export s\'est bien déroulé
+     * @type {boolean}
+     * @memberof TemplateResponse
+     */
+    'success': boolean;
+    /**
+     * Message de l\'export
+     * @type {string}
+     * @memberof TemplateResponse
+     */
+    'message': string;
+    /**
+     * Informations sur le template
+     * @type {TemplateInfo}
+     * @memberof TemplateResponse
+     */
+    'template_info': TemplateInfo;
+    /**
+     * 
+     * @type {string}
+     * @memberof TemplateResponse
+     */
+    'download_url'?: string | null;
+}
 /**
  * 
  * @export
@@ -398,425 +987,20 @@ export interface ValidationErrorLocInner {
 }
 
 /**
- * BatchesApi - axios parameter creator
- * @export
- */
-export const BatchesApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * Marquer un batch comme COMMITTED (optionnel).  Args:     batch_id: ID du batch     identity_service: Service d\'identité     current_user: Utilisateur authentifié  Returns:     dict: Message de confirmation  Raises:     404: Batch non trouvé     400: Erreur lors du commit
-         * @summary Commit Batch
-         * @param {string} batchId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        commitBatchApiV1IdentityBatchesBatchIdCommitPost: async (batchId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'batchId' is not null or undefined
-            assertParamExists('commitBatchApiV1IdentityBatchesBatchIdCommitPost', 'batchId', batchId)
-            const localVarPath = `/api/v1/identity/batches/{batch_id}/commit`
-                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Récupérer un batch par son ID.  Args:     batch_id: ID du batch     batch_service: Service de gestion des batches     current_user: Utilisateur authentifié  Returns:     BatchRead: Détails du batch  Raises:     404: Batch non trouvé
-         * @summary Get Batch
-         * @param {string} batchId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getBatchApiV1IdentityBatchesBatchIdGet: async (batchId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'batchId' is not null or undefined
-            assertParamExists('getBatchApiV1IdentityBatchesBatchIdGet', 'batchId', batchId)
-            const localVarPath = `/api/v1/identity/batches/{batch_id}`
-                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Lister les items d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     item_status: Statut des items pour filtrer (NEW, UPDATED, SKIPPED, INVALID)     domain: Domaine des items pour filtrer (student, parent, teacher, admin_staff)     pagination: Paramètres de pagination et tri     identity_service: Service d\'identité     current_user: Utilisateur authentifié  Returns:     dict: Liste paginée des items du batch  Raises:     404: Batch non trouvé
-         * @summary Get Batch Items
-         * @param {string} batchId 
-         * @param {string | null} [itemStatus] 
-         * @param {string | null} [domain] 
-         * @param {number} [page] Numéro de page
-         * @param {number} [size] Taille de page
-         * @param {string | null} [orderBy] Colonne de tri
-         * @param {string} [orderDir] Sens de tri (asc/desc)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getBatchItemsApiV1IdentityBatchesBatchIdItemsGet: async (batchId: string, itemStatus?: string | null, domain?: string | null, page?: number, size?: number, orderBy?: string | null, orderDir?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'batchId' is not null or undefined
-            assertParamExists('getBatchItemsApiV1IdentityBatchesBatchIdItemsGet', 'batchId', batchId)
-            const localVarPath = `/api/v1/identity/batches/{batch_id}/items`
-                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (itemStatus !== undefined) {
-                localVarQueryParameter['item_status'] = itemStatus;
-            }
-
-            if (domain !== undefined) {
-                localVarQueryParameter['domain'] = domain;
-            }
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (size !== undefined) {
-                localVarQueryParameter['size'] = size;
-            }
-
-            if (orderBy !== undefined) {
-                localVarQueryParameter['order_by'] = orderBy;
-            }
-
-            if (orderDir !== undefined) {
-                localVarQueryParameter['order_dir'] = orderDir;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Lister les batches d\'identités avec pagination et filtres.  Args:     establishment_id: ID de l\'établissement pour filtrer     uploaded_by: ID de l\'uploader pour filtrer     pagination: Paramètres de pagination et tri     batch_service: Service de gestion des batches     current_user: Utilisateur authentifié  Returns:     dict: Liste paginée des batches
-         * @summary List Batches
-         * @param {string | null} [establishmentId] 
-         * @param {string | null} [uploadedBy] 
-         * @param {number} [page] Numéro de page
-         * @param {number} [size] Taille de page
-         * @param {string | null} [orderBy] Colonne de tri
-         * @param {string} [orderDir] Sens de tri (asc/desc)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listBatchesApiV1IdentityBatchesGet: async (establishmentId?: string | null, uploadedBy?: string | null, page?: number, size?: number, orderBy?: string | null, orderDir?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/identity/batches`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (establishmentId !== undefined) {
-                localVarQueryParameter['establishment_id'] = establishmentId;
-            }
-
-            if (uploadedBy !== undefined) {
-                localVarQueryParameter['uploaded_by'] = uploadedBy;
-            }
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (size !== undefined) {
-                localVarQueryParameter['size'] = size;
-            }
-
-            if (orderBy !== undefined) {
-                localVarQueryParameter['order_by'] = orderBy;
-            }
-
-            if (orderDir !== undefined) {
-                localVarQueryParameter['order_dir'] = orderDir;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * BatchesApi - functional programming interface
- * @export
- */
-export const BatchesApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = BatchesApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * Marquer un batch comme COMMITTED (optionnel).  Args:     batch_id: ID du batch     identity_service: Service d\'identité     current_user: Utilisateur authentifié  Returns:     dict: Message de confirmation  Raises:     404: Batch non trouvé     400: Erreur lors du commit
-         * @summary Commit Batch
-         * @param {string} batchId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async commitBatchApiV1IdentityBatchesBatchIdCommitPost(batchId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.commitBatchApiV1IdentityBatchesBatchIdCommitPost(batchId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['BatchesApi.commitBatchApiV1IdentityBatchesBatchIdCommitPost']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Récupérer un batch par son ID.  Args:     batch_id: ID du batch     batch_service: Service de gestion des batches     current_user: Utilisateur authentifié  Returns:     BatchRead: Détails du batch  Raises:     404: Batch non trouvé
-         * @summary Get Batch
-         * @param {string} batchId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getBatchApiV1IdentityBatchesBatchIdGet(batchId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BatchRead>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getBatchApiV1IdentityBatchesBatchIdGet(batchId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['BatchesApi.getBatchApiV1IdentityBatchesBatchIdGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Lister les items d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     item_status: Statut des items pour filtrer (NEW, UPDATED, SKIPPED, INVALID)     domain: Domaine des items pour filtrer (student, parent, teacher, admin_staff)     pagination: Paramètres de pagination et tri     identity_service: Service d\'identité     current_user: Utilisateur authentifié  Returns:     dict: Liste paginée des items du batch  Raises:     404: Batch non trouvé
-         * @summary Get Batch Items
-         * @param {string} batchId 
-         * @param {string | null} [itemStatus] 
-         * @param {string | null} [domain] 
-         * @param {number} [page] Numéro de page
-         * @param {number} [size] Taille de page
-         * @param {string | null} [orderBy] Colonne de tri
-         * @param {string} [orderDir] Sens de tri (asc/desc)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getBatchItemsApiV1IdentityBatchesBatchIdItemsGet(batchId: string, itemStatus?: string | null, domain?: string | null, page?: number, size?: number, orderBy?: string | null, orderDir?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getBatchItemsApiV1IdentityBatchesBatchIdItemsGet(batchId, itemStatus, domain, page, size, orderBy, orderDir, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['BatchesApi.getBatchItemsApiV1IdentityBatchesBatchIdItemsGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Lister les batches d\'identités avec pagination et filtres.  Args:     establishment_id: ID de l\'établissement pour filtrer     uploaded_by: ID de l\'uploader pour filtrer     pagination: Paramètres de pagination et tri     batch_service: Service de gestion des batches     current_user: Utilisateur authentifié  Returns:     dict: Liste paginée des batches
-         * @summary List Batches
-         * @param {string | null} [establishmentId] 
-         * @param {string | null} [uploadedBy] 
-         * @param {number} [page] Numéro de page
-         * @param {number} [size] Taille de page
-         * @param {string | null} [orderBy] Colonne de tri
-         * @param {string} [orderDir] Sens de tri (asc/desc)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async listBatchesApiV1IdentityBatchesGet(establishmentId?: string | null, uploadedBy?: string | null, page?: number, size?: number, orderBy?: string | null, orderDir?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listBatchesApiV1IdentityBatchesGet(establishmentId, uploadedBy, page, size, orderBy, orderDir, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['BatchesApi.listBatchesApiV1IdentityBatchesGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * BatchesApi - factory interface
- * @export
- */
-export const BatchesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = BatchesApiFp(configuration)
-    return {
-        /**
-         * Marquer un batch comme COMMITTED (optionnel).  Args:     batch_id: ID du batch     identity_service: Service d\'identité     current_user: Utilisateur authentifié  Returns:     dict: Message de confirmation  Raises:     404: Batch non trouvé     400: Erreur lors du commit
-         * @summary Commit Batch
-         * @param {string} batchId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        commitBatchApiV1IdentityBatchesBatchIdCommitPost(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.commitBatchApiV1IdentityBatchesBatchIdCommitPost(batchId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Récupérer un batch par son ID.  Args:     batch_id: ID du batch     batch_service: Service de gestion des batches     current_user: Utilisateur authentifié  Returns:     BatchRead: Détails du batch  Raises:     404: Batch non trouvé
-         * @summary Get Batch
-         * @param {string} batchId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getBatchApiV1IdentityBatchesBatchIdGet(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<BatchRead> {
-            return localVarFp.getBatchApiV1IdentityBatchesBatchIdGet(batchId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Lister les items d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     item_status: Statut des items pour filtrer (NEW, UPDATED, SKIPPED, INVALID)     domain: Domaine des items pour filtrer (student, parent, teacher, admin_staff)     pagination: Paramètres de pagination et tri     identity_service: Service d\'identité     current_user: Utilisateur authentifié  Returns:     dict: Liste paginée des items du batch  Raises:     404: Batch non trouvé
-         * @summary Get Batch Items
-         * @param {string} batchId 
-         * @param {string | null} [itemStatus] 
-         * @param {string | null} [domain] 
-         * @param {number} [page] Numéro de page
-         * @param {number} [size] Taille de page
-         * @param {string | null} [orderBy] Colonne de tri
-         * @param {string} [orderDir] Sens de tri (asc/desc)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getBatchItemsApiV1IdentityBatchesBatchIdItemsGet(batchId: string, itemStatus?: string | null, domain?: string | null, page?: number, size?: number, orderBy?: string | null, orderDir?: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getBatchItemsApiV1IdentityBatchesBatchIdItemsGet(batchId, itemStatus, domain, page, size, orderBy, orderDir, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Lister les batches d\'identités avec pagination et filtres.  Args:     establishment_id: ID de l\'établissement pour filtrer     uploaded_by: ID de l\'uploader pour filtrer     pagination: Paramètres de pagination et tri     batch_service: Service de gestion des batches     current_user: Utilisateur authentifié  Returns:     dict: Liste paginée des batches
-         * @summary List Batches
-         * @param {string | null} [establishmentId] 
-         * @param {string | null} [uploadedBy] 
-         * @param {number} [page] Numéro de page
-         * @param {number} [size] Taille de page
-         * @param {string | null} [orderBy] Colonne de tri
-         * @param {string} [orderDir] Sens de tri (asc/desc)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listBatchesApiV1IdentityBatchesGet(establishmentId?: string | null, uploadedBy?: string | null, page?: number, size?: number, orderBy?: string | null, orderDir?: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.listBatchesApiV1IdentityBatchesGet(establishmentId, uploadedBy, page, size, orderBy, orderDir, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * BatchesApi - object-oriented interface
- * @export
- * @class BatchesApi
- * @extends {BaseAPI}
- */
-export class BatchesApi extends BaseAPI {
-    /**
-     * Marquer un batch comme COMMITTED (optionnel).  Args:     batch_id: ID du batch     identity_service: Service d\'identité     current_user: Utilisateur authentifié  Returns:     dict: Message de confirmation  Raises:     404: Batch non trouvé     400: Erreur lors du commit
-     * @summary Commit Batch
-     * @param {string} batchId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof BatchesApi
-     */
-    public commitBatchApiV1IdentityBatchesBatchIdCommitPost(batchId: string, options?: RawAxiosRequestConfig) {
-        return BatchesApiFp(this.configuration).commitBatchApiV1IdentityBatchesBatchIdCommitPost(batchId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Récupérer un batch par son ID.  Args:     batch_id: ID du batch     batch_service: Service de gestion des batches     current_user: Utilisateur authentifié  Returns:     BatchRead: Détails du batch  Raises:     404: Batch non trouvé
-     * @summary Get Batch
-     * @param {string} batchId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof BatchesApi
-     */
-    public getBatchApiV1IdentityBatchesBatchIdGet(batchId: string, options?: RawAxiosRequestConfig) {
-        return BatchesApiFp(this.configuration).getBatchApiV1IdentityBatchesBatchIdGet(batchId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Lister les items d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     item_status: Statut des items pour filtrer (NEW, UPDATED, SKIPPED, INVALID)     domain: Domaine des items pour filtrer (student, parent, teacher, admin_staff)     pagination: Paramètres de pagination et tri     identity_service: Service d\'identité     current_user: Utilisateur authentifié  Returns:     dict: Liste paginée des items du batch  Raises:     404: Batch non trouvé
-     * @summary Get Batch Items
-     * @param {string} batchId 
-     * @param {string | null} [itemStatus] 
-     * @param {string | null} [domain] 
-     * @param {number} [page] Numéro de page
-     * @param {number} [size] Taille de page
-     * @param {string | null} [orderBy] Colonne de tri
-     * @param {string} [orderDir] Sens de tri (asc/desc)
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof BatchesApi
-     */
-    public getBatchItemsApiV1IdentityBatchesBatchIdItemsGet(batchId: string, itemStatus?: string | null, domain?: string | null, page?: number, size?: number, orderBy?: string | null, orderDir?: string, options?: RawAxiosRequestConfig) {
-        return BatchesApiFp(this.configuration).getBatchItemsApiV1IdentityBatchesBatchIdItemsGet(batchId, itemStatus, domain, page, size, orderBy, orderDir, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Lister les batches d\'identités avec pagination et filtres.  Args:     establishment_id: ID de l\'établissement pour filtrer     uploaded_by: ID de l\'uploader pour filtrer     pagination: Paramètres de pagination et tri     batch_service: Service de gestion des batches     current_user: Utilisateur authentifié  Returns:     dict: Liste paginée des batches
-     * @summary List Batches
-     * @param {string | null} [establishmentId] 
-     * @param {string | null} [uploadedBy] 
-     * @param {number} [page] Numéro de page
-     * @param {number} [size] Taille de page
-     * @param {string | null} [orderBy] Colonne de tri
-     * @param {string} [orderDir] Sens de tri (asc/desc)
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof BatchesApi
-     */
-    public listBatchesApiV1IdentityBatchesGet(establishmentId?: string | null, uploadedBy?: string | null, page?: number, size?: number, orderBy?: string | null, orderDir?: string, options?: RawAxiosRequestConfig) {
-        return BatchesApiFp(this.configuration).listBatchesApiV1IdentityBatchesGet(establishmentId, uploadedBy, page, size, orderBy, orderDir, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
  * DefaultApi - axios parameter creator
  * @export
  */
 export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Import en masse d\'identités via fichier CSV.  Accepte les formats CSV avec les schémas suivants : - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone - **parents.csv** : establishment_id;firstname;lastname;email;phone - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date  Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.  Le domaine est automatiquement détecté à partir des en-têtes du CSV.
+         * Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée
          * @summary Bulk Import Identities
-         * @param {File} file Fichier CSV à importer
+         * @param {File} file Fichier CSV ou Excel à importer
          * @param {string} establishmentId ID de l\\\&#39;établissement
-         * @param {string | null} [sourceFileUrl] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        bulkImportIdentitiesApiV1IdentityBulkimportPost: async (file: File, establishmentId: string, sourceFileUrl?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        bulkImportIdentitiesApiV1IdentityBulkimportPost: async (file: File, establishmentId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'file' is not null or undefined
             assertParamExists('bulkImportIdentitiesApiV1IdentityBulkimportPost', 'file', file)
             // verify required parameter 'establishmentId' is not null or undefined
@@ -843,10 +1027,6 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
                 localVarFormParams.append('establishment_id', establishmentId as any);
             }
     
-            if (sourceFileUrl !== undefined) { 
-                localVarFormParams.append('source_file_url', sourceFileUrl as any);
-            }
-    
     
             localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
     
@@ -861,50 +1041,16 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Annule un batch d\'import en cours.  Args:     batch_id: ID du batch
-         * @summary Cancel Bulk Import
-         * @param {string} batchId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost: async (batchId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'batchId' is not null or undefined
-            assertParamExists('cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost', 'batchId', batchId)
-            const localVarPath = `/api/v1/identity/bulkimport/cancel/{batch_id}`
-                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité créée
+         * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité créée
          * @summary Create Identity
          * @param {IdentityCreate} identityCreate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createIdentityApiV1IdentityIdentitiesPost: async (identityCreate: IdentityCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createIdentityApiV1IdentityPost: async (identityCreate: IdentityCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'identityCreate' is not null or undefined
-            assertParamExists('createIdentityApiV1IdentityIdentitiesPost', 'identityCreate', identityCreate)
-            const localVarPath = `/api/v1/identity/identities`;
+            assertParamExists('createIdentityApiV1IdentityPost', 'identityCreate', identityCreate)
+            const localVarPath = `/api/v1/identity/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -931,16 +1077,56 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * Crée un nouveau rôle complexe pour une identité.  Args:     identity_id: ID de l\'identité     role_data: Données du rôle à créer      Returns:     RoleAssignmentResponse: Rôle créé avec succès
+         * @summary Create Role Assignment
+         * @param {string} identityId 
+         * @param {RoleAssignmentCreate} roleAssignmentCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost: async (identityId: string, roleAssignmentCreate: RoleAssignmentCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityId' is not null or undefined
+            assertParamExists('createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost', 'identityId', identityId)
+            // verify required parameter 'roleAssignmentCreate' is not null or undefined
+            assertParamExists('createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost', 'roleAssignmentCreate', roleAssignmentCreate)
+            const localVarPath = `/api/v1/identity/identities/{identity_id}/roles`
+                .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(roleAssignmentCreate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
          * @summary Delete Identity
          * @param {string} identityId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete: async (identityId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteIdentityApiV1IdentityIdentityIdDelete: async (identityId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'identityId' is not null or undefined
-            assertParamExists('deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete', 'identityId', identityId)
-            const localVarPath = `/api/v1/identity/identities/{identity_id}`
+            assertParamExists('deleteIdentityApiV1IdentityIdentityIdDelete', 'identityId', identityId)
+            const localVarPath = `/api/v1/identity/{identity_id}`
                 .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -965,17 +1151,21 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Récupère l\'historique d\'audit des opérations de bulk import.  Args:     user_id: Filtrer par utilisateur     establishment_id: Filtrer par établissement     batch_id: Filtrer par batch     limit: Limite du nombre de résultats
-         * @summary Get Audit History
-         * @param {string | null} [userId] 
-         * @param {string | null} [establishmentId] 
-         * @param {string | null} [batchId] 
-         * @param {number} [limit] 
+         * Supprime un rôle complexe d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle      Returns:     dict: Message de confirmation
+         * @summary Delete Role Assignment
+         * @param {string} identityId 
+         * @param {string} roleId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAuditHistoryApiV1IdentityBulkimportAuditGet: async (userId?: string | null, establishmentId?: string | null, batchId?: string | null, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/identity/bulkimport/audit`;
+        deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete: async (identityId: string, roleId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityId' is not null or undefined
+            assertParamExists('deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete', 'identityId', identityId)
+            // verify required parameter 'roleId' is not null or undefined
+            assertParamExists('deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete', 'roleId', roleId)
+            const localVarPath = `/api/v1/identity/identities/{identity_id}/roles/{role_id}`
+                .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)))
+                .replace(`{${"role_id"}}`, encodeURIComponent(String(roleId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -983,25 +1173,9 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
                 baseOptions = configuration.baseOptions;
             }
 
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            if (userId !== undefined) {
-                localVarQueryParameter['user_id'] = userId;
-            }
-
-            if (establishmentId !== undefined) {
-                localVarQueryParameter['establishment_id'] = establishmentId;
-            }
-
-            if (batchId !== undefined) {
-                localVarQueryParameter['batch_id'] = batchId;
-            }
-
-            if (limit !== undefined) {
-                localVarQueryParameter['limit'] = limit;
-            }
 
 
     
@@ -1015,16 +1189,16 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Récupère la progression d\'un batch d\'import.  Args:     batch_id: ID du batch
-         * @summary Get Bulk Import Progress
+         * Récupère les détails d\'un batch spécifique.  Args:     batch_id: ID du batch      Returns:     Dict: Détails du batch
+         * @summary Get Batch Details
          * @param {string} batchId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet: async (batchId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet: async (batchId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'batchId' is not null or undefined
-            assertParamExists('getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet', 'batchId', batchId)
-            const localVarPath = `/api/v1/identity/bulkimport/progress/{batch_id}`
+            assertParamExists('getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet', 'batchId', batchId)
+            const localVarPath = `/api/v1/identity/bulkimport/batches/{batch_id}`
                 .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1049,17 +1223,17 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Récupère un template CSV pour un domaine donné.  Args:     domain: Domaine (student, parent, teacher, admin_staff)
-         * @summary Get Csv Template
-         * @param {string} domain 
+         * Récupère le statut actuel d\'un batch.  Args:     batch_id: ID du batch      Returns:     Dict: Statut du batch
+         * @summary Get Batch Status
+         * @param {string} batchId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet: async (domain: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'domain' is not null or undefined
-            assertParamExists('getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet', 'domain', domain)
-            const localVarPath = `/api/v1/identity/bulkimport/template/{domain}`
-                .replace(`{${"domain"}}`, encodeURIComponent(String(domain)));
+        getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet: async (batchId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchId' is not null or undefined
+            assertParamExists('getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet', 'batchId', batchId)
+            const localVarPath = `/api/v1/identity/bulkimport/batches/{batch_id}/status`
+                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1083,16 +1257,66 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité trouvée
+         * Récupère la liste des cycles pédagogiques.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[CycleResponse]: Liste des cycles
+         * @summary Get Cycles
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCyclesApiV1IdentityCatalogsCyclesGet: async (page?: number, size?: number, search?: string | null, isActive?: boolean | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/catalogs/cycles`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (isActive !== undefined) {
+                localVarQueryParameter['is_active'] = isActive;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité trouvée
          * @summary Get Identity
          * @param {string} identityId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getIdentityApiV1IdentityIdentitiesIdentityIdGet: async (identityId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getIdentityApiV1IdentityIdentityIdGet: async (identityId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'identityId' is not null or undefined
-            assertParamExists('getIdentityApiV1IdentityIdentitiesIdentityIdGet', 'identityId', identityId)
-            const localVarPath = `/api/v1/identity/identities/{identity_id}`
+            assertParamExists('getIdentityApiV1IdentityIdentityIdGet', 'identityId', identityId)
+            const localVarPath = `/api/v1/identity/{identity_id}`
                 .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1117,13 +1341,307 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Récupère les statistiques des connexions SSE.  Returns:     Dict: Statistiques des connexions
-         * @summary Get Sse Stats
+         * Récupère tous les rôles d\'une identité.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement (optionnel)      Returns:     List[RoleAssignmentResponse]: Liste des rôles de l\'identité
+         * @summary Get Identity Roles
+         * @param {string} identityId 
+         * @param {string | null} [establishmentId] Filtrer par établissement
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSseStatsApiV1IdentityBulkimportSseStatsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/identity/bulkimport/sse/stats`;
+        getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet: async (identityId: string, establishmentId?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityId' is not null or undefined
+            assertParamExists('getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet', 'identityId', identityId)
+            const localVarPath = `/api/v1/identity/identities/{identity_id}/roles`
+                .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (establishmentId !== undefined) {
+                localVarQueryParameter['establishment_id'] = establishmentId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère une identité avec tous ses rôles complexes.  Args:     identity_id: ID de l\'identité      Returns:     IdentityWithRoles: Identité avec ses rôles
+         * @summary Get Identity With Roles
+         * @param {string} identityId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet: async (identityId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityId' is not null or undefined
+            assertParamExists('getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet', 'identityId', identityId)
+            const localVarPath = `/api/v1/identity/identities/{identity_id}/full`
+                .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
+         * @summary Get Import Template
+         * @param {string} role 
+         * @param {string} [formatType] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getImportTemplateApiV1IdentityBulkimportTemplateRoleGet: async (role: string, formatType?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'role' is not null or undefined
+            assertParamExists('getImportTemplateApiV1IdentityBulkimportTemplateRoleGet', 'role', role)
+            const localVarPath = `/api/v1/identity/bulkimport/template/{role}`
+                .replace(`{${"role"}}`, encodeURIComponent(String(role)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (formatType !== undefined) {
+                localVarQueryParameter['format_type'] = formatType;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement
+         * @summary Get Last Code Identite
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLastCodeIdentiteApiV1IdentityLastCodeGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/last-code`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère un rôle spécifique d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle      Returns:     RoleAssignmentResponse: Rôle demandé
+         * @summary Get Role Assignment
+         * @param {string} identityId 
+         * @param {string} roleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet: async (identityId: string, roleId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityId' is not null or undefined
+            assertParamExists('getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet', 'identityId', identityId)
+            // verify required parameter 'roleId' is not null or undefined
+            assertParamExists('getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet', 'roleId', roleId)
+            const localVarPath = `/api/v1/identity/identities/{identity_id}/roles/{role_id}`
+                .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)))
+                .replace(`{${"role_id"}}`, encodeURIComponent(String(roleId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère la liste des rôles effectifs.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     group_key: Filtrer par groupe fonctionnel     is_sensitive: Filtrer par sensibilité     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RoleEffectifResponse]: Liste des rôles effectifs
+         * @summary Get Roles Effectifs
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {string | null} [groupKey] Filtrer par groupe
+         * @param {boolean | null} [isSensitive] Filtrer par sensibilité
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet: async (page?: number, size?: number, search?: string | null, groupKey?: string | null, isSensitive?: boolean | null, isActive?: boolean | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/catalogs/roles-effectifs`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (groupKey !== undefined) {
+                localVarQueryParameter['group_key'] = groupKey;
+            }
+
+            if (isSensitive !== undefined) {
+                localVarQueryParameter['is_sensitive'] = isSensitive;
+            }
+
+            if (isActive !== undefined) {
+                localVarQueryParameter['is_active'] = isActive;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
+         * @summary Get Roles Principaux
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet: async (page?: number, size?: number, search?: string | null, isActive?: boolean | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/catalogs/roles-principaux`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (isActive !== undefined) {
+                localVarQueryParameter['is_active'] = isActive;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Obtenir les informations sur un template d\'import.  **Paramètres :** - `role` : Rôle du template (admin_staff, teacher, student, parent)  **Réponse :** - Informations sur le template - Colonnes disponibles - Nombre d\'exemples - Description du template
+         * @summary Get Template Info
+         * @param {string} role 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet: async (role: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'role' is not null or undefined
+            assertParamExists('getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet', 'role', role)
+            const localVarPath = `/api/v1/identity/bulkimport/template/{role}/info`
+                .replace(`{${"role"}}`, encodeURIComponent(String(role)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1177,19 +1695,19 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
          * @summary Link Identity To Establishment
          * @param {string} identityId 
          * @param {EstablishmentLinkCreate} establishmentLinkCreate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost: async (identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost: async (identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'identityId' is not null or undefined
-            assertParamExists('linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost', 'identityId', identityId)
+            assertParamExists('linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost', 'identityId', identityId)
             // verify required parameter 'establishmentLinkCreate' is not null or undefined
-            assertParamExists('linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost', 'establishmentLinkCreate', establishmentLinkCreate)
-            const localVarPath = `/api/v1/identity/identities/{identity_id}/establishments`
+            assertParamExists('linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost', 'establishmentLinkCreate', establishmentLinkCreate)
+            const localVarPath = `/api/v1/identity/{identity_id}/establishments`
                 .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1217,7 +1735,82 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityListResponse: Liste paginée des identités
+         * Lister les templates d\'import disponibles.  **Réponse :** - Liste des rôles supportés - Formats disponibles pour chaque rôle - Informations générales sur les templates
+         * @summary List Available Templates
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/bulkimport/templates`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Liste les batches d\'import avec pagination.  Args:     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 10, max: 100)     status: Statut pour filtrer (optionnel)      Returns:     Dict: Liste paginée des batches
+         * @summary List Batches
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [status] Filtrer par statut
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listBatchesApiV1IdentityBulkimportBatchesGet: async (page?: number, size?: number, status?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/bulkimport/batches`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityListResponse: Liste paginée des identités
          * @summary List Identities
          * @param {number} [page] Numéro de page
          * @param {number} [size] Taille de la page
@@ -1233,8 +1826,8 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listIdentitiesApiV1IdentityIdentitiesGet: async (page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/identity/identities`;
+        listIdentitiesApiV1IdentityGet: async (page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1332,51 +1925,18 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Gestion des requêtes OPTIONS pour CORS.  Args:     batch_id: ID du batch      Returns:     Response: Headers CORS
-         * @summary Sse Options
+         * Stream Server-Sent Events pour suivre la progression d\'un import en masse.  Args:     batch_id: ID du batch d\'import à suivre     user_id: ID de l\'utilisateur (pour l\'authentification)     timeout: Timeout de la connexion SSE en secondes      Returns:     StreamingResponse: Stream SSE avec les événements de progression      Events:     - PROGRESS: Progression de l\'import (pourcentage, éléments traités)     - COMPLETED: Import terminé avec succès     - ERROR: Erreur lors de l\'import     - CANCELLED: Import annulé     - TIMEOUT: Connexion expirée
+         * @summary Stream Import Progress
          * @param {string} batchId 
+         * @param {string | null} [userId] ID de l\&#39;utilisateur pour l\&#39;authentification
+         * @param {number} [timeout] Timeout en secondes (défaut: 5 minutes)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions: async (batchId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        streamImportProgressApiV1IdentityBulkimportSseBatchIdGet: async (batchId: string, userId?: string | null, timeout?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'batchId' is not null or undefined
-            assertParamExists('sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions', 'batchId', batchId)
-            const localVarPath = `/api/v1/identity/bulkimport/stream/{batch_id}`
-                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'OPTIONS', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Stream Server-Sent Events pour la progression d\'un batch.  Args:     batch_id: ID du batch à suivre     timeout: Timeout en secondes (5 minutes par défaut)     request: Requête HTTP     bulk_import_service: Service de bulk import      Returns:     StreamingResponse: Flux SSE de la progression
-         * @summary Stream Batch Progress
-         * @param {string} batchId 
-         * @param {number | null} [timeout] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet: async (batchId: string, timeout?: number | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'batchId' is not null or undefined
-            assertParamExists('streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet', 'batchId', batchId)
-            const localVarPath = `/api/v1/identity/bulkimport/stream/{batch_id}`
+            assertParamExists('streamImportProgressApiV1IdentityBulkimportSseBatchIdGet', 'batchId', batchId)
+            const localVarPath = `/api/v1/identity/bulkimport/sse/{batch_id}`
                 .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1388,6 +1948,10 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
 
             if (timeout !== undefined) {
                 localVarQueryParameter['timeout'] = timeout;
@@ -1405,19 +1969,19 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
          * @summary Unlink Identity From Establishment
          * @param {string} identityId 
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete: async (identityId: string, establishmentId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete: async (identityId: string, establishmentId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'identityId' is not null or undefined
-            assertParamExists('unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete', 'identityId', identityId)
+            assertParamExists('unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete', 'identityId', identityId)
             // verify required parameter 'establishmentId' is not null or undefined
-            assertParamExists('unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete', 'establishmentId', establishmentId)
-            const localVarPath = `/api/v1/identity/identities/{identity_id}/establishments/{establishment_id}`
+            assertParamExists('unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete', 'establishmentId', establishmentId)
+            const localVarPath = `/api/v1/identity/{identity_id}/establishments/{establishment_id}`
                 .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)))
                 .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -1443,20 +2007,64 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité mise à jour
+         * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité mise à jour
          * @summary Update Identity
          * @param {string} identityId 
          * @param {IdentityUpdate} identityUpdate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateIdentityApiV1IdentityIdentitiesIdentityIdPut: async (identityId: string, identityUpdate: IdentityUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateIdentityApiV1IdentityIdentityIdPatch: async (identityId: string, identityUpdate: IdentityUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'identityId' is not null or undefined
-            assertParamExists('updateIdentityApiV1IdentityIdentitiesIdentityIdPut', 'identityId', identityId)
+            assertParamExists('updateIdentityApiV1IdentityIdentityIdPatch', 'identityId', identityId)
             // verify required parameter 'identityUpdate' is not null or undefined
-            assertParamExists('updateIdentityApiV1IdentityIdentitiesIdentityIdPut', 'identityUpdate', identityUpdate)
-            const localVarPath = `/api/v1/identity/identities/{identity_id}`
+            assertParamExists('updateIdentityApiV1IdentityIdentityIdPatch', 'identityUpdate', identityUpdate)
+            const localVarPath = `/api/v1/identity/{identity_id}`
                 .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(identityUpdate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Met à jour un rôle complexe d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle     role_data: Nouvelles données du rôle      Returns:     RoleAssignmentResponse: Rôle mis à jour
+         * @summary Update Role Assignment
+         * @param {string} identityId 
+         * @param {string} roleId 
+         * @param {RoleAssignmentUpdate} roleAssignmentUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut: async (identityId: string, roleId: string, roleAssignmentUpdate: RoleAssignmentUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'identityId' is not null or undefined
+            assertParamExists('updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut', 'identityId', identityId)
+            // verify required parameter 'roleId' is not null or undefined
+            assertParamExists('updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut', 'roleId', roleId)
+            // verify required parameter 'roleAssignmentUpdate' is not null or undefined
+            assertParamExists('updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut', 'roleAssignmentUpdate', roleAssignmentUpdate)
+            const localVarPath = `/api/v1/identity/identities/{identity_id}/roles/{role_id}`
+                .replace(`{${"identity_id"}}`, encodeURIComponent(String(identityId)))
+                .replace(`{${"role_id"}}`, encodeURIComponent(String(roleId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1475,7 +2083,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(identityUpdate, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(roleAssignmentUpdate, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1493,124 +2101,240 @@ export const DefaultApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = DefaultApiAxiosParamCreator(configuration)
     return {
         /**
-         * Import en masse d\'identités via fichier CSV.  Accepte les formats CSV avec les schémas suivants : - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone - **parents.csv** : establishment_id;firstname;lastname;email;phone - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date  Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.  Le domaine est automatiquement détecté à partir des en-têtes du CSV.
+         * Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée
          * @summary Bulk Import Identities
-         * @param {File} file Fichier CSV à importer
+         * @param {File} file Fichier CSV ou Excel à importer
          * @param {string} establishmentId ID de l\\\&#39;établissement
-         * @param {string | null} [sourceFileUrl] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId: string, sourceFileUrl?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BulkImportResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, sourceFileUrl, options);
+        async bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ImportResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.bulkImportIdentitiesApiV1IdentityBulkimportPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Annule un batch d\'import en cours.  Args:     batch_id: ID du batch
-         * @summary Cancel Bulk Import
-         * @param {string} batchId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité créée
+         * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité créée
          * @summary Create Identity
          * @param {IdentityCreate} identityCreate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createIdentityApiV1IdentityIdentitiesPost(identityCreate: IdentityCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<IdentityResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createIdentityApiV1IdentityIdentitiesPost(identityCreate, options);
+        async createIdentityApiV1IdentityPost(identityCreate: IdentityCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardSuccessResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createIdentityApiV1IdentityPost(identityCreate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createIdentityApiV1IdentityIdentitiesPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createIdentityApiV1IdentityPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * Crée un nouveau rôle complexe pour une identité.  Args:     identity_id: ID de l\'identité     role_data: Données du rôle à créer      Returns:     RoleAssignmentResponse: Rôle créé avec succès
+         * @summary Create Role Assignment
+         * @param {string} identityId 
+         * @param {RoleAssignmentCreate} roleAssignmentCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost(identityId: string, roleAssignmentCreate: RoleAssignmentCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RoleAssignmentResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost(identityId, roleAssignmentCreate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
          * @summary Delete Identity
          * @param {string} identityId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId, options);
+        async deleteIdentityApiV1IdentityIdentityIdDelete(identityId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardSuccessResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteIdentityApiV1IdentityIdentityIdDelete(identityId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteIdentityApiV1IdentityIdentityIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère l\'historique d\'audit des opérations de bulk import.  Args:     user_id: Filtrer par utilisateur     establishment_id: Filtrer par établissement     batch_id: Filtrer par batch     limit: Limite du nombre de résultats
-         * @summary Get Audit History
-         * @param {string | null} [userId] 
-         * @param {string | null} [establishmentId] 
-         * @param {string | null} [batchId] 
-         * @param {number} [limit] 
+         * Supprime un rôle complexe d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle      Returns:     dict: Message de confirmation
+         * @summary Delete Role Assignment
+         * @param {string} identityId 
+         * @param {string} roleId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAuditHistoryApiV1IdentityBulkimportAuditGet(userId?: string | null, establishmentId?: string | null, batchId?: string | null, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getAuditHistoryApiV1IdentityBulkimportAuditGet(userId, establishmentId, batchId, limit, options);
+        async deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete(identityId: string, roleId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete(identityId, roleId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getAuditHistoryApiV1IdentityBulkimportAuditGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère la progression d\'un batch d\'import.  Args:     batch_id: ID du batch
-         * @summary Get Bulk Import Progress
+         * Récupère les détails d\'un batch spécifique.  Args:     batch_id: ID du batch      Returns:     Dict: Détails du batch
+         * @summary Get Batch Details
          * @param {string} batchId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId, options);
+        async getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet(batchId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet(batchId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère un template CSV pour un domaine donné.  Args:     domain: Domaine (student, parent, teacher, admin_staff)
-         * @summary Get Csv Template
-         * @param {string} domain 
+         * Récupère le statut actuel d\'un batch.  Args:     batch_id: ID du batch      Returns:     Dict: Statut du batch
+         * @summary Get Batch Status
+         * @param {string} batchId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(domain: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(domain, options);
+        async getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité trouvée
+         * Récupère la liste des cycles pédagogiques.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[CycleResponse]: Liste des cycles
+         * @summary Get Cycles
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCyclesApiV1IdentityCatalogsCyclesGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCyclesApiV1IdentityCatalogsCyclesGet(page, size, search, isActive, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getCyclesApiV1IdentityCatalogsCyclesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité trouvée
          * @summary Get Identity
          * @param {string} identityId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<IdentityResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId, options);
+        async getIdentityApiV1IdentityIdentityIdGet(identityId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardSingleResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getIdentityApiV1IdentityIdentityIdGet(identityId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getIdentityApiV1IdentityIdentitiesIdentityIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getIdentityApiV1IdentityIdentityIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère les statistiques des connexions SSE.  Returns:     Dict: Statistiques des connexions
-         * @summary Get Sse Stats
+         * Récupère tous les rôles d\'une identité.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement (optionnel)      Returns:     List[RoleAssignmentResponse]: Liste des rôles de l\'identité
+         * @summary Get Identity Roles
+         * @param {string} identityId 
+         * @param {string | null} [establishmentId] Filtrer par établissement
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getSseStatsApiV1IdentityBulkimportSseStatsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getSseStatsApiV1IdentityBulkimportSseStatsGet(options);
+        async getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet(identityId: string, establishmentId?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<RoleAssignmentResponse>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet(identityId, establishmentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getSseStatsApiV1IdentityBulkimportSseStatsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère une identité avec tous ses rôles complexes.  Args:     identity_id: ID de l\'identité      Returns:     IdentityWithRoles: Identité avec ses rôles
+         * @summary Get Identity With Roles
+         * @param {string} identityId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet(identityId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<IdentityWithRoles>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet(identityId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
+         * @summary Get Import Template
+         * @param {string} role 
+         * @param {string} [formatType] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(role: string, formatType?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(role, formatType, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement
+         * @summary Get Last Code Identite
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getLastCodeIdentiteApiV1IdentityLastCodeGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardSingleResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getLastCodeIdentiteApiV1IdentityLastCodeGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getLastCodeIdentiteApiV1IdentityLastCodeGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère un rôle spécifique d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle      Returns:     RoleAssignmentResponse: Rôle demandé
+         * @summary Get Role Assignment
+         * @param {string} identityId 
+         * @param {string} roleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet(identityId: string, roleId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RoleAssignmentResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet(identityId, roleId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère la liste des rôles effectifs.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     group_key: Filtrer par groupe fonctionnel     is_sensitive: Filtrer par sensibilité     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RoleEffectifResponse]: Liste des rôles effectifs
+         * @summary Get Roles Effectifs
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {string | null} [groupKey] Filtrer par groupe
+         * @param {boolean | null} [isSensitive] Filtrer par sensibilité
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page?: number, size?: number, search?: string | null, groupKey?: string | null, isSensitive?: boolean | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page, size, search, groupKey, isSensitive, isActive, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
+         * @summary Get Roles Principaux
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet(page, size, search, isActive, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Obtenir les informations sur un template d\'import.  **Paramètres :** - `role` : Rôle du template (admin_staff, teacher, student, parent)  **Réponse :** - Informations sur le template - Colonnes disponibles - Nombre d\'exemples - Description du template
+         * @summary Get Template Info
+         * @param {string} role 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet(role: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TemplateResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet(role, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1619,28 +2343,55 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async healthCheckHealthGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+        async healthCheckHealthGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardSingleResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.healthCheckHealthGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.healthCheckHealthGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
          * @summary Link Identity To Establishment
          * @param {string} identityId 
          * @param {EstablishmentLinkCreate} establishmentLinkCreate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId, establishmentLinkCreate, options);
+        async linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost(identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardSuccessResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost(identityId, establishmentLinkCreate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityListResponse: Liste paginée des identités
+         * Lister les templates d\'import disponibles.  **Réponse :** - Liste des rôles supportés - Formats disponibles pour chaque rôle - Informations générales sur les templates
+         * @summary List Available Templates
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Liste les batches d\'import avec pagination.  Args:     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 10, max: 100)     status: Statut pour filtrer (optionnel)      Returns:     Dict: Liste paginée des batches
+         * @summary List Batches
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [status] Filtrer par statut
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listBatchesApiV1IdentityBulkimportBatchesGet(page?: number, size?: number, status?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listBatchesApiV1IdentityBulkimportBatchesGet(page, size, status, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listBatchesApiV1IdentityBulkimportBatchesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityListResponse: Liste paginée des identités
          * @summary List Identities
          * @param {number} [page] Numéro de page
          * @param {number} [size] Taille de la page
@@ -1656,10 +2407,10 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listIdentitiesApiV1IdentityIdentitiesGet(page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<IdentityListResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listIdentitiesApiV1IdentityIdentitiesGet(page, size, search, sortBy, sortOrder, firstname, lastname, email, status, establishmentId, role, options);
+        async listIdentitiesApiV1IdentityGet(page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listIdentitiesApiV1IdentityGet(page, size, search, sortBy, sortOrder, firstname, lastname, email, status, establishmentId, role, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listIdentitiesApiV1IdentityIdentitiesGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listIdentitiesApiV1IdentityGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1668,65 +2419,68 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async rootGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+        async rootGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardSingleResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.rootGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.rootGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Gestion des requêtes OPTIONS pour CORS.  Args:     batch_id: ID du batch      Returns:     Response: Headers CORS
-         * @summary Sse Options
+         * Stream Server-Sent Events pour suivre la progression d\'un import en masse.  Args:     batch_id: ID du batch d\'import à suivre     user_id: ID de l\'utilisateur (pour l\'authentification)     timeout: Timeout de la connexion SSE en secondes      Returns:     StreamingResponse: Stream SSE avec les événements de progression      Events:     - PROGRESS: Progression de l\'import (pourcentage, éléments traités)     - COMPLETED: Import terminé avec succès     - ERROR: Erreur lors de l\'import     - CANCELLED: Import annulé     - TIMEOUT: Connexion expirée
+         * @summary Stream Import Progress
          * @param {string} batchId 
+         * @param {string | null} [userId] ID de l\&#39;utilisateur pour l\&#39;authentification
+         * @param {number} [timeout] Timeout en secondes (défaut: 5 minutes)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId, options);
+        async streamImportProgressApiV1IdentityBulkimportSseBatchIdGet(batchId: string, userId?: string | null, timeout?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.streamImportProgressApiV1IdentityBulkimportSseBatchIdGet(batchId, userId, timeout, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.streamImportProgressApiV1IdentityBulkimportSseBatchIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Stream Server-Sent Events pour la progression d\'un batch.  Args:     batch_id: ID du batch à suivre     timeout: Timeout en secondes (5 minutes par défaut)     request: Requête HTTP     bulk_import_service: Service de bulk import      Returns:     StreamingResponse: Flux SSE de la progression
-         * @summary Stream Batch Progress
-         * @param {string} batchId 
-         * @param {number | null} [timeout] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId: string, timeout?: number | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId, timeout, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
          * @summary Unlink Identity From Establishment
          * @param {string} identityId 
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId: string, establishmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId, establishmentId, options);
+        async unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete(identityId: string, establishmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardSuccessResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete(identityId, establishmentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité mise à jour
+         * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité mise à jour
          * @summary Update Identity
          * @param {string} identityId 
          * @param {IdentityUpdate} identityUpdate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId: string, identityUpdate: IdentityUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<IdentityResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId, identityUpdate, options);
+        async updateIdentityApiV1IdentityIdentityIdPatch(identityId: string, identityUpdate: IdentityUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardSuccessResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateIdentityApiV1IdentityIdentityIdPatch(identityId, identityUpdate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateIdentityApiV1IdentityIdentitiesIdentityIdPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateIdentityApiV1IdentityIdentityIdPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Met à jour un rôle complexe d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle     role_data: Nouvelles données du rôle      Returns:     RoleAssignmentResponse: Rôle mis à jour
+         * @summary Update Role Assignment
+         * @param {string} identityId 
+         * @param {string} roleId 
+         * @param {RoleAssignmentUpdate} roleAssignmentUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut(identityId: string, roleId: string, roleAssignmentUpdate: RoleAssignmentUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RoleAssignmentResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut(identityId, roleId, roleAssignmentUpdate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -1740,98 +2494,190 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
     const localVarFp = DefaultApiFp(configuration)
     return {
         /**
-         * Import en masse d\'identités via fichier CSV.  Accepte les formats CSV avec les schémas suivants : - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone - **parents.csv** : establishment_id;firstname;lastname;email;phone - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date  Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.  Le domaine est automatiquement détecté à partir des en-têtes du CSV.
+         * Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée
          * @summary Bulk Import Identities
-         * @param {File} file Fichier CSV à importer
+         * @param {File} file Fichier CSV ou Excel à importer
          * @param {string} establishmentId ID de l\\\&#39;établissement
-         * @param {string | null} [sourceFileUrl] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId: string, sourceFileUrl?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<BulkImportResponse> {
-            return localVarFp.bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, sourceFileUrl, options).then((request) => request(axios, basePath));
+        bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<ImportResponse> {
+            return localVarFp.bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Annule un batch d\'import en cours.  Args:     batch_id: ID du batch
-         * @summary Cancel Bulk Import
-         * @param {string} batchId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité créée
+         * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité créée
          * @summary Create Identity
          * @param {IdentityCreate} identityCreate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createIdentityApiV1IdentityIdentitiesPost(identityCreate: IdentityCreate, options?: RawAxiosRequestConfig): AxiosPromise<IdentityResponse> {
-            return localVarFp.createIdentityApiV1IdentityIdentitiesPost(identityCreate, options).then((request) => request(axios, basePath));
+        createIdentityApiV1IdentityPost(identityCreate: IdentityCreate, options?: RawAxiosRequestConfig): AxiosPromise<StandardSuccessResponse> {
+            return localVarFp.createIdentityApiV1IdentityPost(identityCreate, options).then((request) => request(axios, basePath));
         },
         /**
-         * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * Crée un nouveau rôle complexe pour une identité.  Args:     identity_id: ID de l\'identité     role_data: Données du rôle à créer      Returns:     RoleAssignmentResponse: Rôle créé avec succès
+         * @summary Create Role Assignment
+         * @param {string} identityId 
+         * @param {RoleAssignmentCreate} roleAssignmentCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost(identityId: string, roleAssignmentCreate: RoleAssignmentCreate, options?: RawAxiosRequestConfig): AxiosPromise<RoleAssignmentResponse> {
+            return localVarFp.createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost(identityId, roleAssignmentCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
          * @summary Delete Identity
          * @param {string} identityId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId, options).then((request) => request(axios, basePath));
+        deleteIdentityApiV1IdentityIdentityIdDelete(identityId: string, options?: RawAxiosRequestConfig): AxiosPromise<StandardSuccessResponse> {
+            return localVarFp.deleteIdentityApiV1IdentityIdentityIdDelete(identityId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère l\'historique d\'audit des opérations de bulk import.  Args:     user_id: Filtrer par utilisateur     establishment_id: Filtrer par établissement     batch_id: Filtrer par batch     limit: Limite du nombre de résultats
-         * @summary Get Audit History
-         * @param {string | null} [userId] 
-         * @param {string | null} [establishmentId] 
-         * @param {string | null} [batchId] 
-         * @param {number} [limit] 
+         * Supprime un rôle complexe d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle      Returns:     dict: Message de confirmation
+         * @summary Delete Role Assignment
+         * @param {string} identityId 
+         * @param {string} roleId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAuditHistoryApiV1IdentityBulkimportAuditGet(userId?: string | null, establishmentId?: string | null, batchId?: string | null, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getAuditHistoryApiV1IdentityBulkimportAuditGet(userId, establishmentId, batchId, limit, options).then((request) => request(axios, basePath));
+        deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete(identityId: string, roleId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete(identityId, roleId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère la progression d\'un batch d\'import.  Args:     batch_id: ID du batch
-         * @summary Get Bulk Import Progress
+         * Récupère les détails d\'un batch spécifique.  Args:     batch_id: ID du batch      Returns:     Dict: Détails du batch
+         * @summary Get Batch Details
          * @param {string} batchId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId, options).then((request) => request(axios, basePath));
+        getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet(batchId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère un template CSV pour un domaine donné.  Args:     domain: Domaine (student, parent, teacher, admin_staff)
-         * @summary Get Csv Template
-         * @param {string} domain 
+         * Récupère le statut actuel d\'un batch.  Args:     batch_id: ID du batch      Returns:     Dict: Statut du batch
+         * @summary Get Batch Status
+         * @param {string} batchId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(domain: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(domain, options).then((request) => request(axios, basePath));
+        getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité trouvée
+         * Récupère la liste des cycles pédagogiques.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[CycleResponse]: Liste des cycles
+         * @summary Get Cycles
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCyclesApiV1IdentityCatalogsCyclesGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): AxiosPromise<StandardListResponse> {
+            return localVarFp.getCyclesApiV1IdentityCatalogsCyclesGet(page, size, search, isActive, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité trouvée
          * @summary Get Identity
          * @param {string} identityId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId: string, options?: RawAxiosRequestConfig): AxiosPromise<IdentityResponse> {
-            return localVarFp.getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId, options).then((request) => request(axios, basePath));
+        getIdentityApiV1IdentityIdentityIdGet(identityId: string, options?: RawAxiosRequestConfig): AxiosPromise<StandardSingleResponse> {
+            return localVarFp.getIdentityApiV1IdentityIdentityIdGet(identityId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère les statistiques des connexions SSE.  Returns:     Dict: Statistiques des connexions
-         * @summary Get Sse Stats
+         * Récupère tous les rôles d\'une identité.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement (optionnel)      Returns:     List[RoleAssignmentResponse]: Liste des rôles de l\'identité
+         * @summary Get Identity Roles
+         * @param {string} identityId 
+         * @param {string | null} [establishmentId] Filtrer par établissement
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSseStatsApiV1IdentityBulkimportSseStatsGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getSseStatsApiV1IdentityBulkimportSseStatsGet(options).then((request) => request(axios, basePath));
+        getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet(identityId: string, establishmentId?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<Array<RoleAssignmentResponse>> {
+            return localVarFp.getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet(identityId, establishmentId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère une identité avec tous ses rôles complexes.  Args:     identity_id: ID de l\'identité      Returns:     IdentityWithRoles: Identité avec ses rôles
+         * @summary Get Identity With Roles
+         * @param {string} identityId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet(identityId: string, options?: RawAxiosRequestConfig): AxiosPromise<IdentityWithRoles> {
+            return localVarFp.getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet(identityId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
+         * @summary Get Import Template
+         * @param {string} role 
+         * @param {string} [formatType] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(role: string, formatType?: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(role, formatType, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement
+         * @summary Get Last Code Identite
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLastCodeIdentiteApiV1IdentityLastCodeGet(options?: RawAxiosRequestConfig): AxiosPromise<StandardSingleResponse> {
+            return localVarFp.getLastCodeIdentiteApiV1IdentityLastCodeGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère un rôle spécifique d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle      Returns:     RoleAssignmentResponse: Rôle demandé
+         * @summary Get Role Assignment
+         * @param {string} identityId 
+         * @param {string} roleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet(identityId: string, roleId: string, options?: RawAxiosRequestConfig): AxiosPromise<RoleAssignmentResponse> {
+            return localVarFp.getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet(identityId, roleId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère la liste des rôles effectifs.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     group_key: Filtrer par groupe fonctionnel     is_sensitive: Filtrer par sensibilité     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RoleEffectifResponse]: Liste des rôles effectifs
+         * @summary Get Roles Effectifs
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {string | null} [groupKey] Filtrer par groupe
+         * @param {boolean | null} [isSensitive] Filtrer par sensibilité
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page?: number, size?: number, search?: string | null, groupKey?: string | null, isSensitive?: boolean | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): AxiosPromise<StandardListResponse> {
+            return localVarFp.getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page, size, search, groupKey, isSensitive, isActive, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
+         * @summary Get Roles Principaux
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): AxiosPromise<StandardListResponse> {
+            return localVarFp.getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet(page, size, search, isActive, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Obtenir les informations sur un template d\'import.  **Paramètres :** - `role` : Rôle du template (admin_staff, teacher, student, parent)  **Réponse :** - Informations sur le template - Colonnes disponibles - Nombre d\'exemples - Description du template
+         * @summary Get Template Info
+         * @param {string} role 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet(role: string, options?: RawAxiosRequestConfig): AxiosPromise<TemplateResponse> {
+            return localVarFp.getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet(role, options).then((request) => request(axios, basePath));
         },
         /**
          * Endpoint de vérification de santé du service.
@@ -1839,22 +2685,43 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        healthCheckHealthGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+        healthCheckHealthGet(options?: RawAxiosRequestConfig): AxiosPromise<StandardSingleResponse> {
             return localVarFp.healthCheckHealthGet(options).then((request) => request(axios, basePath));
         },
         /**
-         * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
          * @summary Link Identity To Establishment
          * @param {string} identityId 
          * @param {EstablishmentLinkCreate} establishmentLinkCreate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId, establishmentLinkCreate, options).then((request) => request(axios, basePath));
+        linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost(identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options?: RawAxiosRequestConfig): AxiosPromise<StandardSuccessResponse> {
+            return localVarFp.linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost(identityId, establishmentLinkCreate, options).then((request) => request(axios, basePath));
         },
         /**
-         * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityListResponse: Liste paginée des identités
+         * Lister les templates d\'import disponibles.  **Réponse :** - Liste des rôles supportés - Formats disponibles pour chaque rôle - Informations générales sur les templates
+         * @summary List Available Templates
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Liste les batches d\'import avec pagination.  Args:     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 10, max: 100)     status: Statut pour filtrer (optionnel)      Returns:     Dict: Liste paginée des batches
+         * @summary List Batches
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [status] Filtrer par statut
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listBatchesApiV1IdentityBulkimportBatchesGet(page?: number, size?: number, status?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.listBatchesApiV1IdentityBulkimportBatchesGet(page, size, status, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityListResponse: Liste paginée des identités
          * @summary List Identities
          * @param {number} [page] Numéro de page
          * @param {number} [size] Taille de la page
@@ -1870,8 +2737,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listIdentitiesApiV1IdentityIdentitiesGet(page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<IdentityListResponse> {
-            return localVarFp.listIdentitiesApiV1IdentityIdentitiesGet(page, size, search, sortBy, sortOrder, firstname, lastname, email, status, establishmentId, role, options).then((request) => request(axios, basePath));
+        listIdentitiesApiV1IdentityGet(page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<StandardListResponse> {
+            return localVarFp.listIdentitiesApiV1IdentityGet(page, size, search, sortBy, sortOrder, firstname, lastname, email, status, establishmentId, role, options).then((request) => request(axios, basePath));
         },
         /**
          * Endpoint racine pour vérifier que le service fonctionne.
@@ -1879,51 +2746,54 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        rootGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+        rootGet(options?: RawAxiosRequestConfig): AxiosPromise<StandardSingleResponse> {
             return localVarFp.rootGet(options).then((request) => request(axios, basePath));
         },
         /**
-         * Gestion des requêtes OPTIONS pour CORS.  Args:     batch_id: ID du batch      Returns:     Response: Headers CORS
-         * @summary Sse Options
+         * Stream Server-Sent Events pour suivre la progression d\'un import en masse.  Args:     batch_id: ID du batch d\'import à suivre     user_id: ID de l\'utilisateur (pour l\'authentification)     timeout: Timeout de la connexion SSE en secondes      Returns:     StreamingResponse: Stream SSE avec les événements de progression      Events:     - PROGRESS: Progression de l\'import (pourcentage, éléments traités)     - COMPLETED: Import terminé avec succès     - ERROR: Erreur lors de l\'import     - CANCELLED: Import annulé     - TIMEOUT: Connexion expirée
+         * @summary Stream Import Progress
          * @param {string} batchId 
+         * @param {string | null} [userId] ID de l\&#39;utilisateur pour l\&#39;authentification
+         * @param {number} [timeout] Timeout en secondes (défaut: 5 minutes)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId, options).then((request) => request(axios, basePath));
+        streamImportProgressApiV1IdentityBulkimportSseBatchIdGet(batchId: string, userId?: string | null, timeout?: number, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.streamImportProgressApiV1IdentityBulkimportSseBatchIdGet(batchId, userId, timeout, options).then((request) => request(axios, basePath));
         },
         /**
-         * Stream Server-Sent Events pour la progression d\'un batch.  Args:     batch_id: ID du batch à suivre     timeout: Timeout en secondes (5 minutes par défaut)     request: Requête HTTP     bulk_import_service: Service de bulk import      Returns:     StreamingResponse: Flux SSE de la progression
-         * @summary Stream Batch Progress
-         * @param {string} batchId 
-         * @param {number | null} [timeout] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId: string, timeout?: number | null, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId, timeout, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+         * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
          * @summary Unlink Identity From Establishment
          * @param {string} identityId 
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId: string, establishmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId, establishmentId, options).then((request) => request(axios, basePath));
+        unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete(identityId: string, establishmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<StandardSuccessResponse> {
+            return localVarFp.unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete(identityId, establishmentId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité mise à jour
+         * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité mise à jour
          * @summary Update Identity
          * @param {string} identityId 
          * @param {IdentityUpdate} identityUpdate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId: string, identityUpdate: IdentityUpdate, options?: RawAxiosRequestConfig): AxiosPromise<IdentityResponse> {
-            return localVarFp.updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId, identityUpdate, options).then((request) => request(axios, basePath));
+        updateIdentityApiV1IdentityIdentityIdPatch(identityId: string, identityUpdate: IdentityUpdate, options?: RawAxiosRequestConfig): AxiosPromise<StandardSuccessResponse> {
+            return localVarFp.updateIdentityApiV1IdentityIdentityIdPatch(identityId, identityUpdate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Met à jour un rôle complexe d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle     role_data: Nouvelles données du rôle      Returns:     RoleAssignmentResponse: Rôle mis à jour
+         * @summary Update Role Assignment
+         * @param {string} identityId 
+         * @param {string} roleId 
+         * @param {RoleAssignmentUpdate} roleAssignmentUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut(identityId: string, roleId: string, roleAssignmentUpdate: RoleAssignmentUpdate, options?: RawAxiosRequestConfig): AxiosPromise<RoleAssignmentResponse> {
+            return localVarFp.updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut(identityId, roleId, roleAssignmentUpdate, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1936,115 +2806,223 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
  */
 export class DefaultApi extends BaseAPI {
     /**
-     * Import en masse d\'identités via fichier CSV.  Accepte les formats CSV avec les schémas suivants : - **students.csv** : establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone - **parents.csv** : establishment_id;firstname;lastname;email;phone - **teachers.csv** : establishment_id;firstname;lastname;email;phone;subject;hire_date - **admin_staff.csv** : establishment_id;firstname;lastname;email;phone;position;hire_date  Note: L\'external_id (ID Keycloak) sera automatiquement généré lors de la création du compte.  Le domaine est automatiquement détecté à partir des en-têtes du CSV.
+     * Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée
      * @summary Bulk Import Identities
-     * @param {File} file Fichier CSV à importer
+     * @param {File} file Fichier CSV ou Excel à importer
      * @param {string} establishmentId ID de l\\\&#39;établissement
-     * @param {string | null} [sourceFileUrl] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId: string, sourceFileUrl?: string | null, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, sourceFileUrl, options).then((request) => request(this.axios, this.basePath));
+    public bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Annule un batch d\'import en cours.  Args:     batch_id: ID du batch
-     * @summary Cancel Bulk Import
-     * @param {string} batchId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité créée
+     * Crée une nouvelle identité.  Args:     identity_data: Données de l\'identité à créer     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité créée
      * @summary Create Identity
      * @param {IdentityCreate} identityCreate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public createIdentityApiV1IdentityIdentitiesPost(identityCreate: IdentityCreate, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).createIdentityApiV1IdentityIdentitiesPost(identityCreate, options).then((request) => request(this.axios, this.basePath));
+    public createIdentityApiV1IdentityPost(identityCreate: IdentityCreate, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createIdentityApiV1IdentityPost(identityCreate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+     * Crée un nouveau rôle complexe pour une identité.  Args:     identity_id: ID de l\'identité     role_data: Données du rôle à créer      Returns:     RoleAssignmentResponse: Rôle créé avec succès
+     * @summary Create Role Assignment
+     * @param {string} identityId 
+     * @param {RoleAssignmentCreate} roleAssignmentCreate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost(identityId: string, roleAssignmentCreate: RoleAssignmentCreate, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesPost(identityId, roleAssignmentCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Supprime une identité.  Args:     identity_id: ID de l\'identité à supprimer     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
      * @summary Delete Identity
      * @param {string} identityId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId, options).then((request) => request(this.axios, this.basePath));
+    public deleteIdentityApiV1IdentityIdentityIdDelete(identityId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteIdentityApiV1IdentityIdentityIdDelete(identityId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Récupère l\'historique d\'audit des opérations de bulk import.  Args:     user_id: Filtrer par utilisateur     establishment_id: Filtrer par établissement     batch_id: Filtrer par batch     limit: Limite du nombre de résultats
-     * @summary Get Audit History
-     * @param {string | null} [userId] 
-     * @param {string | null} [establishmentId] 
-     * @param {string | null} [batchId] 
-     * @param {number} [limit] 
+     * Supprime un rôle complexe d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle      Returns:     dict: Message de confirmation
+     * @summary Delete Role Assignment
+     * @param {string} identityId 
+     * @param {string} roleId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public getAuditHistoryApiV1IdentityBulkimportAuditGet(userId?: string | null, establishmentId?: string | null, batchId?: string | null, limit?: number, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getAuditHistoryApiV1IdentityBulkimportAuditGet(userId, establishmentId, batchId, limit, options).then((request) => request(this.axios, this.basePath));
+    public deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete(identityId: string, roleId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete(identityId, roleId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Récupère la progression d\'un batch d\'import.  Args:     batch_id: ID du batch
-     * @summary Get Bulk Import Progress
+     * Récupère les détails d\'un batch spécifique.  Args:     batch_id: ID du batch      Returns:     Dict: Détails du batch
+     * @summary Get Batch Details
      * @param {string} batchId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId, options).then((request) => request(this.axios, this.basePath));
+    public getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet(batchId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet(batchId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Récupère un template CSV pour un domaine donné.  Args:     domain: Domaine (student, parent, teacher, admin_staff)
-     * @summary Get Csv Template
-     * @param {string} domain 
+     * Récupère le statut actuel d\'un batch.  Args:     batch_id: ID du batch      Returns:     Dict: Statut du batch
+     * @summary Get Batch Status
+     * @param {string} batchId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(domain: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getCsvTemplateApiV1IdentityBulkimportTemplateDomainGet(domain, options).then((request) => request(this.axios, this.basePath));
+    public getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité trouvée
+     * Récupère la liste des cycles pédagogiques.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[CycleResponse]: Liste des cycles
+     * @summary Get Cycles
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de la page
+     * @param {string | null} [search] Terme de recherche
+     * @param {boolean | null} [isActive] Filtrer par statut actif
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getCyclesApiV1IdentityCatalogsCyclesGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getCyclesApiV1IdentityCatalogsCyclesGet(page, size, search, isActive, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère une identité par son ID.  Args:     identity_id: ID de l\'identité     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité trouvée
      * @summary Get Identity
      * @param {string} identityId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId, options).then((request) => request(this.axios, this.basePath));
+    public getIdentityApiV1IdentityIdentityIdGet(identityId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getIdentityApiV1IdentityIdentityIdGet(identityId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Récupère les statistiques des connexions SSE.  Returns:     Dict: Statistiques des connexions
-     * @summary Get Sse Stats
+     * Récupère tous les rôles d\'une identité.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement (optionnel)      Returns:     List[RoleAssignmentResponse]: Liste des rôles de l\'identité
+     * @summary Get Identity Roles
+     * @param {string} identityId 
+     * @param {string | null} [establishmentId] Filtrer par établissement
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public getSseStatsApiV1IdentityBulkimportSseStatsGet(options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getSseStatsApiV1IdentityBulkimportSseStatsGet(options).then((request) => request(this.axios, this.basePath));
+    public getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet(identityId: string, establishmentId?: string | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet(identityId, establishmentId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère une identité avec tous ses rôles complexes.  Args:     identity_id: ID de l\'identité      Returns:     IdentityWithRoles: Identité avec ses rôles
+     * @summary Get Identity With Roles
+     * @param {string} identityId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet(identityId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet(identityId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
+     * @summary Get Import Template
+     * @param {string} role 
+     * @param {string} [formatType] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(role: string, formatType?: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(role, formatType, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement
+     * @summary Get Last Code Identite
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getLastCodeIdentiteApiV1IdentityLastCodeGet(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getLastCodeIdentiteApiV1IdentityLastCodeGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère un rôle spécifique d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle      Returns:     RoleAssignmentResponse: Rôle demandé
+     * @summary Get Role Assignment
+     * @param {string} identityId 
+     * @param {string} roleId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet(identityId: string, roleId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet(identityId, roleId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère la liste des rôles effectifs.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     group_key: Filtrer par groupe fonctionnel     is_sensitive: Filtrer par sensibilité     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RoleEffectifResponse]: Liste des rôles effectifs
+     * @summary Get Roles Effectifs
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de la page
+     * @param {string | null} [search] Terme de recherche
+     * @param {string | null} [groupKey] Filtrer par groupe
+     * @param {boolean | null} [isSensitive] Filtrer par sensibilité
+     * @param {boolean | null} [isActive] Filtrer par statut actif
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page?: number, size?: number, search?: string | null, groupKey?: string | null, isSensitive?: boolean | null, isActive?: boolean | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page, size, search, groupKey, isSensitive, isActive, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
+     * @summary Get Roles Principaux
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de la page
+     * @param {string | null} [search] Terme de recherche
+     * @param {boolean | null} [isActive] Filtrer par statut actif
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet(page, size, search, isActive, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Obtenir les informations sur un template d\'import.  **Paramètres :** - `role` : Rôle du template (admin_staff, teacher, student, parent)  **Réponse :** - Informations sur le template - Colonnes disponibles - Nombre d\'exemples - Description du template
+     * @summary Get Template Info
+     * @param {string} role 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet(role: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet(role, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2059,7 +3037,7 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+     * Lie une identité à un établissement.  Args:     identity_id: ID de l\'identité     link_data: Données du lien     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
      * @summary Link Identity To Establishment
      * @param {string} identityId 
      * @param {EstablishmentLinkCreate} establishmentLinkCreate 
@@ -2067,12 +3045,37 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId, establishmentLinkCreate, options).then((request) => request(this.axios, this.basePath));
+    public linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost(identityId: string, establishmentLinkCreate: EstablishmentLinkCreate, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost(identityId, establishmentLinkCreate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityListResponse: Liste paginée des identités
+     * Lister les templates d\'import disponibles.  **Réponse :** - Liste des rôles supportés - Formats disponibles pour chaque rôle - Informations générales sur les templates
+     * @summary List Available Templates
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listAvailableTemplatesApiV1IdentityBulkimportTemplatesGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Liste les batches d\'import avec pagination.  Args:     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 10, max: 100)     status: Statut pour filtrer (optionnel)      Returns:     Dict: Liste paginée des batches
+     * @summary List Batches
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de page
+     * @param {string | null} [status] Filtrer par statut
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listBatchesApiV1IdentityBulkimportBatchesGet(page?: number, size?: number, status?: string | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listBatchesApiV1IdentityBulkimportBatchesGet(page, size, status, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Liste les identités avec pagination et filtres.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche global     sort_by: Champ de tri     sort_order: Ordre de tri     firstname: Filtre par prénom     lastname: Filtre par nom     email: Filtre par email     status: Filtre par statut     establishment_id: Filtre par établissement     role: Filtre par rôle     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityListResponse: Liste paginée des identités
      * @summary List Identities
      * @param {number} [page] Numéro de page
      * @param {number} [size] Taille de la page
@@ -2089,8 +3092,8 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public listIdentitiesApiV1IdentityIdentitiesGet(page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).listIdentitiesApiV1IdentityIdentitiesGet(page, size, search, sortBy, sortOrder, firstname, lastname, email, status, establishmentId, role, options).then((request) => request(this.axios, this.basePath));
+    public listIdentitiesApiV1IdentityGet(page?: number, size?: number, search?: string | null, sortBy?: string | null, sortOrder?: string | null, firstname?: string | null, lastname?: string | null, email?: string | null, status?: string | null, establishmentId?: string | null, role?: string | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listIdentitiesApiV1IdentityGet(page, size, search, sortBy, sortOrder, firstname, lastname, email, status, establishmentId, role, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2105,32 +3108,21 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * Gestion des requêtes OPTIONS pour CORS.  Args:     batch_id: ID du batch      Returns:     Response: Headers CORS
-     * @summary Sse Options
+     * Stream Server-Sent Events pour suivre la progression d\'un import en masse.  Args:     batch_id: ID du batch d\'import à suivre     user_id: ID de l\'utilisateur (pour l\'authentification)     timeout: Timeout de la connexion SSE en secondes      Returns:     StreamingResponse: Stream SSE avec les événements de progression      Events:     - PROGRESS: Progression de l\'import (pourcentage, éléments traités)     - COMPLETED: Import terminé avec succès     - ERROR: Erreur lors de l\'import     - CANCELLED: Import annulé     - TIMEOUT: Connexion expirée
+     * @summary Stream Import Progress
      * @param {string} batchId 
+     * @param {string | null} [userId] ID de l\&#39;utilisateur pour l\&#39;authentification
+     * @param {number} [timeout] Timeout en secondes (défaut: 5 minutes)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId, options).then((request) => request(this.axios, this.basePath));
+    public streamImportProgressApiV1IdentityBulkimportSseBatchIdGet(batchId: string, userId?: string | null, timeout?: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).streamImportProgressApiV1IdentityBulkimportSseBatchIdGet(batchId, userId, timeout, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Stream Server-Sent Events pour la progression d\'un batch.  Args:     batch_id: ID du batch à suivre     timeout: Timeout en secondes (5 minutes par défaut)     request: Requête HTTP     bulk_import_service: Service de bulk import      Returns:     StreamingResponse: Flux SSE de la progression
-     * @summary Stream Batch Progress
-     * @param {string} batchId 
-     * @param {number | null} [timeout] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId: string, timeout?: number | null, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId, timeout, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     Dict: Message de confirmation
+     * Supprime le lien entre une identité et un établissement.  Args:     identity_id: ID de l\'identité     establishment_id: ID de l\'établissement     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     Dict: Message de confirmation
      * @summary Unlink Identity From Establishment
      * @param {string} identityId 
      * @param {string} establishmentId 
@@ -2138,12 +3130,12 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId: string, establishmentId: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId, establishmentId, options).then((request) => request(this.axios, this.basePath));
+    public unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete(identityId: string, establishmentId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete(identityId, establishmentId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     request: Requête HTTP     identity_crud_service: Service CRUD des identités      Returns:     IdentityResponse: Identité mise à jour
+     * Met à jour une identité.  Args:     identity_id: ID de l\'identité à mettre à jour     identity_data: Nouvelles données     identity_crud_service: Service CRUD des identités     tenant_context: Contexte tenant avec rôles et établissement      Returns:     IdentityResponse: Identité mise à jour
      * @summary Update Identity
      * @param {string} identityId 
      * @param {IdentityUpdate} identityUpdate 
@@ -2151,8 +3143,266 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId: string, identityUpdate: IdentityUpdate, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId, identityUpdate, options).then((request) => request(this.axios, this.basePath));
+    public updateIdentityApiV1IdentityIdentityIdPatch(identityId: string, identityUpdate: IdentityUpdate, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updateIdentityApiV1IdentityIdentityIdPatch(identityId, identityUpdate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Met à jour un rôle complexe d\'une identité.  Args:     identity_id: ID de l\'identité     role_id: ID du rôle     role_data: Nouvelles données du rôle      Returns:     RoleAssignmentResponse: Rôle mis à jour
+     * @summary Update Role Assignment
+     * @param {string} identityId 
+     * @param {string} roleId 
+     * @param {RoleAssignmentUpdate} roleAssignmentUpdate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut(identityId: string, roleId: string, roleAssignmentUpdate: RoleAssignmentUpdate, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut(identityId, roleId, roleAssignmentUpdate, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * MeContexteUtilisateurApi - axios parameter creator
+ * @export
+ */
+export const MeContexteUtilisateurApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Récupère la liste des établissements auxquels l\'utilisateur est rattaché.          **Source de données :** `identity_establishment` table     **Authentification :** Requiert en-tête `X-User`     **Réponse :** Liste des UUIDs d\'établissements          **Erreurs :**     - `403` : Aucun rattachement à un établissement     - `404` : Utilisateur non trouvé
+         * @summary Liste des établissements de l\'utilisateur
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserEstablishmentsApiV1IdentityMeEstablishmentsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/me/establishments`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère les rôles de l\'utilisateur dans un établissement spécifique.          **Source de données :** `identity_establishment_role` avec jointures sur les catalogues     **Authentification :** Requiert en-têtes `X-User`     **Paramètres :** `etab` (UUID de l\'établissement)     **Réponse :** Liste des rôles avec détails (principal, effectif, cycles, matières)          **Erreurs :**     - `403` : Utilisateur non rattaché à l\'établissement ou aucun rôle     - `404` : Utilisateur non trouvé
+         * @summary Rôles de l\'utilisateur dans un établissement
+         * @param {string} etab UUID de l\&#39;établissement
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserRolesApiV1IdentityMeRolesGet: async (etab: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'etab' is not null or undefined
+            assertParamExists('getUserRolesApiV1IdentityMeRolesGet', 'etab', etab)
+            const localVarPath = `/api/v1/identity/me/roles`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (etab !== undefined) {
+                localVarQueryParameter['etab'] = etab;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Valide la sélection de contexte (établissement + rôle) par l\'utilisateur.          **Validation :** Vérifie que l\'utilisateur a ce rôle dans cet établissement     **Authentification :** Requiert en-tête `X-User`     **Action :** auth-service s\'occupe de l\'injection des en-têtes après validation          **Erreurs :**     - `403` : Sélection non autorisée (rôle non valide pour l\'établissement)     - `404` : Utilisateur non trouvé
+         * @summary Validation de la sélection de contexte
+         * @param {ContextSelectRequest} contextSelectRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        selectContextApiV1IdentityMeContextSelectPost: async (contextSelectRequest: ContextSelectRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'contextSelectRequest' is not null or undefined
+            assertParamExists('selectContextApiV1IdentityMeContextSelectPost', 'contextSelectRequest', contextSelectRequest)
+            const localVarPath = `/api/v1/identity/me/context/select`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(contextSelectRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * MeContexteUtilisateurApi - functional programming interface
+ * @export
+ */
+export const MeContexteUtilisateurApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = MeContexteUtilisateurApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Récupère la liste des établissements auxquels l\'utilisateur est rattaché.          **Source de données :** `identity_establishment` table     **Authentification :** Requiert en-tête `X-User`     **Réponse :** Liste des UUIDs d\'établissements          **Erreurs :**     - `403` : Aucun rattachement à un établissement     - `404` : Utilisateur non trouvé
+         * @summary Liste des établissements de l\'utilisateur
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MeContexteUtilisateurApi.getUserEstablishmentsApiV1IdentityMeEstablishmentsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère les rôles de l\'utilisateur dans un établissement spécifique.          **Source de données :** `identity_establishment_role` avec jointures sur les catalogues     **Authentification :** Requiert en-têtes `X-User`     **Paramètres :** `etab` (UUID de l\'établissement)     **Réponse :** Liste des rôles avec détails (principal, effectif, cycles, matières)          **Erreurs :**     - `403` : Utilisateur non rattaché à l\'établissement ou aucun rôle     - `404` : Utilisateur non trouvé
+         * @summary Rôles de l\'utilisateur dans un établissement
+         * @param {string} etab UUID de l\&#39;établissement
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserRolesApiV1IdentityMeRolesGet(etab: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserRolesApiV1IdentityMeRolesGet(etab, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MeContexteUtilisateurApi.getUserRolesApiV1IdentityMeRolesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Valide la sélection de contexte (établissement + rôle) par l\'utilisateur.          **Validation :** Vérifie que l\'utilisateur a ce rôle dans cet établissement     **Authentification :** Requiert en-tête `X-User`     **Action :** auth-service s\'occupe de l\'injection des en-têtes après validation          **Erreurs :**     - `403` : Sélection non autorisée (rôle non valide pour l\'établissement)     - `404` : Utilisateur non trouvé
+         * @summary Validation de la sélection de contexte
+         * @param {ContextSelectRequest} contextSelectRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async selectContextApiV1IdentityMeContextSelectPost(contextSelectRequest: ContextSelectRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ContextSelectResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.selectContextApiV1IdentityMeContextSelectPost(contextSelectRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MeContexteUtilisateurApi.selectContextApiV1IdentityMeContextSelectPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * MeContexteUtilisateurApi - factory interface
+ * @export
+ */
+export const MeContexteUtilisateurApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = MeContexteUtilisateurApiFp(configuration)
+    return {
+        /**
+         * Récupère la liste des établissements auxquels l\'utilisateur est rattaché.          **Source de données :** `identity_establishment` table     **Authentification :** Requiert en-tête `X-User`     **Réponse :** Liste des UUIDs d\'établissements          **Erreurs :**     - `403` : Aucun rattachement à un établissement     - `404` : Utilisateur non trouvé
+         * @summary Liste des établissements de l\'utilisateur
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options?: RawAxiosRequestConfig): AxiosPromise<StandardListResponse> {
+            return localVarFp.getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère les rôles de l\'utilisateur dans un établissement spécifique.          **Source de données :** `identity_establishment_role` avec jointures sur les catalogues     **Authentification :** Requiert en-têtes `X-User`     **Paramètres :** `etab` (UUID de l\'établissement)     **Réponse :** Liste des rôles avec détails (principal, effectif, cycles, matières)          **Erreurs :**     - `403` : Utilisateur non rattaché à l\'établissement ou aucun rôle     - `404` : Utilisateur non trouvé
+         * @summary Rôles de l\'utilisateur dans un établissement
+         * @param {string} etab UUID de l\&#39;établissement
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserRolesApiV1IdentityMeRolesGet(etab: string, options?: RawAxiosRequestConfig): AxiosPromise<StandardListResponse> {
+            return localVarFp.getUserRolesApiV1IdentityMeRolesGet(etab, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Valide la sélection de contexte (établissement + rôle) par l\'utilisateur.          **Validation :** Vérifie que l\'utilisateur a ce rôle dans cet établissement     **Authentification :** Requiert en-tête `X-User`     **Action :** auth-service s\'occupe de l\'injection des en-têtes après validation          **Erreurs :**     - `403` : Sélection non autorisée (rôle non valide pour l\'établissement)     - `404` : Utilisateur non trouvé
+         * @summary Validation de la sélection de contexte
+         * @param {ContextSelectRequest} contextSelectRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        selectContextApiV1IdentityMeContextSelectPost(contextSelectRequest: ContextSelectRequest, options?: RawAxiosRequestConfig): AxiosPromise<ContextSelectResponse> {
+            return localVarFp.selectContextApiV1IdentityMeContextSelectPost(contextSelectRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * MeContexteUtilisateurApi - object-oriented interface
+ * @export
+ * @class MeContexteUtilisateurApi
+ * @extends {BaseAPI}
+ */
+export class MeContexteUtilisateurApi extends BaseAPI {
+    /**
+     * Récupère la liste des établissements auxquels l\'utilisateur est rattaché.          **Source de données :** `identity_establishment` table     **Authentification :** Requiert en-tête `X-User`     **Réponse :** Liste des UUIDs d\'établissements          **Erreurs :**     - `403` : Aucun rattachement à un établissement     - `404` : Utilisateur non trouvé
+     * @summary Liste des établissements de l\'utilisateur
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MeContexteUtilisateurApi
+     */
+    public getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options?: RawAxiosRequestConfig) {
+        return MeContexteUtilisateurApiFp(this.configuration).getUserEstablishmentsApiV1IdentityMeEstablishmentsGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère les rôles de l\'utilisateur dans un établissement spécifique.          **Source de données :** `identity_establishment_role` avec jointures sur les catalogues     **Authentification :** Requiert en-têtes `X-User`     **Paramètres :** `etab` (UUID de l\'établissement)     **Réponse :** Liste des rôles avec détails (principal, effectif, cycles, matières)          **Erreurs :**     - `403` : Utilisateur non rattaché à l\'établissement ou aucun rôle     - `404` : Utilisateur non trouvé
+     * @summary Rôles de l\'utilisateur dans un établissement
+     * @param {string} etab UUID de l\&#39;établissement
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MeContexteUtilisateurApi
+     */
+    public getUserRolesApiV1IdentityMeRolesGet(etab: string, options?: RawAxiosRequestConfig) {
+        return MeContexteUtilisateurApiFp(this.configuration).getUserRolesApiV1IdentityMeRolesGet(etab, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Valide la sélection de contexte (établissement + rôle) par l\'utilisateur.          **Validation :** Vérifie que l\'utilisateur a ce rôle dans cet établissement     **Authentification :** Requiert en-tête `X-User`     **Action :** auth-service s\'occupe de l\'injection des en-têtes après validation          **Erreurs :**     - `403` : Sélection non autorisée (rôle non valide pour l\'établissement)     - `404` : Utilisateur non trouvé
+     * @summary Validation de la sélection de contexte
+     * @param {ContextSelectRequest} contextSelectRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MeContexteUtilisateurApi
+     */
+    public selectContextApiV1IdentityMeContextSelectPost(contextSelectRequest: ContextSelectRequest, options?: RawAxiosRequestConfig) {
+        return MeContexteUtilisateurApiFp(this.configuration).selectContextApiV1IdentityMeContextSelectPost(contextSelectRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

@@ -77,6 +77,14 @@ import DirectorSuppliesPage from './pages/directeur/DirectorSuppliesPage';
 import PublicSuppliesListPage from './pages/famille/PublicSuppliesListPage';
 import DirecteurEventsPage from './pages/directeur/DirecteurEventsPage';
 import EventDetailPage from './pages/events/EventDetailPage';
+import IdentityContextProvider, { useIdentityContext } from './contexts/IdentityContextProvider';
+import SelectContextPage from './pages/context/SelectContextPage';
+
+// Pages de détail Référentiels / Compétences
+import CompetencyDetailPage from './pages/referentiels/CompetencyDetailPage';
+import SubjectDetailPage from './pages/referentiels/SubjectDetailPage';
+import AssignmentDetailPage from './pages/referentiels/AssignmentDetailPage';
+import CompetencyLookupPage from './pages/referentiels/CompetencyLookupPage';
 
 // Import des pages de l'administrateur
 import AdminDashboard from './pages/admin/dashboard/AdminDashboard';
@@ -136,6 +144,10 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/admissions/:admissionId", element: <AdmissionDetailPage /> },
     { path: "/utilisateurs", element: <UsersPage /> }, // Mis à jour
     { path: "/referentiels", element: <ReferentielsPage /> },
+    { path: "/referentiels/competencies/lookup", element: <CompetencyLookupPage /> },
+    { path: "/referentiels/competencies/:competencyId", element: <CompetencyDetailPage /> },
+    { path: "/referentiels/subjects/:subjectId", element: <SubjectDetailPage /> },
+    { path: "/referentiels/assignments/:assignmentId", element: <AssignmentDetailPage /> },
     { path: "/alertes", element: <CentreAlertesPage /> },
     { path: "/emploi-du-temps", element: <EmploiDuTempsPage /> },
     { path: "/audit-ressources", element: <RessourcesAuditPage /> },
@@ -197,6 +209,10 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/abonnements", element: <AbonnementsPage /> },
     { path: "/plans", element: <PlansPage /> },
     { path: "/referentiels", element: <ReferentielsAdminPage /> },
+    { path: "/referentiels/competencies/lookup", element: <CompetencyLookupPage /> },
+    { path: "/referentiels/competencies/:competencyId", element: <CompetencyDetailPage /> },
+    { path: "/referentiels/subjects/:subjectId", element: <SubjectDetailPage /> },
+    { path: "/referentiels/assignments/:assignmentId", element: <AssignmentDetailPage /> },
     { path: "/imports", element: <ImportsPage /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "*", element: <NotFound /> },
@@ -223,6 +239,8 @@ const rolesPriority: Role[] = [
 // Composant qui gère la logique de routage
 const AppContent = () => {
   const { isAuthenticated, roles, loading } = useAuth();
+  const { activeEtabId, activeRole } = useIdentityContext();
+  const isAdmin = roles.includes('administrateur');
 
   // Affiche un message de chargement pendant l'initialisation de Keycloak
   if (loading) {
@@ -237,6 +255,16 @@ const AppContent = () => {
         <Route path="/admission" element={<AdmissionPublicPage />} />
         {/* Redirige toutes les autres tentatives d'accès vers la page de connexion */}
         <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+
+  // Utilisateur authentifié mais contexte non sélectionné -> écran intermédiaire de sélection (sauf administrateur)
+  if (!isAdmin && (!activeEtabId || !activeRole)) {
+    return (
+      <Routes>
+        <Route path="/select-contexte" element={<SelectContextPage />} />
+        <Route path="*" element={<Navigate to="/select-contexte" replace />} />
       </Routes>
     );
   }
@@ -286,7 +314,9 @@ const App = () => {
               <ScheduleProvider>
                 <SettingsProvider>
                   <DirectorTimetableProvider>
-                    <AppContent />
+                    <IdentityContextProvider>
+                      <AppContent />
+                    </IdentityContextProvider>
                   </DirectorTimetableProvider>
                 </SettingsProvider>
               </ScheduleProvider>

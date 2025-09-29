@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { getActiveContext, setActiveEtabId } from '../utils/contextStorage';
 
 // Types pour les données du directeur
 interface KPIData {
@@ -116,23 +117,13 @@ export const DirectorProvider: React.FC<DirectorProviderProps> = ({ children }) 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [currentEtablissementId, setCurrentEtablissementIdState] = useState<string | undefined>(() => {
-    const stored = localStorage.getItem('current-etab-id') || '';
-    if (stored) return stored;
+    const { etabId } = getActiveContext();
+    if (etabId) return etabId || undefined;
     const fromEnv = (import.meta as { env?: { VITE_DEFAULT_ETAB_ID?: string } }).env?.VITE_DEFAULT_ETAB_ID as string | undefined;
-    if (fromEnv) {
-      // Persist for axios interceptors and consumers without context
-      localStorage.setItem('current-etab-id', fromEnv);
-    }
     return fromEnv;
   });
 
-  useEffect(() => {
-    if (currentEtablissementId) {
-      localStorage.setItem('current-etab-id', currentEtablissementId);
-    } else {
-      localStorage.removeItem('current-etab-id');
-    }
-  }, [currentEtablissementId]);
+  // Plus de persistance legacy 'current-etab-id' : l'intercepteur multi-tenant s'appuie sur edc.activeEtabId/edc.activeRole
 
   // Actualisation automatique toutes les 5 minutes
   useEffect(() => {
@@ -171,6 +162,9 @@ export const DirectorProvider: React.FC<DirectorProviderProps> = ({ children }) 
 
   const setCurrentEtablissementId = (id: string | undefined) => {
     setCurrentEtablissementIdState(id);
+    if (id) {
+      try { setActiveEtabId(id); } catch {}
+    }
   };
 
   const value: DirectorContextType = {
