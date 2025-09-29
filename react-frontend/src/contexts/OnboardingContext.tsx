@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { useIdentityBulkImport, useIdentityCommitBatch } from '../hooks/useIdentity';
+import { useIdentityBulkImport } from '../hooks/useIdentity';
 import { useDirector } from './DirectorContext';
 
 type Domain = 'student' | 'parent' | 'teacher' | 'admin_staff';
@@ -86,7 +86,7 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
   
   const { currentEtablissementId } = useDirector();
   const bulkImport = useIdentityBulkImport();
-  const commitBatch = useIdentityCommitBatch();
+  
 
   const handleUpload = async (file: File, domain: Domain): Promise<boolean> => {
     if (!file) return false;
@@ -109,16 +109,8 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
       setUploadStatus('success');
       setUploadProgress(100);
       
-      if (res?.batch_id) {
-        // Commit automatique du batch d'identités
-        try {
-          await commitBatch.mutateAsync({ batchId: res.batch_id });
-        } catch {
-          // On n'empêche pas la suite, mais on garde le focus pour permettre un retry manuel
-        }
-        setLastIdentityBatchId(res.batch_id);
-        setShouldFocusTracking(true);
-      }
+      // L'API d'import ne renvoie plus de batch_id; on ne peut pas auto-focaliser un batch ici.
+      // L'utilisateur peut consulter les batches via l'écran de suivi.
       
       // Ajouter à l'historique
       setUploadHistory(prev => [{

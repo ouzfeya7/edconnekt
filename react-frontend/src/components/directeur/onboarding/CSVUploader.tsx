@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 
-import { Upload, XCircle, FileDown, User, Users, UserCog, Shield, CheckCircle, AlertTriangle, FileText, Loader2, CheckCircle2 } from 'lucide-react';
+import { Upload, XCircle, FileDown, User, Users, UserCog, Shield, CheckCircle, FileText, Loader2, CheckCircle2 } from 'lucide-react';
 import { useOnboarding } from '../../../contexts/OnboardingContext';
+import { identityApi } from '../../../api/identity-service/client';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
 
@@ -126,46 +127,43 @@ function validateRows(fileText: string, domain: Domain): string[] {
   return errors;
 }
 
-const Section: React.FC<{ title: string; domain: Domain; description: string; }> = ({ title, domain, description }) => {
+const Section: React.FC<{ title: string; domain: Domain; }> = ({ title, domain }) => {
   const { handleUpload, isUploading, uploadProgress, currentUploadDomain } = useOnboarding();
   const [file, setFile] = useState<File | null>(null);
-  const [headerError, setHeaderError] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
 
+  const handleDownloadServerTemplate = async (format: 'csv' | 'xlsx') => {
+    try {
+      const { data } = await identityApi.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(domain, format, { responseType: 'blob' as any });
+      const blob = data as Blob;
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${domain}_template.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      toast.error('Impossible de télécharger le template');
+    }
+  };
+
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
-    accept: { 'text/csv': ['.csv'], 'application/vnd.ms-excel': ['.csv'] },
+    accept: {
+      'text/csv': ['.csv'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'application/vnd.ms-excel': ['.xls'],
+    },
     multiple: false,
     noClick: true,
     onDrop: async (acceptedFiles) => {
       const f = acceptedFiles && acceptedFiles.length > 0 ? acceptedFiles[0] : null;
       if (!f) {
         setFile(null);
-        setHeaderError(null);
-        setValidationErrors([]);
         setShowSuccess(false);
         return;
       }
-      const actualHeaders = await readCsvFirstHeaderLine(f);
-      const { ok, missing, unknown } = validateHeaders(actualHeaders, requiredHeadersMap[domain], allowedHeadersMap[domain]);
-      if (!ok) {
-        setFile(null);
-        setHeaderError(`En-têtes invalides. Manquants: ${missing.join(', ')}${unknown.length ? ` | Colonnes inconnues: ${unknown.join(', ')}` : ''}`);
-        toast.error('Format CSV invalide. Vérifiez les en-têtes.');
-        return;
-      }
-      // Validation des lignes
-      const text = await f.text();
-      const errs = validateRows(text, domain);
-      if (errs.length > 0) {
-        setFile(null);
-        setHeaderError(null);
-        setValidationErrors(errs);
-        toast.error('Erreurs détectées dans le fichier. Corrigez puis réessayez.');
-        return;
-      }
-      setHeaderError(null);
-      setValidationErrors([]);
       setFile(f);
       setShowSuccess(false);
     },
@@ -183,6 +181,8 @@ const Section: React.FC<{ title: string; domain: Domain; description: string; }>
         teacher: ['ETAB_ID', 'Mamadou', 'Fall', 'm.fall@example.com', '+221700000002', 'Math', '2024-09-01'],
         admin_staff: ['ETAB_ID', 'Fatou', 'Ndiaye', 'f.ndiaye@example.com', '+221700000003', 'Secrétaire', '2024-09-01'],
       };
+
+  
       // Réordonner l'exemple pour qu'il corresponde aux headers réels
       const sampleMap: Record<string, string> = {};
       const sample = sampleByDomain[domain];
@@ -218,20 +218,6 @@ const Section: React.FC<{ title: string; domain: Domain; description: string; }>
 
   const onUploadClick = async () => {
     if (!file) return;
-    // Re-validate at submit time as a safeguard
-    const actualHeaders = await readCsvFirstHeaderLine(file);
-    const { ok: headersOk, missing, unknown } = validateHeaders(actualHeaders, requiredHeadersMap[domain], allowedHeadersMap[domain]);
-    if (!headersOk) {
-      toast.error(`Format CSV invalide. Manquants: ${missing.join(', ')}${unknown.length ? ` | Colonnes inconnues: ${unknown.join(', ')}` : ''}`);
-      return;
-    }
-    const text = await file.text();
-    const errs = validateRows(text, domain);
-    if (errs.length > 0) {
-      setValidationErrors(errs);
-      toast.error('Erreurs détectées dans le fichier. Corrigez puis réessayez.');
-      return;
-    }
     const success = await handleUpload(file, domain);
     if (success) {
       setFile(null);
@@ -271,9 +257,7 @@ const Section: React.FC<{ title: string; domain: Domain; description: string; }>
             <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
           </div>
           
-          <p className="text-sm text-gray-600 leading-relaxed">
-            {description}
-          </p>
+          {/* Description supprimée pour s'aligner sur l'API */}
           
           {/* Indicateur de statut */}
           {file && (
@@ -282,15 +266,28 @@ const Section: React.FC<{ title: string; domain: Domain; description: string; }>
               Fichier prêt pour l'import
             </div>
           )}
+
+      {/* Suppression des informations JSON du template pour une UI plus propre */}
         </div>
         
-        <button 
-          onClick={handleDownloadTemplate} 
-          className="shrink-0 flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-sm font-medium transition-colors"
-        >
-          <FileDown className="w-4 h-4" /> 
-          Template
-        </button>
+        <div className="shrink-0 flex items-center gap-2">
+          <button 
+            onClick={() => handleDownloadServerTemplate('csv')} 
+            className="flex items-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+            title="Télécharger le template depuis l'API (CSV)"
+          >
+            <FileDown className="w-4 h-4" /> 
+            API CSV
+          </button>
+          <button 
+            onClick={() => handleDownloadServerTemplate('xlsx')} 
+            className="flex items-center gap-2 px-3 py-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 rounded-lg text-sm font-medium transition-colors"
+            title="Télécharger le template depuis l'API (XLSX)"
+          >
+            <FileDown className="w-4 h-4" /> 
+            API XLSX
+          </button>
+        </div>
       </div>
 
       {/* Zone de drop améliorée */}
@@ -308,7 +305,7 @@ const Section: React.FC<{ title: string; domain: Domain; description: string; }>
           <>
             <Upload className={`w-12 h-12 mx-auto mb-4 ${isDragActive ? 'text-blue-500' : 'text-gray-400'}`} />
             <p className="text-lg font-medium text-gray-700 mb-2">
-              {isDragActive ? 'Déposez votre fichier ici' : 'Glissez-déposez votre fichier CSV'}
+              {isDragActive ? 'Déposez votre fichier ici' : 'Glissez-déposez votre fichier CSV ou Excel'}
             </p>
             <p className="text-sm text-gray-500 mb-4">
               ou cliquez pour sélectionner un fichier
@@ -331,39 +328,7 @@ const Section: React.FC<{ title: string; domain: Domain; description: string; }>
         <input {...getInputProps()} />
       </div>
 
-      {/* Gestion des erreurs améliorée */}
-      {headerError && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex items-start gap-3">
-            <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-red-800">
-              <div className="font-medium mb-1">Erreur de format CSV</div>
-              <div className="whitespace-pre-wrap break-words">{headerError}</div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {validationErrors.length > 0 && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex items-start gap-3 mb-3">
-            <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-red-800">
-              <div className="font-medium">Erreurs de validation détectées</div>
-              <div className="text-red-600">({validationErrors.length} erreur(s))</div>
-            </div>
-          </div>
-          
-          <div className="max-h-48 overflow-auto space-y-2">
-            {validationErrors.map((error, index) => (
-              <div key={index} className="flex items-start gap-2 text-sm">
-                <span className="text-red-500 font-mono text-xs">L{Math.floor(index / 10) + 2}</span>
-                <span className="text-red-700">{error}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Vérification CSV côté front supprimée (UI épurée, on se base sur l'API) */}
 
       {/* Actions améliorées */}
       {file && (
@@ -481,10 +446,10 @@ const CSVUploader: React.FC = () => {
 
       {/* Grille des sections améliorée */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Section title="Élèves" domain="student" description="Fichier students.csv: establishment_id;firstname;lastname;birth_date;gender;level;account_required;email;phone" />
-        <Section title="Parents" domain="parent" description="Fichier parents.csv: establishment_id;firstname;lastname;email;phone" />
-        <Section title="Enseignants" domain="teacher" description="Fichier teachers.csv: establishment_id;firstname;lastname;email;phone;subject;hire_date" />
-        <Section title="Personnel administratif" domain="admin_staff" description="Fichier admin_staff.csv: establishment_id;firstname;lastname;email;phone;position;hire_date" />
+        <Section title="Élèves" domain="student" />
+        <Section title="Parents" domain="parent" />
+        <Section title="Enseignants" domain="teacher" />
+        <Section title="Personnel administratif" domain="admin_staff" />
       </div>
     </div>
   );

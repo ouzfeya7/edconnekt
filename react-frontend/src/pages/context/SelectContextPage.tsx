@@ -20,7 +20,7 @@ const SelectContextPage: React.FC = () => {
 
   // Load user establishments
   const { data: estabsResp, isLoading: estabsLoading, isError: estabsError } = useIdentityMyEstablishments({ enabled: true });
-  const establishments = (Array.isArray(estabsResp?.data) ? (estabsResp?.data as string[]) : []);
+  const establishments = (Array.isArray(estabsResp) ? (estabsResp as string[]) : []);
 
   const [selectedEtabId, setSelectedEtabId] = React.useState<string | null>(null);
   const [selectedRole, setSelectedRole] = React.useState<EstablishmentRole | ''>('');
@@ -41,7 +41,7 @@ const SelectContextPage: React.FC = () => {
 
   // Load roles for selected establishment
   const { data: rolesResp, isLoading: rolesLoading } = useIdentityMyRoles(selectedEtabId ?? undefined, { enabled: !!selectedEtabId });
-  const rolesForSelected = (Array.isArray(rolesResp?.data) ? (rolesResp?.data as EstablishmentRole[]) : []);
+  const rolesForSelected = (Array.isArray(rolesResp) ? (rolesResp as EstablishmentRole[]) : []);
 
   // Auto-select role if only one is available for chosen establishment
   React.useEffect(() => {

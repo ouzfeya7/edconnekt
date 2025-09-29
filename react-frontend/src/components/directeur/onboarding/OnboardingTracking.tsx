@@ -1,9 +1,11 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useDirector } from '../../../contexts/DirectorContext';
-import { useIdentityBatches, useIdentityBatchItems, useIdentityCancelBulkImport, useIdentityBulkProgress, useIdentityAudit } from '../../../hooks/useIdentity';
+import { useIdentityBatches, useIdentityBatchItems, useIdentityBulkProgress, useIdentityAudit } from '../../../hooks/useIdentity';
 import { useProvisioningBatches, useProvisioningCreateBatch, useProvisioningRunBatch, useProvisioningBatchItems } from '../../../hooks/useProvisioning';
 import toast from 'react-hot-toast';
 import { useOnboarding } from '../../../contexts/OnboardingContext';
+import { identityApi } from '../../../api/identity-service/client';
+import { IDENTITY_API_BASE_URL } from '../../../api/identity-service/http';
 
 import { 
   Database, 
@@ -12,9 +14,10 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Play, 
-  StopCircle, 
   BarChart3,
-  Clock
+  Clock,
+  FileDown,
+  Radio
 } from 'lucide-react';
 
 const OnboardingTracking: React.FC = () => {
@@ -30,17 +33,18 @@ const OnboardingTracking: React.FC = () => {
   const [provDomainFilter, setProvDomainFilter] = useState<string | undefined>(undefined);
   const [provStatusFilter, setProvStatusFilter] = useState<string | undefined>(undefined);
   // removed legacy identity search in favor of unified batchSearch
+  const [templateDomain, setTemplateDomain] = useState<'student' | 'parent' | 'teacher' | 'admin_staff'>('student');
 
 
   const effectiveEtabId = currentEtablissementId || undefined;
-  const { data: idBatches } = useIdentityBatches({ establishmentId: effectiveEtabId, page, size });
+  const { data: idBatches } = useIdentityBatches({ page, size });
   const { data: idItems } = useIdentityBatchItems(
     { batchId: selectedIdentityBatchId, domain: domainFilter, itemStatus: statusFilter, page: 1, size: 50 },
     { refetchInterval: 2000 }
   );
   const { data: idProgress } = useIdentityBulkProgress(selectedIdentityBatchId, { refetchInterval: 2000 });
   const { data: idAudit } = useIdentityAudit({ batchId: selectedIdentityBatchId, limit: 20 });
-  const cancelBulk = useIdentityCancelBulkImport();
+  // Annulation non supportée par l'API actuelle -> bouton masqué
 
 
 
@@ -53,13 +57,47 @@ const OnboardingTracking: React.FC = () => {
     { refetchInterval: 2000 }
   );
 
+  // SSE live progress (fallback to polling already above)
+  const [liveSSE, setLiveSSE] = useState<boolean>(false);
+  const [sseProgress, setSseProgress] = useState<any | null>(null);
+  const sseRef = useRef<EventSource | null>(null);
+
+  useEffect(() => {
+    if (!liveSSE || !selectedIdentityBatchId) {
+      if (sseRef.current) { sseRef.current.close(); sseRef.current = null; }
+      setSseProgress(null);
+      return;
+    }
+    try {
+      const token = sessionStorage.getItem('keycloak-token');
+      const url = `${IDENTITY_API_BASE_URL}api/v1/identity/bulkimport/sse/${selectedIdentityBatchId}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+      const es = new EventSource(url);
+      sseRef.current = es;
+      es.onmessage = (evt) => {
+        try {
+          const data = JSON.parse(evt.data);
+          setSseProgress(data);
+        } catch {}
+      };
+      es.onerror = () => {
+        // Fallback to polling
+        setLiveSSE(false);
+        if (sseRef.current) { sseRef.current.close(); sseRef.current = null; }
+      };
+    } catch {
+      setLiveSSE(false);
+    }
+    return () => {
+      if (sseRef.current) { sseRef.current.close(); sseRef.current = null; }
+    };
+  }, [liveSSE, selectedIdentityBatchId]);
+
+  const effectiveProgress = sseProgress ?? idProgress;
+
   type IdentityBatchRow = { id: string; establishment_id?: string; source_file_url?: string; created_at?: string };
   const identityBatchList: IdentityBatchRow[] = useMemo(() => {
-    if (!idBatches) return [] as IdentityBatchRow[];
-    if (Array.isArray(idBatches)) return idBatches as IdentityBatchRow[];
-    const obj = idBatches as { items?: unknown };
-    if (Array.isArray(obj.items)) return obj.items as IdentityBatchRow[];
-    return [] as IdentityBatchRow[];
+    const list = (idBatches as { data?: IdentityBatchRow[] } | undefined)?.data ?? [];
+    return Array.isArray(list) ? list : [];
   }, [idBatches]);
 
   const filteredIdentityBatchList: IdentityBatchRow[] = useMemo(() => {
@@ -92,6 +130,25 @@ const OnboardingTracking: React.FC = () => {
       setSelectedProvBatchId(created.id);
     } catch {
       toast.error('Échec de création/lancement du provisioning');
+    }
+  };
+
+  // Template download shortcuts
+  type Domain = 'student' | 'parent' | 'teacher' | 'admin_staff';
+  const downloadServerTemplate = async (domain: Domain, format: 'csv' | 'xlsx') => {
+    try {
+      const { data } = await identityApi.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(domain, format, { responseType: 'blob' as any });
+      const blob = data as Blob;
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${domain}_template.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      toast.error('Téléchargement du template impossible');
     }
   };
 
@@ -177,14 +234,14 @@ const OnboardingTracking: React.FC = () => {
 
 
 
-  const handleCancel = async (batchId: string) => {
-    try {
-      await cancelBulk.mutateAsync({ batchId });
-      toast.success('Import annulé');
-    } catch {
-      toast.error("Échec de l'annulation");
-    }
-  };
+  // const handleCancel = async (batchId: string) => {
+  //   try {
+  //     await cancelBulk.mutateAsync({ batchId });
+  //     toast.success('Import annulé');
+  //   } catch {
+  //     toast.error("Échec de l'annulation");
+  //   }
+  // };
 
   const handleRun = async (batchId: string) => {
     try {
@@ -211,8 +268,33 @@ const OnboardingTracking: React.FC = () => {
               Surveillez l'état de vos imports et du provisioning des utilisateurs
             </p>
           </div>
-          
-
+          {/* Shortcuts: API Templates download */}
+          <div className="flex items-center gap-2">
+            <select
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+              value={templateDomain}
+              onChange={(e) => setTemplateDomain(e.target.value as any)}
+            >
+              <option value="student">Élève</option>
+              <option value="parent">Parent</option>
+              <option value="teacher">Enseignant</option>
+              <option value="admin_staff">Admin Staff</option>
+            </select>
+            <button
+              className="inline-flex items-center gap-1 px-3 py-2 text-sm rounded-md bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100"
+              onClick={() => downloadServerTemplate(templateDomain, 'csv')}
+              title="Télécharger le template CSV depuis l'API"
+            >
+              <FileDown className="w-4 h-4" /> CSV
+            </button>
+            <button
+              className="inline-flex items-center gap-1 px-3 py-2 text-sm rounded-md bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100"
+              onClick={() => downloadServerTemplate(templateDomain, 'xlsx')}
+              title="Télécharger le template XLSX depuis l'API"
+            >
+              <FileDown className="w-4 h-4" /> XLSX
+            </button>
+          </div>
         </div>
 
 
@@ -300,34 +382,7 @@ const OnboardingTracking: React.FC = () => {
                       <td className="px-4 py-3 text-sm">
                         <div className="flex flex-wrap gap-2">
 
-                          {/* Bouton Annuler - conditionnel selon l'état du batch */}
-                          {(() => {
-                            // Un batch peut être annulé s'il n'a pas encore de provisioning associé
-                            // et s'il a été créé récemment (moins de 24h)
-                            const canCancel = !linkedProv && b.created_at;
-                            const createdAt = b.created_at ? new Date(b.created_at) : null;
-                            const isRecent = createdAt && (Date.now() - createdAt.getTime()) < 24 * 60 * 60 * 1000; // 24h
-                            
-                            if (!canCancel || !isRecent) {
-                              return null; // Ne pas afficher le bouton ni d'indication
-                            }
-                            
-                            return (
-                              <button 
-                                className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                                  cancelBulk.isPending 
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                                    : 'bg-red-100 text-red-700 hover:bg-red-200'
-                                }`} 
-                                disabled={cancelBulk.isPending} 
-                                onClick={() => handleCancel(b.id)}
-                                title="Annuler l'import en cours (disponible seulement pour les batches récents sans provisioning)"
-                              >
-                                <StopCircle className="w-3 h-3 mr-1" />
-                                {cancelBulk.isPending ? 'Annulation…' : 'Annuler'}
-                              </button>
-                            );
-                          })()}
+                          {/* Annulation non supportée par l'API actuelle */}
 
                           <button 
                             className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
@@ -462,8 +517,22 @@ const OnboardingTracking: React.FC = () => {
           <div className="mt-6 space-y-4">
             {/* Progrès du batch identité */}
             <div className="p-4 border border-gray-200 rounded-lg bg-white">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium text-gray-700">Progression de l'import</div>
+                <button
+                  className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-md border transition-colors ${
+                    liveSSE ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100' : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                  }`}
+                  onClick={() => setLiveSSE((v) => !v)}
+                  disabled={!selectedIdentityBatchId}
+                  title={liveSSE ? 'Désactiver le suivi en temps réel (SSE)' : 'Activer le suivi en temps réel (SSE)'}
+                >
+                  <Radio className={`w-3.5 h-3.5 ${liveSSE ? 'text-green-600' : 'text-gray-500'}`} />
+                  {liveSSE ? 'Temps réel ON' : 'Temps réel OFF'}
+                </button>
+              </div>
               {(() => {
-                const p = (idProgress as unknown as { status?: string; total_items?: number; new_count?: number; updated_count?: number; skipped_count?: number; invalid_count?: number } | undefined);
+                const p = (effectiveProgress as unknown as { status?: string; total_items?: number; new_count?: number; updated_count?: number; skipped_count?: number; invalid_count?: number } | undefined);
                 return (
                   <div className="flex flex-wrap items-center gap-4 text-sm text-gray-700">
                     <span><span className="text-gray-500">Statut:</span> {p?.status ?? '—'}</span>
