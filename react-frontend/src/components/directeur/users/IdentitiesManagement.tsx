@@ -2,7 +2,8 @@ import React from 'react';
 import { X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useIdentities, useIdentityCreate, useIdentityUpdate, useIdentityDelete, useIdentityGet, useIdentityLinkToEstablishment, useIdentityUnlinkFromEstablishment } from '../../../hooks/useIdentity';
-import type { IdentityCreate, IdentityUpdate, IdentityResponse, IdentityStatus, EstablishmentRole } from '../../../api/identity-service/api';
+import type { IdentityCreate, IdentityUpdate, IdentityStatus, IdentityWithRoles, EstablishmentLinkCreate } from '../../../api/identity-service/api';
+import type { EstablishmentRole } from '../../../utils/contextStorage';
 
 type NullableString = string | null | undefined;
 
@@ -17,7 +18,7 @@ export default function IdentitiesManagement(): JSX.Element {
 
   const [editOpen, setEditOpen] = React.useState<boolean>(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
-  const [editing, setEditing] = React.useState<IdentityResponse | null>(null);
+  const [editing, setEditing] = React.useState<IdentityWithRoles | null>(null);
 
   const [linkOpen, setLinkOpen] = React.useState<boolean>(false);
   const [linkId, setLinkId] = React.useState<string | null>(null);
@@ -34,10 +35,12 @@ export default function IdentitiesManagement(): JSX.Element {
   const deleteMutation = useIdentityDelete();
   const { data: detailData, isLoading: detailLoading } = useIdentityGet(detailsId || undefined);
   const { data: editDetailData, isLoading: editDetailLoading } = useIdentityGet(editingId || undefined);
+  const detail = (detailData ?? undefined) as IdentityWithRoles | undefined;
+  const editDetail = (editDetailData ?? undefined) as IdentityWithRoles | undefined;
   const linkMutation = useIdentityLinkToEstablishment(linkId || undefined);
   const unlinkMutation = useIdentityUnlinkFromEstablishment(unlinkId || undefined);
 
-  const items = (data?.items ?? []) as IdentityResponse[];
+  const items = (Array.isArray(data?.data) ? (data?.data as IdentityWithRoles[]) : []);
   const total = data?.total ?? 0;
 
   // No status side-effect; status selection is handled within the Edit form
@@ -53,8 +56,10 @@ export default function IdentitiesManagement(): JSX.Element {
       phone: normalizeOptional(fd.get('phone')),
       status: undefined,
       external_id: normalizeOptional(fd.get('external_id')),
+      code_identite: String(fd.get('code_identite') || '').trim(),
     };
     if (!payload.firstname || !payload.lastname) return;
+    if (!payload.code_identite) return;
     try {
       await toast.promise(
         createMutation.mutateAsync(payload),
@@ -100,8 +105,9 @@ export default function IdentitiesManagement(): JSX.Element {
     e.preventDefault();
     if (!linkId || !linkEstablishmentId || !linkRole) return;
     try {
+      const payload: EstablishmentLinkCreate = { establishment_id: linkEstablishmentId, role_principal_code: linkRole as string };
       await toast.promise(
-        linkMutation.mutateAsync({ establishment_id: linkEstablishmentId, role: linkRole as EstablishmentRole }),
+        linkMutation.mutateAsync(payload),
         {
           loading: 'Liaison…',
           success: "Identité liée à l'établissement",
@@ -253,27 +259,27 @@ export default function IdentitiesManagement(): JSX.Element {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <div className="text-sm text-gray-500">Prénom</div>
-                  <div className="text-sm font-medium">{detailData?.firstname ?? '—'}</div>
+                  <div className="text-sm font-medium">{detail?.firstname ?? '—'}</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Nom</div>
-                  <div className="text-sm font-medium">{detailData?.lastname ?? '—'}</div>
+                  <div className="text-sm font-medium">{detail?.lastname ?? '—'}</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Email</div>
-                  <div className="text-sm font-medium break-all">{detailData?.email ?? '—'}</div>
+                  <div className="text-sm font-medium break-all">{detail?.email ?? '—'}</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Téléphone</div>
-                  <div className="text-sm font-medium">{detailData?.phone ?? '—'}</div>
+                  <div className="text-sm font-medium">{detail?.phone ?? '—'}</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Statut</div>
-                  <div className="text-sm font-medium">{detailData?.status ?? '—'}</div>
+                  <div className="text-sm font-medium">{detail?.status ?? '—'}</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">ID</div>
-                  <div className="text-sm font-medium break-all">{detailData?.id ?? detailsId}</div>
+                  <div className="text-sm font-medium break-all">{detail?.id ?? detailsId}</div>
                 </div>
               </div>
             )}
@@ -296,26 +302,26 @@ export default function IdentitiesManagement(): JSX.Element {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm mb-1">Prénom</label>
-                  <input name="firstname" defaultValue={editDetailData?.firstname ?? editing?.firstname ?? ''} className="w-full border rounded px-3 py-2 text-sm" />
+                  <input name="firstname" defaultValue={editDetail?.firstname ?? editing?.firstname ?? ''} className="w-full border rounded px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Nom</label>
-                  <input name="lastname" defaultValue={editDetailData?.lastname ?? editing?.lastname ?? ''} className="w-full border rounded px-3 py-2 text-sm" />
+                  <input name="lastname" defaultValue={editDetail?.lastname ?? editing?.lastname ?? ''} className="w-full border rounded px-3 py-2 text-sm" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm mb-1">Email</label>
-                  <input name="email" defaultValue={editDetailData?.email ?? editing?.email ?? ''} className="w-full border rounded px-3 py-2 text-sm" />
+                  <input name="email" defaultValue={editDetail?.email ?? editing?.email ?? ''} className="w-full border rounded px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Téléphone</label>
-                  <input name="phone" defaultValue={editDetailData?.phone ?? editing?.phone ?? ''} className="w-full border rounded px-3 py-2 text-sm" />
+                  <input name="phone" defaultValue={editDetail?.phone ?? editing?.phone ?? ''} className="w-full border rounded px-3 py-2 text-sm" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm mb-1">Statut</label>
-                <select name="status" defaultValue={(editDetailData?.status ?? editing?.status ?? '') as string} className="w-full border rounded px-3 py-2 text-sm">
+                <select name="status" defaultValue={(editDetail?.status ?? editing?.status ?? '') as string} className="w-full border rounded px-3 py-2 text-sm">
                   <option value="">(inchangé)</option>
                   <option value="ACTIVE">Active</option>
                   <option value="ARCHIVED">Archivée</option>
@@ -351,10 +357,10 @@ export default function IdentitiesManagement(): JSX.Element {
                 <label className="block text-sm mb-1">Rôle</label>
                 <select value={linkRole} onChange={(e) => setLinkRole(e.target.value as EstablishmentRole)} className="w-full border rounded px-3 py-2 text-sm" required>
                   <option value="" disabled>Choisir un rôle…</option>
-                  <option value="STUDENT">Élève</option>
-                  <option value="PARENT">Parent</option>
-                  <option value="TEACHER">Enseignant</option>
-                  <option value="ADMIN_STAFF">Personnel administratif</option>
+                  <option value="student">Élève</option>
+                  <option value="parent">Parent</option>
+                  <option value="teacher">Enseignant</option>
+                  <option value="admin_staff">Personnel administratif</option>
                 </select>
               </div>
               <div className="flex justify-end gap-2">

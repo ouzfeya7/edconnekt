@@ -3,8 +3,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../pages/authentification/useAuth';
 import { getActiveContext, setActiveContext, clearActiveContext, type EstablishmentRole } from '../utils/contextStorage';
 import { useIdentityMyEstablishments, useIdentityMyRoles } from '../hooks/useIdentityContext';
-import type { UserEstablishmentResponse } from '../api/identity-service/api';
 import ContextSelectModal from '../components/context/ContextSelectModal';
+import { identityMeApi } from '../api/identity-service/client';
 
 interface IdentityContextState {
   activeEtabId: string | null;
@@ -34,6 +34,7 @@ const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEtabId, setSelectedEtabId] = useState<string | null>(null);
+  const [selectionError, setSelectionError] = useState<string | undefined>(undefined);
 
   // Load my establishments when needed: either no context yet or user opened the modal to change context
   const enableEstabQuery = isAuthenticated && (((!activeEtabId || !activeRole)) || modalOpen);
@@ -41,19 +42,29 @@ const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Load roles for selected etab in modal
   const { data: rolesResp, isLoading: rolesLoading } = useIdentityMyRoles(selectedEtabId ?? undefined, { enabled: !!selectedEtabId && modalOpen });
-  const rolesForSelected = (rolesResp as unknown as { roles?: EstablishmentRole[] })?.roles ?? [];
+  const rolesForSelected = (Array.isArray(rolesResp?.data) ? (rolesResp?.data as EstablishmentRole[]) : []) ?? [];
 
   const openContextSelector = useCallback(() => {
+    setSelectionError(undefined);
     setModalOpen(true);
   }, []);
 
-  const handleConfirm = useCallback((etabId: string, role: EstablishmentRole) => {
-    setActiveContext(etabId, role);
-    setActiveEtabId(etabId);
-    setActiveRole(role);
-    setModalOpen(false);
-    // Invalidate identity-related queries so data refreshes under new context
-    queryClient.invalidateQueries({ predicate: (q) => Array.isArray(q.queryKey) && String(q.queryKey[0]).startsWith('identity:') });
+  const handleConfirm = useCallback(async (etabId: string, role: EstablishmentRole) => {
+    try {
+      setSelectionError(undefined);
+      await identityMeApi.selectContextApiV1IdentityMeContextSelectPost({ etab_id: etabId, role });
+      // Persist locally after backend validation succeeds
+      setActiveContext(etabId, role);
+      setActiveEtabId(etabId);
+      setActiveRole(role);
+      setModalOpen(false);
+      // Invalidate identity-related queries so data refreshes under new context
+      queryClient.invalidateQueries({ predicate: (q) => Array.isArray(q.queryKey) && String(q.queryKey[0]).startsWith('identity:') });
+    } catch (e: any) {
+      // Surface a user-friendly error
+      const msg = e?.response?.data?.message || 'Sélection non autorisée pour cet établissement/rôle';
+      setSelectionError(String(msg));
+    }
   }, [queryClient]);
 
   const handleClear = useCallback(() => {
@@ -78,8 +89,8 @@ const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     clearContext: handleClear,
   }), [activeEtabId, activeRole, openContextSelector, selectContext, handleClear]);
 
-  // Compute establishments list for modal
-  const establishments = (myEstabs?.establishments ?? []) as UserEstablishmentResponse[];
+  // Compute establishments list for modal (API returns list of UUID strings)
+  const establishments = (Array.isArray(myEstabs?.data) ? (myEstabs?.data as string[]) : []);
 
   return (
     <IdentityContext.Provider value={contextValue}>
@@ -94,12 +105,15 @@ const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           roles={rolesForSelected}
           rolesLoading={rolesLoading}
           onConfirm={(role) => {
-            const etab = selectedEtabId || (establishments[0]?.establishment_id ?? '');
+            const etab = selectedEtabId || (establishments[0] ?? '');
             if (etab && role) handleConfirm(etab, role);
           }}
           zeroEstabs={establishments.length === 0}
           loading={estabsLoading}
-          error={estabsError ? 'Impossible de récupérer vos établissements' : undefined}
+          error={[
+            estabsError ? 'Impossible de récupérer vos établissements' : undefined,
+            selectionError,
+          ].filter(Boolean).join('\n') || undefined}
         />
       )}
     </IdentityContext.Provider>

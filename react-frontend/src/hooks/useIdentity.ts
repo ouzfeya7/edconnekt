@@ -1,15 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { batchesApi, identityDefaultApi } from '../api/identity-service/client';
+import { identityApi } from '../api/identity-service/client';
 import type {
-  BatchRead,
-  BulkImportResponse,
-  IdentityListResponse,
-  IdentityResponse,
+  StandardListResponse,
+  StandardSingleResponse,
+  StandardSuccessResponse,
   IdentityCreate,
   IdentityUpdate,
   EstablishmentLinkCreate,
+  IdentityWithRoles,
+  ImportResponse,
 } from '../api/identity-service/api';
-import { identityAxios } from '../api/identity-service/http';
 
 // Types locaux pour typer les items d'un batch et la réponse paginée
 export type IdentityBatchItem = {
@@ -31,50 +31,29 @@ export type IdentityBatchItemsResult = {
   pages?: number;
 };
 
-export function useIdentityBatches(params?: { establishmentId?: string; uploadedBy?: string; page?: number; size?: number; orderBy?: string; orderDir?: 'asc' | 'desc'; }) {
-  return useQuery<unknown, Error>({
+export function useIdentityBatches(params?: { page?: number; size?: number; status?: string | null }) {
+  return useQuery<StandardListResponse, Error>({
     queryKey: ['identity:batches', params],
     queryFn: async () => {
-      try {
-        if (import.meta.env.DEV) {
-          console.debug('[useIdentityBatches] primary call (header-scope)', { params });
-        }
-        const { data } = await batchesApi.listBatchesApiV1IdentityBatchesGet(
-          undefined,
-          params?.uploadedBy,
-          undefined,
-          undefined,
-          params?.orderBy,
-          params?.orderDir
-        );
-        return data;
-      } catch {
-        if (import.meta.env.DEV) {
-          console.debug('[useIdentityBatches] fallback call (with query params)', { params });
-        }
-        const { data } = await batchesApi.listBatchesApiV1IdentityBatchesGet(
-          params?.establishmentId,
-          params?.uploadedBy,
-          params?.page,
-          params?.size,
-          params?.orderBy,
-          params?.orderDir
-        );
-        return data;
-      }
+      const { data } = await identityApi.listBatchesApiV1IdentityBulkimportBatchesGet(
+        params?.page,
+        params?.size,
+        params?.status ?? undefined,
+      );
+      return data as StandardListResponse;
     },
-    placeholderData: (prev: unknown) => prev,
+    placeholderData: (prev: StandardListResponse | undefined) => prev as StandardListResponse | undefined,
   });
 }
 
 export function useIdentityBatch(batchId?: string) {
-  return useQuery<BatchRead, Error>({
+  return useQuery<unknown, Error>({
     queryKey: ['identity:batch', batchId],
     enabled: !!batchId,
     queryFn: async () => {
       if (!batchId) throw new Error('batchId requis');
-      const { data } = await batchesApi.getBatchApiV1IdentityBatchesBatchIdGet(batchId);
-      return data;
+      const { data } = await identityApi.getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet(batchId);
+      return data as unknown;
     },
   });
 }
@@ -88,29 +67,14 @@ export function useIdentityBatchItems(
     enabled: !!params.batchId,
     queryFn: async () => {
       if (!params.batchId) throw new Error('batchId requis');
-      const { data } = await batchesApi.getBatchItemsApiV1IdentityBatchesBatchIdItemsGet(
-        params.batchId,
-        params.itemStatus,
-        params.domain,
-        params.page,
-        params.size,
-        params.orderBy,
-        params.orderDir
-      );
-      // Normaliser en structure paginée
-      if (Array.isArray(data)) {
-        const page = params.page ?? 0;
-        const size = params.size ?? (data as unknown[]).length;
-        return { items: data as IdentityBatchItem[], total: (data as unknown[]).length, page, size, pages: 1 };
-      }
-      const obj = data as { items?: unknown; total?: number; page?: number; size?: number; pages?: number };
-      return {
-        items: (Array.isArray(obj.items) ? (obj.items as IdentityBatchItem[]) : []),
-        total: obj.total,
-        page: obj.page,
-        size: obj.size,
-        pages: obj.pages,
-      };
+      const { data } = await identityApi.getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet(params.batchId);
+      const obj = data as any;
+      const items = Array.isArray(obj?.items) ? (obj.items as IdentityBatchItem[]) : [];
+      const page = obj?.page ?? params.page ?? 0;
+      const size = obj?.size ?? params.size ?? items.length;
+      const total = obj?.total ?? items.length;
+      const pages = obj?.pages ?? undefined;
+      return { items, total, page, size, pages };
     },
     placeholderData: (prev: IdentityBatchItemsResult | undefined) => prev as IdentityBatchItemsResult | undefined,
     refetchInterval: options?.refetchInterval ?? false,
@@ -119,18 +83,13 @@ export function useIdentityBatchItems(
 
 export function useIdentityBulkImport() {
   const queryClient = useQueryClient();
-  return useMutation<BulkImportResponse, Error, { file: File; establishmentId: string; sourceFileUrl?: string | null }>(
+  return useMutation<ImportResponse, Error, { file: File; establishmentId: string; sourceFileUrl?: string | null }>(
     {
       mutationKey: ['identity:bulkimport'],
       mutationFn: async ({ file, establishmentId, sourceFileUrl }) => {
-        const form = new FormData();
-        form.append('file', file);
-        form.append('establishment_id', establishmentId);
-        if (sourceFileUrl) form.append('source_file_url', sourceFileUrl);
-        const { data } = await identityAxios.post<BulkImportResponse>('api/v1/identity/bulkimport', form, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        return data;
+        // sourceFileUrl n'est plus supporté directement par l'API
+        const { data } = await identityApi.bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId);
+        return data as ImportResponse;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['identity:batches'] });
@@ -145,8 +104,7 @@ export function useIdentityCommitBatch() {
     {
       mutationKey: ['identity:commit'],
       mutationFn: async ({ batchId }) => {
-        const { data } = await batchesApi.commitBatchApiV1IdentityBatchesBatchIdCommitPost(batchId);
-        return data;
+        throw new Error('Commit batch non supporté par l’API actuelle');
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['identity:batches'] });
@@ -161,15 +119,8 @@ export function useIdentityAudit(params?: { userId?: string; establishmentId?: s
   return useQuery<unknown, Error>({
     queryKey: ['identity:audit', params],
     queryFn: async () => {
-      const { data } = await identityAxios.get('api/v1/identity/bulkimport/audit', {
-        params: {
-          user_id: params?.userId,
-          establishment_id: params?.establishmentId,
-          batch_id: params?.batchId,
-          limit: params?.limit,
-        },
-      });
-      return data;
+      // Endpoint non disponible dans l'API actuelle
+      throw new Error('Audit non supporté par l’API actuelle');
     },
   });
 }
@@ -181,8 +132,8 @@ export function useIdentityCancelBulkImport() {
   return useMutation<unknown, Error, { batchId: string }>({
     mutationKey: ['identity:bulkimport:cancel'],
     mutationFn: async ({ batchId }) => {
-      const { data } = await identityDefaultApi.cancelBulkImportApiV1IdentityBulkimportCancelBatchIdPost(batchId);
-      return data as unknown;
+      // Endpoint non supporté dans l'API actuelle
+      throw new Error('Annulation d\'import non supportée par l’API actuelle');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['identity:batches'] });
@@ -196,10 +147,11 @@ export function useIdentityBulkProgress(batchId?: string, options?: { refetchInt
     enabled: !!batchId,
     queryFn: async () => {
       if (!batchId) throw new Error('batchId requis');
-      const { data } = await identityDefaultApi.getBulkImportProgressApiV1IdentityBulkimportProgressBatchIdGet(batchId);
+      // Utiliser le statut du batch comme fallback de progression
+      const { data } = await identityApi.getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId);
       return data as unknown;
     },
-    refetchInterval: options?.refetchInterval ?? false,
+    refetchInterval: options?.refetchInterval ?? 5000,
   });
 }
 
@@ -209,11 +161,9 @@ export function useIdentityCsvTemplate(domain?: string) {
     enabled: !!domain,
     queryFn: async () => {
       if (!domain) throw new Error('domain requis');
-      // Utiliser axios pour récupérer du texte brut si le backend renvoie du CSV
-      const { data } = await identityAxios.get(`api/v1/identity/bulkimport/template/${encodeURIComponent(domain)}`, {
-        responseType: 'text',
-      });
-      return data as string;
+      // API: role (domain) + formatType optionnel (csv/xlsx)
+      const { data } = await identityApi.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(domain);
+      return data as unknown;
     },
   });
 }
@@ -222,8 +172,8 @@ export function useIdentitySseStats() {
   return useQuery<unknown, Error>({
     queryKey: ['identity:bulkimport:sse-stats'],
     queryFn: async () => {
-      const { data } = await identityDefaultApi.getSseStatsApiV1IdentityBulkimportSseStatsGet();
-      return data as unknown;
+      // Endpoint non disponible
+      throw new Error('SSE stats non supporté par l’API actuelle');
     },
   });
 }
@@ -241,10 +191,10 @@ export function useIdentities(params?: {
   establishmentId?: string;
   role?: string;
 }) {
-  return useQuery<IdentityListResponse, Error>({
+  return useQuery<StandardListResponse, Error>({
     queryKey: ['identity:identities', params],
     queryFn: async () => {
-      const { data } = await identityDefaultApi.listIdentitiesApiV1IdentityIdentitiesGet(
+      const { data } = await identityApi.listIdentitiesApiV1IdentityGet(
         params?.page,
         params?.size,
         params?.search,
@@ -257,31 +207,32 @@ export function useIdentities(params?: {
         params?.establishmentId,
         params?.role
       );
-      return data as IdentityListResponse;
+      return data as StandardListResponse;
     },
     placeholderData: (prev) => prev,
   });
 }
 
 export function useIdentityGet(identityId?: string) {
-  return useQuery<IdentityResponse, Error>({
+  return useQuery<IdentityWithRoles | unknown, Error>({
     queryKey: ['identity:identity', identityId],
     enabled: !!identityId,
     queryFn: async () => {
       if (!identityId) throw new Error('identityId requis');
-      const { data } = await identityDefaultApi.getIdentityApiV1IdentityIdentitiesIdentityIdGet(identityId);
-      return data as IdentityResponse;
+      const { data } = await identityApi.getIdentityApiV1IdentityIdentityIdGet(identityId);
+      const single = data as StandardSingleResponse;
+      return (single?.data as IdentityWithRoles) ?? single?.data;
     },
   });
 }
 
 export function useIdentityCreate() {
   const queryClient = useQueryClient();
-  return useMutation<IdentityResponse, Error, IdentityCreate>({
+  return useMutation<StandardSuccessResponse, Error, IdentityCreate>({
     mutationKey: ['identity:create'],
     mutationFn: async (payload) => {
-      const { data } = await identityDefaultApi.createIdentityApiV1IdentityIdentitiesPost(payload);
-      return data as IdentityResponse;
+      const { data } = await identityApi.createIdentityApiV1IdentityPost(payload);
+      return data as StandardSuccessResponse;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['identity:identities'] });
@@ -291,12 +242,12 @@ export function useIdentityCreate() {
 
 export function useIdentityUpdate(identityId?: string) {
   const queryClient = useQueryClient();
-  return useMutation<IdentityResponse, Error, IdentityUpdate>({
+  return useMutation<StandardSuccessResponse, Error, IdentityUpdate>({
     mutationKey: ['identity:update', identityId],
     mutationFn: async (payload) => {
       if (!identityId) throw new Error('identityId requis');
-      const { data } = await identityDefaultApi.updateIdentityApiV1IdentityIdentitiesIdentityIdPut(identityId, payload);
-      return data as IdentityResponse;
+      const { data } = await identityApi.updateIdentityApiV1IdentityIdentityIdPatch(identityId, payload);
+      return data as StandardSuccessResponse;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['identity:identities'] });
@@ -310,7 +261,7 @@ export function useIdentityDelete() {
   return useMutation<unknown, Error, { identityId: string }>({
     mutationKey: ['identity:delete'],
     mutationFn: async ({ identityId }) => {
-      const { data } = await identityDefaultApi.deleteIdentityApiV1IdentityIdentitiesIdentityIdDelete(identityId);
+      const { data } = await identityApi.deleteIdentityApiV1IdentityIdentityIdDelete(identityId);
       return data as unknown;
     },
     onSuccess: () => {
@@ -325,7 +276,7 @@ export function useIdentityLinkToEstablishment(identityId?: string) {
     mutationKey: ['identity:link-establishment', identityId],
     mutationFn: async (payload) => {
       if (!identityId) throw new Error('identityId requis');
-      const { data } = await identityDefaultApi.linkIdentityToEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsPost(identityId, payload);
+      const { data } = await identityApi.linkIdentityToEstablishmentApiV1IdentityIdentityIdEstablishmentsPost(identityId, payload);
       return data as unknown;
     },
     onSuccess: () => {
@@ -340,7 +291,7 @@ export function useIdentityUnlinkFromEstablishment(identityId?: string) {
     mutationKey: ['identity:unlink-establishment', identityId],
     mutationFn: async ({ establishmentId }) => {
       if (!identityId) throw new Error('identityId requis');
-      const { data } = await identityDefaultApi.unlinkIdentityFromEstablishmentApiV1IdentityIdentitiesIdentityIdEstablishmentsEstablishmentIdDelete(identityId, establishmentId);
+      const { data } = await identityApi.unlinkIdentityFromEstablishmentApiV1IdentityIdentityIdEstablishmentsEstablishmentIdDelete(identityId, establishmentId);
       return data as unknown;
     },
     onSuccess: () => {
@@ -355,7 +306,7 @@ export function useIdentityRoot() {
   return useQuery<unknown, Error>({
     queryKey: ['identity:root'],
     queryFn: async () => {
-      const { data } = await identityDefaultApi.rootGet();
+      const { data } = await identityApi.rootGet();
       return data as unknown;
     },
   });
@@ -365,7 +316,7 @@ export function useIdentityHealth() {
   return useQuery<unknown, Error>({
     queryKey: ['identity:health'],
     queryFn: async () => {
-      const { data } = await identityDefaultApi.healthCheckHealthGet();
+      const { data } = await identityApi.healthCheckHealthGet();
       return data as unknown;
     },
   });
@@ -377,7 +328,8 @@ export function useIdentityStreamProgress(batchId?: string, timeout?: number | n
     enabled: !!batchId,
     queryFn: async () => {
       if (!batchId) throw new Error('batchId requis');
-      const { data } = await identityDefaultApi.streamBatchProgressApiV1IdentityBulkimportStreamBatchIdGet(batchId, timeout);
+      // Fallback vers le statut périodique au lieu du SSE
+      const { data } = await identityApi.getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId);
       return data as unknown;
     },
   });
@@ -388,9 +340,8 @@ export function useIdentitySseOptions(batchId?: string) {
     queryKey: ['identity:sse-options', batchId],
     enabled: !!batchId,
     queryFn: async () => {
-      if (!batchId) throw new Error('batchId requis');
-      const { data } = await identityDefaultApi.sseOptionsApiV1IdentityBulkimportStreamBatchIdOptions(batchId);
-      return data as unknown;
+      // Endpoint non disponible
+      throw new Error('Options SSE non supportées par l’API actuelle');
     },
   });
 }
