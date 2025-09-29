@@ -84,7 +84,6 @@ import SelectContextPage from './pages/context/SelectContextPage';
 import CompetencyDetailPage from './pages/referentiels/CompetencyDetailPage';
 import SubjectDetailPage from './pages/referentiels/SubjectDetailPage';
 import AssignmentDetailPage from './pages/referentiels/AssignmentDetailPage';
-import CompetencyLookupPage from './pages/referentiels/CompetencyLookupPage';
 
 // Import des pages de l'administrateur
 import AdminDashboard from './pages/admin/dashboard/AdminDashboard';
@@ -144,7 +143,6 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/admissions/:admissionId", element: <AdmissionDetailPage /> },
     { path: "/utilisateurs", element: <UsersPage /> }, // Mis à jour
     { path: "/referentiels", element: <ReferentielsPage /> },
-    { path: "/referentiels/competencies/lookup", element: <CompetencyLookupPage /> },
     { path: "/referentiels/competencies/:competencyId", element: <CompetencyDetailPage /> },
     { path: "/referentiels/subjects/:subjectId", element: <SubjectDetailPage /> },
     { path: "/referentiels/assignments/:assignmentId", element: <AssignmentDetailPage /> },
@@ -209,7 +207,6 @@ const routesByRole: Record<Role, { path: string; element: JSX.Element }[]> = {
     { path: "/abonnements", element: <AbonnementsPage /> },
     { path: "/plans", element: <PlansPage /> },
     { path: "/referentiels", element: <ReferentielsAdminPage /> },
-    { path: "/referentiels/competencies/lookup", element: <CompetencyLookupPage /> },
     { path: "/referentiels/competencies/:competencyId", element: <CompetencyDetailPage /> },
     { path: "/referentiels/subjects/:subjectId", element: <SubjectDetailPage /> },
     { path: "/referentiels/assignments/:assignmentId", element: <AssignmentDetailPage /> },

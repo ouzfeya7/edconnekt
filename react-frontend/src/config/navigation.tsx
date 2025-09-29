@@ -1,27 +1,25 @@
 import {
-  FaHome, FaUsers, FaFileAlt, FaChalkboardTeacher,
-  FaCalendarAlt, FaEnvelope, FaUser, FaChartLine, FaBook, FaClipboardList,
-  FaUpload, FaExclamationTriangle, FaGraduationCap, FaCog, FaBuilding, FaFileInvoiceDollar, FaTags, FaEllipsisH
-} from "react-icons/fa";
-// import { MdSettings } from "react-icons/md";
-import { JSX } from "react/jsx-runtime";
-
-// Ce fichier centralise la configuration de la navigation pour toute l'application.
-
-export interface MenuItemType {
+   FaHome, FaUsers, FaFileAlt, FaChalkboardTeacher,
+   FaCalendarAlt, FaEnvelope, FaUser, FaChartLine, FaBook, FaClipboardList,
+   FaUpload, FaExclamationTriangle, FaGraduationCap, FaCog, FaBuilding, FaFileInvoiceDollar, FaTags, FaEllipsisH
+ } from "react-icons/fa";
+ // import { MdSettings } from "react-icons/md";
+ import { JSX } from "react/jsx-runtime";
+ 
+ // Ce fichier centralise la configuration de la navigation pour toute l'application.
+ 
+ export interface MenuItemType {
   titleKey: string;
   to: string;
   icon: JSX.Element;
-  hideInNavbar?: boolean; // Nouvelle propriété optionnelle
-  activePaths?: string[]; // Chemins pour lesquels l'onglet doit rester actif
-  isDropdown?: boolean; // Pour identifier les items dropdown
-  dropdownItems?: MenuItemType[]; // Sous-items pour le dropdown
+  hideInNavbar?: boolean;
+  activePaths?: string[];
+  isDropdown?: boolean;
+  dropdownItems?: MenuItemType[];
 }
 
 export type Role = "enseignant" | "directeur" | "eleve" | "parent" | "administrateur" | "espaceFamille";
 
-// Note: La fonction t() ne fonctionnera que si i18next est initialisé avant le chargement de ce module.
-// C'est généralement le cas.
 export const menuByRole: { [key in Role]: MenuItemType[] } = {
   enseignant: [
     { titleKey: "home", to: "/", icon: <FaHome /> },
@@ -39,13 +37,12 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
     { titleKey: "home", to: "/", icon: <FaHome /> },
     { titleKey: "onboarding", to: "/utilisateurs", icon: <FaUsers /> },
     { titleKey: "referentiels", to: "/referentiels", icon: <FaGraduationCap /> },
-    { titleKey: "competency_lookup", to: "/referentiels/competencies/lookup", icon: <FaBook /> },
     { titleKey: "alertes", to: "/alertes", icon: <FaExclamationTriangle /> },
     { titleKey: "emploi_du_temps", to: "/emploi-du-temps", icon: <FaCalendarAlt /> },
-    { 
-      titleKey: "plus", 
-      to: "#", 
-      icon: <FaEllipsisH />, 
+    {
+      titleKey: "plus",
+      to: "#",
+      icon: <FaEllipsisH />,
       isDropdown: true,
       dropdownItems: [
         { titleKey: "parametres", to: "/parametres", icon: <FaCog /> },
@@ -53,7 +50,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
         { titleKey: "admissions", to: "/admissions", icon: <FaFileAlt />, activePaths: ["/admissions", "/admissions/:admissionId"] },
         { titleKey: "seances_pdi", to: "/direction/pdi", icon: <FaChartLine /> },
         { titleKey: "events", to: "/direction/evenements", icon: <FaCalendarAlt /> },
-      ]
+      ],
     },
     { titleKey: "parametres", to: "/parametres", icon: <FaCog />, hideInNavbar: true },
     { titleKey: "supplies", to: "/fournitures", icon: <FaClipboardList />, hideInNavbar: true },
@@ -75,7 +72,7 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
   parent: [
     { titleKey: "home", to: "/", icon: <FaHome /> },
     { titleKey: "Notes", to: "/mes-notes", icon: <FaFileAlt /> },
-    { titleKey: "Rapport", to: "/rapport", icon: <FaChartLine /> }, // Icône différencié
+    { titleKey: "Rapport", to: "/rapport", icon: <FaChartLine /> },
     { titleKey: "admission", to: "/admission", icon: <FaFileAlt /> },
     { titleKey: "Remediation", to: "/remediation", icon: <FaChalkboardTeacher />, activePaths: ["/remediation", "/remediation/:remediationId"] },
     { titleKey: "supplies", to: "/fournitures", icon: <FaClipboardList /> },
@@ -91,7 +88,6 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
     { titleKey: "abonnements", to: "/abonnements", icon: <FaFileInvoiceDollar /> },
     { titleKey: "plans", to: "/plans", icon: <FaTags /> },
     { titleKey: "referentiels", to: "/referentiels", icon: <FaGraduationCap /> },
-    { titleKey: "competency_lookup", to: "/referentiels/competencies/lookup", icon: <FaBook /> },
     { titleKey: "imports", to: "/imports", icon: <FaUpload /> },
     { titleKey: "Profile", to: "/profile", icon: <FaUser />, hideInNavbar: true },
   ],
@@ -103,4 +99,4 @@ export const menuByRole: { [key in Role]: MenuItemType[] } = {
     { titleKey: "Message", to: "/messages", icon: <FaEnvelope />, hideInNavbar: true },
     { titleKey: "Profile", to: "/profile", icon: <FaUser />, hideInNavbar: true },
   ],
-}; 
+};

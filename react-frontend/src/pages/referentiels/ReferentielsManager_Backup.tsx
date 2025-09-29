@@ -11,11 +11,11 @@ import { CycleEnum, VisibilityEnum } from '../../api/competence-service/api';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import FilterBar from '../../components/competencies/FilterBar';
 import CompetencyCard from '../../components/competencies/CompetencyCard';
-import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import FilterBarGeneric from '../../components/ui/FilterBarGeneric';
 import ReferentialCard from '../../components/referentiels/ReferentialCard';
 import DomainCard from '../../components/referentiels/DomainCard';
 import SubjectCard from '../../components/referentiels/SubjectCard';
+import UnifiedFilterBar from '../../components/ui/UnifiedFilterBar';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import '../../styles/competencies.css';
 
 const ReferentielsManager: React.FC = () => {
@@ -65,7 +65,7 @@ const ReferentielsManager: React.FC = () => {
   const [selectedSubjects, setSelectedSubjects] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'cards' | 'compact'>('cards');
   
-  // Filtres unifiés pour chaque onglet
+  // États des filtres pour chaque onglet
   const [referentialFilters, setReferentialFilters] = useState({
     search: '',
     cycle: '',
@@ -183,14 +183,152 @@ const ReferentielsManager: React.FC = () => {
     setSelectedCompetencies(new Set());
   };
 
-  const handleDeleteConfirm = async () => {
-    if (confirmDelete.type === 'competency') {
-      try {
-        await deleteCompetency.mutateAsync({ competencyId: confirmDelete.id });
-        toast.success('Compétence supprimée avec succès');
-      } catch (error) {
-        toast.error('Erreur lors de la suppression');
+  // Handlers pour les référentiels
+  const handleReferentialSelect = (referentialId: string) => {
+    setSelectedReferentials(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(referentialId)) {
+        newSet.delete(referentialId);
+      } else {
+        newSet.add(referentialId);
       }
+      return newSet;
+    });
+  };
+
+  const handleReferentialEdit = (referentialId: string) => {
+    const referential = (refsPage?.items ?? []).find((r: any) => r.id === referentialId);
+    if (referential) {
+      openCreateReferential(); // Ouvre le modal de création/édition
+      // TODO: Implémenter la logique d'édition spécifique
+    }
+  };
+
+  const handleReferentialView = (referentialId: string) => {
+    navigate(`/referentiels/${referentialId}`);
+  };
+
+  const handleReferentialDelete = (referentialId: string) => {
+    setConfirmDelete({ isOpen: true, id: referentialId, type: 'referential' });
+  };
+
+  const handleReferentialPublish = async (referentialId: string) => {
+    try {
+      const referential = (refsPage?.items ?? []).find((r: any) => r.id === referentialId);
+      if (referential?.version_number) {
+        await publishRef.mutateAsync({ referentialId, versionNumber: referential.version_number });
+        toast.success('Référentiel publié avec succès');
+      }
+    } catch (error) {
+      toast.error('Erreur lors de la publication');
+    }
+  };
+
+  // Handlers pour les domaines
+  const handleDomainSelect = (domainId: string) => {
+    setSelectedDomains(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(domainId)) {
+        newSet.delete(domainId);
+      } else {
+        newSet.add(domainId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleDomainEdit = (domainId: string) => {
+    const domain = (domains ?? []).find((d: any) => d.id === domainId);
+    if (domain) {
+      openEditDomain(domain);
+    }
+  };
+
+  const handleDomainView = (domainId: string) => {
+    navigate(`/referentiels/domains/${domainId}`);
+  };
+
+  const handleDomainDelete = (domainId: string) => {
+    setConfirmDelete({ isOpen: true, id: domainId, type: 'domain' });
+  };
+
+  // Handlers pour les matières
+  const handleSubjectSelect = (subjectId: string) => {
+    setSelectedSubjects(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(subjectId)) {
+        newSet.delete(subjectId);
+      } else {
+        newSet.add(subjectId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSubjectEdit = (subjectId: string) => {
+    const subject = (subjectsPage?.items ?? []).find((s: any) => s.id === subjectId);
+    if (subject) {
+      openEditSubject(subject);
+    }
+  };
+
+  const handleSubjectView = (subjectId: string) => {
+    navigate(`/referentiels/subjects/${subjectId}`);
+  };
+
+  const handleSubjectDelete = (subjectId: string) => {
+    setConfirmDelete({ isOpen: true, id: subjectId, type: 'subject' });
+  };
+
+  // Handlers de sélection globale
+  const handleSelectAllReferentials = () => {
+    const allIds = (refsPage?.items ?? []).map((r: any) => r.id);
+    setSelectedReferentials(new Set(allIds));
+  };
+
+  const handleSelectAllDomains = () => {
+    const allIds = (domains ?? []).map((d: any) => d.id);
+    setSelectedDomains(new Set(allIds));
+  };
+
+  const handleSelectAllSubjects = () => {
+    const allIds = (subjectsPage?.items ?? []).map((s: any) => s.id);
+    setSelectedSubjects(new Set(allIds));
+  };
+
+  const handleDeselectAllReferentials = () => setSelectedReferentials(new Set());
+  const handleDeselectAllDomains = () => setSelectedDomains(new Set());
+  const handleDeselectAllSubjects = () => setSelectedSubjects(new Set());
+
+  const handleDeleteConfirm = async () => {
+    try {
+      switch (confirmDelete.type) {
+        case 'competency':
+          await deleteCompetency.mutateAsync({ competencyId: confirmDelete.id });
+          toast.success('Compétence supprimée avec succès');
+          break;
+        case 'referential':
+          const referentialToDelete = (refsPage?.items ?? []).find((r: any) => r.id === confirmDelete.id);
+          if (referentialToDelete?.version_number) {
+            await deleteRef.mutateAsync({ referentialId: confirmDelete.id, versionNumber: referentialToDelete.version_number });
+            toast.success('Référentiel supprimé avec succès');
+          } else {
+            toast.error('Impossible de supprimer : version non trouvée');
+          }
+          break;
+        case 'domain':
+          await deleteDomain.mutateAsync({ domainId: confirmDelete.id });
+          toast.success('Domaine supprimé avec succès');
+          break;
+        case 'subject':
+          await deleteSubject.mutateAsync({ subjectId: confirmDelete.id });
+          toast.success('Matière supprimée avec succès');
+          break;
+        default:
+          toast.error('Type de suppression non reconnu');
+      }
+    } catch (error) {
+      toast.error('Erreur lors de la suppression');
     }
     setConfirmDelete({ isOpen: false, id: '', type: '' });
   };
@@ -613,83 +751,92 @@ const ReferentielsManager: React.FC = () => {
       <div className="bg-white rounded-lg border border-gray-200">
         {activeTab === 'referentials' && (
           <div className="border rounded-lg">
-            {/* Nouvelle barre de filtres unifiée pour référentiels */}
-            <FilterBarGeneric
+            {/* Nouvelle barre de filtres unifiée pour les référentiels */}
+            <UnifiedFilterBar
               title="Référentiels"
               searchPlaceholder="Rechercher un référentiel..."
-              filters={{
-                search: referentialFilters.search,
-                cycle: referentialFilters.cycle,
-                state: referentialFilters.state,
-                visibility: referentialFilters.visibility,
-                showAdvanced: referentialFilters.showAdvanced
-              }}
-              onFiltersChange={(newFilters) => {
-                setReferentialFilters(newFilters);
-                setQ(newFilters.search);
-                setCycle(newFilters.cycle || null);
-                setRefState(newFilters.state || null);
-                setVisibility(newFilters.visibility || null);
+              search={referentialFilters.search}
+              onSearchChange={(value) => {
+                setReferentialFilters(prev => ({ ...prev, search: value }));
+                setQ(value);
                 setPage(1);
               }}
-              onExport={() => exportCsv('referentiels.csv', (refsPage?.items ?? []).map((r: any) => ({ 
-                id: r.id, 
-                name: r.name, 
-                cycle: r.cycle, 
-                version_number: r.version_number, 
-                state: r.state, 
-                visibility: r.visibility ?? '' 
-              })))}
-              onCreate={openCreateReferential}
-              isLoading={refsLoading || createRef.isPending}
-              totalCount={totalRefs}
-              advancedFilters={[
+              showAdvanced={referentialFilters.showAdvanced}
+              onToggleAdvanced={() => setReferentialFilters(prev => ({ ...prev, showAdvanced: !prev.showAdvanced }))}
+              filterOptions={[
                 {
-                  key: 'cycle',
-                  label: 'Tous les cycles',
-                  type: 'select',
+                  label: 'Cycle',
+                  value: referentialFilters.cycle,
                   options: [
                     { value: 'PRESCOLAIRE', label: 'Préscolaire' },
                     { value: 'PRIMAIRE', label: 'Primaire' },
                     { value: 'COLLEGE', label: 'Collège' },
                     { value: 'LYCEE', label: 'Lycée' },
                     { value: 'UNIVERSITE', label: 'Université' }
-                  ]
+                  ],
+                  onChange: (value) => {
+                    setReferentialFilters(prev => ({ ...prev, cycle: value }));
+                    setCycle(value || null);
+                    setPage(1);
+                  }
                 },
                 {
-                  key: 'state',
-                  label: 'Tous les états',
-                  type: 'select',
+                  label: 'État',
+                  value: referentialFilters.state,
                   options: [
                     { value: 'DRAFT', label: 'Brouillon' },
                     { value: 'PUBLISHED', label: 'Publié' }
-                  ]
+                  ],
+                  onChange: (value) => {
+                    setReferentialFilters(prev => ({ ...prev, state: value }));
+                    setRefState(value || null);
+                    setPage(1);
+                  }
                 },
                 {
-                  key: 'visibility',
-                  label: 'Toutes les visibilités',
-                  type: 'select',
+                  label: 'Visibilité',
+                  value: referentialFilters.visibility,
                   options: [
                     { value: 'TENANT', label: 'Établissement' },
                     { value: 'GLOBAL', label: 'Global' }
-                  ]
+                  ],
+                  onChange: (value) => {
+                    setReferentialFilters(prev => ({ ...prev, visibility: value }));
+                    setVisibility(value || null);
+                    setPage(1);
+                  }
                 }
               ]}
-              actions={[
+              onCreate={openCreateReferential}
+              onExport={() => exportCsv('referentiels.csv', (refsPage?.items ?? []).map((r: any) => ({ 
+                id: r.id, 
+                name: r.name, 
+                cycle: r.cycle, 
+                version_number: r.version_number, 
+                state: r.state, 
+                visibility: r.visibility 
+              })))}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              selectedCount={selectedReferentials.size}
+              onSelectAll={handleSelectAllReferentials}
+              onDeselectAll={handleDeselectAllReferentials}
+              isLoading={refsLoading}
+              totalCount={totalRefs}
+              customActions={[
+                {
+                  label: showPublicTree ? 'Masquer arborescence' : 'Voir arborescence',
+                  onClick: () => setShowPublicTree(v => !v),
+                  variant: 'secondary'
+                },
                 {
                   label: 'Publier',
                   onClick: handlePublishRef,
-                  variant: 'secondary',
-                  disabled: !effectiveReferentialId || effectiveVersion === null || publishRef.isPending
-                },
-                {
-                  label: showPublicTree ? 'Masquer arborescence' : 'Voir arborescence',
-                  onClick: () => setShowPublicTree(!showPublicTree),
-                  variant: 'secondary',
-                  disabled: !effectiveReferentialId || effectiveVersion === null
+                  variant: 'primary'
                 }
               ]}
             />
+            {/* Section arborescence publique */}
             {showPublicTree && (
               <div className="px-4 pb-4">
                 {!effectiveReferentialId || effectiveVersion === null ? (
@@ -725,10 +872,10 @@ const ReferentielsManager: React.FC = () => {
                 ) : null}
               </div>
             )}
-            {/* Nouvelle liste en format cartes pour référentiels */}
+            {/* Nouvelle liste en format cartes */}
             {refsLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 <span className="ml-2 text-gray-600">Chargement des référentiels...</span>
               </div>
             ) : (
@@ -739,7 +886,11 @@ const ReferentielsManager: React.FC = () => {
                       // Filtrage par recherche textuelle
                       if (referentialFilters.search) {
                         const searchLower = referentialFilters.search.toLowerCase();
-                        return r.name?.toLowerCase().includes(searchLower);
+                        return (
+                          r.name?.toLowerCase().includes(searchLower) ||
+                          r.description?.toLowerCase().includes(searchLower) ||
+                          r.id?.toLowerCase().includes(searchLower)
+                        );
                       }
                       return true;
                     })
@@ -747,13 +898,18 @@ const ReferentielsManager: React.FC = () => {
                       <ReferentialCard
                         key={r.id}
                         referential={r}
-                        isSelected={effectiveReferentialId === r.id}
-                        onSelect={(id, version) => {
+                        isSelected={selectedReferentials.has(r.id)}
+                        onEdit={handleReferentialEdit}
+                        onDelete={handleReferentialDelete}
+                        onView={handleReferentialView}
+                        onSelect={(id) => {
+                          handleReferentialSelect(id);
+                          // Navigation automatique vers les domaines lors de la sélection
                           setSelectedReferentialId(id);
-                          setVersionNumber(version);
+                          setVersionNumber(r.version_number);
                           setActiveTab('domains');
                         }}
-                        onDelete={handleDeleteRef}
+                        onPublish={handleReferentialPublish}
                       />
                     ))}
                 </div>
@@ -767,6 +923,7 @@ const ReferentielsManager: React.FC = () => {
                 )}
               </div>
             )}
+            
             {/* Pagination améliorée */}
             {(refsPage?.items?.length ?? 0) > 0 && (
               <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between text-sm">
@@ -777,14 +934,14 @@ const ReferentielsManager: React.FC = () => {
                   <button 
                     className="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed" 
                     disabled={page <= 1} 
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
                   >
                     Précédent
                   </button>
                   <button 
                     className="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed" 
                     disabled={(refsPage?.items?.length ?? 0) < size} 
-                    onClick={() => setPage((p) => p + 1)}
+                    onClick={() => setPage(p => p + 1)}
                   >
                     Suivant
                   </button>
@@ -794,105 +951,423 @@ const ReferentielsManager: React.FC = () => {
           </div>
         )}
 
+        {/* Onglet Domaines */}
         {activeTab === 'domains' && (
           <div className="border rounded-lg">
-             {!effectiveReferentialId || effectiveVersion === null ? (
-               <div className="p-8 text-center">
-                 <div className="text-lg font-medium mb-2">Aucun référentiel sélectionné</div>
-                 <div className="text-sm text-gray-500 mb-4">Sélectionnez un référentiel pour gérer les domaines.</div>
-                 <button 
-                   onClick={() => setActiveTab('referentials')}
-                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                 >
-                   <GraduationCap className="w-4 h-4 text-white" />
-                   Sélectionner un référentiel
-                 </button>
-               </div>
-             ) : (
-               <>
-            {/* Nouvelle barre de filtres unifiée pour domaines */}
-            <FilterBarGeneric
-              title="Domaines"
-              searchPlaceholder="Rechercher un domaine..."
-              filters={{
-                search: domainFilters.search,
-                showAdvanced: domainFilters.showAdvanced
-              }}
-              onFiltersChange={(newFilters) => {
-                setDomainFilters(newFilters);
-                setDomainFilter(newFilters.search);
-              }}
-              onCreate={openCreateDomain}
-              isLoading={false}
-              totalCount={totalDomains}
-              actions={[
-                {
-                  label: 'Retour aux référentiels',
-                  onClick: () => setActiveTab('referentials'),
-                  variant: 'secondary'
-                }
-              ]}
-            />
-            {/* Indicateur du référentiel sélectionné */}
-            <div className="px-4 pt-3">
-              <div className="inline-flex items-center gap-2 px-3 py-2 bg-indigo-50 border border-indigo-200 rounded-lg">
-                <GraduationCap className="w-4 h-4 text-indigo-600" />
-                <span className="text-sm font-medium text-indigo-900">
-                  Référentiel sélectionné: {effectiveReferentialId?.substring(0, 8)}... (v{effectiveVersion})
-                </span>
+            {!effectiveReferentialId || effectiveVersion === null ? (
+              <div className="p-8 text-center text-gray-500">
+                <div className="mb-2">Sélectionnez d'abord un référentiel</div>
+                <button 
+                  onClick={() => setActiveTab('referentials')} 
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  Aller aux référentiels
+                </button>
               </div>
-            </div>
-            {/* Nouvelle liste en format cartes pour domaines */}
-            <div className="p-6">
-              <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
-                {(domains ?? [])
-                  .filter(d => {
-                    // Filtre par nom de domaine
-                    const nameMatch = !domainFilters.search || d.name.toLowerCase().includes(domainFilters.search.toLowerCase());
-                    // Filtre par référentiel (si un référentiel est sélectionné)
-                    const referentialMatch = !effectiveReferentialId || d.referential_id === effectiveReferentialId;
-                    return nameMatch && referentialMatch;
-                  })
-                  .map((d: any) => {
-                    // Calculer les statistiques du domaine
-                    const domainSubjects = (subjectsPage?.items ?? []).filter((s: any) => s.domain_id === d.id);
-                    const domainCompetencies = domainSubjects.reduce((total: number, subject: any) => {
-                      return total + ((competenciesPage?.items ?? []).filter((c: any) => c.subject_id === subject.id).length);
-                    }, 0);
-                    
-                    return (
-                      <DomainCard
-                        key={d.id}
-                        domain={d}
-                        isSelected={selectedDomains.has(d.id)}
-                        onEdit={openEditDomain}
-                        onDelete={handleDeleteDomain}
-                        onSelect={(id) => {
-                          setSelectedDomains(prev => {
-                            const newSet = new Set(prev);
-                            if (newSet.has(id)) {
-                              newSet.delete(id);
-                            } else {
-                              newSet.add(id);
-                            }
-                            return newSet;
-                          });
-                        }}
-                        stats={{
-                          subjects: domainSubjects.length,
-                          competencies: domainCompetencies
-                        }}
-                      />
-                    );
-                  })}
-              </div>
-              
-              {/* Message si aucun résultat */}
-              {(!domains || domains.length === 0) && (
-                <div className="text-center py-12">
-                  <div className="text-gray-500 mb-2">Aucun domaine trouvé</div>
-                  <div className="text-sm text-gray-400">Créez un nouveau domaine pour commencer</div>
+            ) : (
+              <>
+                <UnifiedFilterBar
+                  title="Domaines"
+                  searchPlaceholder="Rechercher un domaine..."
+                  search={domainFilters.search}
+                  onSearchChange={(value) => {
+                    setDomainFilters(prev => ({ ...prev, search: value }));
+                    setDomainFilter(value);
+                    setPage(1);
+                  }}
+                  showAdvanced={domainFilters.showAdvanced}
+                  onToggleAdvanced={() => setDomainFilters(prev => ({ ...prev, showAdvanced: !prev.showAdvanced }))}
+                  onCreate={() => openCreateDomain()}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
+                  selectedCount={selectedDomains.size}
+                  onSelectAll={handleSelectAllDomains}
+                  onDeselectAll={handleDeselectAllDomains}
+                  isLoading={false}
+                  totalCount={totalDomains}
+                />
+
+                <div className="p-6">
+                  <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
+                    {(domains ?? [])
+                      .filter((d: any) => {
+                        if (domainFilters.search) {
+                          const searchLower = domainFilters.search.toLowerCase();
+                          return d.name?.toLowerCase().includes(searchLower);
+                        }
+                        if (effectiveReferentialId && d.referential_id !== effectiveReferentialId) return false;
+                        return true;
+                      })
+                      .map((d: any) => (
+                        <DomainCard
+                          key={d.id}
+                          domain={d}
+                          isSelected={selectedDomains.has(d.id)}
+                          onEdit={handleDomainEdit}
+                          onDelete={handleDomainDelete}
+                          onView={handleDomainView}
+                          onSelect={handleDomainSelect}
+                        />
+                      ))}
+                  </div>
+                  
+                  {/* Message si aucun résultat */}
+                  {(!domains || (domains ?? []).length === 0) && (
+                    <div className="text-center py-12">
+                      <div className="text-gray-500 mb-2">Aucun domaine trouvé</div>
+                      <div className="text-sm text-gray-400">Créez un nouveau domaine pour ce référentiel</div>
+                    </div>
+                  )}
                 </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Onglet Matières */}
+        {activeTab === 'subjects' && (
+          <div className="border rounded-lg">
+            {!effectiveReferentialId || effectiveVersion === null ? (
+              <div className="p-8 text-center text-gray-500">
+                <div className="mb-2">Sélectionnez d'abord un référentiel</div>
+                <button 
+                  onClick={() => setActiveTab('referentials')} 
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  Aller aux référentiels
+                </button>
+              </div>
+            ) : (
+              <>
+                <UnifiedFilterBar
+                  title="Matières"
+                  searchPlaceholder="Rechercher une matière..."
+                  search={subjectFilters.search}
+                  onSearchChange={(value) => {
+                    setSubjectFilters(prev => ({ ...prev, search: value }));
+                    setSubjectQ(value);
+                    setSubjectPage(1);
+                  }}
+                  showAdvanced={subjectFilters.showAdvanced}
+                  onToggleAdvanced={() => setSubjectFilters(prev => ({ ...prev, showAdvanced: !prev.showAdvanced }))}
+                  filterOptions={[
+                    {
+                      label: 'Domaine',
+                      value: subjectFilters.domain,
+                      options: (domains ?? []).map((d: any) => ({ value: d.id, label: d.name })),
+                      onChange: (value) => {
+                        setSubjectFilters(prev => ({ ...prev, domain: value }));
+                        setSubjectFilter(value);
+                      }
+                    }
+                  ]}
+                  onCreate={() => openCreateSubject(effectiveReferentialId, effectiveVersion)}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
+                  selectedCount={selectedSubjects.size}
+                  onSelectAll={handleSelectAllSubjects}
+                  onDeselectAll={handleDeselectAllSubjects}
+                  isLoading={subjectsLoading}
+                  totalCount={totalSubjects}
+                  onExport={() => exportCsv('matieres.csv', (subjectsPage?.items ?? []).map((s: SubjectRow) => ({ 
+                    id: s.id, 
+                    name: s.name, 
+                    code: s.code 
+                  })))}
+                />
+
+                <div className="p-6">
+                  <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
+                    {(subjectsPage?.items ?? [])
+                      .filter((s: any) => !subjectFilters.domain || s.domain_id === subjectFilters.domain)
+                      .map((s: SubjectRow) => {
+                        const domainName = (domains ?? []).find((d: any) => d.id === s.domain_id)?.name;
+                        const competenciesCount = 0; // TODO: Calculer le nombre de compétences
+                        
+                        return (
+                          <SubjectCard
+                            key={s.id}
+                            subject={s}
+                            domainName={domainName}
+                            competenciesCount={competenciesCount}
+                            isSelected={selectedSubjects.has(s.id)}
+                            onEdit={handleSubjectEdit}
+                            onDelete={handleSubjectDelete}
+                            onView={handleSubjectView}
+                            onSelect={handleSubjectSelect}
+                          />
+                        );
+                      })}
+                  </div>
+                  
+                  {/* Message si aucun résultat */}
+                  {(!subjectsPage || (subjectsPage.items ?? []).length === 0) && (
+                    <div className="text-center py-12">
+                      <div className="text-gray-500 mb-2">Aucune matière trouvée</div>
+                      <div className="text-sm text-gray-400">Créez une nouvelle matière pour ce référentiel</div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Pagination */}
+                {(subjectsPage?.items?.length ?? 0) > 0 && (
+                  <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between text-sm">
+                    <div className="text-gray-600">
+                      Page {subjectPage} • {(subjectsPage?.items?.length ?? 0)} éléments affichés
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        className="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed" 
+                        disabled={subjectPage <= 1} 
+                        onClick={() => setSubjectPage(p => Math.max(1, p - 1))}
+                      >
+                        Précédent
+                      </button>
+                      <button 
+                        className="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed" 
+                        disabled={(subjectsPage?.items?.length ?? 0) < subjectSize} 
+                        onClick={() => setSubjectPage(p => p + 1)}
+                      >
+                        Suivant
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Onglet Compétences - Utilise le composant existant déjà amélioré */}
+        {activeTab === 'competencies' && (
+          <div className="border rounded-lg">
+            {!effectiveReferentialId || effectiveVersion === null ? (
+              <div className="p-8 text-center text-gray-500">
+                <div className="mb-2">Sélectionnez d'abord un référentiel</div>
+                <button 
+                  onClick={() => setActiveTab('referentials')} 
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  Aller aux référentiels
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Le composant FilterBar et CompetencyCard sont déjà mis à jour */}
+                <FilterBar
+                  filters={competencyFilters}
+                  onFiltersChange={setCompetencyFilters}
+                  onExport={handleExportCompetencies}
+                  onCreate={openCreateCompetency}
+                  isLoading={compLoading}
+                  subjects={subjectsPage?.items ?? []}
+                  totalCount={totalCompetencies}
+                />
+                
+                {/* Section de recherche par code existante */}
+                <div className="px-4 pt-3 text-xs text-gray-600">
+                  Référentiel: {effectiveReferentialId ?? '—'} • Version: {effectiveVersion ?? '—'}
+                </div>
+                
+                {/* Liste des compétences avec les nouvelles cartes */}
+                {compLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <span className="ml-2 text-gray-600">Chargement des compétences...</span>
+                  </div>
+                ) : (
+                  <div className="p-6">
+                    {/* Barre d'actions pour sélection multiple */}
+                    {selectedCompetencies.size > 0 && (
+                      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between selection-bar">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-medium text-blue-800">
+                            {selectedCompetencies.size} compétence{selectedCompetencies.size > 1 ? 's' : ''} sélectionnée{selectedCompetencies.size > 1 ? 's' : ''}
+                          </span>
+                          <button
+                            onClick={handleDeselectAll}
+                            className="text-xs text-blue-600 hover:text-blue-800 underline"
+                          >
+                            Désélectionner tout
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button className="px-3 py-1 text-sm bg-white border border-blue-300 text-blue-700 rounded hover:bg-blue-50">
+                            Exporter sélection
+                          </button>
+                          <button className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">
+                            Supprimer sélection
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Toggle vue cartes/compacte */}
+                    <div className="mb-4 flex items-center justify-between">
+                      <button
+                        onClick={handleSelectAll}
+                        className="text-sm text-gray-600 hover:text-gray-800 underline"
+                      >
+                        Sélectionner tout
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">Affichage:</span>
+                        <button
+                          onClick={() => setViewMode('cards')}
+                          className={`px-2 py-1 text-xs rounded ${
+                            viewMode === 'cards' 
+                              ? 'bg-blue-100 text-blue-700' 
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          Cartes
+                        </button>
+                        <button
+                          onClick={() => setViewMode('compact')}
+                          className={`px-2 py-1 text-xs rounded ${
+                            viewMode === 'compact' 
+                              ? 'bg-blue-100 text-blue-700' 
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          Compact
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
+                      {(competenciesPage?.items ?? [])
+                        .filter((c: any) => {
+                          // Filtrage par matière
+                          if (competencyFilters.subject && c.subject_id !== competencyFilters.subject) return false;
+                          // Filtrage par recherche textuelle
+                          if (competencyFilters.search) {
+                            const searchLower = competencyFilters.search.toLowerCase();
+                            return (
+                              c.label?.toLowerCase().includes(searchLower) ||
+                              c.code?.toLowerCase().includes(searchLower) ||
+                              c.description?.toLowerCase().includes(searchLower)
+                            );
+                          }
+                          return true;
+                        })
+                        .map((c: any) => {
+                          const subjectName = (subjectsPage?.items ?? []).find((s: any) => s.id === c.subject_id)?.name;
+                          const domainName = (domains ?? []).find((d: any) => {
+                            const subject = (subjectsPage?.items ?? []).find((s: any) => s.id === c.subject_id);
+                            return d.id === subject?.domain_id;
+                          })?.name;
+                          
+                          return (
+                            <CompetencyCard
+                              key={c.id}
+                              competency={c}
+                              subjectName={subjectName}
+                              domainName={domainName}
+                              isSelected={selectedCompetencies.has(c.id)}
+                              onEdit={handleCompetencyEdit}
+                              onDelete={handleCompetencyDelete}
+                              onView={handleCompetencyView}
+                              onSelect={handleCompetencySelect}
+                            />
+                          );
+                        })}
+                    </div>
+                    
+                    {/* Message si aucun résultat */}
+                    {(!competenciesPage || (competenciesPage.items ?? []).length === 0) && (
+                      <div className="text-center py-12">
+                        <div className="text-gray-500 mb-2">Aucune compétence trouvée</div>
+                        <div className="text-sm text-gray-400">Essayez de modifier vos filtres ou créez une nouvelle compétence</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Modals existants - gardés tels quels */}
+      {refModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-md p-6">
+            <h2 className="text-lg font-semibold mb-4">Créer un référentiel</h2>
+            <div className="space-y-4">
+              <input 
+                placeholder="Nom" 
+                value={refForm.name} 
+                onChange={(e) => setRefForm(f => ({ ...f, name: e.target.value }))} 
+                className="w-full border rounded px-3 py-2" 
+              />
+              <textarea 
+                placeholder="Description" 
+                value={refForm.description} 
+                onChange={(e) => setRefForm(f => ({ ...f, description: e.target.value }))} 
+                className="w-full border rounded px-3 py-2" 
+              />
+              <select 
+                value={refForm.cycle} 
+                onChange={(e) => setRefForm(f => ({ ...f, cycle: e.target.value as CycleEnum }))} 
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="">Sélectionner un cycle</option>
+                <option value="PRESCOLAIRE">Préscolaire</option>
+                <option value="PRIMAIRE">Primaire</option>
+                <option value="COLLEGE">Collège</option>
+                <option value="LYCEE">Lycée</option>
+                <option value="UNIVERSITE">Université</option>
+              </select>
+              <select 
+                value={refForm.visibility} 
+                onChange={(e) => setRefForm(f => ({ ...f, visibility: e.target.value as VisibilityEnum }))} 
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="">Sélectionner la visibilité</option>
+                <option value="TENANT">Établissement</option>
+                <option value="GLOBAL">Global</option>
+              </select>
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <button onClick={() => setRefModalOpen(false)} className="px-4 py-2 border rounded">Annuler</button>
+              <button onClick={() => submitReferentialForm(createRef)} disabled={createRef.isPending} className="px-4 py-2 bg-blue-600 text-white rounded">Créer</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dialog de confirmation */}
+      <ConfirmDialog
+        isOpen={confirmDelete.isOpen}
+        title="Confirmer la suppression"
+        description="Cette action est irréversible."
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setConfirmDelete({ isOpen: false, id: '', type: '' })}
+      />
+    </div>
+  );
+};
+
+export default ReferentielsManager;
+                              <button 
+                                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors" 
+                                onClick={() => openEditDomain(d)}
+                              >
+                                Éditer
+                              </button>
+                              <button 
+                                className="px-2 py-1 text-xs border border-gray-300 text-gray-600 rounded hover:bg-gray-100 hover:text-red-600 transition-colors" 
+                                onClick={() => handleDeleteDomain(d.id)}
+                              >
+                                Supprimer
+                              </button>
+                            </div>
+                          </div>
+                </div>
+              ))}
+              {(!domains || domains.length === 0) && (
+                <div className="text-sm text-gray-500">Aucun domaine</div>
               )}
             </div>
                </>
@@ -916,135 +1391,110 @@ const ReferentielsManager: React.FC = () => {
               </div>
             ) : (
             <>
-            {/* Nouvelle barre de filtres unifiée pour matières */}
-            <FilterBarGeneric
-              title="Matières"
-              searchPlaceholder="Rechercher une matière..."
-              filters={{
-                search: subjectFilters.search,
-                domain: subjectFilters.domain,
-                showAdvanced: subjectFilters.showAdvanced
-              }}
-              onFiltersChange={(newFilters) => {
-                setSubjectFilters(newFilters);
-                setSubjectQ(newFilters.search);
-                setSubjectFilter(newFilters.domain);
-                setSubjectPage(1);
-              }}
-              onExport={() => exportCsv('matieres.csv', (subjectsPage?.items ?? []).map((s: any) => ({ 
-                id: s.id, 
-                code: s.code, 
-                name: s.name, 
-                coefficient: s.coefficient, 
-                credit: s.credit 
-              })))}
-              onCreate={openCreateSubject}
-              isLoading={subjectsLoading}
-              totalCount={totalSubjects}
-              advancedFilters={[
-                {
-                  key: 'domain',
-                  label: 'Tous les domaines',
-                  type: 'select',
-                  options: (domains ?? []).map((d: any) => ({
-                    value: d.id,
-                    label: d.name
-                  }))
-                }
-              ]}
-              actions={[
-                {
-                  label: 'Retour aux référentiels',
-                  onClick: () => setActiveTab('referentials'),
-                  variant: 'secondary'
-                }
-              ]}
-            />
-            {/* Indicateur du référentiel sélectionné */}
-            <div className="px-4 pt-3">
-              <div className="inline-flex items-center gap-2 px-3 py-2 bg-teal-50 border border-teal-200 rounded-lg">
-                <BookOpen className="w-4 h-4 text-teal-600" />
-                <span className="text-sm font-medium text-teal-900">
-                  Référentiel sélectionné: {effectiveReferentialId?.substring(0, 8)}... (v{effectiveVersion})
-                </span>
+            <div className="p-4 border-b flex items-center justify-between">
+              <div className="font-semibold">Matières</div>
+              <div className="flex items-center gap-3">
+                <button className="px-3 py-1.5 text-sm rounded bg-blue-600 text-white" onClick={openCreateSubject} disabled={!effectiveReferentialId || effectiveVersion === null}>Créer</button>
+                <div className="text-sm text-gray-600">{subjectsLoading ? 'Chargement…' : `${totalSubjects} élément(s)`}</div>
               </div>
             </div>
-            {/* Nouvelle liste en format cartes pour matières */}
-            {subjectsLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-                <span className="ml-2 text-gray-600">Chargement des matières...</span>
-              </div>
-            ) : (
-              <div className="p-6">
-                <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
-                  {(subjectsPage?.items ?? [])
-                    .filter((s: any) => {
-                      // Filtrage par domaine
-                      if (subjectFilters.domain && s.domain_id !== subjectFilters.domain) return false;
-                      // Filtrage par recherche textuelle
-                      if (subjectFilters.search) {
-                        const searchLower = subjectFilters.search.toLowerCase();
-                        return (
-                          s.name?.toLowerCase().includes(searchLower) ||
-                          s.code?.toLowerCase().includes(searchLower)
-                        );
-                      }
-                      return true;
-                    })
-                    .map((s: any) => {
-                      // Trouver le nom du domaine
-                      const domainName = (domains ?? []).find((d: any) => d.id === s.domain_id)?.name;
-                      // Calculer le nombre de compétences
-                      const subjectCompetencies = (competenciesPage?.items ?? []).filter((c: any) => c.subject_id === s.id).length;
-                      
-                      return (
-                        <SubjectCard
-                          key={s.id}
-                          subject={s}
-                          domainName={domainName}
-                          isSelected={selectedSubjects.has(s.id)}
-                          onEdit={openEditSubject}
-                          onDelete={(id) => {
-                            if (confirm('Supprimer cette matière ?')) {
-                              toast.promise(
-                                deleteSubject.mutateAsync({ subjectId: id }),
-                                { 
-                                  loading: 'Suppression…', 
-                                  success: 'Matière supprimée', 
-                                  error: 'Échec suppression' 
-                                }
-                              );
-                            }
+            <div className="px-4 pt-3 text-xs text-gray-600">Référentiel: {effectiveReferentialId ?? '—'} • Version: {effectiveVersion ?? '—'}</div>
+            <div className="p-4 flex flex-wrap items-center gap-3 text-sm">
+              <input value={subjectQ} onChange={(e) => { setSubjectQ(e.target.value); setSubjectPage(1); }} placeholder="Rechercher matière…" className="border rounded px-3 py-2 w-56" />
+              <select value={subjectFilter} onChange={(e) => setSubjectFilter(e.target.value)} className="border rounded px-2 py-2">
+                <option value="">Tous les domaines</option>
+                {(domains ?? []).map((d) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+              <select value={subjectSize} onChange={(e) => { setSubjectSize(Number(e.target.value)); setSubjectPage(1); }} className="border rounded px-2 py-2">
+                {[10,20,50,100].map(n => <option key={n} value={n}>{n}/page</option>)}
+              </select>
+              <button className="px-3 py-1.5 text-sm rounded border" onClick={() => exportCsv('matieres.csv', (subjectsPage?.items ?? []).map((s: SubjectRow) => ({ id: s.id, code: s.code, name: s.name, coefficient: s.coefficient, credit: s.credit })))}>Exporter CSV</button>
+            </div>
+            <div className="p-4 space-y-2 max-h-[520px] overflow-auto">
+              {(subjectsPage?.items ?? [])
+                .filter(s => !subjectFilter || s.domain_id === subjectFilter)
+                .map((s: SubjectRow) => (
+                  <div key={s.id} className="border rounded">
+                    {/* Ligne principale cliquable */}
+                    <div 
+                      className="p-3 hover:bg-gray-50 cursor-pointer flex items-center justify-between"
+                      onClick={() => toggleSubjectExpansion(s.id)}
+                    >
+                      <div className="text-left flex items-center gap-2">
+                        <div className={`w-3 h-3 transition-transform ${expandedSubjects.has(s.id) ? 'rotate-90' : ''}`}>
+                          ▶
+                        </div>
+                        <div>
+                      <div className="font-medium text-gray-900">{s.name}</div>
+                          <div className="text-xs text-gray-500">Code: {s.code} • Coef: {s.coefficient ?? '—'} • Crédit: {s.credit ?? '—'}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors" 
+                          onClick={(e) => { e.stopPropagation(); openEditSubject(s); }}
+                        >
+                          Éditer
+                    </button>
+                        <button 
+                          className="px-2 py-1 text-xs border border-gray-300 text-gray-600 rounded hover:bg-gray-100 hover:text-red-600 transition-colors" 
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                        if (!confirm('Supprimer cette matière ?')) return;
+                        await toast.promise(deleteSubject.mutateAsync({ subjectId: s.id }), { loading: 'Suppression…', success: 'Supprimé', error: 'Échec suppression' });
                           }}
-                          onSelect={(id) => {
-                            setSelectedSubjects(prev => {
-                              const newSet = new Set(prev);
-                              if (newSet.has(id)) {
-                                newSet.delete(id);
-                              } else {
-                                newSet.add(id);
-                              }
-                              return newSet;
-                            });
-                          }}
-                          stats={{
-                            competencies: subjectCompetencies
-                          }}
-                        />
-                      );
-                    })}
-                </div>
-                
-                {/* Message si aucun résultat */}
-                {(!subjectsPage || (subjectsPage.items ?? []).length === 0) && (
-                  <div className="text-center py-12">
-                    <div className="text-gray-500 mb-2">Aucune matière trouvée</div>
-                    <div className="text-sm text-gray-400">Créez une nouvelle matière pour commencer</div>
+                        >
+                          Supprimer
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* Section déployée avec détails */}
+                    {expandedSubjects.has(s.id) && (
+                      <div className="px-3 pb-3 border-t bg-gray-50">
+                        <div className="pt-3 space-y-2">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="font-medium text-gray-700">ID:</span> {s.id}
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Code:</span> {s.code}
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Nom:</span> {s.name}
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Coefficient:</span> {s.coefficient ?? 'Non défini'}
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Crédit:</span> {s.credit ?? 'Non défini'}
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Domaine ID:</span> {s.domain_id}
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Domaine:</span> {(domains ?? []).find(d => d.id === s.domain_id)?.name ?? 'Non défini'}
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Couleur:</span> {s.color ? (
+                                <span className="flex items-center gap-2">
+                                  <div className="w-4 h-4 rounded border" style={{ backgroundColor: s.color }}></div>
+                                  {s.color}
+                                </span>
+                              ) : 'Non définie'}
+                            </div>
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
+                      </div>
+                    )}
+                </div>
+              ))}
+              {(!subjectsPage || (subjectsPage.items ?? []).length === 0) && (
+                <div className="text-sm text-gray-500">Aucune matière</div>
+              )}
+            </div>
             <div className="p-3 border-t flex items-center justify-between text-sm">
               <div>Page {subjectPage}</div>
               <div className="space-x-2">
