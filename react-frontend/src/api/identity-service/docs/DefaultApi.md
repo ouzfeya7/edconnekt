@@ -35,7 +35,7 @@ All URIs are relative to *http://localhost*
 # **bulkImportIdentitiesApiV1IdentityBulkimportPost**
 > ImportResponse bulkImportIdentitiesApiV1IdentityBulkimportPost()
 
-Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée
+Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée - Erreurs de validation des établissements
 
 ### Example
 
@@ -49,7 +49,7 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let file: File; //Fichier CSV ou Excel à importer (default to undefined)
-let establishmentId: string; //ID de l\\\'établissement (default to undefined)
+let establishmentId: string; //ID de l\\\'établissement (obligatoire) (default to undefined)
 
 const { status, data } = await apiInstance.bulkImportIdentitiesApiV1IdentityBulkimportPost(
     file,
@@ -62,7 +62,7 @@ const { status, data } = await apiInstance.bulkImportIdentitiesApiV1IdentityBulk
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **file** | [**File**] | Fichier CSV ou Excel à importer | defaults to undefined|
-| **establishmentId** | [**string**] | ID de l\\\&#39;établissement | defaults to undefined|
+| **establishmentId** | [**string**] | ID de l\\\&#39;établissement (obligatoire) | defaults to undefined|
 
 
 ### Return type
@@ -630,7 +630,7 @@ No authorization required
 # **getImportTemplateApiV1IdentityBulkimportTemplateRoleGet**
 > any getImportTemplateApiV1IdentityBulkimportTemplateRoleGet()
 
-Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
+Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
 
 ### Example
 

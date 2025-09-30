@@ -127,6 +127,24 @@ export interface ProvisioningItem {
      * @type {string}
      * @memberof ProvisioningItem
      */
+    'firstname': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProvisioningItem
+     */
+    'lastname': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProvisioningItem
+     */
+    'email': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProvisioningItem
+     */
     'kc_username': string | null;
     /**
      * 
@@ -134,6 +152,12 @@ export interface ProvisioningItem {
      * @memberof ProvisioningItem
      */
     'kc_user_id': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProvisioningItem
+     */
+    'role_principal_code'?: string | null;
     /**
      * 
      * @type {string}
@@ -199,7 +223,7 @@ export interface ValidationErrorLocInner {
 export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Endpoint de santé de l\'application.  Vérifie : - Connexion à la base de données - État du consommateur RabbitMQ
+         * Endpoint de santé de l\'application.  Vérifie : - Connexion à la base de données - État du consommateur RabbitMQ - Connexion à Keycloak
          * @summary Health Check
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -269,7 +293,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = DefaultApiAxiosParamCreator(configuration)
     return {
         /**
-         * Endpoint de santé de l\'application.  Vérifie : - Connexion à la base de données - État du consommateur RabbitMQ
+         * Endpoint de santé de l\'application.  Vérifie : - Connexion à la base de données - État du consommateur RabbitMQ - Connexion à Keycloak
          * @summary Health Check
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -303,7 +327,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
     const localVarFp = DefaultApiFp(configuration)
     return {
         /**
-         * Endpoint de santé de l\'application.  Vérifie : - Connexion à la base de données - État du consommateur RabbitMQ
+         * Endpoint de santé de l\'application.  Vérifie : - Connexion à la base de données - État du consommateur RabbitMQ - Connexion à Keycloak
          * @summary Health Check
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -331,7 +355,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
  */
 export class DefaultApi extends BaseAPI {
     /**
-     * Endpoint de santé de l\'application.  Vérifie : - Connexion à la base de données - État du consommateur RabbitMQ
+     * Endpoint de santé de l\'application.  Vérifie : - Connexion à la base de données - État du consommateur RabbitMQ - Connexion à Keycloak
      * @summary Health Check
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -391,6 +415,55 @@ export const ProvisioningApiAxiosParamCreator = function (configuration?: Config
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(batchCreateRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
+         * @summary Generate Username
+         * @param {string} firstname 
+         * @param {string} lastname 
+         * @param {string} [email] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        generateUsernameProvisioningGenerateUsernamePost: async (firstname: string, lastname: string, email?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'firstname' is not null or undefined
+            assertParamExists('generateUsernameProvisioningGenerateUsernamePost', 'firstname', firstname)
+            // verify required parameter 'lastname' is not null or undefined
+            assertParamExists('generateUsernameProvisioningGenerateUsernamePost', 'lastname', lastname)
+            const localVarPath = `/provisioning/generate-username`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (firstname !== undefined) {
+                localVarQueryParameter['firstname'] = firstname;
+            }
+
+            if (lastname !== undefined) {
+                localVarQueryParameter['lastname'] = lastname;
+            }
+
+            if (email !== undefined) {
+                localVarQueryParameter['email'] = email;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -539,6 +612,21 @@ export const ProvisioningApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
+         * @summary Generate Username
+         * @param {string} firstname 
+         * @param {string} lastname 
+         * @param {string} [email] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async generateUsernameProvisioningGenerateUsernamePost(firstname: string, lastname: string, email?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.generateUsernameProvisioningGenerateUsernamePost(firstname, lastname, email, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProvisioningApi.generateUsernameProvisioningGenerateUsernamePost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @summary List Batch Items
          * @param {string} batchId 
@@ -601,6 +689,18 @@ export const ProvisioningApiFactory = function (configuration?: Configuration, b
             return localVarFp.createBatchProvisioningBatchesPost(batchCreateRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
+         * @summary Generate Username
+         * @param {string} firstname 
+         * @param {string} lastname 
+         * @param {string} [email] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        generateUsernameProvisioningGenerateUsernamePost(firstname: string, lastname: string, email?: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.generateUsernameProvisioningGenerateUsernamePost(firstname, lastname, email, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary List Batch Items
          * @param {string} batchId 
@@ -653,6 +753,20 @@ export class ProvisioningApi extends BaseAPI {
      */
     public createBatchProvisioningBatchesPost(batchCreateRequest: BatchCreateRequest, options?: RawAxiosRequestConfig) {
         return ProvisioningApiFp(this.configuration).createBatchProvisioningBatchesPost(batchCreateRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
+     * @summary Generate Username
+     * @param {string} firstname 
+     * @param {string} lastname 
+     * @param {string} [email] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProvisioningApi
+     */
+    public generateUsernameProvisioningGenerateUsernamePost(firstname: string, lastname: string, email?: string, options?: RawAxiosRequestConfig) {
+        return ProvisioningApiFp(this.configuration).generateUsernameProvisioningGenerateUsernamePost(firstname, lastname, email, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

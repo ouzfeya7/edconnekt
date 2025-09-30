@@ -9,7 +9,7 @@
         "/health": {
             "get": {
                 "summary": "Health Check",
-                "description": "Endpoint de santé de l'application.\n\nVérifie :\n- Connexion à la base de données\n- État du consommateur RabbitMQ",
+                "description": "Endpoint de santé de l'application.\n\nVérifie :\n- Connexion à la base de données\n- État du consommateur RabbitMQ\n- Connexion à Keycloak",
                 "operationId": "health_check_health_get",
                 "responses": {
                     "200": {
@@ -152,6 +152,65 @@
                             "type": "string",
                             "format": "uuid",
                             "title": "Batch Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/provisioning/generate-username": {
+            "post": {
+                "tags": [
+                    "provisioning"
+                ],
+                "summary": "Generate Username",
+                "description": "Génère un username unique au format firstname.lastname001.\n\nArgs:\n    firstname: Prénom de l'utilisateur\n    lastname: Nom de famille de l'utilisateur\n    email: Email de l'utilisateur (optionnel, utilisé comme fallback)\n\nReturns:\n    dict: Username généré",
+                "operationId": "generate_username_provisioning_generate_username_post",
+                "parameters": [
+                    {
+                        "name": "firstname",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Firstname"
+                        }
+                    },
+                    {
+                        "name": "lastname",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Lastname"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "Email"
                         }
                     }
                 ],
@@ -334,6 +393,39 @@
                         "type": "string",
                         "title": "External Id"
                     },
+                    "firstname": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Firstname"
+                    },
+                    "lastname": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Lastname"
+                    },
+                    "email": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Email"
+                    },
                     "kc_username": {
                         "anyOf": [
                             {
@@ -355,6 +447,17 @@
                             }
                         ],
                         "title": "Kc User Id"
+                    },
+                    "role_principal_code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Role Principal Code"
                     },
                     "prov_status": {
                         "type": "string",
@@ -390,6 +493,9 @@
                     "domain",
                     "establishment_id",
                     "external_id",
+                    "firstname",
+                    "lastname",
+                    "email",
                     "kc_username",
                     "kc_user_id",
                     "prov_status",

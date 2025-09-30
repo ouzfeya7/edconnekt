@@ -5,6 +5,7 @@ All URIs are relative to *http://localhost*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**createBatchProvisioningBatchesPost**](#createbatchprovisioningbatchespost) | **POST** /provisioning/batches | Create Batch|
+|[**generateUsernameProvisioningGenerateUsernamePost**](#generateusernameprovisioninggenerateusernamepost) | **POST** /provisioning/generate-username | Generate Username|
 |[**listBatchItemsProvisioningBatchesBatchIdItemsGet**](#listbatchitemsprovisioningbatchesbatchiditemsget) | **GET** /provisioning/batches/{batch_id}/items | List Batch Items|
 |[**listBatchesProvisioningBatchesGet**](#listbatchesprovisioningbatchesget) | **GET** /provisioning/batches | List Batches|
 |[**runBatchProvisioningBatchesBatchIdRunPost**](#runbatchprovisioningbatchesbatchidrunpost) | **POST** /provisioning/batches/{batch_id}/run | Run Batch|
@@ -50,6 +51,64 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **generateUsernameProvisioningGenerateUsernamePost**
+> any generateUsernameProvisioningGenerateUsernamePost()
+
+Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
+
+### Example
+
+```typescript
+import {
+    ProvisioningApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProvisioningApi(configuration);
+
+let firstname: string; // (default to undefined)
+let lastname: string; // (default to undefined)
+let email: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.generateUsernameProvisioningGenerateUsernamePost(
+    firstname,
+    lastname,
+    email
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **firstname** | [**string**] |  | defaults to undefined|
+| **lastname** | [**string**] |  | defaults to undefined|
+| **email** | [**string**] |  | (optional) defaults to undefined|
+
+
+### Return type
+
+**any**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
  - **Accept**: application/json
 
 

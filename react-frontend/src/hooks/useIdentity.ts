@@ -49,9 +49,11 @@ export function useIdentityBatches(params?: { page?: number; size?: number; stat
         ? obj.data
         : Array.isArray(obj?.items)
           ? obj.items
-          : Array.isArray(obj)
-            ? obj
-            : [];
+          : Array.isArray(obj?.batches)
+            ? obj.batches
+            : Array.isArray(obj)
+              ? obj
+              : [];
       const page = obj?.page ?? params?.page ?? 1;
       const size = obj?.size ?? params?.size ?? list.length;
       const total = obj?.total ?? obj?.count ?? list.length;

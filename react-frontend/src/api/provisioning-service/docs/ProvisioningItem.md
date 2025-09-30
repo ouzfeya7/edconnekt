@@ -11,8 +11,12 @@ Name | Type | Description | Notes
 **domain** | **string** |  | [default to undefined]
 **establishment_id** | **string** |  | [default to undefined]
 **external_id** | **string** |  | [default to undefined]
+**firstname** | **string** |  | [default to undefined]
+**lastname** | **string** |  | [default to undefined]
+**email** | **string** |  | [default to undefined]
 **kc_username** | **string** |  | [default to undefined]
 **kc_user_id** | **string** |  | [default to undefined]
+**role_principal_code** | **string** |  | [optional] [default to undefined]
 **prov_status** | **string** |  | [default to undefined]
 **last_error** | **string** |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
@@ -30,8 +34,12 @@ const instance: ProvisioningItem = {
     domain,
     establishment_id,
     external_id,
+    firstname,
+    lastname,
+    email,
     kc_username,
     kc_user_id,
+    role_principal_code,
     prov_status,
     last_error,
     created_at,

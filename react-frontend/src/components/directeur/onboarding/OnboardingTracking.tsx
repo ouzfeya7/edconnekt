@@ -1,26 +1,30 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useDirector } from '../../../contexts/DirectorContext';
 import { useIdentityBatches, useIdentityBatchItems, useIdentityBulkProgress, useIdentityAudit } from '../../../hooks/useIdentity';
-import { useProvisioningBatches, useProvisioningCreateBatch, useProvisioningRunBatch, useProvisioningBatchItems } from '../../../hooks/useProvisioning';
-import toast from 'react-hot-toast';
+import { useProvisioningBatches, useProvisioningCreateBatch, useProvisioningRunBatch, useProvisioningBatchItems, useProvisioningGenerateUsername } from '../../../hooks/useProvisioning';
+import type { ProvisioningItem } from '../../../api/provisioning-service/api';
 import { useOnboarding } from '../../../contexts/OnboardingContext';
 import { identityApi } from '../../../api/identity-service/client';
 import { IDENTITY_API_BASE_URL } from '../../../api/identity-service/http';
+import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
-import { 
-  Database, 
-  Search, 
-  Filter, 
-  ChevronLeft, 
-  ChevronRight, 
-  Play, 
+import {
+  Database,
+  Search,
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+  Play,
   BarChart3,
   Clock,
   FileDown,
-  Radio
+  Radio,
+  Wand2,
 } from 'lucide-react';
 
 const OnboardingTracking: React.FC = () => {
+  const { t } = useTranslation();
   const { currentEtablissementId } = useDirector();
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
@@ -56,6 +60,7 @@ const OnboardingTracking: React.FC = () => {
     { batchId: selectedProvBatchId, limit: 100 },
     { refetchInterval: 2000 }
   );
+  const genUsername = useProvisioningGenerateUsername();
 
   // SSE live progress (fallback to polling already above)
   const [liveSSE, setLiveSSE] = useState<boolean>(false);
@@ -70,7 +75,18 @@ const OnboardingTracking: React.FC = () => {
     }
     try {
       const token = sessionStorage.getItem('keycloak-token');
-      const url = `${IDENTITY_API_BASE_URL}api/v1/identity/bulkimport/sse/${selectedIdentityBatchId}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+      // Extract user_id from JWT token (prefer 'sub') for SSE as per API spec
+      let userId: string | undefined;
+      try {
+        if (token && token.includes('.')) {
+          const payload = JSON.parse(atob(token.split('.')[1] ?? ''));
+          userId = payload?.sub || payload?.user_id || payload?.uid || undefined;
+        }
+      } catch {}
+      const params: string[] = [];
+      if (userId) params.push(`user_id=${encodeURIComponent(userId)}`);
+      params.push(`timeout=${encodeURIComponent('300')}`);
+      const url = `${IDENTITY_API_BASE_URL}api/v1/identity/bulkimport/sse/${selectedIdentityBatchId}${params.length ? `?${params.join('&')}` : ''}`;
       const es = new EventSource(url);
       sseRef.current = es;
       es.onmessage = (evt) => {
@@ -179,8 +195,7 @@ const OnboardingTracking: React.FC = () => {
     return counters;
   }, [identityItemsArray]);
 
-  type ProvItemRow = { id: string; identity_id?: string; domain?: string; establishment_id?: string; external_id?: string; kc_username?: string; kc_user_id?: string; prov_status?: string; last_error?: string; created_at?: string; updated_at?: string };
-  const provItemsArray: ProvItemRow[] = useMemo(() => (provItems as ProvItemRow[] | undefined) ?? [], [provItems]);
+  const provItemsArray: ProvisioningItem[] = useMemo(() => (provItems as ProvisioningItem[] | undefined) ?? [], [provItems]);
 
   const filteredProvItems = useMemo(() => {
     return provItemsArray.filter((it) => {
@@ -211,6 +226,20 @@ const OnboardingTracking: React.FC = () => {
       });
     }
   }, [selectedProvBatchId, provItemsArray.length, provDomainFilter, provStatusFilter]);
+
+  const handleGenerateUsername = async (it: ProvisioningItem) => {
+    try {
+      const username = await genUsername.mutateAsync({
+        firstname: (it.firstname ?? '') as string,
+        lastname: (it.lastname ?? '') as string,
+        email: it.email ?? undefined,
+      });
+      try { await navigator.clipboard.writeText(username); } catch {}
+      toast.success(`Username généré: ${username}${username ? ' (copié)' : ''}`);
+    } catch {
+      toast.error('Génération du username impossible');
+    }
+  };
 
 
 
@@ -795,10 +824,14 @@ const OnboardingTracking: React.FC = () => {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">External ID</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">KC Username</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">KC User ID</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle principal</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dernière erreur</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créé</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MAJ</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -824,6 +857,9 @@ const OnboardingTracking: React.FC = () => {
                         <td className="px-4 py-3 text-sm text-gray-900 font-mono">{it.external_id ?? '—'}</td>
                         <td className="px-4 py-3 text-sm text-gray-900">{it.kc_username ?? '—'}</td>
                         <td className="px-4 py-3 text-sm text-gray-900 font-mono">{it.kc_user_id ?? '—'}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{`${(it.firstname ?? '') || ''} ${(it.lastname ?? '') || ''}`.trim() || '—'}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{it.email ?? '—'}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{it.role_principal_code ?? '—'}</td>
                         <td className="px-4 py-3 text-sm">
                           <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
                             it.prov_status === 'ACTIVATED' ? 'bg-green-100 text-green-800' :
@@ -845,6 +881,19 @@ const OnboardingTracking: React.FC = () => {
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-500">{it.created_at ? new Date(it.created_at).toLocaleString() : '—'}</td>
                         <td className="px-4 py-3 text-sm text-gray-500">{it.updated_at ? new Date(it.updated_at).toLocaleString() : '—'}</td>
+                        <td className="px-4 py-3 text-sm">
+                          {!it.kc_username && (
+                            <button
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200"
+                              onClick={() => handleGenerateUsername(it)}
+                              disabled={genUsername.isPending}
+                              title="Générer un username (copie automatique)"
+                            >
+                              <Wand2 className="w-3.5 h-3.5" />
+                              {genUsername.isPending ? '...' : 'Générer username'}
+                            </button>
+                          )}
+                        </td>
                     </tr>
                   ))}
                 </tbody>

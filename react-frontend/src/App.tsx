@@ -255,16 +255,16 @@ const AppContent = () => {
       </Routes>
     );
   }
-
+  
   // Utilisateur authentifié mais contexte non sélectionné -> écran intermédiaire de sélection (sauf administrateur)
-  if (!isAdmin && (!activeEtabId || !activeRole)) {
-    return (
-      <Routes>
-        <Route path="/select-contexte" element={<SelectContextPage />} />
-        <Route path="*" element={<Navigate to="/select-contexte" replace />} />
-      </Routes>
-    );
-  }
+  // if (!isAdmin && (!activeEtabId || !activeRole)) {
+  //   return (
+  //     <Routes>
+  //       <Route path="/select-contexte" element={<SelectContextPage />} />
+  //       <Route path="*" element={<Navigate to="/select-contexte" replace />} />
+  //     </Routes>
+  //   );
+  // }
 
   // L'utilisateur est authentifié, on détermine son rôle et ses routes.
   const userRole = rolesPriority.find((r) => roles.includes(r));

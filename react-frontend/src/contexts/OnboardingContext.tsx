@@ -1,7 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
 import { useIdentityBulkImport } from '../hooks/useIdentity';
 import { useDirector } from './DirectorContext';
+import { useAuth } from '../pages/authentification/useAuth';
+import { useResolvePrincipalEtab } from '../hooks/useResolvePrincipalEtab';
 
 type Domain = 'student' | 'parent' | 'teacher' | 'admin_staff';
 
@@ -51,6 +53,12 @@ interface OnboardingContextType {
     failedUploads: number;
     lastUploadDate: Date | null;
   };
+
+  // Gating et sélection d'établissement
+  isAdmin: boolean;
+  selectedEstablishmentId: string | null;
+  setSelectedEstablishmentId: (id: string | null) => void;
+  canUpload: boolean;
 }
 
 const mockInvitations: Invitation[] = [
@@ -85,12 +93,30 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
   const [uploadHistory, setUploadHistory] = useState<UploadHistoryItem[]>([]);
   
   const { currentEtablissementId } = useDirector();
+  const { roles } = useAuth();
+  const isAdmin = useMemo(() => {
+    if (!Array.isArray(roles)) return false;
+    return roles.some((r: any) => {
+      const v = String(r || '').toUpperCase();
+      return v === 'ADMINISTRATEUR'.toUpperCase() || v.includes('ROLE_ADMIN');
+    });
+  }, [roles]);
+
+  // Sélection d'établissement côté ADMIN
+  const [selectedEstablishmentId, setSelectedEstablishmentId] = useState<string | null>(null);
+  // Résolution auto pour non-admin si aucun etab courant
+  const { etabId: principalEtabId } = useResolvePrincipalEtab({ enabled: !isAdmin && !currentEtablissementId });
+  const effectiveNonAdminEtabId = currentEtablissementId || principalEtabId || null;
+  const canUpload = useMemo(() => {
+    return isAdmin ? !!selectedEstablishmentId : !!effectiveNonAdminEtabId;
+  }, [isAdmin, selectedEstablishmentId, effectiveNonAdminEtabId]);
   const bulkImport = useIdentityBulkImport();
   
 
   const handleUpload = async (file: File, domain: Domain): Promise<boolean> => {
     if (!file) return false;
-    if (!currentEtablissementId) {
+    const establishmentId = isAdmin ? selectedEstablishmentId : effectiveNonAdminEtabId;
+    if (!establishmentId) {
       setUploadStatus('error');
       return false;
     }
@@ -105,7 +131,7 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     }, 200);
 
     try {
-      const res = await bulkImport.mutateAsync({ file, establishmentId: currentEtablissementId });
+      const res = await bulkImport.mutateAsync({ file, establishmentId });
       setUploadStatus('success');
       setUploadProgress(100);
       
@@ -196,6 +222,10 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     uploadHistory,
     clearUploadHistory,
     getUploadStats,
+    isAdmin,
+    selectedEstablishmentId,
+    setSelectedEstablishmentId,
+    canUpload,
   };
 
   return (
