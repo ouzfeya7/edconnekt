@@ -29,6 +29,24 @@ export function useProvisioningCreateBatch() {
   );
 }
 
+export function useProvisioningGenerateUsername() {
+  return useMutation<string, Error, { firstname: string; lastname: string; email?: string }>(
+    {
+      mutationKey: ['prov:generate-username'],
+      mutationFn: async ({ firstname, lastname, email }) => {
+        const { data } = await provisioningApi.generateUsernameProvisioningGenerateUsernamePost(firstname, lastname, email);
+        const d: any = data as any;
+        if (typeof d === 'string') return d;
+        if (d?.username) return String(d.username);
+        if (d?.data?.username) return String(d.data.username);
+        if (typeof d?.data === 'string') return d.data as string;
+        // Fallback: stringify object
+        return JSON.stringify(d);
+      },
+    }
+  );
+}
+
 export function useProvisioningRunBatch() {
   const queryClient = useQueryClient();
   return useMutation<unknown, Error, { batchId: string }>(

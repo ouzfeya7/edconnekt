@@ -5,6 +5,7 @@ import { useOnboarding } from '../../../contexts/OnboardingContext';
 import { identityApi } from '../../../api/identity-service/client';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
+import { useAllEstablishments } from '../../../hooks/useAllEstablishments';
 
 type Domain = 'student' | 'parent' | 'teacher' | 'admin_staff';
 
@@ -128,7 +129,7 @@ function validateRows(fileText: string, domain: Domain): string[] {
 }
 
 const Section: React.FC<{ title: string; domain: Domain; }> = ({ title, domain }) => {
-  const { handleUpload, isUploading, uploadProgress, currentUploadDomain } = useOnboarding();
+  const { handleUpload, isUploading, uploadProgress, currentUploadDomain, canUpload, isAdmin, selectedEstablishmentId } = useOnboarding();
   const [file, setFile] = useState<File | null>(null);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
 
@@ -218,6 +219,10 @@ const Section: React.FC<{ title: string; domain: Domain; }> = ({ title, domain }
 
   const onUploadClick = async () => {
     if (!file) return;
+    if (isAdmin && !canUpload) {
+      toast.error("Sélectionnez d'abord un établissement");
+      return;
+    }
     const success = await handleUpload(file, domain);
     if (success) {
       setFile(null);
@@ -367,9 +372,9 @@ const Section: React.FC<{ title: string; domain: Domain; }> = ({ title, domain }
 
           <button 
             onClick={onUploadClick} 
-            disabled={isUploading} 
+            disabled={isUploading || !canUpload} 
             className={`w-full py-3 rounded-lg font-medium transition-all ${
-              isUploading 
+              isUploading || !canUpload
                 ? 'bg-gray-400 cursor-not-allowed' 
                 : 'bg-blue-500 hover:bg-blue-600 hover:shadow-md'
             }`}
@@ -378,6 +383,11 @@ const Section: React.FC<{ title: string; domain: Domain; }> = ({ title, domain }
               <div className="flex items-center justify-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" />
                 Import en cours...
+              </div>
+            ) : (!canUpload && isAdmin) ? (
+              <div className="flex items-center justify-center gap-2">
+                <XCircle className="w-5 h-5" />
+                Sélection d'établissement requise
               </div>
             ) : (
               <div className="flex items-center justify-center gap-2">
@@ -406,7 +416,8 @@ const Section: React.FC<{ title: string; domain: Domain; }> = ({ title, domain }
 };
 
 const CSVUploader: React.FC = () => {
-  const { getUploadStats } = useOnboarding();
+  const { getUploadStats, isAdmin, selectedEstablishmentId, setSelectedEstablishmentId } = useOnboarding();
+  const { data: establishments, isLoading, isError } = useAllEstablishments({ enabled: isAdmin, limit: 100 });
   
   const stats = getUploadStats();
 
@@ -423,6 +434,27 @@ const CSVUploader: React.FC = () => {
           </p>
         </div>
         
+        {/* Sélection d'établissement (ADMIN uniquement) */}
+        {isAdmin && (
+          <div className="flex items-center gap-3">
+            <label className="text-sm text-gray-600">Établissement</label>
+            <select
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm min-w-[240px]"
+              value={selectedEstablishmentId ?? ''}
+              onChange={(e) => setSelectedEstablishmentId(e.target.value || null)}
+              disabled={isLoading}
+            >
+              <option value="">-- Sélectionnez --</option>
+              {(establishments || []).map((e) => (
+                <option key={e.id} value={e.id}>{e.label} ({e.id})</option>
+              ))}
+            </select>
+            {isError && (
+              <span className="text-xs text-red-600">Impossible de charger les établissements</span>
+            )}
+          </div>
+        )}
+
         {/* Statistiques rapides */}
         <div className="flex gap-4 text-sm">
           <div className="text-center">

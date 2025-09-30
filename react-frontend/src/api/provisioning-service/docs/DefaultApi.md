@@ -10,7 +10,7 @@ All URIs are relative to *http://localhost*
 # **healthCheckHealthGet**
 > any healthCheckHealthGet()
 
-Endpoint de santé de l\'application.  Vérifie : - Connexion à la base de données - État du consommateur RabbitMQ
+Endpoint de santé de l\'application.  Vérifie : - Connexion à la base de données - État du consommateur RabbitMQ - Connexion à Keycloak
 
 ### Example
 
