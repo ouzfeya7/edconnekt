@@ -26,7 +26,7 @@ const transformRoles = (keycloakRoles: string[]): string[] => {
       case 'ROLE_ENSEIGNANT':
         appRoles.push('enseignant');
         break;
-      case 'ROLE_DIRECTEUR':
+      case 'ROLE_ADMINSTAFF':
         appRoles.push('directeur');
         break;
       case 'ROLE_ELEVE':
