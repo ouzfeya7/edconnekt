@@ -422,6 +422,122 @@ export const ProvisioningApiAxiosParamCreator = function (configuration?: Config
             };
         },
         /**
+         * 
+         * @summary Create Batch
+         * @param {BatchCreateRequest} batchCreateRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createBatchProvisioningBatchesPost_1: async (batchCreateRequest: BatchCreateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchCreateRequest' is not null or undefined
+            assertParamExists('createBatchProvisioningBatchesPost_1', 'batchCreateRequest', batchCreateRequest)
+            const localVarPath = `/provisioning/batches`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(batchCreateRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Crée un item de test pour un batch (pour les tests uniquement).  Args:     batch_id: ID du batch     item_data: Données de l\'item avec les clés:         - identity_id: UUID de l\'identité         - firstname: Prénom         - lastname: Nom         - email: Email         - role_principal_code: Rôle principal         - establishment_id: ID de l\'établissement (optionnel)
+         * @summary Create Test Item
+         * @param {string} batchId 
+         * @param {{ [key: string]: any; }} requestBody 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createTestItemProvisioningBatchesBatchIdTestItemsPost: async (batchId: string, requestBody: { [key: string]: any; }, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchId' is not null or undefined
+            assertParamExists('createTestItemProvisioningBatchesBatchIdTestItemsPost', 'batchId', batchId)
+            // verify required parameter 'requestBody' is not null or undefined
+            assertParamExists('createTestItemProvisioningBatchesBatchIdTestItemsPost', 'requestBody', requestBody)
+            const localVarPath = `/provisioning/batches/{batch_id}/test-items`
+                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Crée un item de test pour un batch (pour les tests uniquement).  Args:     batch_id: ID du batch     item_data: Données de l\'item avec les clés:         - identity_id: UUID de l\'identité         - firstname: Prénom         - lastname: Nom         - email: Email         - role_principal_code: Rôle principal         - establishment_id: ID de l\'établissement (optionnel)
+         * @summary Create Test Item
+         * @param {string} batchId 
+         * @param {{ [key: string]: any; }} requestBody 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createTestItemProvisioningBatchesBatchIdTestItemsPost_2: async (batchId: string, requestBody: { [key: string]: any; }, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchId' is not null or undefined
+            assertParamExists('createTestItemProvisioningBatchesBatchIdTestItemsPost_2', 'batchId', batchId)
+            // verify required parameter 'requestBody' is not null or undefined
+            assertParamExists('createTestItemProvisioningBatchesBatchIdTestItemsPost_2', 'requestBody', requestBody)
+            const localVarPath = `/provisioning/batches/{batch_id}/test-items`
+                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
          * @summary Generate Username
          * @param {string} firstname 
@@ -435,6 +551,55 @@ export const ProvisioningApiAxiosParamCreator = function (configuration?: Config
             assertParamExists('generateUsernameProvisioningGenerateUsernamePost', 'firstname', firstname)
             // verify required parameter 'lastname' is not null or undefined
             assertParamExists('generateUsernameProvisioningGenerateUsernamePost', 'lastname', lastname)
+            const localVarPath = `/provisioning/generate-username`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (firstname !== undefined) {
+                localVarQueryParameter['firstname'] = firstname;
+            }
+
+            if (lastname !== undefined) {
+                localVarQueryParameter['lastname'] = lastname;
+            }
+
+            if (email !== undefined) {
+                localVarQueryParameter['email'] = email;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
+         * @summary Generate Username
+         * @param {string} firstname 
+         * @param {string} lastname 
+         * @param {string} [email] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        generateUsernameProvisioningGenerateUsernamePost_3: async (firstname: string, lastname: string, email?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'firstname' is not null or undefined
+            assertParamExists('generateUsernameProvisioningGenerateUsernamePost_3', 'firstname', firstname)
+            // verify required parameter 'lastname' is not null or undefined
+            assertParamExists('generateUsernameProvisioningGenerateUsernamePost_3', 'lastname', lastname)
             const localVarPath = `/provisioning/generate-username`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -516,6 +681,50 @@ export const ProvisioningApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 
+         * @summary List Batch Items
+         * @param {string} batchId 
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listBatchItemsProvisioningBatchesBatchIdItemsGet_4: async (batchId: string, skip?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchId' is not null or undefined
+            assertParamExists('listBatchItemsProvisioningBatchesBatchIdItemsGet_4', 'batchId', batchId)
+            const localVarPath = `/provisioning/batches/{batch_id}/items`
+                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (skip !== undefined) {
+                localVarQueryParameter['skip'] = skip;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary List Batches
          * @param {number} [skip] 
          * @param {number} [limit] 
@@ -523,6 +732,46 @@ export const ProvisioningApiAxiosParamCreator = function (configuration?: Config
          * @throws {RequiredError}
          */
         listBatchesProvisioningBatchesGet: async (skip?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/provisioning/batches`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (skip !== undefined) {
+                localVarQueryParameter['skip'] = skip;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List Batches
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listBatchesProvisioningBatchesGet_5: async (skip?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/provisioning/batches`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -588,6 +837,40 @@ export const ProvisioningApiAxiosParamCreator = function (configuration?: Config
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Run Batch
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        runBatchProvisioningBatchesBatchIdRunPost_6: async (batchId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchId' is not null or undefined
+            assertParamExists('runBatchProvisioningBatchesBatchIdRunPost_6', 'batchId', batchId)
+            const localVarPath = `/provisioning/batches/{batch_id}/run`
+                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -612,6 +895,47 @@ export const ProvisioningApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 
+         * @summary Create Batch
+         * @param {BatchCreateRequest} batchCreateRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createBatchProvisioningBatchesPost_1(batchCreateRequest: BatchCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvisioningBatch>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createBatchProvisioningBatchesPost_1(batchCreateRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProvisioningApi.createBatchProvisioningBatchesPost_1']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Crée un item de test pour un batch (pour les tests uniquement).  Args:     batch_id: ID du batch     item_data: Données de l\'item avec les clés:         - identity_id: UUID de l\'identité         - firstname: Prénom         - lastname: Nom         - email: Email         - role_principal_code: Rôle principal         - establishment_id: ID de l\'établissement (optionnel)
+         * @summary Create Test Item
+         * @param {string} batchId 
+         * @param {{ [key: string]: any; }} requestBody 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createTestItemProvisioningBatchesBatchIdTestItemsPost(batchId: string, requestBody: { [key: string]: any; }, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createTestItemProvisioningBatchesBatchIdTestItemsPost(batchId, requestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProvisioningApi.createTestItemProvisioningBatchesBatchIdTestItemsPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Crée un item de test pour un batch (pour les tests uniquement).  Args:     batch_id: ID du batch     item_data: Données de l\'item avec les clés:         - identity_id: UUID de l\'identité         - firstname: Prénom         - lastname: Nom         - email: Email         - role_principal_code: Rôle principal         - establishment_id: ID de l\'établissement (optionnel)
+         * @summary Create Test Item
+         * @param {string} batchId 
+         * @param {{ [key: string]: any; }} requestBody 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createTestItemProvisioningBatchesBatchIdTestItemsPost_2(batchId: string, requestBody: { [key: string]: any; }, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createTestItemProvisioningBatchesBatchIdTestItemsPost_2(batchId, requestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProvisioningApi.createTestItemProvisioningBatchesBatchIdTestItemsPost_2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
          * @summary Generate Username
          * @param {string} firstname 
@@ -624,6 +948,21 @@ export const ProvisioningApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.generateUsernameProvisioningGenerateUsernamePost(firstname, lastname, email, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProvisioningApi.generateUsernameProvisioningGenerateUsernamePost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
+         * @summary Generate Username
+         * @param {string} firstname 
+         * @param {string} lastname 
+         * @param {string} [email] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async generateUsernameProvisioningGenerateUsernamePost_3(firstname: string, lastname: string, email?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.generateUsernameProvisioningGenerateUsernamePost_3(firstname, lastname, email, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProvisioningApi.generateUsernameProvisioningGenerateUsernamePost_3']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -643,6 +982,21 @@ export const ProvisioningApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary List Batch Items
+         * @param {string} batchId 
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listBatchItemsProvisioningBatchesBatchIdItemsGet_4(batchId: string, skip?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ProvisioningItem>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listBatchItemsProvisioningBatchesBatchIdItemsGet_4(batchId, skip, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProvisioningApi.listBatchItemsProvisioningBatchesBatchIdItemsGet_4']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary List Batches
          * @param {number} [skip] 
          * @param {number} [limit] 
@@ -657,6 +1011,20 @@ export const ProvisioningApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary List Batches
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listBatchesProvisioningBatchesGet_5(skip?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ProvisioningBatch>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listBatchesProvisioningBatchesGet_5(skip, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProvisioningApi.listBatchesProvisioningBatchesGet_5']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Run Batch
          * @param {string} batchId 
          * @param {*} [options] Override http request option.
@@ -666,6 +1034,19 @@ export const ProvisioningApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.runBatchProvisioningBatchesBatchIdRunPost(batchId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProvisioningApi.runBatchProvisioningBatchesBatchIdRunPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Run Batch
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async runBatchProvisioningBatchesBatchIdRunPost_6(batchId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.runBatchProvisioningBatchesBatchIdRunPost_6(batchId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProvisioningApi.runBatchProvisioningBatchesBatchIdRunPost_6']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -689,6 +1070,38 @@ export const ProvisioningApiFactory = function (configuration?: Configuration, b
             return localVarFp.createBatchProvisioningBatchesPost(batchCreateRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * 
+         * @summary Create Batch
+         * @param {BatchCreateRequest} batchCreateRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createBatchProvisioningBatchesPost_1(batchCreateRequest: BatchCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProvisioningBatch> {
+            return localVarFp.createBatchProvisioningBatchesPost_1(batchCreateRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Crée un item de test pour un batch (pour les tests uniquement).  Args:     batch_id: ID du batch     item_data: Données de l\'item avec les clés:         - identity_id: UUID de l\'identité         - firstname: Prénom         - lastname: Nom         - email: Email         - role_principal_code: Rôle principal         - establishment_id: ID de l\'établissement (optionnel)
+         * @summary Create Test Item
+         * @param {string} batchId 
+         * @param {{ [key: string]: any; }} requestBody 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createTestItemProvisioningBatchesBatchIdTestItemsPost(batchId: string, requestBody: { [key: string]: any; }, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.createTestItemProvisioningBatchesBatchIdTestItemsPost(batchId, requestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Crée un item de test pour un batch (pour les tests uniquement).  Args:     batch_id: ID du batch     item_data: Données de l\'item avec les clés:         - identity_id: UUID de l\'identité         - firstname: Prénom         - lastname: Nom         - email: Email         - role_principal_code: Rôle principal         - establishment_id: ID de l\'établissement (optionnel)
+         * @summary Create Test Item
+         * @param {string} batchId 
+         * @param {{ [key: string]: any; }} requestBody 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createTestItemProvisioningBatchesBatchIdTestItemsPost_2(batchId: string, requestBody: { [key: string]: any; }, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.createTestItemProvisioningBatchesBatchIdTestItemsPost_2(batchId, requestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
          * @summary Generate Username
          * @param {string} firstname 
@@ -699,6 +1112,18 @@ export const ProvisioningApiFactory = function (configuration?: Configuration, b
          */
         generateUsernameProvisioningGenerateUsernamePost(firstname: string, lastname: string, email?: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
             return localVarFp.generateUsernameProvisioningGenerateUsernamePost(firstname, lastname, email, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
+         * @summary Generate Username
+         * @param {string} firstname 
+         * @param {string} lastname 
+         * @param {string} [email] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        generateUsernameProvisioningGenerateUsernamePost_3(firstname: string, lastname: string, email?: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.generateUsernameProvisioningGenerateUsernamePost_3(firstname, lastname, email, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -714,6 +1139,18 @@ export const ProvisioningApiFactory = function (configuration?: Configuration, b
         },
         /**
          * 
+         * @summary List Batch Items
+         * @param {string} batchId 
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listBatchItemsProvisioningBatchesBatchIdItemsGet_4(batchId: string, skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<ProvisioningItem>> {
+            return localVarFp.listBatchItemsProvisioningBatchesBatchIdItemsGet_4(batchId, skip, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary List Batches
          * @param {number} [skip] 
          * @param {number} [limit] 
@@ -725,6 +1162,17 @@ export const ProvisioningApiFactory = function (configuration?: Configuration, b
         },
         /**
          * 
+         * @summary List Batches
+         * @param {number} [skip] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listBatchesProvisioningBatchesGet_5(skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<ProvisioningBatch>> {
+            return localVarFp.listBatchesProvisioningBatchesGet_5(skip, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Run Batch
          * @param {string} batchId 
          * @param {*} [options] Override http request option.
@@ -732,6 +1180,16 @@ export const ProvisioningApiFactory = function (configuration?: Configuration, b
          */
         runBatchProvisioningBatchesBatchIdRunPost(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
             return localVarFp.runBatchProvisioningBatchesBatchIdRunPost(batchId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Run Batch
+         * @param {string} batchId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        runBatchProvisioningBatchesBatchIdRunPost_6(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.runBatchProvisioningBatchesBatchIdRunPost_6(batchId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -756,6 +1214,44 @@ export class ProvisioningApi extends BaseAPI {
     }
 
     /**
+     * 
+     * @summary Create Batch
+     * @param {BatchCreateRequest} batchCreateRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProvisioningApi
+     */
+    public createBatchProvisioningBatchesPost_1(batchCreateRequest: BatchCreateRequest, options?: RawAxiosRequestConfig) {
+        return ProvisioningApiFp(this.configuration).createBatchProvisioningBatchesPost_1(batchCreateRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Crée un item de test pour un batch (pour les tests uniquement).  Args:     batch_id: ID du batch     item_data: Données de l\'item avec les clés:         - identity_id: UUID de l\'identité         - firstname: Prénom         - lastname: Nom         - email: Email         - role_principal_code: Rôle principal         - establishment_id: ID de l\'établissement (optionnel)
+     * @summary Create Test Item
+     * @param {string} batchId 
+     * @param {{ [key: string]: any; }} requestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProvisioningApi
+     */
+    public createTestItemProvisioningBatchesBatchIdTestItemsPost(batchId: string, requestBody: { [key: string]: any; }, options?: RawAxiosRequestConfig) {
+        return ProvisioningApiFp(this.configuration).createTestItemProvisioningBatchesBatchIdTestItemsPost(batchId, requestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Crée un item de test pour un batch (pour les tests uniquement).  Args:     batch_id: ID du batch     item_data: Données de l\'item avec les clés:         - identity_id: UUID de l\'identité         - firstname: Prénom         - lastname: Nom         - email: Email         - role_principal_code: Rôle principal         - establishment_id: ID de l\'établissement (optionnel)
+     * @summary Create Test Item
+     * @param {string} batchId 
+     * @param {{ [key: string]: any; }} requestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProvisioningApi
+     */
+    public createTestItemProvisioningBatchesBatchIdTestItemsPost_2(batchId: string, requestBody: { [key: string]: any; }, options?: RawAxiosRequestConfig) {
+        return ProvisioningApiFp(this.configuration).createTestItemProvisioningBatchesBatchIdTestItemsPost_2(batchId, requestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
      * @summary Generate Username
      * @param {string} firstname 
@@ -767,6 +1263,20 @@ export class ProvisioningApi extends BaseAPI {
      */
     public generateUsernameProvisioningGenerateUsernamePost(firstname: string, lastname: string, email?: string, options?: RawAxiosRequestConfig) {
         return ProvisioningApiFp(this.configuration).generateUsernameProvisioningGenerateUsernamePost(firstname, lastname, email, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Génère un username unique au format firstname.lastname001.  Args:     firstname: Prénom de l\'utilisateur     lastname: Nom de famille de l\'utilisateur     email: Email de l\'utilisateur (optionnel, utilisé comme fallback)  Returns:     dict: Username généré
+     * @summary Generate Username
+     * @param {string} firstname 
+     * @param {string} lastname 
+     * @param {string} [email] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProvisioningApi
+     */
+    public generateUsernameProvisioningGenerateUsernamePost_3(firstname: string, lastname: string, email?: string, options?: RawAxiosRequestConfig) {
+        return ProvisioningApiFp(this.configuration).generateUsernameProvisioningGenerateUsernamePost_3(firstname, lastname, email, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -785,6 +1295,20 @@ export class ProvisioningApi extends BaseAPI {
 
     /**
      * 
+     * @summary List Batch Items
+     * @param {string} batchId 
+     * @param {number} [skip] 
+     * @param {number} [limit] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProvisioningApi
+     */
+    public listBatchItemsProvisioningBatchesBatchIdItemsGet_4(batchId: string, skip?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return ProvisioningApiFp(this.configuration).listBatchItemsProvisioningBatchesBatchIdItemsGet_4(batchId, skip, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary List Batches
      * @param {number} [skip] 
      * @param {number} [limit] 
@@ -798,6 +1322,19 @@ export class ProvisioningApi extends BaseAPI {
 
     /**
      * 
+     * @summary List Batches
+     * @param {number} [skip] 
+     * @param {number} [limit] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProvisioningApi
+     */
+    public listBatchesProvisioningBatchesGet_5(skip?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return ProvisioningApiFp(this.configuration).listBatchesProvisioningBatchesGet_5(skip, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Run Batch
      * @param {string} batchId 
      * @param {*} [options] Override http request option.
@@ -806,6 +1343,18 @@ export class ProvisioningApi extends BaseAPI {
      */
     public runBatchProvisioningBatchesBatchIdRunPost(batchId: string, options?: RawAxiosRequestConfig) {
         return ProvisioningApiFp(this.configuration).runBatchProvisioningBatchesBatchIdRunPost(batchId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Run Batch
+     * @param {string} batchId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProvisioningApi
+     */
+    public runBatchProvisioningBatchesBatchIdRunPost_6(batchId: string, options?: RawAxiosRequestConfig) {
+        return ProvisioningApiFp(this.configuration).runBatchProvisioningBatchesBatchIdRunPost_6(batchId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

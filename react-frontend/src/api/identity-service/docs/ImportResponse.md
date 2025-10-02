@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **success** | **boolean** | True si l\&#39;import s\&#39;est bien déroulé | [default to undefined]
 **message** | **string** | Message global de l\&#39;import | [default to undefined]
+**batch_id** | **string** | ID du batch créé pour suivre l\&#39;import | [default to undefined]
 **summary** | [**ImportSummary**](ImportSummary.md) | Résumé de l\&#39;import | [default to undefined]
 **results** | [**Array&lt;ImportResult&gt;**](ImportResult.md) | Détails par identité | [default to undefined]
 **file_info** | **{ [key: string]: any; }** | Informations sur le fichier traité | [default to undefined]
@@ -21,6 +22,7 @@ import { ImportResponse } from './api';
 const instance: ImportResponse = {
     success,
     message,
+    batch_id,
     summary,
     results,
     file_info,

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 
 import { Upload, XCircle, FileDown, User, Users, UserCog, Shield, CheckCircle, FileText, Loader2, CheckCircle2 } from 'lucide-react';
 import { useOnboarding } from '../../../contexts/OnboardingContext';
-import { identityApi } from '../../../api/identity-service/client';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
 import { useAllEstablishments } from '../../../hooks/useAllEstablishments';
+import { downloadIdentityTemplate } from '../../../utils/downloadTemplate';
 
 type Domain = 'student' | 'parent' | 'teacher' | 'admin_staff';
 
@@ -135,16 +135,7 @@ const Section: React.FC<{ title: string; domain: Domain; }> = ({ title, domain }
 
   const handleDownloadServerTemplate = async (format: 'csv' | 'xlsx') => {
     try {
-      const { data } = await identityApi.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(domain, format, { responseType: 'blob' as any });
-      const blob = data as Blob;
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${domain}_template.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      await downloadIdentityTemplate(domain, format);
     } catch (e) {
       toast.error('Impossible de télécharger le template');
     }

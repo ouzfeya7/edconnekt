@@ -10,7 +10,10 @@ All URIs are relative to *http://localhost*
 |[**deleteIdentityApiV1IdentityIdentityIdDelete**](#deleteidentityapiv1identityidentityiddelete) | **DELETE** /api/v1/identity/{identity_id} | Delete Identity|
 |[**deleteRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdDelete**](#deleteroleassignmentapiv1identityidentitiesidentityidrolesroleiddelete) | **DELETE** /api/v1/identity/identities/{identity_id}/roles/{role_id} | Delete Role Assignment|
 |[**getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet**](#getbatchdetailsapiv1identitybulkimportbatchesbatchidget) | **GET** /api/v1/identity/bulkimport/batches/{batch_id} | Get Batch Details|
+|[**getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet**](#getbatcherrorsapiv1identitybulkimportbatchesbatchiderrorsget) | **GET** /api/v1/identity/bulkimport/batches/{batch_id}/errors | Get Batch Errors|
+|[**getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet**](#getbatchitemsapiv1identitybulkimportbatchesbatchiditemsget) | **GET** /api/v1/identity/bulkimport/batches/{batch_id}/items | Get Batch Items|
 |[**getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet**](#getbatchstatusapiv1identitybulkimportbatchesbatchidstatusget) | **GET** /api/v1/identity/bulkimport/batches/{batch_id}/status | Get Batch Status|
+|[**getCyclesApiV1IdentityCatalogsCycleGet**](#getcyclesapiv1identitycatalogscycleget) | **GET** /api/v1/identity/catalogs/cycle | Get Cycles|
 |[**getCyclesApiV1IdentityCatalogsCyclesGet**](#getcyclesapiv1identitycatalogscyclesget) | **GET** /api/v1/identity/catalogs/cycles | Get Cycles|
 |[**getIdentityApiV1IdentityIdentityIdGet**](#getidentityapiv1identityidentityidget) | **GET** /api/v1/identity/{identity_id} | Get Identity|
 |[**getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet**](#getidentityrolesapiv1identityidentitiesidentityidrolesget) | **GET** /api/v1/identity/identities/{identity_id}/roles | Get Identity Roles|
@@ -19,6 +22,7 @@ All URIs are relative to *http://localhost*
 |[**getLastCodeIdentiteApiV1IdentityLastCodeGet**](#getlastcodeidentiteapiv1identitylastcodeget) | **GET** /api/v1/identity/last-code | Get Last Code Identite|
 |[**getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet**](#getroleassignmentapiv1identityidentitiesidentityidrolesroleidget) | **GET** /api/v1/identity/identities/{identity_id}/roles/{role_id} | Get Role Assignment|
 |[**getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet**](#getroleseffectifsapiv1identitycatalogsroleseffectifsget) | **GET** /api/v1/identity/catalogs/roles-effectifs | Get Roles Effectifs|
+|[**getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet**](#getrolesprincipauxapiv1identitycatalogsroleprincipalget) | **GET** /api/v1/identity/catalogs/role-principal | Get Roles Principaux|
 |[**getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet**](#getrolesprincipauxapiv1identitycatalogsrolesprincipauxget) | **GET** /api/v1/identity/catalogs/roles-principaux | Get Roles Principaux|
 |[**getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet**](#gettemplateinfoapiv1identitybulkimporttemplateroleinfoget) | **GET** /api/v1/identity/bulkimport/template/{role}/info | Get Template Info|
 |[**healthCheckHealthGet**](#healthcheckhealthget) | **GET** /health | Health Check|
@@ -355,6 +359,131 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet**
+> any getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet()
+
+Récupère les erreurs d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 50, max: 200)     error_type: Filtrer par type d\'erreur      Returns:     Dict: Erreurs paginées avec métadonnées
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let batchId: string; // (default to undefined)
+let page: number; //Numéro de page (optional) (default to 1)
+let size: number; //Taille de page (optional) (default to 50)
+let errorType: string; //Filtrer par type d\'erreur (VALIDATION, DUPLICATE, DATABASE, etc.) (optional) (default to undefined)
+
+const { status, data } = await apiInstance.getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet(
+    batchId,
+    page,
+    size,
+    errorType
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **batchId** | [**string**] |  | defaults to undefined|
+| **page** | [**number**] | Numéro de page | (optional) defaults to 1|
+| **size** | [**number**] | Taille de page | (optional) defaults to 50|
+| **errorType** | [**string**] | Filtrer par type d\&#39;erreur (VALIDATION, DUPLICATE, DATABASE, etc.) | (optional) defaults to undefined|
+
+
+### Return type
+
+**any**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet**
+> any getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet()
+
+Récupère les items d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 50, max: 200)     status: Filtrer par statut     search: Rechercher par email      Returns:     Dict: Items paginés avec métadonnées
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let batchId: string; // (default to undefined)
+let page: number; //Numéro de page (optional) (default to 1)
+let size: number; //Taille de page (optional) (default to 50)
+let status: string; //Filtrer par statut (PENDING, PROCESSING, SUCCESS, ERROR, SKIPPED) (optional) (default to undefined)
+let search: string; //Rechercher par email (optional) (default to undefined)
+
+const { status, data } = await apiInstance.getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet(
+    batchId,
+    page,
+    size,
+    status,
+    search
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **batchId** | [**string**] |  | defaults to undefined|
+| **page** | [**number**] | Numéro de page | (optional) defaults to 1|
+| **size** | [**number**] | Taille de page | (optional) defaults to 50|
+| **status** | [**string**] | Filtrer par statut (PENDING, PROCESSING, SUCCESS, ERROR, SKIPPED) | (optional) defaults to undefined|
+| **search** | [**string**] | Rechercher par email | (optional) defaults to undefined|
+
+
+### Return type
+
+**any**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet**
 > any getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet()
 
@@ -388,6 +517,67 @@ const { status, data } = await apiInstance.getBatchStatusApiV1IdentityBulkimport
 ### Return type
 
 **any**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getCyclesApiV1IdentityCatalogsCycleGet**
+> StandardListResponse getCyclesApiV1IdentityCatalogsCycleGet()
+
+Récupère la liste des cycles pédagogiques.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[CycleResponse]: Liste des cycles
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let page: number; //Numéro de page (optional) (default to 1)
+let size: number; //Taille de la page (optional) (default to 10)
+let search: string; //Terme de recherche (optional) (default to undefined)
+let isActive: boolean; //Filtrer par statut actif (optional) (default to undefined)
+
+const { status, data } = await apiInstance.getCyclesApiV1IdentityCatalogsCycleGet(
+    page,
+    size,
+    search,
+    isActive
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] | Numéro de page | (optional) defaults to 1|
+| **size** | [**number**] | Taille de la page | (optional) defaults to 10|
+| **search** | [**string**] | Terme de recherche | (optional) defaults to undefined|
+| **isActive** | [**boolean**] | Filtrer par statut actif | (optional) defaults to undefined|
+
+
+### Return type
+
+**StandardListResponse**
 
 ### Authorization
 
@@ -683,9 +873,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getLastCodeIdentiteApiV1IdentityLastCodeGet**
-> StandardSingleResponse getLastCodeIdentiteApiV1IdentityLastCodeGet()
+> LastCodeResponse getLastCodeIdentiteApiV1IdentityLastCodeGet()
 
-Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement
+Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement (format: {\"last_code\": \"IDT000001\"})
 
 ### Example
 
@@ -707,7 +897,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**StandardSingleResponse**
+**LastCodeResponse**
 
 ### Authorization
 
@@ -823,6 +1013,67 @@ const { status, data } = await apiInstance.getRolesEffectifsApiV1IdentityCatalog
 | **search** | [**string**] | Terme de recherche | (optional) defaults to undefined|
 | **groupKey** | [**string**] | Filtrer par groupe | (optional) defaults to undefined|
 | **isSensitive** | [**boolean**] | Filtrer par sensibilité | (optional) defaults to undefined|
+| **isActive** | [**boolean**] | Filtrer par statut actif | (optional) defaults to undefined|
+
+
+### Return type
+
+**StandardListResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet**
+> StandardListResponse getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet()
+
+Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let page: number; //Numéro de page (optional) (default to 1)
+let size: number; //Taille de la page (optional) (default to 10)
+let search: string; //Terme de recherche (optional) (default to undefined)
+let isActive: boolean; //Filtrer par statut actif (optional) (default to undefined)
+
+const { status, data } = await apiInstance.getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet(
+    page,
+    size,
+    search,
+    isActive
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] | Numéro de page | (optional) defaults to 1|
+| **size** | [**number**] | Taille de la page | (optional) defaults to 10|
+| **search** | [**string**] | Terme de recherche | (optional) defaults to undefined|
 | **isActive** | [**boolean**] | Filtrer par statut actif | (optional) defaults to undefined|
 
 
