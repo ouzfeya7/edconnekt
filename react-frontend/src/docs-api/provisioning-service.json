@@ -43,6 +43,7 @@
         "/provisioning/batches": {
             "post": {
                 "tags": [
+                    "provisioning",
                     "provisioning"
                 ],
                 "summary": "Create Batch",
@@ -82,6 +83,7 @@
             },
             "get": {
                 "tags": [
+                    "provisioning",
                     "provisioning"
                 ],
                 "summary": "List Batches",
@@ -139,6 +141,7 @@
         "/provisioning/batches/{batch_id}/run": {
             "post": {
                 "tags": [
+                    "provisioning",
                     "provisioning"
                 ],
                 "summary": "Run Batch",
@@ -180,6 +183,7 @@
         "/provisioning/generate-username": {
             "post": {
                 "tags": [
+                    "provisioning",
                     "provisioning"
                 ],
                 "summary": "Generate Username",
@@ -239,6 +243,7 @@
         "/provisioning/batches/{batch_id}/items": {
             "get": {
                 "tags": [
+                    "provisioning",
                     "provisioning"
                 ],
                 "summary": "List Batch Items",
@@ -287,6 +292,61 @@
                                     },
                                     "title": "Response List Batch Items Provisioning Batches  Batch Id  Items Get"
                                 }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/provisioning/batches/{batch_id}/test-items": {
+            "post": {
+                "tags": [
+                    "provisioning",
+                    "provisioning"
+                ],
+                "summary": "Create Test Item",
+                "description": "Crée un item de test pour un batch (pour les tests uniquement).\n\nArgs:\n    batch_id: ID du batch\n    item_data: Données de l'item avec les clés:\n        - identity_id: UUID de l'identité\n        - firstname: Prénom\n        - lastname: Nom\n        - email: Email\n        - role_principal_code: Rôle principal\n        - establishment_id: ID de l'établissement (optionnel)",
+                "operationId": "create_test_item_provisioning_batches__batch_id__test_items_post",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Batch Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": true,
+                                "title": "Item Data"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
                             }
                         }
                     },

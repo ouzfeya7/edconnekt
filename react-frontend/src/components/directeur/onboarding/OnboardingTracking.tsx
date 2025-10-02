@@ -1,13 +1,13 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useDirector } from '../../../contexts/DirectorContext';
-import { useIdentityBatches, useIdentityBatchItems, useIdentityBulkProgress, useIdentityAudit } from '../../../hooks/useIdentity';
+import { useIdentityBatches, useIdentityBatchItems, useIdentityBulkProgress, useIdentityBatchErrors } from '../../../hooks/useIdentity';
 import { useProvisioningBatches, useProvisioningCreateBatch, useProvisioningRunBatch, useProvisioningBatchItems, useProvisioningGenerateUsername } from '../../../hooks/useProvisioning';
 import type { ProvisioningItem } from '../../../api/provisioning-service/api';
 import { useOnboarding } from '../../../contexts/OnboardingContext';
-import { identityApi } from '../../../api/identity-service/client';
 import { IDENTITY_API_BASE_URL } from '../../../api/identity-service/http';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import { downloadIdentityTemplate } from '../../../utils/downloadTemplate';
 
 import {
   Database,
@@ -39,21 +39,52 @@ const OnboardingTracking: React.FC = () => {
   // removed legacy identity search in favor of unified batchSearch
   const [templateDomain, setTemplateDomain] = useState<'student' | 'parent' | 'teacher' | 'admin_staff'>('student');
 
+  // Pagination/filters for identity items & errors
+  const [identityItemsPage, setIdentityItemsPage] = useState(1);
+  const [identityItemsSize, setIdentityItemsSize] = useState(50);
+  const [identityErrorsPage, setIdentityErrorsPage] = useState(1);
+  const [identityErrorsSize, setIdentityErrorsSize] = useState(50);
+  const [identityErrorType, setIdentityErrorType] = useState<string | undefined>(undefined);
+
 
   const effectiveEtabId = currentEtablissementId || undefined;
   const { data: idBatches } = useIdentityBatches({ page, size });
   const { data: idItems } = useIdentityBatchItems(
-    { batchId: selectedIdentityBatchId, domain: domainFilter, itemStatus: statusFilter, page: 1, size: 50 },
+    { batchId: selectedIdentityBatchId, domain: domainFilter, itemStatus: statusFilter, page: identityItemsPage, size: identityItemsSize },
+    { refetchInterval: 2000 }
+  );
+  // Server-side totals per status (fast: size=1) for accurate counts regardless of current page
+  const { data: idTotalPending } = useIdentityBatchItems(
+    { batchId: selectedIdentityBatchId, itemStatus: 'PENDING', page: 1, size: 1 },
+    { refetchInterval: 2000 }
+  );
+  const { data: idTotalProcessing } = useIdentityBatchItems(
+    { batchId: selectedIdentityBatchId, itemStatus: 'PROCESSING', page: 1, size: 1 },
+    { refetchInterval: 2000 }
+  );
+  const { data: idTotalSuccess } = useIdentityBatchItems(
+    { batchId: selectedIdentityBatchId, itemStatus: 'SUCCESS', page: 1, size: 1 },
+    { refetchInterval: 2000 }
+  );
+  const { data: idTotalError } = useIdentityBatchItems(
+    { batchId: selectedIdentityBatchId, itemStatus: 'ERROR', page: 1, size: 1 },
+    { refetchInterval: 2000 }
+  );
+  const { data: idTotalSkipped } = useIdentityBatchItems(
+    { batchId: selectedIdentityBatchId, itemStatus: 'SKIPPED', page: 1, size: 1 },
     { refetchInterval: 2000 }
   );
   const { data: idProgress } = useIdentityBulkProgress(selectedIdentityBatchId, { refetchInterval: 2000 });
-  const { data: idAudit } = useIdentityAudit({ batchId: selectedIdentityBatchId, limit: 20 });
   // Annulation non supportée par l'API actuelle -> bouton masqué
 
 
 
 
   const { data: provBatches } = useProvisioningBatches({ skip: (page - 1) * size, limit: size });
+  const { data: idErrors } = useIdentityBatchErrors(
+    { batchId: selectedIdentityBatchId, page: identityErrorsPage, size: identityErrorsSize, errorType: identityErrorType ?? undefined },
+    { refetchInterval: 5000 }
+  );
   const provCreate = useProvisioningCreateBatch();
   const provRun = useProvisioningRunBatch();
   const { data: provItems } = useProvisioningBatchItems(
@@ -149,30 +180,43 @@ const OnboardingTracking: React.FC = () => {
     }
   };
 
-  // Template download shortcuts
+  // Template download via centralized helper
   type Domain = 'student' | 'parent' | 'teacher' | 'admin_staff';
   const downloadServerTemplate = async (domain: Domain, format: 'csv' | 'xlsx') => {
     try {
-      const { data } = await identityApi.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(domain, format, { responseType: 'blob' as any });
-      const blob = data as Blob;
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${domain}_template.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      await downloadIdentityTemplate(domain, format);
     } catch {
       toast.error('Téléchargement du template impossible');
     }
   };
 
-  type IdentityItemRow = { domain?: string; establishment_id?: string; external_id?: string; target_uuid?: string; item_status?: string; message?: string; created_at?: string; updated_at?: string };
+  type IdentityItemRow = {
+    // Current API fields
+    id?: string;
+    row_number?: number;
+    email?: string;
+    firstname?: string;
+    lastname?: string;
+    phone?: string;
+    role_principal?: string | null;
+    role_effectif?: string | null;
+    cycle_codes?: any;
+    status?: string;
+    processed_at?: string;
+    identity_id?: string;
+    error_message?: string | null;
+    // Legacy fields (compat)
+    domain?: string;
+    establishment_id?: string;
+    external_id?: string;
+    target_uuid?: string;
+    item_status?: string;
+    message?: string;
+    created_at?: string;
+    updated_at?: string;
+  };
   const identityItemsArray: IdentityItemRow[] = useMemo(() => {
-    if (!idItems) return [];
-    const obj = idItems as { items?: IdentityItemRow[] };
-    return Array.isArray(obj.items) ? obj.items : [];
+    return Array.isArray(idItems?.items) ? (idItems?.items as IdentityItemRow[]) : [];
   }, [idItems]);
 
   useEffect(() => {
@@ -187,9 +231,9 @@ const OnboardingTracking: React.FC = () => {
   }, [selectedIdentityBatchId, identityItemsArray.length, domainFilter, statusFilter]);
 
   const identityCounters = useMemo(() => {
-    const counters: Record<string, number> = { NEW: 0, UPDATED: 0, SKIPPED: 0, INVALID: 0 };
+    const counters: Record<string, number> = { PENDING: 0, PROCESSING: 0, SUCCESS: 0, ERROR: 0, SKIPPED: 0 };
     identityItemsArray.forEach((it) => {
-      const key = (it.item_status ?? '').toUpperCase();
+      const key = ((it.status ?? it.item_status) ?? '').toUpperCase();
       if (counters[key] !== undefined) counters[key] += 1;
     });
     return counters;
@@ -565,11 +609,16 @@ const OnboardingTracking: React.FC = () => {
                 return (
                   <div className="flex flex-wrap items-center gap-4 text-sm text-gray-700">
                     <span><span className="text-gray-500">Statut:</span> {p?.status ?? '—'}</span>
-                    <span><span className="text-gray-500">Total:</span> {p?.total_items ?? '—'}</span>
+                    <span><span className="text-gray-500">Total:</span> {idItems?.total ?? p?.total_items ?? '—'}</span>
                     <span><span className="text-gray-500">NEW:</span> {p?.new_count ?? 0}</span>
                     <span><span className="text-gray-500">UPDATED:</span> {p?.updated_count ?? 0}</span>
                     <span><span className="text-gray-500">SKIPPED:</span> {p?.skipped_count ?? 0}</span>
                     <span><span className="text-gray-500">INVALID:</span> {p?.invalid_count ?? 0}</span>
+                    <span><span className="text-gray-500">PENDING:</span> {idTotalPending?.total ?? 0}</span>
+                    <span><span className="text-gray-500">PROCESSING:</span> {idTotalProcessing?.total ?? 0}</span>
+                    <span><span className="text-gray-500">SUCCESS:</span> {idTotalSuccess?.total ?? 0}</span>
+                    <span><span className="text-gray-500">ERROR:</span> {idTotalError?.total ?? 0}</span>
+                    <span><span className="text-gray-500">SKIPPED (total):</span> {idTotalSkipped?.total ?? 0}</span>
                   </div>
                 );
               })()}
@@ -581,7 +630,7 @@ const OnboardingTracking: React.FC = () => {
                   <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">NEW</div>
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 </div>
-                <div className="text-2xl font-bold text-green-600 mt-1">{identityCounters.NEW}</div>
+                <div className="text-2xl font-bold text-green-600 mt-1">{(effectiveProgress as any)?.new_count ?? 0}</div>
                 <div className="text-xs text-gray-400 mt-1">Nouveaux utilisateurs</div>
               </div>
               <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
@@ -589,7 +638,7 @@ const OnboardingTracking: React.FC = () => {
                   <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">UPDATED</div>
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                 </div>
-                <div className="text-2xl font-bold text-blue-600 mt-1">{identityCounters.UPDATED}</div>
+                <div className="text-2xl font-bold text-blue-600 mt-1">{(effectiveProgress as any)?.updated_count ?? 0}</div>
                 <div className="text-xs text-gray-400 mt-1">Mises à jour</div>
               </div>
               <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
@@ -597,7 +646,7 @@ const OnboardingTracking: React.FC = () => {
                   <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">SKIPPED</div>
                   <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                 </div>
-                <div className="text-2xl font-bold text-yellow-600 mt-1">{identityCounters.SKIPPED}</div>
+                <div className="text-2xl font-bold text-yellow-600 mt-1">{(effectiveProgress as any)?.skipped_count ?? 0}</div>
                 <div className="text-xs text-gray-400 mt-1">Ignorés</div>
               </div>
               <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
@@ -605,7 +654,7 @@ const OnboardingTracking: React.FC = () => {
                   <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">INVALID</div>
                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                 </div>
-                <div className="text-2xl font-bold text-red-600 mt-1">{identityCounters.INVALID}</div>
+                <div className="text-2xl font-bold text-red-600 mt-1">{(effectiveProgress as any)?.invalid_count ?? 0}</div>
                 <div className="text-xs text-gray-400 mt-1">Erreurs</div>
               </div>
             </div>
@@ -615,25 +664,15 @@ const OnboardingTracking: React.FC = () => {
               <span className="text-sm font-medium text-gray-700">Filtres:</span>
               <select 
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                value={domainFilter ?? ''} 
-                onChange={(e) => setDomainFilter(e.target.value || undefined)}
-              >
-                <option value="">🌐 Tous domaines</option>
-                <option value="student">👨‍🎓 Élève</option>
-                <option value="parent">👨‍👩‍👧‍👦 Parent</option>
-                <option value="teacher">👨‍🏫 Enseignant</option>
-                <option value="admin_staff">👨‍💼 Admin Staff</option>
-              </select>
-              <select 
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                 value={statusFilter ?? ''} 
                 onChange={(e) => setStatusFilter(e.target.value || undefined)}
               >
                 <option value="">📊 Tous statuts</option>
-                <option value="NEW">🆕 NEW</option>
-                <option value="UPDATED">🔄 UPDATED</option>
+                <option value="PENDING">⏳ PENDING</option>
+                <option value="PROCESSING">🔄 PROCESSING</option>
+                <option value="SUCCESS">✅ SUCCESS</option>
+                <option value="ERROR">❌ ERROR</option>
                 <option value="SKIPPED">⏭️ SKIPPED</option>
-                <option value="INVALID">❌ INVALID</option>
               </select>
             </div>
 
@@ -645,29 +684,42 @@ const OnboardingTracking: React.FC = () => {
               <table className="min-w-full border">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-3 py-2 text-left text-sm text-gray-600">Domaine</th>
-                    <th className="px-3 py-2 text-left text-sm text-gray-600">Etablissement</th>
-                    <th className="px-3 py-2 text-left text-sm text-gray-600">External ID</th>
-                    <th className="px-3 py-2 text-left text-sm text-gray-600">Target UUID</th>
+                    <th className="px-3 py-2 text-left text-sm text-gray-600">Ligne</th>
+                    <th className="px-3 py-2 text-left text-sm text-gray-600">Email</th>
+                    <th className="px-3 py-2 text-left text-sm text-gray-600">Prénom</th>
+                    <th className="px-3 py-2 text-left text-sm text-gray-600">Nom</th>
+                    <th className="px-3 py-2 text-left text-sm text-gray-600">Téléphone</th>
                     <th className="px-3 py-2 text-left text-sm text-gray-600">Statut</th>
-                    <th className="px-3 py-2 text-left text-sm text-gray-600">Message</th>
-                    <th className="px-3 py-2 text-left text-sm text-gray-600">Créé</th>
-                    <th className="px-3 py-2 text-left text-sm text-gray-600">MAJ</th>
+                    <th className="px-3 py-2 text-left text-sm text-gray-600">Traité le</th>
+                    <th className="px-3 py-2 text-left text-sm text-gray-600">Identity ID</th>
+                    <th className="px-3 py-2 text-left text-sm text-gray-600">Erreur</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(identityItemsArray as unknown[]).map((itUnknown, idx: number) => {
-                    const it = itUnknown as { domain?: string; establishment_id?: string; external_id?: string; target_uuid?: string; item_status?: string; message?: string; created_at?: string; updated_at?: string };
+                    const it = itUnknown as {
+                      id?: string;
+                      row_number?: number;
+                      email?: string;
+                      firstname?: string;
+                      lastname?: string;
+                      phone?: string;
+                      status?: string; item_status?: string;
+                      processed_at?: string;
+                      identity_id?: string;
+                      error_message?: string | null;
+                    };
                     return (
-                    <tr key={idx} className="border-t">
-                      <td className="px-3 py-2 text-sm">{it.domain ?? '—'}</td>
-                      <td className="px-3 py-2 text-sm">{it.establishment_id ?? '—'}</td>
-                      <td className="px-3 py-2 text-sm">{it.external_id ?? '—'}</td>
-                      <td className="px-3 py-2 text-sm">{it.target_uuid ?? '—'}</td>
-                      <td className="px-3 py-2 text-sm">{it.item_status ?? '—'}</td>
-                      <td className="px-3 py-2 text-sm break-all">{it.message ?? '—'}</td>
-                      <td className="px-3 py-2 text-sm">{it.created_at ? new Date(it.created_at).toLocaleString() : '—'}</td>
-                      <td className="px-3 py-2 text-sm">{it.updated_at ? new Date(it.updated_at).toLocaleString() : '—'}</td>
+                    <tr key={it.identity_id ?? it.id ?? idx} className="border-t">
+                      <td className="px-3 py-2 text-sm">{it.row_number ?? '—'}</td>
+                      <td className="px-3 py-2 text-sm break-all">{it.email ?? '—'}</td>
+                      <td className="px-3 py-2 text-sm">{it.firstname ?? '—'}</td>
+                      <td className="px-3 py-2 text-sm">{it.lastname ?? '—'}</td>
+                      <td className="px-3 py-2 text-sm">{it.phone ?? '—'}</td>
+                      <td className="px-3 py-2 text-sm">{(it.status ?? it.item_status) ?? '—'}</td>
+                      <td className="px-3 py-2 text-sm">{it.processed_at ? new Date(it.processed_at).toLocaleString() : '—'}</td>
+                      <td className="px-3 py-2 text-sm font-mono break-all">{it.identity_id ?? '—'}</td>
+                      <td className="px-3 py-2 text-sm break-all">{it.error_message ?? '—'}</td>
                     </tr>
                     );
                   })}
@@ -675,13 +727,105 @@ const OnboardingTracking: React.FC = () => {
               </table>
             </div>
 
-            {/* Audit (dernieres entrées) */}
-            <div className="overflow-x-auto border border-gray-200 rounded-lg">
+            {/* Pagination items identité */}
+            <div className="flex items-center justify-between mt-3">
+              <div className="flex items-center gap-2">
+                <button 
+                  disabled={identityItemsPage <= 1}
+                  onClick={() => setIdentityItemsPage(p => Math.max(1, p - 1))}
+                  className="inline-flex items-center px-2 py-1 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white disabled:opacity-50"
+                >
+                  <ChevronLeft className="w-3 h-3 mr-1" /> Précédent
+                </button>
+                <span className="text-xs text-gray-600">Page {identityItemsPage}{idItems?.pages ? ` / ${idItems.pages}` : ''}</span>
+                <button 
+                  disabled={!!idItems?.pages && identityItemsPage >= (idItems?.pages || 1)}
+                  onClick={() => setIdentityItemsPage(p => p + 1)}
+                  className="inline-flex items-center px-2 py-1 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white disabled:opacity-50"
+                >
+                  Suivant <ChevronRight className="w-3 h-3 ml-1" />
+                </button>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span>Taille:</span>
+                <select 
+                  className="px-2 py-1 border rounded"
+                  value={identityItemsSize}
+                  onChange={(e) => { setIdentityItemsPage(1); setIdentityItemsSize(Number(e.target.value)); }}
+                >
+                  {[25,50,100,200].map(n => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Erreurs du batch (collapsible) */}
+            <div className="overflow-x-auto border border-gray-200 rounded-lg mt-4">
               <details className="p-4 bg-gray-50" open={false}>
-                <summary className="cursor-pointer text-sm text-gray-700">Voir l'audit (dernier événements)</summary>
-                <pre className="mt-2 text-xs text-gray-700 whitespace-pre-wrap break-all">{idAudit ? JSON.stringify(idAudit, null, 2) : '—'}</pre>
+                <summary className="cursor-pointer text-sm text-gray-700">Voir les erreurs du batch</summary>
+                <div className="flex items-center gap-3 my-3">
+                  <select 
+                    className="px-2 py-1 border rounded text-xs"
+                    value={identityErrorType ?? ''}
+                    onChange={(e) => { setIdentityErrorsPage(1); setIdentityErrorType(e.target.value || undefined); }}
+                  >
+                    <option value="">Tous types</option>
+                    <option value="VALIDATION">VALIDATION</option>
+                    <option value="DUPLICATE">DUPLICATE</option>
+                    <option value="DATABASE">DATABASE</option>
+                  </select>
+                  <div className="ml-auto flex items-center gap-2 text-xs">
+                    <button 
+                      disabled={identityErrorsPage <= 1}
+                      onClick={() => setIdentityErrorsPage(p => Math.max(1, p - 1))}
+                      className="inline-flex items-center px-2 py-1 rounded border border-gray-300 text-gray-700 bg-white disabled:opacity-50"
+                    >
+                      <ChevronLeft className="w-3 h-3 mr-1" /> Précédent
+                    </button>
+                    <span>Page {identityErrorsPage}{idErrors?.pages ? ` / ${idErrors.pages}` : ''}</span>
+                    <button 
+                      disabled={!!idErrors?.pages && identityErrorsPage >= (idErrors?.pages || 1)}
+                      onClick={() => setIdentityErrorsPage(p => p + 1)}
+                      className="inline-flex items-center px-2 py-1 rounded border border-gray-300 text-gray-700 bg-white disabled:opacity-50"
+                    >
+                      Suivant <ChevronRight className="w-3 h-3 ml-1" />
+                    </button>
+                    <select 
+                      className="px-2 py-1 border rounded"
+                      value={identityErrorsSize}
+                      onChange={(e) => { setIdentityErrorsPage(1); setIdentityErrorsSize(Number(e.target.value)); }}
+                    >
+                      {[25,50,100,200].map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  {Array.isArray(idErrors?.errors) && idErrors?.errors.length > 0 ? (
+                    <table className="min-w-full border">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-3 py-2 text-left text-xs text-gray-600">Type</th>
+                          <th className="px-3 py-2 text-left text-xs text-gray-600">Message</th>
+                          <th className="px-3 py-2 text-left text-xs text-gray-600">Contexte</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {idErrors.errors.map((e, i) => (
+                          <tr key={i} className="border-t">
+                            <td className="px-3 py-2 text-xs">{(e?.type ?? e?.error_type ?? '—').toString()}</td>
+                            <td className="px-3 py-2 text-xs break-all">{(e?.message ?? e?.msg ?? '—').toString()}</td>
+                            <td className="px-3 py-2 text-xs"><pre className="whitespace-pre-wrap break-all">{JSON.stringify(e, null, 2)}</pre></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div className="p-4 text-sm text-gray-600">Aucune erreur trouvée.</div>
+                  )}
+                </div>
               </details>
             </div>
+
+            {/* Audit non supporté par l'API actuelle */}
           </div>
         )}
       </div>

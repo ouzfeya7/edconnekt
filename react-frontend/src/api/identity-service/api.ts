@@ -430,6 +430,12 @@ export interface ImportResponse {
      */
     'message': string;
     /**
+     * ID du batch créé pour suivre l\'import
+     * @type {string}
+     * @memberof ImportResponse
+     */
+    'batch_id': string;
+    /**
      * Résumé de l\'import
      * @type {ImportSummary}
      * @memberof ImportResponse
@@ -533,6 +539,19 @@ export interface ImportSummary {
      * @memberof ImportSummary
      */
     'updated_identities': number;
+}
+/**
+ * Schéma pour la réponse du dernier code utilisé.
+ * @export
+ * @interface LastCodeResponse
+ */
+export interface LastCodeResponse {
+    /**
+     * Dernier code d\'identité utilisé
+     * @type {string}
+     * @memberof LastCodeResponse
+     */
+    'last_code': string;
 }
 /**
  * Schéma pour la création d\'un rôle complexe.
@@ -1223,6 +1242,109 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * Récupère les erreurs d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 50, max: 200)     error_type: Filtrer par type d\'erreur      Returns:     Dict: Erreurs paginées avec métadonnées
+         * @summary Get Batch Errors
+         * @param {string} batchId 
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [errorType] Filtrer par type d\&#39;erreur (VALIDATION, DUPLICATE, DATABASE, etc.)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet: async (batchId: string, page?: number, size?: number, errorType?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchId' is not null or undefined
+            assertParamExists('getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet', 'batchId', batchId)
+            const localVarPath = `/api/v1/identity/bulkimport/batches/{batch_id}/errors`
+                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (errorType !== undefined) {
+                localVarQueryParameter['error_type'] = errorType;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère les items d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 50, max: 200)     status: Filtrer par statut     search: Rechercher par email      Returns:     Dict: Items paginés avec métadonnées
+         * @summary Get Batch Items
+         * @param {string} batchId 
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [status] Filtrer par statut (PENDING, PROCESSING, SUCCESS, ERROR, SKIPPED)
+         * @param {string | null} [search] Rechercher par email
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet: async (batchId: string, page?: number, size?: number, status?: string | null, search?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'batchId' is not null or undefined
+            assertParamExists('getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet', 'batchId', batchId)
+            const localVarPath = `/api/v1/identity/bulkimport/batches/{batch_id}/items`
+                .replace(`{${"batch_id"}}`, encodeURIComponent(String(batchId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Récupère le statut actuel d\'un batch.  Args:     batch_id: ID du batch      Returns:     Dict: Statut du batch
          * @summary Get Batch Status
          * @param {string} batchId 
@@ -1244,6 +1366,56 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère la liste des cycles pédagogiques.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[CycleResponse]: Liste des cycles
+         * @summary Get Cycles
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCyclesApiV1IdentityCatalogsCycleGet: async (page?: number, size?: number, search?: string | null, isActive?: boolean | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/catalogs/cycle`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (isActive !== undefined) {
+                localVarQueryParameter['is_active'] = isActive;
+            }
 
 
     
@@ -1453,7 +1625,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement
+         * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement (format: {\"last_code\": \"IDT000001\"})
          * @summary Get Last Code Identite
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1563,6 +1735,56 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
 
             if (isSensitive !== undefined) {
                 localVarQueryParameter['is_sensitive'] = isSensitive;
+            }
+
+            if (isActive !== undefined) {
+                localVarQueryParameter['is_active'] = isActive;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
+         * @summary Get Roles Principaux
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet: async (page?: number, size?: number, search?: string | null, isActive?: boolean | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/catalogs/role-principal`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
             }
 
             if (isActive !== undefined) {
@@ -2182,6 +2404,39 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Récupère les erreurs d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 50, max: 200)     error_type: Filtrer par type d\'erreur      Returns:     Dict: Erreurs paginées avec métadonnées
+         * @summary Get Batch Errors
+         * @param {string} batchId 
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [errorType] Filtrer par type d\&#39;erreur (VALIDATION, DUPLICATE, DATABASE, etc.)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet(batchId: string, page?: number, size?: number, errorType?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet(batchId, page, size, errorType, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère les items d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 50, max: 200)     status: Filtrer par statut     search: Rechercher par email      Returns:     Dict: Items paginés avec métadonnées
+         * @summary Get Batch Items
+         * @param {string} batchId 
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [status] Filtrer par statut (PENDING, PROCESSING, SUCCESS, ERROR, SKIPPED)
+         * @param {string | null} [search] Rechercher par email
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet(batchId: string, page?: number, size?: number, status?: string | null, search?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet(batchId, page, size, status, search, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Récupère le statut actuel d\'un batch.  Args:     batch_id: ID du batch      Returns:     Dict: Statut du batch
          * @summary Get Batch Status
          * @param {string} batchId 
@@ -2192,6 +2447,22 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère la liste des cycles pédagogiques.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[CycleResponse]: Liste des cycles
+         * @summary Get Cycles
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCyclesApiV1IdentityCatalogsCycleGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCyclesApiV1IdentityCatalogsCycleGet(page, size, search, isActive, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getCyclesApiV1IdentityCatalogsCycleGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2265,12 +2536,12 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement
+         * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement (format: {\"last_code\": \"IDT000001\"})
          * @summary Get Last Code Identite
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getLastCodeIdentiteApiV1IdentityLastCodeGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardSingleResponse>> {
+        async getLastCodeIdentiteApiV1IdentityLastCodeGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LastCodeResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getLastCodeIdentiteApiV1IdentityLastCodeGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getLastCodeIdentiteApiV1IdentityLastCodeGet']?.[localVarOperationServerIndex]?.url;
@@ -2306,6 +2577,22 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page, size, search, groupKey, isSensitive, isActive, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
+         * @summary Get Roles Principaux
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet(page, size, search, isActive, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2557,6 +2844,33 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getBatchDetailsApiV1IdentityBulkimportBatchesBatchIdGet(batchId, options).then((request) => request(axios, basePath));
         },
         /**
+         * Récupère les erreurs d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 50, max: 200)     error_type: Filtrer par type d\'erreur      Returns:     Dict: Erreurs paginées avec métadonnées
+         * @summary Get Batch Errors
+         * @param {string} batchId 
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [errorType] Filtrer par type d\&#39;erreur (VALIDATION, DUPLICATE, DATABASE, etc.)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet(batchId: string, page?: number, size?: number, errorType?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet(batchId, page, size, errorType, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère les items d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 50, max: 200)     status: Filtrer par statut     search: Rechercher par email      Returns:     Dict: Items paginés avec métadonnées
+         * @summary Get Batch Items
+         * @param {string} batchId 
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [status] Filtrer par statut (PENDING, PROCESSING, SUCCESS, ERROR, SKIPPED)
+         * @param {string | null} [search] Rechercher par email
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet(batchId: string, page?: number, size?: number, status?: string | null, search?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet(batchId, page, size, status, search, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Récupère le statut actuel d\'un batch.  Args:     batch_id: ID du batch      Returns:     Dict: Statut du batch
          * @summary Get Batch Status
          * @param {string} batchId 
@@ -2565,6 +2879,19 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
             return localVarFp.getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère la liste des cycles pédagogiques.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[CycleResponse]: Liste des cycles
+         * @summary Get Cycles
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCyclesApiV1IdentityCatalogsCycleGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): AxiosPromise<StandardListResponse> {
+            return localVarFp.getCyclesApiV1IdentityCatalogsCycleGet(page, size, search, isActive, options).then((request) => request(axios, basePath));
         },
         /**
          * Récupère la liste des cycles pédagogiques.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[CycleResponse]: Liste des cycles
@@ -2622,12 +2949,12 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(role, formatType, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement
+         * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement (format: {\"last_code\": \"IDT000001\"})
          * @summary Get Last Code Identite
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getLastCodeIdentiteApiV1IdentityLastCodeGet(options?: RawAxiosRequestConfig): AxiosPromise<StandardSingleResponse> {
+        getLastCodeIdentiteApiV1IdentityLastCodeGet(options?: RawAxiosRequestConfig): AxiosPromise<LastCodeResponse> {
             return localVarFp.getLastCodeIdentiteApiV1IdentityLastCodeGet(options).then((request) => request(axios, basePath));
         },
         /**
@@ -2655,6 +2982,19 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page?: number, size?: number, search?: string | null, groupKey?: string | null, isSensitive?: boolean | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): AxiosPromise<StandardListResponse> {
             return localVarFp.getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page, size, search, groupKey, isSensitive, isActive, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
+         * @summary Get Roles Principaux
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de la page
+         * @param {string | null} [search] Terme de recherche
+         * @param {boolean | null} [isActive] Filtrer par statut actif
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): AxiosPromise<StandardListResponse> {
+            return localVarFp.getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet(page, size, search, isActive, options).then((request) => request(axios, basePath));
         },
         /**
          * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
@@ -2881,6 +3221,37 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * Récupère les erreurs d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 50, max: 200)     error_type: Filtrer par type d\'erreur      Returns:     Dict: Erreurs paginées avec métadonnées
+     * @summary Get Batch Errors
+     * @param {string} batchId 
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de page
+     * @param {string | null} [errorType] Filtrer par type d\&#39;erreur (VALIDATION, DUPLICATE, DATABASE, etc.)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet(batchId: string, page?: number, size?: number, errorType?: string | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getBatchErrorsApiV1IdentityBulkimportBatchesBatchIdErrorsGet(batchId, page, size, errorType, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère les items d\'un batch avec pagination et filtres.  Args:     batch_id: ID du batch     page: Numéro de page (défaut: 1)     size: Taille de page (défaut: 50, max: 200)     status: Filtrer par statut     search: Rechercher par email      Returns:     Dict: Items paginés avec métadonnées
+     * @summary Get Batch Items
+     * @param {string} batchId 
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de page
+     * @param {string | null} [status] Filtrer par statut (PENDING, PROCESSING, SUCCESS, ERROR, SKIPPED)
+     * @param {string | null} [search] Rechercher par email
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet(batchId: string, page?: number, size?: number, status?: string | null, search?: string | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getBatchItemsApiV1IdentityBulkimportBatchesBatchIdItemsGet(batchId, page, size, status, search, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Récupère le statut actuel d\'un batch.  Args:     batch_id: ID du batch      Returns:     Dict: Statut du batch
      * @summary Get Batch Status
      * @param {string} batchId 
@@ -2890,6 +3261,21 @@ export class DefaultApi extends BaseAPI {
      */
     public getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère la liste des cycles pédagogiques.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[CycleResponse]: Liste des cycles
+     * @summary Get Cycles
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de la page
+     * @param {string | null} [search] Terme de recherche
+     * @param {boolean | null} [isActive] Filtrer par statut actif
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getCyclesApiV1IdentityCatalogsCycleGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getCyclesApiV1IdentityCatalogsCycleGet(page, size, search, isActive, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2958,7 +3344,7 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement
+     * Récupère le dernier code d\'identité utilisé.  **Permissions requises :** ROLE_ADMIN, ROLE_ADMINSTAFF  **Réponse :** - Dernier code utilisé uniquement (format: {\"last_code\": \"IDT000001\"})
      * @summary Get Last Code Identite
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -2996,6 +3382,21 @@ export class DefaultApi extends BaseAPI {
      */
     public getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page?: number, size?: number, search?: string | null, groupKey?: string | null, isSensitive?: boolean | null, isActive?: boolean | null, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page, size, search, groupKey, isSensitive, isActive, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
+     * @summary Get Roles Principaux
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de la page
+     * @param {string | null} [search] Terme de recherche
+     * @param {boolean | null} [isActive] Filtrer par statut actif
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet(page, size, search, isActive, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
