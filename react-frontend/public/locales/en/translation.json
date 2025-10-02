@@ -265,7 +265,6 @@
         "referential": "Referential",
         "version": "Version",
         "open_ref": "Open referential",
-{{ ... }}
         "not_found": "Competency not found (404)",
         "load_error_toast": "An error occurred while loading the competency."
       },
