@@ -945,7 +945,7 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
+         * Récupère un établissement par son ID  - ROLE_ADMIN : Peut accéder à tous les établissements - ROLE_DIRECTION : Peut accéder à tous les établissements
          * @summary Get Establishment
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
@@ -979,7 +979,7 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  - ROLE_ADMIN : Peut accéder à l\'audit de tous les établissements - ROLE_DIRECTION : Ne peut accéder qu\'à l\'audit de son établissement  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
          * @summary Get Establishment Audit
          * @param {string} establishmentId 
          * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
@@ -1135,7 +1135,7 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
+         * Liste les établissements  - ROLE_ADMIN : Peut voir tous les établissements
          * @summary List Establishments
          * @param {StatusEnum} [status] Filtrer par statut
          * @param {number} [limit] Nombre maximum d\&#39;éléments
@@ -1220,7 +1220,7 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Met à jour les informations d\'un établissement
+         * Met à jour les informations d\'un établissement  - ROLE_ADMIN : Peut modifier tous les établissements - ROLE_DIRECTION : Peut modifier tous les établissements
          * @summary Update Establishment
          * @param {string} establishmentId 
          * @param {EtablissementUpdate} etablissementUpdate 
@@ -1399,7 +1399,7 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
+         * Récupère un établissement par son ID  - ROLE_ADMIN : Peut accéder à tous les établissements - ROLE_DIRECTION : Peut accéder à tous les établissements
          * @summary Get Establishment
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
@@ -1412,7 +1412,7 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  - ROLE_ADMIN : Peut accéder à l\'audit de tous les établissements - ROLE_DIRECTION : Ne peut accéder qu\'à l\'audit de son établissement  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
          * @summary Get Establishment Audit
          * @param {string} establishmentId 
          * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
@@ -1461,7 +1461,7 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
+         * Liste les établissements  - ROLE_ADMIN : Peut voir tous les établissements
          * @summary List Establishments
          * @param {StatusEnum} [status] Filtrer par statut
          * @param {number} [limit] Nombre maximum d\&#39;éléments
@@ -1490,7 +1490,7 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Met à jour les informations d\'un établissement
+         * Met à jour les informations d\'un établissement  - ROLE_ADMIN : Peut modifier tous les établissements - ROLE_DIRECTION : Peut modifier tous les établissements
          * @summary Update Establishment
          * @param {string} establishmentId 
          * @param {EtablissementUpdate} etablissementUpdate 
@@ -1577,7 +1577,7 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.exportEstablishmentAuditApiEtablissementsEstablishmentIdAuditExportGet(establishmentId, dateFrom, dateTo, format, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
+         * Récupère un établissement par son ID  - ROLE_ADMIN : Peut accéder à tous les établissements - ROLE_DIRECTION : Peut accéder à tous les établissements
          * @summary Get Establishment
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
@@ -1587,7 +1587,7 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  - ROLE_ADMIN : Peut accéder à l\'audit de tous les établissements - ROLE_DIRECTION : Ne peut accéder qu\'à l\'audit de son établissement  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
          * @summary Get Establishment Audit
          * @param {string} establishmentId 
          * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
@@ -1627,7 +1627,7 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.getEstablishmentAuditSummaryApiEtablissementsEstablishmentIdAuditSummaryGet(establishmentId, days, options).then((request) => request(axios, basePath));
         },
         /**
-         * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
+         * Liste les établissements  - ROLE_ADMIN : Peut voir tous les établissements
          * @summary List Establishments
          * @param {StatusEnum} [status] Filtrer par statut
          * @param {number} [limit] Nombre maximum d\&#39;éléments
@@ -1650,7 +1650,7 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.listPublicEstablishmentsApiEtablissementsPublicGet(limit, offset, options).then((request) => request(axios, basePath));
         },
         /**
-         * Met à jour les informations d\'un établissement
+         * Met à jour les informations d\'un établissement  - ROLE_ADMIN : Peut modifier tous les établissements - ROLE_DIRECTION : Peut modifier tous les établissements
          * @summary Update Establishment
          * @param {string} establishmentId 
          * @param {EtablissementUpdate} etablissementUpdate 
@@ -1734,7 +1734,7 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
+     * Récupère un établissement par son ID  - ROLE_ADMIN : Peut accéder à tous les établissements - ROLE_DIRECTION : Peut accéder à tous les établissements
      * @summary Get Establishment
      * @param {string} establishmentId 
      * @param {*} [options] Override http request option.
@@ -1746,7 +1746,7 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+     * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  - ROLE_ADMIN : Peut accéder à l\'audit de tous les établissements - ROLE_DIRECTION : Ne peut accéder qu\'à l\'audit de son établissement  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
      * @summary Get Establishment Audit
      * @param {string} establishmentId 
      * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
@@ -1792,7 +1792,7 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
+     * Liste les établissements  - ROLE_ADMIN : Peut voir tous les établissements
      * @summary List Establishments
      * @param {StatusEnum} [status] Filtrer par statut
      * @param {number} [limit] Nombre maximum d\&#39;éléments
@@ -1819,7 +1819,7 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Met à jour les informations d\'un établissement
+     * Met à jour les informations d\'un établissement  - ROLE_ADMIN : Peut modifier tous les établissements - ROLE_DIRECTION : Peut modifier tous les établissements
      * @summary Update Establishment
      * @param {string} establishmentId 
      * @param {EtablissementUpdate} etablissementUpdate 

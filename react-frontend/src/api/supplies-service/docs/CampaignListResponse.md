@@ -5,11 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
-**name** | **string** |  | [default to undefined]
-**status** | **string** |  | [default to undefined]
-**created_at** | **string** |  | [default to undefined]
-**updated_at** | **string** |  | [default to undefined]
+**campaigns** | [**Array&lt;CampaignResponse&gt;**](CampaignResponse.md) |  | [default to undefined]
+**total_count** | **number** |  | [default to undefined]
+**limit** | **number** |  | [default to undefined]
+**offset** | **number** |  | [default to undefined]
 
 ## Example
 
@@ -17,11 +16,10 @@ Name | Type | Description | Notes
 import { CampaignListResponse } from './api';
 
 const instance: CampaignListResponse = {
-    id,
-    name,
-    status,
-    created_at,
-    updated_at,
+    campaigns,
+    total_count,
+    limit,
+    offset,
 };
 ```
 

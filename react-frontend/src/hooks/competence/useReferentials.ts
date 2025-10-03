@@ -17,7 +17,7 @@ export function useReferentials(params: UseReferentialsParams = {}) {
   return useQuery<ReferentialListResponse, Error>({
     queryKey: ['competence:referentials', { page, size, cycle, state, visibility, q }],
     queryFn: async () => {
-      const { data } = await competenceReferentialsApi.listReferentialsApiCompetenceReferentialsGet(
+      const { data } = await competenceReferentialsApi.listReferentialsApiV1ReferentialsGet(
         page,
         size,
         cycle ?? undefined,
@@ -36,7 +36,7 @@ export function useReferential(referentialId: string, versionNumber?: number, in
   return useQuery<ReferentialResponse | ReferentialTree, Error>({
     queryKey: ['competence:referential', { referentialId, versionNumber, includeTree }],
     queryFn: async () => {
-      const { data } = await competenceReferentialsApi.getReferentialApiCompetenceReferentialsReferentialIdGet(
+      const { data } = await competenceReferentialsApi.getReferentialApiV1ReferentialsReferentialIdGet(
         referentialId,
         versionNumber ?? undefined,
         includeTree
@@ -52,7 +52,7 @@ export function useReferentialTree(referentialId: string, versionNumber?: number
   return useQuery<ReferentialTree, Error>({
     queryKey: ['competence:referential:tree', { referentialId, versionNumber }],
     queryFn: async () => {
-      const { data } = await competenceReferentialsApi.getReferentialApiCompetenceReferentialsReferentialIdGet(
+      const { data } = await competenceReferentialsApi.getReferentialApiV1ReferentialsReferentialIdGet(
         referentialId,
         versionNumber ?? undefined,
         true

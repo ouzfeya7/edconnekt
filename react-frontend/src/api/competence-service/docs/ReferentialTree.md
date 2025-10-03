@@ -10,9 +10,11 @@ Name | Type | Description | Notes
 **cycle** | [**CycleEnum**](CycleEnum.md) |  | [default to undefined]
 **version_number** | **number** |  | [default to undefined]
 **state** | [**RefStateEnum**](RefStateEnum.md) |  | [default to undefined]
-**visibility** | [**VisibilityEnum**](VisibilityEnum.md) |  | [default to undefined]
-**description** | **string** |  | [default to undefined]
-**domains** | [**Array&lt;DomainTree&gt;**](DomainTree.md) |  | [default to undefined]
+**visibility** | [**VisibilityEnum**](VisibilityEnum.md) |  | [optional] [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
+**domains** | [**Array&lt;DomainTree&gt;**](DomainTree.md) |  | [optional] [default to undefined]
+**created_at** | **string** |  | [optional] [default to undefined]
+**updated_at** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -28,6 +30,8 @@ const instance: ReferentialTree = {
     visibility,
     description,
     domains,
+    created_at,
+    updated_at,
 };
 ```
 

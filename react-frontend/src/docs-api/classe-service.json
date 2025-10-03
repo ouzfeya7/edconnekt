@@ -45,19 +45,9 @@
                     "Classes"
                 ],
                 "summary": "Get Classes",
-                "description": "Liste les classes avec filtres et pagination.",
+                "description": "Liste les classes avec filtres et pagination selon le contexte tenant.",
                 "operationId": "get_classes_api_v1_classes__get",
                 "parameters": [
-                    {
-                        "name": "etablissement_id",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid",
-                            "title": "Etablissement Id"
-                        }
-                    },
                     {
                         "name": "skip",
                         "in": "query",
@@ -678,6 +668,17 @@
                             }
                         ],
                         "title": "Auteur Nom"
+                    },
+                    "tenant_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tenant Id"
                     },
                     "id": {
                         "type": "string",
@@ -1470,7 +1471,7 @@
                                 }
                             ]
                         },
-                        "type": "array",  
+                        "type": "array",
                         "title": "Location"
                     },
                     "msg": {

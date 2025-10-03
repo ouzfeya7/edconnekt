@@ -190,7 +190,7 @@ No authorization required
 # **getEstablishmentApiEtablissementsEstablishmentIdGet**
 > EtablissementOut getEstablishmentApiEtablissementsEstablishmentIdGet()
 
-Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à son propre établissement.
+Récupère un établissement par son ID  - ROLE_ADMIN : Peut accéder à tous les établissements - ROLE_DIRECTION : Peut accéder à tous les établissements
 
 ### Example
 
@@ -242,7 +242,7 @@ No authorization required
 # **getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet**
 > AuditListResponse getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet()
 
-Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  - ROLE_ADMIN : Peut accéder à l\'audit de tous les établissements - ROLE_DIRECTION : Ne peut accéder qu\'à l\'audit de son établissement  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
 
 ### Example
 
@@ -428,7 +428,7 @@ No authorization required
 # **listEstablishmentsApiEtablissementsGet**
 > Array<EtablissementOut> listEstablishmentsApiEtablissementsGet()
 
-Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
+Liste les établissements  - ROLE_ADMIN : Peut voir tous les établissements
 
 ### Example
 
@@ -541,7 +541,7 @@ No authorization required
 # **updateEstablishmentApiEtablissementsEstablishmentIdPatch**
 > EtablissementOut updateEstablishmentApiEtablissementsEstablishmentIdPatch(etablissementUpdate)
 
-Met à jour les informations d\'un établissement
+Met à jour les informations d\'un établissement  - ROLE_ADMIN : Peut modifier tous les établissements - ROLE_DIRECTION : Peut modifier tous les établissements
 
 ### Example
 

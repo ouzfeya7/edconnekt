@@ -100,7 +100,7 @@
                     "establishments"
                 ],
                 "summary": "List Establishments",
-                "description": "Liste tous les établissements avec pagination et filtres\n\nRequiert le rôle ROLE_ADMIN.",
+                "description": "Liste les établissements\n\n- ROLE_ADMIN : Peut voir tous les établissements",
                 "operationId": "list_establishments_api_etablissements__get",
                 "parameters": [
                     {
@@ -175,7 +175,7 @@
                     "establishments"
                 ],
                 "summary": "Get Establishment",
-                "description": "Récupère un établissement par son ID\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut accéder qu'à son propre établissement.",
+                "description": "Récupère un établissement par son ID\n\n- ROLE_ADMIN : Peut accéder à tous les établissements\n- ROLE_DIRECTION : Peut accéder à tous les établissements",
                 "operationId": "get_establishment_api_etablissements__establishment_id__get",
                 "parameters": [
                     {
@@ -217,7 +217,7 @@
                     "establishments"
                 ],
                 "summary": "Update Establishment",
-                "description": "Met à jour les informations d'un établissement",
+                "description": "Met à jour les informations d'un établissement\n\n- ROLE_ADMIN : Peut modifier tous les établissements\n- ROLE_DIRECTION : Peut modifier tous les établissements",
                 "operationId": "update_establishment_api_etablissements__establishment_id__patch",
                 "parameters": [
                     {
@@ -451,7 +451,7 @@
                     "establishments"
                 ],
                 "summary": "Get Establishment Audit",
-                "description": "Récupère l'historique d'audit d'un établissement avec filtres et pagination\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut accéder qu'à l'audit de son propre établissement.\n\n**Paramètres de filtrage :**\n- `operation` : Type d'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT)\n- `auteur_id` : ID de l'auteur de l'opération\n- `auteur_nom` : Nom de l'auteur (recherche partielle)\n- `date_from` : Date de début pour le filtrage\n- `date_to` : Date de fin pour le filtrage\n\n**Paramètres de pagination :**\n- `limit` : Nombre maximum d'éléments (1-100)\n- `offset` : Offset pour la pagination\n\n**Paramètres de tri :**\n- `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id)\n- `sort_order` : Ordre de tri (asc/desc)",
+                "description": "Récupère l'historique d'audit d'un établissement avec filtres et pagination\n\n- ROLE_ADMIN : Peut accéder à l'audit de tous les établissements\n- ROLE_DIRECTION : Ne peut accéder qu'à l'audit de son établissement\n\n**Paramètres de filtrage :**\n- `operation` : Type d'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT)\n- `auteur_id` : ID de l'auteur de l'opération\n- `auteur_nom` : Nom de l'auteur (recherche partielle)\n- `date_from` : Date de début pour le filtrage\n- `date_to` : Date de fin pour le filtrage\n\n**Paramètres de pagination :**\n- `limit` : Nombre maximum d'éléments (1-100)\n- `offset` : Offset pour la pagination\n\n**Paramètres de tri :**\n- `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id)\n- `sort_order` : Ordre de tri (asc/desc)",
                 "operationId": "get_establishment_audit_api_etablissements__establishment_id__audit_get",
                 "parameters": [
                     {

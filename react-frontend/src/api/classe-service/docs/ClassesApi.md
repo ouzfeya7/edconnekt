@@ -335,7 +335,7 @@ No authorization required
 # **getClassesApiV1ClassesGet**
 > StandardResponseListClasseOut getClassesApiV1ClassesGet()
 
-Liste les classes avec filtres et pagination.
+Liste les classes avec filtres et pagination selon le contexte tenant.
 
 ### Example
 
@@ -348,7 +348,6 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ClassesApi(configuration);
 
-let etablissementId: string; // (default to undefined)
 let skip: number; // (optional) (default to 0)
 let limit: number; // (optional) (default to 100)
 let nom: string; // (optional) (default to undefined)
@@ -357,7 +356,6 @@ let isArchived: boolean; // (optional) (default to false)
 let status: string; //Filtrer par status: actif, inactif, archive (optional) (default to undefined)
 
 const { status, data } = await apiInstance.getClassesApiV1ClassesGet(
-    etablissementId,
     skip,
     limit,
     nom,
@@ -371,7 +369,6 @@ const { status, data } = await apiInstance.getClassesApiV1ClassesGet(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **etablissementId** | [**string**] |  | defaults to undefined|
 | **skip** | [**number**] |  | (optional) defaults to 0|
 | **limit** | [**number**] |  | (optional) defaults to 100|
 | **nom** | [**string**] |  | (optional) defaults to undefined|

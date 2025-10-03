@@ -10,7 +10,7 @@ All URIs are relative to *http://localhost*
 # **healthCheckHealthGet**
 > any healthCheckHealthGet()
 
-Endpoint de santé pour Docker et monitoring
+Endpoint de santé pour Docker et monitoring avec test de connexion DB
 
 ### Example
 

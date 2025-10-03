@@ -6,7 +6,7 @@ export function useReplayOutboxEvents() {
   return useMutation({
     mutationKey: ['competence:events:replay'],
     mutationFn: async () => {
-      const { data } = await competenceEventsApi.replayEventsApiCompetenceEventsEventsReplayPost();
+      const { data } = await competenceEventsApi.replayEventsApiV1EventsEventsReplayPost();
       return data;
     },
     onSuccess: () => {

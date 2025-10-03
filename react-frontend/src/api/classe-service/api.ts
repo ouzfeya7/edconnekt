@@ -64,6 +64,12 @@ export interface ClasseAuditOut {
      * @type {string}
      * @memberof ClasseAuditOut
      */
+    'tenant_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClasseAuditOut
+     */
     'id': string;
     /**
      * 
@@ -159,7 +165,6 @@ export interface ClasseEleveCreate {
  * @interface ClasseEleveOut
  */
 export interface ClasseEleveOut {
-    nom: string;
     /**
      * 
      * @type {string}
@@ -216,7 +221,6 @@ export interface ClasseEnseignantCreate {
  * @interface ClasseEnseignantOut
  */
 export interface ClasseEnseignantOut {
-    nom: string;
     /**
      * 
      * @type {string}
@@ -933,9 +937,8 @@ export const ClassesApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Liste les classes avec filtres et pagination.
+         * Liste les classes avec filtres et pagination selon le contexte tenant.
          * @summary Get Classes
-         * @param {string} etablissementId 
          * @param {number} [skip] 
          * @param {number} [limit] 
          * @param {string} [nom] 
@@ -945,9 +948,7 @@ export const ClassesApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getClassesApiV1ClassesGet: async (etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'etablissementId' is not null or undefined
-            assertParamExists('getClassesApiV1ClassesGet', 'etablissementId', etablissementId)
+        getClassesApiV1ClassesGet: async (skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/classes/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -959,10 +960,6 @@ export const ClassesApiAxiosParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            if (etablissementId !== undefined) {
-                localVarQueryParameter['etablissement_id'] = etablissementId;
-            }
 
             if (skip !== undefined) {
                 localVarQueryParameter['skip'] = skip;
@@ -1264,9 +1261,8 @@ export const ClassesApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Liste les classes avec filtres et pagination.
+         * Liste les classes avec filtres et pagination selon le contexte tenant.
          * @summary Get Classes
-         * @param {string} etablissementId 
          * @param {number} [skip] 
          * @param {number} [limit] 
          * @param {string} [nom] 
@@ -1276,8 +1272,8 @@ export const ClassesApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getClassesApiV1ClassesGet(etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardResponseListClasseOut>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getClassesApiV1ClassesGet(etablissementId, skip, limit, nom, niveau, isArchived, status, options);
+        async getClassesApiV1ClassesGet(skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardResponseListClasseOut>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getClassesApiV1ClassesGet(skip, limit, nom, niveau, isArchived, status, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ClassesApi.getClassesApiV1ClassesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1419,9 +1415,8 @@ export const ClassesApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getClasseApiV1ClassesClasseIdGet(classeId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Liste les classes avec filtres et pagination.
+         * Liste les classes avec filtres et pagination selon le contexte tenant.
          * @summary Get Classes
-         * @param {string} etablissementId 
          * @param {number} [skip] 
          * @param {number} [limit] 
          * @param {string} [nom] 
@@ -1431,8 +1426,8 @@ export const ClassesApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getClassesApiV1ClassesGet(etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options?: RawAxiosRequestConfig): AxiosPromise<StandardResponseListClasseOut> {
-            return localVarFp.getClassesApiV1ClassesGet(etablissementId, skip, limit, nom, niveau, isArchived, status, options).then((request) => request(axios, basePath));
+        getClassesApiV1ClassesGet(skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options?: RawAxiosRequestConfig): AxiosPromise<StandardResponseListClasseOut> {
+            return localVarFp.getClassesApiV1ClassesGet(skip, limit, nom, niveau, isArchived, status, options).then((request) => request(axios, basePath));
         },
         /**
          * Récupère tous les élèves d\'une classe.
@@ -1568,9 +1563,8 @@ export class ClassesApi extends BaseAPI {
     }
 
     /**
-     * Liste les classes avec filtres et pagination.
+     * Liste les classes avec filtres et pagination selon le contexte tenant.
      * @summary Get Classes
-     * @param {string} etablissementId 
      * @param {number} [skip] 
      * @param {number} [limit] 
      * @param {string} [nom] 
@@ -1581,8 +1575,8 @@ export class ClassesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof ClassesApi
      */
-    public getClassesApiV1ClassesGet(etablissementId: string, skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options?: RawAxiosRequestConfig) {
-        return ClassesApiFp(this.configuration).getClassesApiV1ClassesGet(etablissementId, skip, limit, nom, niveau, isArchived, status, options).then((request) => request(this.axios, this.basePath));
+    public getClassesApiV1ClassesGet(skip?: number, limit?: number, nom?: string, niveau?: string, isArchived?: boolean, status?: string, options?: RawAxiosRequestConfig) {
+        return ClassesApiFp(this.configuration).getClassesApiV1ClassesGet(skip, limit, nom, niveau, isArchived, status, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -18,7 +18,7 @@ export function useCompetencies(params: UseCompetenciesParams) {
     queryKey: ['competence:competencies', { referentialId, versionNumber, page, size, subjectId, q }],
     enabled: Boolean(referentialId) && Boolean(versionNumber || versionNumber === 0),
     queryFn: async () => {
-      const { data } = await competenceReferentialsApi.listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet(
+      const { data } = await competenceReferentialsApi.listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet(
         referentialId,
         versionNumber,
         page,
@@ -39,7 +39,7 @@ export function useCompetency(competencyId?: string) {
     enabled: Boolean(competencyId),
     queryFn: async () => {
       if (!competencyId) throw new Error('competencyId requis');
-      const { data } = await competenceReferentialsApi.getCompetencyApiCompetenceCompetenciesCompetencyIdGet(competencyId);
+      const { data } = await competenceReferentialsApi.getCompetencyApiV1CompetenciesCompetencyIdGet(competencyId);
       return data;
     },
     staleTime: 60_000,
@@ -53,7 +53,7 @@ export function usePublicCompetenciesForSubject(subjectId?: string) {
     enabled: Boolean(subjectId),
     queryFn: async () => {
       if (!subjectId) throw new Error('subjectId requis');
-      const { data } = await competencePublicApi.getCompetenciesForSubjectApiCompetencePublicSubjectsSubjectIdCompetenciesGet(subjectId);
+      const { data } = await competencePublicApi.getCompetenciesForSubjectApiV1PublicSubjectsSubjectIdCompetenciesGet(subjectId);
       return data;
     },
     staleTime: 60_000,
@@ -67,7 +67,7 @@ export function useLookupCompetencyByCode(params: { code?: string; referentialId
     enabled: Boolean(code),
     queryFn: async () => {
       if (!code) throw new Error('code requis');
-      const { data } = await competencePublicApi.lookupCompetencyByCodeApiCompetencePublicCompetenciesByCodeCodeGet(
+      const { data } = await competencePublicApi.lookupCompetencyByCodeApiV1PublicCompetenciesByCodeCodeGet(
         code,
         referentialId,
         version

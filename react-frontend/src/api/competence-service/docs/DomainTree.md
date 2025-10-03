@@ -7,8 +7,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
 **name** | **string** |  | [default to undefined]
-**order_index** | **number** |  | [default to undefined]
-**subjects** | [**Array&lt;SubjectTree&gt;**](SubjectTree.md) |  | [default to undefined]
+**order_index** | **number** |  | [optional] [default to undefined]
+**subjects** | [**Array&lt;SubjectTree&gt;**](SubjectTree.md) |  | [optional] [default to undefined]
 
 ## Example
 

@@ -26,7 +26,7 @@
         "/health": {
             "get": {
                 "summary": "Health Check",
-                "description": "Endpoint de santé pour Docker et monitoring",
+                "description": "Endpoint de santé pour Docker et monitoring avec test de connexion DB",
                 "operationId": "health_check_health_get",
                 "responses": {
                     "200": {
@@ -46,7 +46,7 @@
                     "admissions"
                 ],
                 "summary": "Create Admission",
-                "description": "Créer une nouvelle admission.\n\n- **student_name**: Nom complet de l'élève (requis)\n- **student_birthdate**: Date de naissance de l'élève (requis)\n- **class_requested**: Classe demandée (requis)\n- **parent_name**: Nom du parent/tuteur (requis)\n- **parent_contact**: Contact du parent (email ou téléphone) (requis)\n- **student_email**: Email de l'élève (optionnel)\n- **student_phone**: Téléphone de l'élève (optionnel)\n- **parent_email**: Email du parent (optionnel)\n- **parent_phone**: Téléphone du parent (optionnel)\n- **notes**: Notes additionnelles (optionnel)\n- **attachments**: Liste des chemins des fichiers joints (optionnel)\n- **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)\n\nLe statut sera automatiquement défini sur 'PENDING'.",
+                "description": "Créer une nouvelle admission.\n\n**Authentification requise** : Headers X-User, X-Roles, X-Etab obligatoires.\n\n- **student_name**: Nom complet de l'élève (requis)\n- **student_birthdate**: Date de naissance de l'élève (requis)\n- **class_requested**: Classe demandée (requis)\n- **parent_name**: Nom du parent/tuteur (requis)\n- **parent_contact**: Contact du parent (email ou téléphone) (requis)\n- **student_email**: Email de l'élève (optionnel)\n- **student_phone**: Téléphone de l'élève (optionnel)\n- **parent_email**: Email du parent (optionnel)\n- **parent_phone**: Téléphone du parent (optionnel)\n- **notes**: Notes additionnelles (optionnel)\n- **attachments**: Liste des chemins des fichiers joints (optionnel)\n- **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)\n\nLe statut sera automatiquement défini sur 'PENDING'.\nL'admission sera automatiquement associée à l'établissement (tenant_id) de l'utilisateur.",
                 "operationId": "create_admission_api_v1_admissions__post",
                 "requestBody": {
                     "required": true,
@@ -86,7 +86,7 @@
                     "admissions"
                 ],
                 "summary": "Get Admissions",
-                "description": "Récupérer la liste des admissions avec pagination et filtres.\n\n- **page**: Numéro de page (défaut: 1)\n- **limit**: Nombre d'éléments par page (défaut: 10, max: 100)\n- **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST)\n- **class_requested**: Filtrer par classe demandée\n- **student_name**: Filtrer par nom d'élève\n- **parent_name**: Filtrer par nom de parent\n\nLes résultats sont triés par date de création (plus récent en premier).",
+                "description": "Récupérer la liste des admissions avec pagination et filtres.\n\n- **page**: Numéro de page (défaut: 1)\n- **limit**: Nombre d'éléments par page (défaut: 10, max: 100)\n- **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST)\n- **class_requested**: Filtrer par classe demandée\n- **student_name**: Filtrer par nom d'élève\n- **parent_name**: Filtrer par nom de parent\n\nLes résultats sont filtrés par établissement (tenant_id) automatiquement.\nLes résultats sont triés par date de création (plus récent en premier).",
                 "operationId": "get_admissions_api_v1_admissions__get",
                 "parameters": [
                     {
@@ -117,7 +117,7 @@
                         "description": "Nombre d'éléments par page"
                     },
                     {
-                        "name": "status",
+                        "name": "status_filter",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -130,7 +130,7 @@
                                 }
                             ],
                             "description": "Filtrer par statut",
-                            "title": "Status"
+                            "title": "Status Filter"
                         },
                         "description": "Filtrer par statut"
                     },
@@ -400,7 +400,7 @@
                     "admissions"
                 ],
                 "summary": "Get Admission Stats",
-                "description": "Récupérer les statistiques des admissions.\n\nRetourne le nombre total d'admissions et la répartition par statut.",
+                "description": "Récupérer les statistiques des admissions (filtrées par établissement).\n\nRetourne le nombre total d'admissions et la répartition par statut\npour l'établissement de l'utilisateur connecté.",
                 "operationId": "get_admission_stats_api_v1_admissions_stats_summary_get",
                 "responses": {
                     "200": {
@@ -722,6 +722,17 @@
                         "type": "string",
                         "format": "date-time",
                         "title": "Updated At"
+                    },
+                    "tenant_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tenant Id"
                     },
                     "admin_notes": {
                         "anyOf": [

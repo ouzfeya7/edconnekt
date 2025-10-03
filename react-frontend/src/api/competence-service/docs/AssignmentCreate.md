@@ -5,9 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**referential_id** | **string** |  | [default to undefined]
-**version_number** | **number** |  | [default to undefined]
-**scopes** | [**Array&lt;AssignmentScope&gt;**](AssignmentScope.md) |  | [default to undefined]
+**referential_id** | **string** |  | [optional] [default to undefined]
+**version_number** | **number** |  | [optional] [default to undefined]
+**scope_type** | **string** |  | [default to undefined]
+**scope_value** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -17,7 +18,8 @@ import { AssignmentCreate } from './api';
 const instance: AssignmentCreate = {
     referential_id,
     version_number,
-    scopes,
+    scope_type,
+    scope_value,
 };
 ```
 

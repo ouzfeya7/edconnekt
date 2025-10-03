@@ -48,11 +48,13 @@ export function useSuppliesCampaignList(params: {
         offset
       );
       const data = res.data as unknown;
-      if (Array.isArray(data)) return data as Array<{ id: string; name?: string; status?: string; created_at?: string; updated_at?: string }>;
+      // Schéma officiel: { campaigns, total_count, limit, offset }
       if (data && typeof data === 'object') {
-        const obj = data as { items?: unknown } & Record<string, unknown>;
+        const obj = data as { campaigns?: unknown; items?: unknown } & Record<string, unknown>;
+        if (Array.isArray(obj.campaigns)) return obj.campaigns as Array<{ id: string; name?: string; status?: string; created_at?: string; updated_at?: string }>;
         if (Array.isArray(obj.items)) return obj.items as Array<{ id: string; name?: string; status?: string; created_at?: string; updated_at?: string }>;
       }
+      if (Array.isArray(data)) return data as Array<{ id: string; name?: string; status?: string; created_at?: string; updated_at?: string }>;
       return [] as Array<{ id: string; name?: string; status?: string; created_at?: string; updated_at?: string }>;
     },
   });

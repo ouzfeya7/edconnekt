@@ -15,7 +15,7 @@ All URIs are relative to *http://localhost*
 # **createAdmissionApiV1AdmissionsPost**
 > AdmissionResponse createAdmissionApiV1AdmissionsPost(admissionCreateRequest)
 
-Créer une nouvelle admission.  - **student_name**: Nom complet de l\'élève (requis) - **student_birthdate**: Date de naissance de l\'élève (requis) - **class_requested**: Classe demandée (requis) - **parent_name**: Nom du parent/tuteur (requis) - **parent_contact**: Contact du parent (email ou téléphone) (requis) - **student_email**: Email de l\'élève (optionnel) - **student_phone**: Téléphone de l\'élève (optionnel) - **parent_email**: Email du parent (optionnel) - **parent_phone**: Téléphone du parent (optionnel) - **notes**: Notes additionnelles (optionnel) - **attachments**: Liste des chemins des fichiers joints (optionnel) - **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)  Le statut sera automatiquement défini sur \'PENDING\'.
+Créer une nouvelle admission.  **Authentification requise** : Headers X-User, X-Roles, X-Etab obligatoires.  - **student_name**: Nom complet de l\'élève (requis) - **student_birthdate**: Date de naissance de l\'élève (requis) - **class_requested**: Classe demandée (requis) - **parent_name**: Nom du parent/tuteur (requis) - **parent_contact**: Contact du parent (email ou téléphone) (requis) - **student_email**: Email de l\'élève (optionnel) - **student_phone**: Téléphone de l\'élève (optionnel) - **parent_email**: Email du parent (optionnel) - **parent_phone**: Téléphone du parent (optionnel) - **notes**: Notes additionnelles (optionnel) - **attachments**: Liste des chemins des fichiers joints (optionnel) - **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)  Le statut sera automatiquement défini sur \'PENDING\'. L\'admission sera automatiquement associée à l\'établissement (tenant_id) de l\'utilisateur.
 
 ### Example
 
@@ -172,7 +172,7 @@ No authorization required
 # **getAdmissionStatsApiV1AdmissionsStatsSummaryGet**
 > object getAdmissionStatsApiV1AdmissionsStatsSummaryGet()
 
-Récupérer les statistiques des admissions.  Retourne le nombre total d\'admissions et la répartition par statut.
+Récupérer les statistiques des admissions (filtrées par établissement).  Retourne le nombre total d\'admissions et la répartition par statut pour l\'établissement de l\'utilisateur connecté.
 
 ### Example
 
@@ -216,7 +216,7 @@ No authorization required
 # **getAdmissionsApiV1AdmissionsGet**
 > AdmissionListResponse getAdmissionsApiV1AdmissionsGet()
 
-Récupérer la liste des admissions avec pagination et filtres.  - **page**: Numéro de page (défaut: 1) - **limit**: Nombre d\'éléments par page (défaut: 10, max: 100) - **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST) - **class_requested**: Filtrer par classe demandée - **student_name**: Filtrer par nom d\'élève - **parent_name**: Filtrer par nom de parent  Les résultats sont triés par date de création (plus récent en premier).
+Récupérer la liste des admissions avec pagination et filtres.  - **page**: Numéro de page (défaut: 1) - **limit**: Nombre d\'éléments par page (défaut: 10, max: 100) - **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST) - **class_requested**: Filtrer par classe demandée - **student_name**: Filtrer par nom d\'élève - **parent_name**: Filtrer par nom de parent  Les résultats sont filtrés par établissement (tenant_id) automatiquement. Les résultats sont triés par date de création (plus récent en premier).
 
 ### Example
 
@@ -231,7 +231,7 @@ const apiInstance = new AdmissionsApi(configuration);
 
 let page: number; //Numéro de page (optional) (default to 1)
 let limit: number; //Nombre d\'éléments par page (optional) (default to 10)
-let status: AdmissionStatus; //Filtrer par statut (optional) (default to undefined)
+let statusFilter: AdmissionStatus; //Filtrer par statut (optional) (default to undefined)
 let classRequested: string; //Filtrer par classe demandée (optional) (default to undefined)
 let studentName: string; //Filtrer par nom d\'élève (optional) (default to undefined)
 let parentName: string; //Filtrer par nom de parent (optional) (default to undefined)
@@ -239,7 +239,7 @@ let parentName: string; //Filtrer par nom de parent (optional) (default to undef
 const { status, data } = await apiInstance.getAdmissionsApiV1AdmissionsGet(
     page,
     limit,
-    status,
+    statusFilter,
     classRequested,
     studentName,
     parentName
@@ -252,7 +252,7 @@ const { status, data } = await apiInstance.getAdmissionsApiV1AdmissionsGet(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] | Numéro de page | (optional) defaults to 1|
 | **limit** | [**number**] | Nombre d\&#39;éléments par page | (optional) defaults to 10|
-| **status** | **AdmissionStatus** | Filtrer par statut | (optional) defaults to undefined|
+| **statusFilter** | **AdmissionStatus** | Filtrer par statut | (optional) defaults to undefined|
 | **classRequested** | [**string**] | Filtrer par classe demandée | (optional) defaults to undefined|
 | **studentName** | [**string**] | Filtrer par nom d\&#39;élève | (optional) defaults to undefined|
 | **parentName** | [**string**] | Filtrer par nom de parent | (optional) defaults to undefined|

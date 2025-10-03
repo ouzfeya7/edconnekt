@@ -240,6 +240,12 @@ export interface AdmissionResponse {
      * @type {string}
      * @memberof AdmissionResponse
      */
+    'tenant_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof AdmissionResponse
+     */
     'admin_notes'?: string | null;
     /**
      * 
@@ -425,7 +431,7 @@ export interface ValidationErrorLocInner {
 export const AdmissionsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Créer une nouvelle admission.  - **student_name**: Nom complet de l\'élève (requis) - **student_birthdate**: Date de naissance de l\'élève (requis) - **class_requested**: Classe demandée (requis) - **parent_name**: Nom du parent/tuteur (requis) - **parent_contact**: Contact du parent (email ou téléphone) (requis) - **student_email**: Email de l\'élève (optionnel) - **student_phone**: Téléphone de l\'élève (optionnel) - **parent_email**: Email du parent (optionnel) - **parent_phone**: Téléphone du parent (optionnel) - **notes**: Notes additionnelles (optionnel) - **attachments**: Liste des chemins des fichiers joints (optionnel) - **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)  Le statut sera automatiquement défini sur \'PENDING\'.
+         * Créer une nouvelle admission.  **Authentification requise** : Headers X-User, X-Roles, X-Etab obligatoires.  - **student_name**: Nom complet de l\'élève (requis) - **student_birthdate**: Date de naissance de l\'élève (requis) - **class_requested**: Classe demandée (requis) - **parent_name**: Nom du parent/tuteur (requis) - **parent_contact**: Contact du parent (email ou téléphone) (requis) - **student_email**: Email de l\'élève (optionnel) - **student_phone**: Téléphone de l\'élève (optionnel) - **parent_email**: Email du parent (optionnel) - **parent_phone**: Téléphone du parent (optionnel) - **notes**: Notes additionnelles (optionnel) - **attachments**: Liste des chemins des fichiers joints (optionnel) - **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)  Le statut sera automatiquement défini sur \'PENDING\'. L\'admission sera automatiquement associée à l\'établissement (tenant_id) de l\'utilisateur.
          * @summary Create Admission
          * @param {AdmissionCreateRequest} admissionCreateRequest 
          * @param {*} [options] Override http request option.
@@ -529,7 +535,7 @@ export const AdmissionsApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * Récupérer les statistiques des admissions.  Retourne le nombre total d\'admissions et la répartition par statut.
+         * Récupérer les statistiques des admissions (filtrées par établissement).  Retourne le nombre total d\'admissions et la répartition par statut pour l\'établissement de l\'utilisateur connecté.
          * @summary Get Admission Stats
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -559,18 +565,18 @@ export const AdmissionsApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * Récupérer la liste des admissions avec pagination et filtres.  - **page**: Numéro de page (défaut: 1) - **limit**: Nombre d\'éléments par page (défaut: 10, max: 100) - **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST) - **class_requested**: Filtrer par classe demandée - **student_name**: Filtrer par nom d\'élève - **parent_name**: Filtrer par nom de parent  Les résultats sont triés par date de création (plus récent en premier).
+         * Récupérer la liste des admissions avec pagination et filtres.  - **page**: Numéro de page (défaut: 1) - **limit**: Nombre d\'éléments par page (défaut: 10, max: 100) - **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST) - **class_requested**: Filtrer par classe demandée - **student_name**: Filtrer par nom d\'élève - **parent_name**: Filtrer par nom de parent  Les résultats sont filtrés par établissement (tenant_id) automatiquement. Les résultats sont triés par date de création (plus récent en premier).
          * @summary Get Admissions
          * @param {number} [page] Numéro de page
          * @param {number} [limit] Nombre d\&#39;éléments par page
-         * @param {AdmissionStatus | null} [status] Filtrer par statut
+         * @param {AdmissionStatus | null} [statusFilter] Filtrer par statut
          * @param {string | null} [classRequested] Filtrer par classe demandée
          * @param {string | null} [studentName] Filtrer par nom d\&#39;élève
          * @param {string | null} [parentName] Filtrer par nom de parent
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAdmissionsApiV1AdmissionsGet: async (page?: number, limit?: number, status?: AdmissionStatus | null, classRequested?: string | null, studentName?: string | null, parentName?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getAdmissionsApiV1AdmissionsGet: async (page?: number, limit?: number, statusFilter?: AdmissionStatus | null, classRequested?: string | null, studentName?: string | null, parentName?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/admissions/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -591,8 +597,8 @@ export const AdmissionsApiAxiosParamCreator = function (configuration?: Configur
                 localVarQueryParameter['limit'] = limit;
             }
 
-            if (status !== undefined) {
-                localVarQueryParameter['status'] = status;
+            if (statusFilter !== undefined) {
+                localVarQueryParameter['status_filter'] = statusFilter;
             }
 
             if (classRequested !== undefined) {
@@ -709,7 +715,7 @@ export const AdmissionsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = AdmissionsApiAxiosParamCreator(configuration)
     return {
         /**
-         * Créer une nouvelle admission.  - **student_name**: Nom complet de l\'élève (requis) - **student_birthdate**: Date de naissance de l\'élève (requis) - **class_requested**: Classe demandée (requis) - **parent_name**: Nom du parent/tuteur (requis) - **parent_contact**: Contact du parent (email ou téléphone) (requis) - **student_email**: Email de l\'élève (optionnel) - **student_phone**: Téléphone de l\'élève (optionnel) - **parent_email**: Email du parent (optionnel) - **parent_phone**: Téléphone du parent (optionnel) - **notes**: Notes additionnelles (optionnel) - **attachments**: Liste des chemins des fichiers joints (optionnel) - **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)  Le statut sera automatiquement défini sur \'PENDING\'.
+         * Créer une nouvelle admission.  **Authentification requise** : Headers X-User, X-Roles, X-Etab obligatoires.  - **student_name**: Nom complet de l\'élève (requis) - **student_birthdate**: Date de naissance de l\'élève (requis) - **class_requested**: Classe demandée (requis) - **parent_name**: Nom du parent/tuteur (requis) - **parent_contact**: Contact du parent (email ou téléphone) (requis) - **student_email**: Email de l\'élève (optionnel) - **student_phone**: Téléphone de l\'élève (optionnel) - **parent_email**: Email du parent (optionnel) - **parent_phone**: Téléphone du parent (optionnel) - **notes**: Notes additionnelles (optionnel) - **attachments**: Liste des chemins des fichiers joints (optionnel) - **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)  Le statut sera automatiquement défini sur \'PENDING\'. L\'admission sera automatiquement associée à l\'établissement (tenant_id) de l\'utilisateur.
          * @summary Create Admission
          * @param {AdmissionCreateRequest} admissionCreateRequest 
          * @param {*} [options] Override http request option.
@@ -748,7 +754,7 @@ export const AdmissionsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupérer les statistiques des admissions.  Retourne le nombre total d\'admissions et la répartition par statut.
+         * Récupérer les statistiques des admissions (filtrées par établissement).  Retourne le nombre total d\'admissions et la répartition par statut pour l\'établissement de l\'utilisateur connecté.
          * @summary Get Admission Stats
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -760,19 +766,19 @@ export const AdmissionsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupérer la liste des admissions avec pagination et filtres.  - **page**: Numéro de page (défaut: 1) - **limit**: Nombre d\'éléments par page (défaut: 10, max: 100) - **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST) - **class_requested**: Filtrer par classe demandée - **student_name**: Filtrer par nom d\'élève - **parent_name**: Filtrer par nom de parent  Les résultats sont triés par date de création (plus récent en premier).
+         * Récupérer la liste des admissions avec pagination et filtres.  - **page**: Numéro de page (défaut: 1) - **limit**: Nombre d\'éléments par page (défaut: 10, max: 100) - **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST) - **class_requested**: Filtrer par classe demandée - **student_name**: Filtrer par nom d\'élève - **parent_name**: Filtrer par nom de parent  Les résultats sont filtrés par établissement (tenant_id) automatiquement. Les résultats sont triés par date de création (plus récent en premier).
          * @summary Get Admissions
          * @param {number} [page] Numéro de page
          * @param {number} [limit] Nombre d\&#39;éléments par page
-         * @param {AdmissionStatus | null} [status] Filtrer par statut
+         * @param {AdmissionStatus | null} [statusFilter] Filtrer par statut
          * @param {string | null} [classRequested] Filtrer par classe demandée
          * @param {string | null} [studentName] Filtrer par nom d\&#39;élève
          * @param {string | null} [parentName] Filtrer par nom de parent
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAdmissionsApiV1AdmissionsGet(page?: number, limit?: number, status?: AdmissionStatus | null, classRequested?: string | null, studentName?: string | null, parentName?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdmissionListResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getAdmissionsApiV1AdmissionsGet(page, limit, status, classRequested, studentName, parentName, options);
+        async getAdmissionsApiV1AdmissionsGet(page?: number, limit?: number, statusFilter?: AdmissionStatus | null, classRequested?: string | null, studentName?: string | null, parentName?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdmissionListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAdmissionsApiV1AdmissionsGet(page, limit, statusFilter, classRequested, studentName, parentName, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdmissionsApi.getAdmissionsApiV1AdmissionsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -816,7 +822,7 @@ export const AdmissionsApiFactory = function (configuration?: Configuration, bas
     const localVarFp = AdmissionsApiFp(configuration)
     return {
         /**
-         * Créer une nouvelle admission.  - **student_name**: Nom complet de l\'élève (requis) - **student_birthdate**: Date de naissance de l\'élève (requis) - **class_requested**: Classe demandée (requis) - **parent_name**: Nom du parent/tuteur (requis) - **parent_contact**: Contact du parent (email ou téléphone) (requis) - **student_email**: Email de l\'élève (optionnel) - **student_phone**: Téléphone de l\'élève (optionnel) - **parent_email**: Email du parent (optionnel) - **parent_phone**: Téléphone du parent (optionnel) - **notes**: Notes additionnelles (optionnel) - **attachments**: Liste des chemins des fichiers joints (optionnel) - **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)  Le statut sera automatiquement défini sur \'PENDING\'.
+         * Créer une nouvelle admission.  **Authentification requise** : Headers X-User, X-Roles, X-Etab obligatoires.  - **student_name**: Nom complet de l\'élève (requis) - **student_birthdate**: Date de naissance de l\'élève (requis) - **class_requested**: Classe demandée (requis) - **parent_name**: Nom du parent/tuteur (requis) - **parent_contact**: Contact du parent (email ou téléphone) (requis) - **student_email**: Email de l\'élève (optionnel) - **student_phone**: Téléphone de l\'élève (optionnel) - **parent_email**: Email du parent (optionnel) - **parent_phone**: Téléphone du parent (optionnel) - **notes**: Notes additionnelles (optionnel) - **attachments**: Liste des chemins des fichiers joints (optionnel) - **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)  Le statut sera automatiquement défini sur \'PENDING\'. L\'admission sera automatiquement associée à l\'établissement (tenant_id) de l\'utilisateur.
          * @summary Create Admission
          * @param {AdmissionCreateRequest} admissionCreateRequest 
          * @param {*} [options] Override http request option.
@@ -846,7 +852,7 @@ export const AdmissionsApiFactory = function (configuration?: Configuration, bas
             return localVarFp.getAdmissionApiV1AdmissionsAdmissionIdGet(admissionId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupérer les statistiques des admissions.  Retourne le nombre total d\'admissions et la répartition par statut.
+         * Récupérer les statistiques des admissions (filtrées par établissement).  Retourne le nombre total d\'admissions et la répartition par statut pour l\'établissement de l\'utilisateur connecté.
          * @summary Get Admission Stats
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -855,19 +861,19 @@ export const AdmissionsApiFactory = function (configuration?: Configuration, bas
             return localVarFp.getAdmissionStatsApiV1AdmissionsStatsSummaryGet(options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupérer la liste des admissions avec pagination et filtres.  - **page**: Numéro de page (défaut: 1) - **limit**: Nombre d\'éléments par page (défaut: 10, max: 100) - **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST) - **class_requested**: Filtrer par classe demandée - **student_name**: Filtrer par nom d\'élève - **parent_name**: Filtrer par nom de parent  Les résultats sont triés par date de création (plus récent en premier).
+         * Récupérer la liste des admissions avec pagination et filtres.  - **page**: Numéro de page (défaut: 1) - **limit**: Nombre d\'éléments par page (défaut: 10, max: 100) - **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST) - **class_requested**: Filtrer par classe demandée - **student_name**: Filtrer par nom d\'élève - **parent_name**: Filtrer par nom de parent  Les résultats sont filtrés par établissement (tenant_id) automatiquement. Les résultats sont triés par date de création (plus récent en premier).
          * @summary Get Admissions
          * @param {number} [page] Numéro de page
          * @param {number} [limit] Nombre d\&#39;éléments par page
-         * @param {AdmissionStatus | null} [status] Filtrer par statut
+         * @param {AdmissionStatus | null} [statusFilter] Filtrer par statut
          * @param {string | null} [classRequested] Filtrer par classe demandée
          * @param {string | null} [studentName] Filtrer par nom d\&#39;élève
          * @param {string | null} [parentName] Filtrer par nom de parent
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAdmissionsApiV1AdmissionsGet(page?: number, limit?: number, status?: AdmissionStatus | null, classRequested?: string | null, studentName?: string | null, parentName?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<AdmissionListResponse> {
-            return localVarFp.getAdmissionsApiV1AdmissionsGet(page, limit, status, classRequested, studentName, parentName, options).then((request) => request(axios, basePath));
+        getAdmissionsApiV1AdmissionsGet(page?: number, limit?: number, statusFilter?: AdmissionStatus | null, classRequested?: string | null, studentName?: string | null, parentName?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<AdmissionListResponse> {
+            return localVarFp.getAdmissionsApiV1AdmissionsGet(page, limit, statusFilter, classRequested, studentName, parentName, options).then((request) => request(axios, basePath));
         },
         /**
          * Mettre à jour une admission complète.  - **admission_id**: ID de l\'admission à mettre à jour - Tous les champs de l\'admission peuvent être mis à jour  Met automatiquement à jour le champ `updated_at`.
@@ -902,7 +908,7 @@ export const AdmissionsApiFactory = function (configuration?: Configuration, bas
  */
 export class AdmissionsApi extends BaseAPI {
     /**
-     * Créer une nouvelle admission.  - **student_name**: Nom complet de l\'élève (requis) - **student_birthdate**: Date de naissance de l\'élève (requis) - **class_requested**: Classe demandée (requis) - **parent_name**: Nom du parent/tuteur (requis) - **parent_contact**: Contact du parent (email ou téléphone) (requis) - **student_email**: Email de l\'élève (optionnel) - **student_phone**: Téléphone de l\'élève (optionnel) - **parent_email**: Email du parent (optionnel) - **parent_phone**: Téléphone du parent (optionnel) - **notes**: Notes additionnelles (optionnel) - **attachments**: Liste des chemins des fichiers joints (optionnel) - **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)  Le statut sera automatiquement défini sur \'PENDING\'.
+     * Créer une nouvelle admission.  **Authentification requise** : Headers X-User, X-Roles, X-Etab obligatoires.  - **student_name**: Nom complet de l\'élève (requis) - **student_birthdate**: Date de naissance de l\'élève (requis) - **class_requested**: Classe demandée (requis) - **parent_name**: Nom du parent/tuteur (requis) - **parent_contact**: Contact du parent (email ou téléphone) (requis) - **student_email**: Email de l\'élève (optionnel) - **student_phone**: Téléphone de l\'élève (optionnel) - **parent_email**: Email du parent (optionnel) - **parent_phone**: Téléphone du parent (optionnel) - **notes**: Notes additionnelles (optionnel) - **attachments**: Liste des chemins des fichiers joints (optionnel) - **captcha_token**: Token reCAPTCHA v3 pour validation anti-spam (requis)  Le statut sera automatiquement défini sur \'PENDING\'. L\'admission sera automatiquement associée à l\'établissement (tenant_id) de l\'utilisateur.
      * @summary Create Admission
      * @param {AdmissionCreateRequest} admissionCreateRequest 
      * @param {*} [options] Override http request option.
@@ -938,7 +944,7 @@ export class AdmissionsApi extends BaseAPI {
     }
 
     /**
-     * Récupérer les statistiques des admissions.  Retourne le nombre total d\'admissions et la répartition par statut.
+     * Récupérer les statistiques des admissions (filtrées par établissement).  Retourne le nombre total d\'admissions et la répartition par statut pour l\'établissement de l\'utilisateur connecté.
      * @summary Get Admission Stats
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -949,11 +955,11 @@ export class AdmissionsApi extends BaseAPI {
     }
 
     /**
-     * Récupérer la liste des admissions avec pagination et filtres.  - **page**: Numéro de page (défaut: 1) - **limit**: Nombre d\'éléments par page (défaut: 10, max: 100) - **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST) - **class_requested**: Filtrer par classe demandée - **student_name**: Filtrer par nom d\'élève - **parent_name**: Filtrer par nom de parent  Les résultats sont triés par date de création (plus récent en premier).
+     * Récupérer la liste des admissions avec pagination et filtres.  - **page**: Numéro de page (défaut: 1) - **limit**: Nombre d\'éléments par page (défaut: 10, max: 100) - **status**: Filtrer par statut (PENDING, ACCEPTED, REJECTED, WAITLIST) - **class_requested**: Filtrer par classe demandée - **student_name**: Filtrer par nom d\'élève - **parent_name**: Filtrer par nom de parent  Les résultats sont filtrés par établissement (tenant_id) automatiquement. Les résultats sont triés par date de création (plus récent en premier).
      * @summary Get Admissions
      * @param {number} [page] Numéro de page
      * @param {number} [limit] Nombre d\&#39;éléments par page
-     * @param {AdmissionStatus | null} [status] Filtrer par statut
+     * @param {AdmissionStatus | null} [statusFilter] Filtrer par statut
      * @param {string | null} [classRequested] Filtrer par classe demandée
      * @param {string | null} [studentName] Filtrer par nom d\&#39;élève
      * @param {string | null} [parentName] Filtrer par nom de parent
@@ -961,8 +967,8 @@ export class AdmissionsApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdmissionsApi
      */
-    public getAdmissionsApiV1AdmissionsGet(page?: number, limit?: number, status?: AdmissionStatus | null, classRequested?: string | null, studentName?: string | null, parentName?: string | null, options?: RawAxiosRequestConfig) {
-        return AdmissionsApiFp(this.configuration).getAdmissionsApiV1AdmissionsGet(page, limit, status, classRequested, studentName, parentName, options).then((request) => request(this.axios, this.basePath));
+    public getAdmissionsApiV1AdmissionsGet(page?: number, limit?: number, statusFilter?: AdmissionStatus | null, classRequested?: string | null, studentName?: string | null, parentName?: string | null, options?: RawAxiosRequestConfig) {
+        return AdmissionsApiFp(this.configuration).getAdmissionsApiV1AdmissionsGet(page, limit, statusFilter, classRequested, studentName, parentName, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1001,7 +1007,7 @@ export class AdmissionsApi extends BaseAPI {
 export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Endpoint de santé pour Docker et monitoring
+         * Endpoint de santé pour Docker et monitoring avec test de connexion DB
          * @summary Health Check
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1071,7 +1077,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = DefaultApiAxiosParamCreator(configuration)
     return {
         /**
-         * Endpoint de santé pour Docker et monitoring
+         * Endpoint de santé pour Docker et monitoring avec test de connexion DB
          * @summary Health Check
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1105,7 +1111,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
     const localVarFp = DefaultApiFp(configuration)
     return {
         /**
-         * Endpoint de santé pour Docker et monitoring
+         * Endpoint de santé pour Docker et monitoring avec test de connexion DB
          * @summary Health Check
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1133,7 +1139,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
  */
 export class DefaultApi extends BaseAPI {
     /**
-     * Endpoint de santé pour Docker et monitoring
+     * Endpoint de santé pour Docker et monitoring avec test de connexion DB
      * @summary Health Check
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

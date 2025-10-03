@@ -21,6 +21,7 @@ Name | Type | Description | Notes
 **status** | [**AdmissionStatus**](AdmissionStatus.md) |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 **updated_at** | **string** |  | [default to undefined]
+**tenant_id** | **string** |  | [optional] [default to undefined]
 **admin_notes** | **string** |  | [optional] [default to undefined]
 **reviewed_by** | **string** |  | [optional] [default to undefined]
 **reviewed_at** | **string** |  | [optional] [default to undefined]
@@ -46,6 +47,7 @@ const instance: AdmissionResponse = {
     status,
     created_at,
     updated_at,
+    tenant_id,
     admin_notes,
     reviewed_by,
     reviewed_at,
