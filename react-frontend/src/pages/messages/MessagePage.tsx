@@ -2,6 +2,7 @@ import React from "react";
 // import MessageContainer from "../../components/message/MessageContainer";
 import type { UserRole } from "../../lib/mock-message-data";
 import { useAuth } from "../authentification/useAuth";
+import { useAppRolesFromIdentity } from "../../hooks/useAppRolesFromIdentity";
 import { ChatProvider } from "../../contexts/ChatContext";
 import ConversationSidebar from "../../components/message/ConversationSidebar";
 import ConversationThread from "../../components/message/ConversationThread";
@@ -61,19 +62,20 @@ const Layout: React.FC = () => {
 // Page unique de messagerie qui s'adapte à tous les rôles
 const MessagePage: React.FC = () => {
   const { roles } = useAuth();
+  const { capabilities } = useAppRolesFromIdentity();
 
   // Mapper les rôles d'app vers le type UserRole attendu par MessageContainer
   // UserRole: 'eleve' | 'parent' | 'enseignant' | 'admin'
   let userRole: UserRole | undefined;
 
-  if (roles.includes('enseignant')) {
+  if (capabilities.isTeacher || roles.includes('enseignant')) {
     userRole = 'enseignant';
-  } else if (roles.includes('parent')) {
+  } else if (capabilities.isParent || roles.includes('parent')) {
     userRole = 'parent';
-  } else if (roles.includes('directeur')) {
+  } else if (capabilities.isAdminStaff || roles.includes('directeur')) {
     // Le rôle directeur est aligné sur 'admin' côté UI existante
     userRole = 'directeur';
-  } else if (roles.includes('eleve')) {
+  } else if (capabilities.isStudent || roles.includes('eleve')) {
     userRole = 'eleve';
   }
 

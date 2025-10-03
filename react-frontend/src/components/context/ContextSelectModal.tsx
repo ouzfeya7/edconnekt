@@ -1,6 +1,9 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import type { EstablishmentRole } from '../../utils/contextStorage';
+import { usePublicEstablishments } from '../../hooks/usePublicEstablishments';
+import type { EtablissementOut } from '../../api/establishment-service/api';
+import { useIdentityContext } from '../../contexts/IdentityContextProvider';
 
 interface Props {
   open: boolean;
@@ -32,10 +35,26 @@ const ContextSelectModal: React.FC<Props> = ({
   error,
 }) => {
   const [selectedRole, setSelectedRole] = React.useState<EstablishmentRole | ''>('');
+  const { activeEtabId, activeRole } = useIdentityContext();
+
+  // Charger les établissements publics pour afficher le nom au lieu de l'UUID
+  const { data: publicEstabs } = usePublicEstablishments({ limit: 100 });
+  const etabIdToName = React.useMemo(() => {
+    const map = new Map<string, string>();
+    (publicEstabs ?? []).forEach((e: EtablissementOut) => {
+      if (e?.id) map.set(e.id, e.nom || e.id);
+    });
+    return map;
+  }, [publicEstabs]);
 
   React.useEffect(() => {
-    setSelectedRole('');
-  }, [selectedEtabId]);
+    // Si la modale s'ouvre et qu'un contexte existe, pré-sélectionner le rôle courant
+    if (open && selectedEtabId === activeEtabId && activeRole) {
+      setSelectedRole(activeRole);
+    } else {
+      setSelectedRole('');
+    }
+  }, [selectedEtabId, open, activeEtabId, activeRole]);
 
   // Auto-select the role if only one is available for the selected establishment
   React.useEffect(() => {
@@ -48,9 +67,12 @@ const ContextSelectModal: React.FC<Props> = ({
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-lg w-full max-w-3xl p-6 shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Sélection du contexte</h3>
+      <div className="bg-white rounded-xl w-full max-w-3xl p-0 shadow-2xl overflow-hidden border border-gray-200">
+        <div className="flex items-center justify-between px-5 py-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Sélection du contexte</h3>
+            <p className="text-xs text-gray-600 mt-0.5">Choisissez votre établissement et votre rôle pour continuer</p>
+          </div>
           <button
             onClick={onClose}
             disabled={blockClose}
@@ -68,12 +90,16 @@ const ContextSelectModal: React.FC<Props> = ({
         {zeroEstabs ? (
           <div className="text-sm text-gray-600">Aucun établissement rattaché à votre compte. Contactez un administrateur.</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="border rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5">
+            <div className="border rounded-lg overflow-hidden">
               <div className="px-3 py-2 border-b text-sm font-medium bg-gray-50">Établissements</div>
               <div className="max-h-72 overflow-auto">
                 {loading ? (
-                  <div className="p-3 text-sm text-gray-500">Chargement…</div>
+                  <ul className="p-3 space-y-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <li key={i} className="h-8 bg-gray-100 rounded animate-pulse" />
+                    ))}
+                  </ul>
                 ) : establishments.length === 0 ? (
                   <div className="p-3 text-sm text-gray-500">Aucun établissement</div>
                 ) : (
@@ -84,7 +110,10 @@ const ContextSelectModal: React.FC<Props> = ({
                           className={`w-full text-left px-3 py-2 text-sm border-b last:border-b-0 hover:bg-gray-50 ${selectedEtabId === etabId ? 'bg-indigo-50' : ''}`}
                           onClick={() => onSelectEtab(etabId)}
                         >
-                          <div className="font-medium">{etabId}</div>
+                          <div className="font-medium">{etabIdToName.get(etabId) ?? etabId}</div>
+                          {selectedEtabId === etabId && (
+                            <div className="text-xs text-indigo-600">Sélectionné</div>
+                          )}
                         </button>
                       </li>
                     ))}
@@ -93,11 +122,15 @@ const ContextSelectModal: React.FC<Props> = ({
               </div>
             </div>
 
-            <div className="border rounded-lg">
+            <div className="border rounded-lg overflow-hidden">
               <div className="px-3 py-2 border-b text-sm font-medium bg-gray-50">Rôles</div>
               <div className="max-h-72 overflow-auto">
                 {rolesLoading ? (
-                  <div className="p-3 text-sm text-gray-500">Chargement des rôles…</div>
+                  <ul className="p-3 space-y-2">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <li key={i} className="h-8 bg-gray-100 rounded animate-pulse" />
+                    ))}
+                  </ul>
                 ) : roles.length === 0 ? (
                   <div className="p-3 text-sm text-gray-500">Aucun rôle disponible</div>
                 ) : (
@@ -112,7 +145,7 @@ const ContextSelectModal: React.FC<Props> = ({
                             checked={selectedRole === r}
                             onChange={() => setSelectedRole(r)}
                           />
-                          <span>{labelForRole(r)}</span>
+                          <span className={`${selectedRole === r ? 'text-indigo-700 font-medium' : ''}`}>{labelForRole(r)}</span>
                         </label>
                       </li>
                     ))}
@@ -123,15 +156,32 @@ const ContextSelectModal: React.FC<Props> = ({
           </div>
         )}
 
-        <div className="flex justify-end gap-2 mt-4">
-          <button onClick={onClose} disabled={blockClose} className="px-4 py-2 border rounded disabled:opacity-50">Annuler</button>
-          <button
-            disabled={!selectedEtabId || !selectedRole}
-            onClick={() => selectedRole && onConfirm(selectedRole)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-50"
-          >
-            Valider
-          </button>
+        <div className="flex items-center justify-between px-5 py-4 border-t bg-gray-50">
+          <div className="text-xs text-gray-500">
+            {selectedEtabId ? (
+              <span>
+                Établissement: <span className="font-medium text-gray-700">{etabIdToName.get(selectedEtabId) ?? selectedEtabId}</span>
+                {selectedRole ? (
+                  <>
+                    {' '}
+                    • Rôle: <span className="font-medium text-gray-700">{labelForRole(selectedRole)}</span>
+                  </>
+                ) : null}
+              </span>
+            ) : (
+              <span>Sélectionnez un établissement et un rôle</span>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <button onClick={onClose} disabled={blockClose} className="px-4 py-2 border rounded bg-white hover:bg-gray-100 disabled:opacity-50">Annuler</button>
+            <button
+              disabled={!selectedEtabId || !selectedRole || loading || rolesLoading}
+              onClick={() => selectedRole && onConfirm(selectedRole)}
+              className={`px-4 py-2 rounded text-white ${(!selectedEtabId || !selectedRole || loading || rolesLoading) ? 'bg-indigo-300' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+            >
+              {(loading || rolesLoading) ? 'Veuillez patienter…' : 'Valider'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

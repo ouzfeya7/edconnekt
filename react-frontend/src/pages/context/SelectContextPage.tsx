@@ -5,6 +5,8 @@ import { useIdentityContext } from '../../contexts/IdentityContextProvider';
 import { useIdentityMyEstablishments, useIdentityMyRoles } from '../../hooks/useIdentityContext';
 import type { EstablishmentRole } from '../../utils/contextStorage';
 import { useAuth } from '../../pages/authentification/useAuth';
+import { usePublicEstablishments } from '../../hooks/usePublicEstablishments';
+import type { EtablissementOut } from '../../api/establishment-service/api';
 
 const SelectContextPage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,13 +16,27 @@ const SelectContextPage: React.FC = () => {
   // If context already selected, redirect to home
   React.useEffect(() => {
     if (activeEtabId && activeRole) {
-      navigate('/', { replace: true });
+      // éviter les boucles de navigation en série
+      const id = window.setTimeout(() => navigate('/', { replace: true }), 0);
+      return () => window.clearTimeout(id);
     }
   }, [activeEtabId, activeRole, navigate]);
 
   // Load user establishments
   const { data: estabsResp, isLoading: estabsLoading, isError: estabsError } = useIdentityMyEstablishments({ enabled: true });
-  const establishments = (Array.isArray(estabsResp) ? (estabsResp as string[]) : []);
+  const establishments = React.useMemo(() => (Array.isArray(estabsResp) ? (estabsResp as string[]) : []), [estabsResp]);
+
+  // Charger la liste d'établissements (nommage) pour afficher les libellés au lieu des UUIDs
+  const { data: establishmentsList } = usePublicEstablishments({ limit: 100 });
+  const etabIdToName = React.useMemo(() => {
+    const map = new Map<string, string>();
+    (establishmentsList ?? []).forEach((e: EtablissementOut) => {
+      const id = e?.id ?? '';
+      const nom = e?.nom ?? '';
+      if (id) map.set(id, nom || id);
+    });
+    return map;
+  }, [establishmentsList]);
 
   const [selectedEtabId, setSelectedEtabId] = React.useState<string | null>(null);
   const [selectedRole, setSelectedRole] = React.useState<EstablishmentRole | ''>('');
@@ -41,7 +57,7 @@ const SelectContextPage: React.FC = () => {
 
   // Load roles for selected establishment
   const { data: rolesResp, isLoading: rolesLoading } = useIdentityMyRoles(selectedEtabId ?? undefined, { enabled: !!selectedEtabId });
-  const rolesForSelected = (Array.isArray(rolesResp) ? (rolesResp as EstablishmentRole[]) : []);
+  const rolesForSelected = React.useMemo(() => (Array.isArray(rolesResp) ? (rolesResp as EstablishmentRole[]) : []), [rolesResp]);
 
   // Auto-select role if only one is available for chosen establishment
   React.useEffect(() => {
@@ -49,6 +65,25 @@ const SelectContextPage: React.FC = () => {
       setSelectedRole(rolesForSelected[0]);
     }
   }, [rolesLoading, rolesForSelected]);
+
+  // Auto-validate context when there's exactly one establishment and one role
+  const autoSubmittedRef = React.useRef(false);
+  React.useEffect(() => {
+    if (autoSubmittedRef.current) return;
+    const singleEtab = Array.isArray(establishments) && establishments.length === 1 ? establishments[0] : null;
+    const singleRole = (!rolesLoading && rolesForSelected && rolesForSelected.length === 1) ? rolesForSelected[0] : null;
+    if (singleEtab && singleRole && !activeEtabId && !activeRole) {
+      autoSubmittedRef.current = true;
+      (async () => {
+        try {
+          await selectContext(singleEtab, singleRole);
+          navigate('/', { replace: true });
+        } catch {
+          autoSubmittedRef.current = false;
+        }
+      })();
+    }
+  }, [establishments, rolesForSelected, rolesLoading, activeEtabId, activeRole, selectContext, navigate]);
 
   const canValidate = !!selectedEtabId && !!selectedRole;
 
@@ -137,7 +172,7 @@ const SelectContextPage: React.FC = () => {
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className={`font-medium ${selectedEtabId === etabId ? 'text-indigo-900' : 'text-gray-900'}`}>
-                              {etabId}
+                              {etabIdToName.get(etabId) ?? etabId}
                             </div>
                           </div>
                           {selectedEtabId === etabId && (

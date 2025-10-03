@@ -5,6 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useAuth } from "./pages/authentification/useAuth"; // Utiliser notre nouveau hook
+import { useAppRolesFromIdentity } from './hooks/useAppRolesFromIdentity';
 
 import DashboardLayout from "./layouts/DashboardLayout";
 import Accueil from "./pages/Accueil";
@@ -236,6 +237,7 @@ const rolesPriority: Role[] = [
 // Composant qui gère la logique de routage
 const AppContent = () => {
   const { isAuthenticated, roles, loading } = useAuth();
+  const { capabilities } = useAppRolesFromIdentity();
   const { activeEtabId, activeRole } = useIdentityContext();
   const isAdmin = roles.includes('administrateur');
 
@@ -257,17 +259,27 @@ const AppContent = () => {
   }
   
   // Utilisateur authentifié mais contexte non sélectionné -> écran intermédiaire de sélection (sauf administrateur)
-  // if (!isAdmin && (!activeEtabId || !activeRole)) {
-  //   return (
-  //     <Routes>
-  //       <Route path="/select-contexte" element={<SelectContextPage />} />
-  //       <Route path="*" element={<Navigate to="/select-contexte" replace />} />
-  //     </Routes>
-  //   );
-  // }
+  if (!isAdmin && (!activeEtabId || !activeRole)) {
+    return (
+      <Routes>
+        <Route path="/select-contexte" element={<SelectContextPage />} />
+        <Route path="*" element={<Navigate to="/select-contexte" replace />} />
+      </Routes>
+    );
+  }
 
   // L'utilisateur est authentifié, on détermine son rôle et ses routes.
-  const userRole = rolesPriority.find((r) => roles.includes(r));
+  // Basculer prioritairement sur le rôle actif identity si présent
+  const identityPrimaryRole = capabilities.isAdminStaff
+    ? 'directeur'
+    : capabilities.isTeacher
+      ? 'enseignant'
+      : capabilities.isStudent
+        ? 'eleve'
+        : capabilities.isParent
+          ? 'parent'
+          : undefined;
+  const userRole = (identityPrimaryRole as Role | undefined) || rolesPriority.find((r) => roles.includes(r));
 
   // Si l'utilisateur a un rôle non reconnu, on affiche une page d'erreur.
   if (!userRole) {

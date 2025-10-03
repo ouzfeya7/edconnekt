@@ -14,6 +14,7 @@ import AssignTeacherModal from './AssignTeacherModal';
 import AssignStudentModal from './AssignStudentModal';
 import { useArchiveClasse } from '../../../hooks/useArchiveClasse';
 import { useAuth } from '../../authentification/useAuth';
+import { useAppRolesFromIdentity } from '../../../hooks/useAppRolesFromIdentity';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 
 interface ClassesAdminPageProps {
@@ -36,7 +37,8 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
   const [limit] = useState<number>(100);
 
   const { roles } = useAuth();
-  const isDirector = roles.includes('directeur');
+  const { capabilities } = useAppRolesFromIdentity();
+  const isDirector = roles.includes('directeur') || capabilities.isAdminStaff;
   const navigate = useNavigate();
 
   const { data: establishments, isLoading: isLoadingEtab } = useEstablishments({ status: 'ACTIVE' as StatusEnum, limit: 100, offset: 0 });

@@ -1,8 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import keycloak from './keycloak';
-import { clearActiveContext } from '../../utils/contextStorage';
+import { clearActiveContext, getActiveContext } from '../../utils/contextStorage';
 import { KeycloakProfile } from 'keycloak-js';
+import { mapIdentityRoleToAppRole } from '../../utils/roles';
 
 type AuthUser = KeycloakProfile | null;
 
@@ -19,40 +20,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const MOCK_AUTH = false;
 
-const transformRoles = (keycloakRoles: string[]): string[] => {
-  const appRoles: string[] = [];
-  keycloakRoles.forEach(role => {
-    switch (role) {
-      case 'ROLE_ENSEIGNANT':
-        appRoles.push('enseignant');
-        break;
-      case 'ROLE_ADMINSTAFF':
-        appRoles.push('directeur');
-        break;
-      case 'ROLE_ELEVE':
-        appRoles.push('eleve');
-        break;
-      case 'ROLE_PARENT':
-        appRoles.push('parent');
-        break;
-      case 'ROLE_ADMIN':
-        appRoles.push('administrateur');
-        break;
-      case 'ROLE_ESPACE_FAMILLE':
-        appRoles.push('espaceFamille');
-        break;
-      default:
-        break;
-    }
-  });
-  return [...new Set(appRoles)];
-};
+// Les rôles métiers sont désormais issus d'identity-service via le contexte actif.
+// On conserve uniquement un éventuel flag administrateur provenant de Keycloak.
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser>(null);
   const [roles, setRoles] = useState<string[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isAdminKc, setIsAdminKc] = useState<boolean>(false);
 
   useEffect(() => {
     if (MOCK_AUTH) {
@@ -85,11 +61,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (authenticated) {
           const profile = await keycloak.loadUserProfile();
           setUser(profile);
-          const keycloakRoles = keycloak.tokenParsed?.realm_access?.roles || [];
-          console.log("[DEBUG] Rôles bruts reçus de Keycloak:", keycloakRoles);
-          const appRoles = transformRoles(keycloakRoles);
-          console.log("[DEBUG] Rôles transformés pour l'application:", appRoles);
-          setRoles(appRoles);
+          const kcRealmRoles: string[] = keycloak.tokenParsed?.realm_access?.roles || [];
+          const admin = kcRealmRoles.includes('ROLE_ADMIN');
+          setIsAdminKc(admin);
+          // Compose rôles applicatifs depuis identity-service (contexte actif)
+          const { role } = getActiveContext();
+          const roleFromIdentity = role ? mapIdentityRoleToAppRole(role) : null;
+          const nextRoles = [
+            ...(roleFromIdentity ? [roleFromIdentity] : []),
+            ...(admin ? ['administrateur'] : []),
+          ];
+          setRoles([...new Set(nextRoles)]);
           if (keycloak.token) {
             sessionStorage.setItem('keycloak-token', keycloak.token);
           }
@@ -123,6 +105,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   }, []);
 
+  // Écoute les changements de contexte (sélection établissement/rôle) pour recalculer les rôles applicatifs
+  useEffect(() => {
+    const handler = (e: Event) => {
+      try {
+        const detail = (e as CustomEvent).detail as { role?: string | null } | undefined;
+        const roleKey = detail?.role as (Parameters<typeof mapIdentityRoleToAppRole>[0] | null | undefined);
+        const fromIdentity = roleKey ? mapIdentityRoleToAppRole(roleKey) : null;
+        const next = [
+          ...(fromIdentity ? [fromIdentity] : []),
+          ...(isAdminKc ? ['administrateur'] : []),
+        ];
+        setRoles([...new Set(next)]);
+      } catch {
+        // no-op
+      }
+    };
+    window.addEventListener('edc:context:changed', handler as EventListener);
+    return () => {
+      window.removeEventListener('edc:context:changed', handler as EventListener);
+    };
+  }, [isAdminKc]);
+
   const login = () => {
     if (!MOCK_AUTH) {
       keycloak.login();
@@ -138,7 +142,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         sessionStorage.removeItem('keycloak-token');
         sessionStorage.removeItem('keycloak-refresh-token');
         clearActiveContext();
-      } catch {}
+      } catch (error) {
+        console.error("Erreur lors de la déconnexion", error);
+      }
       keycloak.logout({ redirectUri: 'http://localhost:8000/' });
     } else {
       setIsAuthenticated(false);

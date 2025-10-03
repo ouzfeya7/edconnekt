@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useResources as useRemoteResources } from '../hooks/useResources';
 import { useRestoreResource } from '../hooks/useRestoreResource';
 import { useAuth } from '../pages/authentification/useAuth';
+import { useAppRolesFromIdentity } from '../hooks/useAppRolesFromIdentity';
 import { 
   ArrowLeft, Search, FileText, Archive, RefreshCw,
   Calendar, User, HardDrive, Eye, Lock, Users, Globe, 
@@ -258,8 +259,8 @@ function ArchivesPage() {
     const navigate = useNavigate();
   const restoreMutation = useRestoreResource();
   const { roles } = useAuth();
-    
-    const canModifyResources = roles.includes('enseignant') || roles.includes('directeur') || roles.includes('administrateur');
+  const { capabilities } = useAppRolesFromIdentity();
+  const canModifyResources = capabilities.canManageResources || roles.includes('administrateur');
     
     const [searchTerm, setSearchTerm] = useState("");
   // Filtres Competence Service (UUID)

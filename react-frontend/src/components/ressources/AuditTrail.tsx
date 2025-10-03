@@ -3,15 +3,17 @@ import { Calendar, User, History } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useResources } from '../../contexts/ResourceContext';
 import { useAuth } from '../../pages/authentification/useAuth';
+import { useAppRolesFromIdentity } from '../../hooks/useAppRolesFromIdentity';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 
 const AuditTrail: React.FC = () => {
   const { t } = useTranslation();
   const { getAuditLogs } = useResources();
   const { roles } = useAuth();
+  const { capabilities } = useAppRolesFromIdentity();
   
   // Permissions : uniquement la direction peut voir l'audit
-  const canViewAudit = roles.includes('directeur') || roles.includes('administrateur');
+  const canViewAudit = capabilities.isAdminStaff || roles.includes('administrateur');
   
   const [filterAction, setFilterAction] = useState<string>('all');
   const [filterUser, setFilterUser] = useState<string>('all');
