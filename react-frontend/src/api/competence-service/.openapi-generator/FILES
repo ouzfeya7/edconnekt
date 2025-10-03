@@ -5,8 +5,8 @@ base.ts
 common.ts
 configuration.ts
 docs/AssignmentCreate.md
+docs/AssignmentListResponse.md
 docs/AssignmentResponse.md
-docs/AssignmentScope.md
 docs/CompetencyCreate.md
 docs/CompetencyListResponse.md
 docs/CompetencyResponse.md
@@ -15,6 +15,7 @@ docs/CompetencyUpdate.md
 docs/CycleEnum.md
 docs/DefaultApi.md
 docs/DomainCreate.md
+docs/DomainListResponse.md
 docs/DomainResponse.md
 docs/DomainTree.md
 docs/DomainUpdate.md
@@ -33,7 +34,7 @@ docs/ReferentialResponse.md
 docs/ReferentialTree.md
 docs/ReferentialUpdate.md
 docs/ReferentialsApi.md
-docs/ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet.md
+docs/ResponseGetReferentialApiV1ReferentialsReferentialIdGet.md
 docs/SubjectCreate.md
 docs/SubjectListResponse.md
 docs/SubjectResponse.md

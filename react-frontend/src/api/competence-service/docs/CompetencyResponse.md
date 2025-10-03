@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **subject_id** | **string** |  | [default to undefined]
 **code** | **string** |  | [default to undefined]
-**label** | **string** |  | [default to undefined]
+**label** | **string** |  | [optional] [default to undefined]
 **description** | **string** |  | [optional] [default to undefined]
 **levels** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 **order_index** | **number** |  | [optional] [default to 0]
@@ -16,6 +16,7 @@ Name | Type | Description | Notes
 **version_number** | **number** |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 **updated_at** | **string** |  | [default to undefined]
+**name** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -34,6 +35,7 @@ const instance: CompetencyResponse = {
     version_number,
     created_at,
     updated_at,
+    name,
 };
 ```
 

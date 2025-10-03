@@ -7,10 +7,13 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **subject_id** | **string** |  | [default to undefined]
 **code** | **string** |  | [default to undefined]
-**label** | **string** |  | [default to undefined]
+**label** | **string** |  | [optional] [default to undefined]
 **description** | **string** |  | [optional] [default to undefined]
 **levels** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 **order_index** | **number** |  | [optional] [default to 0]
+**name** | **string** |  | [optional] [default to undefined]
+**referential_id** | **string** |  | [optional] [default to undefined]
+**version_number** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -24,6 +27,9 @@ const instance: CompetencyCreate = {
     description,
     levels,
     order_index,
+    name,
+    referential_id,
+    version_number,
 };
 ```
 

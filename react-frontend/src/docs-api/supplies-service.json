@@ -192,9 +192,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "additionalProperties": true,
-                                    "title": "Response List Campaigns Api Campaigns  Get"
+                                    "$ref": "#/components/schemas/CampaignListResponse"
                                 }
                             }
                         }
@@ -1132,6 +1130,37 @@
                     "created_at"
                 ],
                 "title": "CampaignDashboard"
+            },
+            "CampaignListResponse": {
+                "properties": {
+                    "campaigns": {
+                        "items": {
+                            "$ref": "#/components/schemas/CampaignResponse"
+                        },
+                        "type": "array",
+                        "title": "Campaigns"
+                    },
+                    "total_count": {
+                        "type": "integer",
+                        "title": "Total Count"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "title": "Limit"
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "title": "Offset"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "campaigns",
+                    "total_count",
+                    "limit",
+                    "offset"
+                ],
+                "title": "CampaignListResponse"
             },
             "CampaignResponse": {
                 "properties": {

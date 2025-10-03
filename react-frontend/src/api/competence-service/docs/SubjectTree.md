@@ -8,11 +8,11 @@ Name | Type | Description | Notes
 **id** | **string** |  | [default to undefined]
 **code** | **string** |  | [default to undefined]
 **name** | **string** |  | [default to undefined]
-**coefficient** | **number** |  | [default to undefined]
-**credit** | **number** |  | [default to undefined]
-**color** | **string** |  | [default to undefined]
-**order_index** | **number** |  | [default to undefined]
-**competencies** | [**Array&lt;CompetencyTree&gt;**](CompetencyTree.md) |  | [default to undefined]
+**coefficient** | **number** |  | [optional] [default to undefined]
+**credit** | **number** |  | [optional] [default to undefined]
+**color** | **string** |  | [optional] [default to undefined]
+**order_index** | **number** |  | [optional] [default to undefined]
+**competencies** | [**Array&lt;CompetencyTree&gt;**](CompetencyTree.md) |  | [optional] [default to undefined]
 
 ## Example
 

@@ -124,6 +124,37 @@ export interface CampaignDashboard {
 /**
  * 
  * @export
+ * @interface CampaignListResponse
+ */
+export interface CampaignListResponse {
+    /**
+     * 
+     * @type {Array<CampaignResponse>}
+     * @memberof CampaignListResponse
+     */
+    'campaigns': Array<CampaignResponse>;
+    /**
+     * 
+     * @type {number}
+     * @memberof CampaignListResponse
+     */
+    'total_count': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CampaignListResponse
+     */
+    'limit': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CampaignListResponse
+     */
+    'offset': number;
+}
+/**
+ * 
+ * @export
  * @interface CampaignResponse
  */
 export interface CampaignResponse {
@@ -859,7 +890,7 @@ export const CampaignsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listCampaignsApiCampaignsGet(name?: string | null, status?: string | null, establishmentId?: string | null, schoolYear?: string | null, classId?: string | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<{ [key: string]: any; }>> {
+        async listCampaignsApiCampaignsGet(name?: string | null, status?: string | null, establishmentId?: string | null, schoolYear?: string | null, classId?: string | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CampaignListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listCampaignsApiCampaignsGet(name, status, establishmentId, schoolYear, classId, limit, offset, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CampaignsApi.listCampaignsApiCampaignsGet']?.[localVarOperationServerIndex]?.url;
@@ -957,7 +988,7 @@ export const CampaignsApiFactory = function (configuration?: Configuration, base
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listCampaignsApiCampaignsGet(name?: string | null, status?: string | null, establishmentId?: string | null, schoolYear?: string | null, classId?: string | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<{ [key: string]: any; }> {
+        listCampaignsApiCampaignsGet(name?: string | null, status?: string | null, establishmentId?: string | null, schoolYear?: string | null, classId?: string | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<CampaignListResponse> {
             return localVarFp.listCampaignsApiCampaignsGet(name, status, establishmentId, schoolYear, classId, limit, offset, options).then((request) => request(axios, basePath));
         },
         /**

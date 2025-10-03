@@ -21,7 +21,7 @@ function extractErrorMessage(error: ErrorLike): string {
   return 'Une erreur est survenue';
 }
 
-export function useUpsertTeacherList(campaignId: string | undefined, classId: string | undefined) {
+export function useUpsertTeacherList(campaignId: string | undefined, classId: string | undefined, teacherId?: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (items: TeacherListItemPayload[]) => {
@@ -29,6 +29,7 @@ export function useUpsertTeacherList(campaignId: string | undefined, classId: st
         campaignId as string,
         classId as string,
         items,
+        teacherId,
       );
       return res.data;
     },
@@ -42,13 +43,14 @@ export function useUpsertTeacherList(campaignId: string | undefined, classId: st
   });
 }
 
-export function useSubmitTeacherList(campaignId: string | undefined, classId: string | undefined) {
+export function useSubmitTeacherList(campaignId: string | undefined, classId: string | undefined, teacherId?: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
       const res = await teacherListsApi.submitMyListApiCampaignsCampaignIdMyListSubmitPost(
         campaignId as string,
         classId as string,
+        teacherId,
       );
       return res.data;
     },
@@ -78,6 +80,30 @@ export function usePublicList(campaignId: string | undefined, classId: string | 
     onError: (err) => {
        
       console.error(extractErrorMessage(err));
+    },
+  });
+}
+
+export function usePublicListPdf(campaignId: string | undefined, classId: string | undefined) {
+  return useMutation({
+    mutationFn: async () => {
+      // Récupérer le PDF en blob
+      const res = await publicationApi.publicListPdfApiCampaignsCampaignIdPublicListPdfGet(
+        campaignId as string,
+        classId as string,
+      );
+      // Selon le generator, la réponse peut déjà être un blob; sinon on la reconstruit
+      const blob = (res as unknown as { data: Blob }).data ?? new Blob([JSON.stringify(res.data)], { type: 'application/pdf' });
+      // Déclenche un téléchargement
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `liste-publique-${campaignId}-${classId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      return true;
     },
   });
 }

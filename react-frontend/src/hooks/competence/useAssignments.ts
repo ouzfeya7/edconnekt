@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { competenceReferentialsApi } from '../../api/competence-service/client';
-import type { AssignmentResponse, AssignmentCreate } from '../../api/competence-service/api';
+import type { AssignmentResponse, AssignmentCreate, AssignmentListResponse } from '../../api/competence-service/api';
 
 export function useAssignments(params: { referentialId?: string; versionNumber?: number }) {
   const { referentialId, versionNumber } = params;
@@ -9,8 +9,13 @@ export function useAssignments(params: { referentialId?: string; versionNumber?:
     enabled: Boolean(referentialId) && (versionNumber !== undefined && versionNumber !== null),
     queryFn: async () => {
       if (!referentialId || versionNumber === undefined || versionNumber === null) throw new Error('referentialId et versionNumber requis');
-      const { data } = await competenceReferentialsApi.listAssignmentsApiCompetenceAssignmentsGet(referentialId, versionNumber);
-      return data;
+      const { data } = await competenceReferentialsApi.listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet(referentialId, versionNumber);
+      const list = data as unknown as AssignmentListResponse | AssignmentResponse[];
+      if (Array.isArray(list)) return list as AssignmentResponse[];
+      if (list && Array.isArray((list as AssignmentListResponse).items)) {
+        return (list as AssignmentListResponse).items as AssignmentResponse[];
+      }
+      return [] as AssignmentResponse[];
     },
     staleTime: 60_000,
   });
@@ -22,7 +27,7 @@ export function useAssignment(assignmentId?: string) {
     enabled: Boolean(assignmentId),
     queryFn: async () => {
       if (!assignmentId) throw new Error('assignmentId requis');
-      const { data } = await competenceReferentialsApi.getAssignmentApiCompetenceAssignmentsAssignmentIdGet(assignmentId);
+      const { data } = await competenceReferentialsApi.getAssignmentApiV1AssignmentsAssignmentIdGet(assignmentId);
       return data;
     },
     staleTime: 60_000,
@@ -30,16 +35,17 @@ export function useAssignment(assignmentId?: string) {
   });
 }
 
-export function useCreateAssignment() {
+export function useCreateAssignment(params: { referentialId: string; versionNumber: number }) {
+  const { referentialId, versionNumber } = params;
   const qc = useQueryClient();
-  return useMutation<AssignmentResponse[], Error, AssignmentCreate>({
-    mutationKey: ['competence:assignment:create'],
+  return useMutation<AssignmentResponse, Error, AssignmentCreate>({
+    mutationKey: ['competence:assignment:create', { referentialId, versionNumber }],
     mutationFn: async (payload: AssignmentCreate) => {
-      const { data } = await competenceReferentialsApi.createAssignmentApiCompetenceAssignmentsPost(payload);
+      const { data } = await competenceReferentialsApi.createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost(referentialId, versionNumber, payload);
       return data;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['competence:assignments'] });
+      qc.invalidateQueries({ queryKey: ['competence:assignments', { referentialId, versionNumber }] });
     },
   });
 }
@@ -49,7 +55,7 @@ export function useDeleteAssignment() {
   return useMutation<void, Error, { assignmentId: string }>({
     mutationKey: ['competence:assignment:delete'],
     mutationFn: async ({ assignmentId }) => {
-      await competenceReferentialsApi.deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete(assignmentId);
+      await competenceReferentialsApi.deleteAssignmentApiV1AssignmentsAssignmentIdDelete(assignmentId);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['competence:assignments'] });

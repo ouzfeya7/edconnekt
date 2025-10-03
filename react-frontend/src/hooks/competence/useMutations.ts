@@ -19,7 +19,7 @@ export function useCreateReferential() {
   return useMutation({
     mutationKey: ['competence:referential:create'],
     mutationFn: async (payload: ReferentialCreate) => {
-      const { data } = await competenceReferentialsApi.createReferentialApiCompetenceReferentialsPost(payload);
+      const { data } = await competenceReferentialsApi.createReferentialApiV1ReferentialsPost(payload);
       return data;
     },
     onSuccess: () => {
@@ -34,7 +34,7 @@ export function useUpdateReferential() {
     mutationKey: ['competence:referential:update'],
     mutationFn: async (params: { referentialId: string; versionNumber: number; update: ReferentialUpdate }) => {
       const { referentialId, versionNumber, update } = params;
-      const { data } = await competenceReferentialsApi.updateReferentialApiCompetenceReferentialsReferentialIdPut(referentialId, versionNumber, update);
+      const { data } = await competenceReferentialsApi.updateReferentialApiV1ReferentialsReferentialIdPatch(referentialId, versionNumber, update);
       return data;
     },
     onSuccess: (_res, vars) => {
@@ -50,7 +50,7 @@ export function usePublishReferential() {
     mutationKey: ['competence:referential:publish'],
     mutationFn: async (params: { referentialId: string; versionNumber: number }) => {
       const { referentialId, versionNumber } = params;
-      const { data } = await competenceReferentialsApi.publishReferentialApiCompetenceReferentialsReferentialIdPublishPost(referentialId, versionNumber);
+      const { data } = await competenceReferentialsApi.publishReferentialApiV1ReferentialsReferentialIdPublishPost(referentialId, versionNumber);
       return data;
     },
     onSuccess: () => {
@@ -65,7 +65,7 @@ export function useCloneReferential() {
     mutationKey: ['competence:referential:clone'],
     mutationFn: async (params: { referentialId: string; payload: ReferentialCloneRequest }) => {
       const { referentialId, payload } = params;
-      const { data } = await competenceReferentialsApi.cloneReferentialApiCompetenceReferentialsReferentialIdClonePost(referentialId, payload);
+      const { data } = await competenceReferentialsApi.cloneReferentialApiV1ReferentialsReferentialIdClonePost(referentialId, payload);
       return data;
     },
     onSuccess: (_res, vars) => {
@@ -81,7 +81,7 @@ export function useCloneFromGlobalReferential() {
     mutationKey: ['competence:referential:clone-from-global'],
     mutationFn: async (params: { globalReferentialId: string; payload: ReferentialCloneFromGlobalRequest }) => {
       const { globalReferentialId, payload } = params;
-      const { data } = await competenceReferentialsApi.cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(
+      const { data } = await competenceReferentialsApi.cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost(
         globalReferentialId,
         payload
       );
@@ -99,7 +99,7 @@ export function useDeleteReferential() {
     mutationKey: ['competence:referential:delete'],
     mutationFn: async (params: { referentialId: string; versionNumber: number }) => {
       const { referentialId, versionNumber } = params;
-      const { data } = await competenceReferentialsApi.deleteReferentialApiCompetenceReferentialsReferentialIdDelete(referentialId, versionNumber);
+      const { data } = await competenceReferentialsApi.deleteReferentialApiV1ReferentialsReferentialIdDelete(referentialId, versionNumber);
       return data;
     },
     onSuccess: () => {
@@ -115,7 +115,7 @@ export function useCreateSubject() {
     mutationKey: ['competence:subject:create'],
     mutationFn: async (params: { referentialId: string; versionNumber: number; payload: SubjectCreate }) => {
       const { referentialId, versionNumber, payload } = params;
-      const { data } = await competenceReferentialsApi.createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost(referentialId, versionNumber, payload);
+      const { data } = await competenceReferentialsApi.createSubjectApiV1ReferentialsReferentialIdSubjectsPost(referentialId, versionNumber, payload);
       return data;
     },
     onSuccess: (_res, vars) => {
@@ -130,7 +130,7 @@ export function useUpdateSubject() {
     mutationKey: ['competence:subject:update'],
     mutationFn: async (params: { subjectId: string; update: SubjectUpdate }) => {
       const { subjectId, update } = params;
-      const { data } = await competenceReferentialsApi.updateSubjectApiCompetenceSubjectsSubjectIdPut(subjectId, update);
+      const { data } = await competenceReferentialsApi.updateSubjectApiV1SubjectsSubjectIdPatch(subjectId, update);
       return data;
     },
     onSuccess: () => {
@@ -144,7 +144,7 @@ export function useDeleteSubject() {
   return useMutation({
     mutationKey: ['competence:subject:delete'],
     mutationFn: async (params: { subjectId: string }) => {
-      await competenceReferentialsApi.deleteSubjectApiCompetenceSubjectsSubjectIdDelete(params.subjectId);
+      await competenceReferentialsApi.deleteSubjectApiV1SubjectsSubjectIdDelete(params.subjectId);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['competence:subjects'] });
@@ -159,7 +159,7 @@ export function useCreateDomain() {
     mutationKey: ['competence:domain:create'],
     mutationFn: async (params: { referentialId: string; versionNumber: number; payload: DomainCreate }) => {
       const { referentialId, versionNumber, payload } = params;
-      const { data } = await competenceReferentialsApi.createDomainApiCompetenceReferentialsReferentialIdDomainsPost(referentialId, versionNumber, payload);
+      const { data } = await competenceReferentialsApi.createDomainApiV1ReferentialsReferentialIdDomainsPost(referentialId, versionNumber, payload);
       return data;
     },
     onSuccess: (_res, vars) => {
@@ -174,7 +174,7 @@ export function useUpdateDomain() {
     mutationKey: ['competence:domain:update'],
     mutationFn: async (params: { domainId: string; update: DomainUpdate }) => {
       const { domainId, update } = params;
-      const { data } = await competenceReferentialsApi.updateDomainApiCompetenceDomainsDomainIdPut(domainId, update);
+      const { data } = await competenceReferentialsApi.updateDomainApiV1DomainsDomainIdPatch(domainId, update);
       return data;
     },
     onSuccess: () => {
@@ -188,7 +188,7 @@ export function useDeleteDomain() {
   return useMutation({
     mutationKey: ['competence:domain:delete'],
     mutationFn: async (params: { domainId: string }) => {
-      await competenceReferentialsApi.deleteDomainApiCompetenceDomainsDomainIdDelete(params.domainId);
+      await competenceReferentialsApi.deleteDomainApiV1DomainsDomainIdDelete(params.domainId);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['competence:domains'] });
@@ -203,7 +203,7 @@ export function useCreateCompetency() {
     mutationKey: ['competence:competency:create'],
     mutationFn: async (params: { referentialId: string; versionNumber: number; payload: CompetencyCreate }) => {
       const { referentialId, versionNumber, payload } = params;
-      const { data } = await competenceReferentialsApi.createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost(referentialId, versionNumber, payload);
+      const { data } = await competenceReferentialsApi.createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost(referentialId, versionNumber, payload);
       return data;
     },
     onSuccess: (_res, vars) => {
@@ -218,7 +218,7 @@ export function useUpdateCompetency() {
     mutationKey: ['competence:competency:update'],
     mutationFn: async (params: { competencyId: string; update: CompetencyUpdate }) => {
       const { competencyId, update } = params;
-      const { data } = await competenceReferentialsApi.updateCompetencyApiCompetenceCompetenciesCompetencyIdPut(competencyId, update);
+      const { data } = await competenceReferentialsApi.updateCompetencyApiV1CompetenciesCompetencyIdPatch(competencyId, update);
       return data;
     },
     onSuccess: () => {
@@ -232,7 +232,7 @@ export function useDeleteCompetency() {
   return useMutation({
     mutationKey: ['competence:competency:delete'],
     mutationFn: async (params: { competencyId: string }) => {
-      await competenceReferentialsApi.deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete(params.competencyId);
+      await competenceReferentialsApi.deleteCompetencyApiV1CompetenciesCompetencyIdDelete(params.competencyId);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['competence:competencies'] });

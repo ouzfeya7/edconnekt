@@ -71,14 +71,14 @@
                 }
             }
         },
-        "/api/competence/referentials": {
+        "/api/v1/referentials": {
             "post": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Create Referential",
                 "description": "Créer un nouveau référentiel",
-                "operationId": "create_referential_api_competence_referentials_post",
+                "operationId": "create_referential_api_v1_referentials_post",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -118,7 +118,7 @@
                 ],
                 "summary": "List Referentials",
                 "description": "Lister les référentiels avec filtres et pagination",
-                "operationId": "list_referentials_api_competence_referentials_get",
+                "operationId": "list_referentials_api_v1_referentials_get",
                 "parameters": [
                     {
                         "name": "page",
@@ -244,14 +244,14 @@
                 }
             }
         },
-        "/api/competence/referentials/{referential_id}": {
+        "/api/v1/referentials/{referential_id}": {
             "get": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Get Referential",
                 "description": "Récupérer un référentiel par ID et version",
-                "operationId": "get_referential_api_competence_referentials__referential_id__get",
+                "operationId": "get_referential_api_v1_referentials__referential_id__get",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -309,7 +309,7 @@
                                             "$ref": "#/components/schemas/ReferentialTree"
                                         }
                                     ],
-                                    "title": "Response Get Referential Api Competence Referentials  Referential Id  Get"
+                                    "title": "Response Get Referential Api V1 Referentials  Referential Id  Get"
                                 }
                             }
                         }
@@ -326,13 +326,13 @@
                     }
                 }
             },
-            "put": {
+            "patch": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Update Referential",
                 "description": "Mettre à jour un référentiel",
-                "operationId": "update_referential_api_competence_referentials__referential_id__put",
+                "operationId": "update_referential_api_v1_referentials__referential_id__patch",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -396,7 +396,7 @@
                 ],
                 "summary": "Delete Referential",
                 "description": "Supprimer un référentiel",
-                "operationId": "delete_referential_api_competence_referentials__referential_id__delete",
+                "operationId": "delete_referential_api_v1_referentials__referential_id__delete",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -438,14 +438,14 @@
                 }
             }
         },
-        "/api/competence/referentials/{referential_id}/publish": {
+        "/api/v1/referentials/{referential_id}/publish": {
             "post": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Publish Referential",
                 "description": "Publier un référentiel",
-                "operationId": "publish_referential_api_competence_referentials__referential_id__publish_post",
+                "operationId": "publish_referential_api_v1_referentials__referential_id__publish_post",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -492,14 +492,14 @@
                 }
             }
         },
-        "/api/competence/referentials/{referential_id}/clone": {
+        "/api/v1/referentials/{referential_id}/clone": {
             "post": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Clone Referential",
                 "description": "Cloner un référentiel en nouvelle version",
-                "operationId": "clone_referential_api_competence_referentials__referential_id__clone_post",
+                "operationId": "clone_referential_api_v1_referentials__referential_id__clone_post",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -547,14 +547,14 @@
                 }
             }
         },
-        "/api/competence/global/referentials": {
+        "/api/v1/global/referentials": {
             "get": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "List Global Referentials",
                 "description": "Lister les référentiels globaux (catalogue EdConnect)",
-                "operationId": "list_global_referentials_api_competence_global_referentials_get",
+                "operationId": "list_global_referentials_api_v1_global_referentials_get",
                 "parameters": [
                     {
                         "name": "page",
@@ -644,14 +644,14 @@
                 }
             }
         },
-        "/api/competence/global/referentials/{global_referential_id}/clone": {
+        "/api/v1/global/referentials/{global_referential_id}/clone": {
             "post": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Clone From Global Referential",
                 "description": "Cloner un référentiel global dans le tenant courant",
-                "operationId": "clone_from_global_referential_api_competence_global_referentials__global_referential_id__clone_post",
+                "operationId": "clone_from_global_referential_api_v1_global_referentials__global_referential_id__clone_post",
                 "parameters": [
                     {
                         "name": "global_referential_id",
@@ -699,14 +699,14 @@
                 }
             }
         },
-        "/api/competence/referentials/{referential_id}/domains": {
+        "/api/v1/referentials/{referential_id}/domains": {
             "post": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Create Domain",
                 "description": "Créer un nouveau domaine",
-                "operationId": "create_domain_api_competence_referentials__referential_id__domains_post",
+                "operationId": "create_domain_api_v1_referentials__referential_id__domains_post",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -770,7 +770,7 @@
                 ],
                 "summary": "List Domains",
                 "description": "Lister les domaines d'un référentiel",
-                "operationId": "list_domains_api_competence_referentials__referential_id__domains_get",
+                "operationId": "list_domains_api_v1_referentials__referential_id__domains_get",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -801,11 +801,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/DomainResponse"
-                                    },
-                                    "title": "Response List Domains Api Competence Referentials  Referential Id  Domains Get"
+                                    "$ref": "#/components/schemas/DomainListResponse"
                                 }
                             }
                         }
@@ -823,14 +819,14 @@
                 }
             }
         },
-        "/api/competence/domains/{domain_id}": {
+        "/api/v1/domains/{domain_id}": {
             "get": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Get Domain",
                 "description": "Récupérer un domaine par ID",
-                "operationId": "get_domain_api_competence_domains__domain_id__get",
+                "operationId": "get_domain_api_v1_domains__domain_id__get",
                 "parameters": [
                     {
                         "name": "domain_id",
@@ -867,13 +863,13 @@
                     }
                 }
             },
-            "put": {
+            "patch": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Update Domain",
                 "description": "Mettre à jour un domaine",
-                "operationId": "update_domain_api_competence_domains__domain_id__put",
+                "operationId": "update_domain_api_v1_domains__domain_id__patch",
                 "parameters": [
                     {
                         "name": "domain_id",
@@ -926,7 +922,7 @@
                 ],
                 "summary": "Delete Domain",
                 "description": "Supprimer un domaine",
-                "operationId": "delete_domain_api_competence_domains__domain_id__delete",
+                "operationId": "delete_domain_api_v1_domains__domain_id__delete",
                 "parameters": [
                     {
                         "name": "domain_id",
@@ -957,14 +953,14 @@
                 }
             }
         },
-        "/api/competence/referentials/{referential_id}/subjects": {
+        "/api/v1/referentials/{referential_id}/subjects": {
             "post": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Create Subject",
                 "description": "Créer une nouvelle matière",
-                "operationId": "create_subject_api_competence_referentials__referential_id__subjects_post",
+                "operationId": "create_subject_api_v1_referentials__referential_id__subjects_post",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -1028,7 +1024,7 @@
                 ],
                 "summary": "List Subjects",
                 "description": "Lister les matières d'un référentiel avec filtres",
-                "operationId": "list_subjects_api_competence_referentials__referential_id__subjects_get",
+                "operationId": "list_subjects_api_v1_referentials__referential_id__subjects_get",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -1140,14 +1136,14 @@
                 }
             }
         },
-        "/api/competence/subjects/{subject_id}": {
+        "/api/v1/subjects/{subject_id}": {
             "get": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Get Subject",
                 "description": "Récupérer une matière par ID",
-                "operationId": "get_subject_api_competence_subjects__subject_id__get",
+                "operationId": "get_subject_api_v1_subjects__subject_id__get",
                 "parameters": [
                     {
                         "name": "subject_id",
@@ -1184,13 +1180,13 @@
                     }
                 }
             },
-            "put": {
+            "patch": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Update Subject",
                 "description": "Mettre à jour une matière",
-                "operationId": "update_subject_api_competence_subjects__subject_id__put",
+                "operationId": "update_subject_api_v1_subjects__subject_id__patch",
                 "parameters": [
                     {
                         "name": "subject_id",
@@ -1243,7 +1239,7 @@
                 ],
                 "summary": "Delete Subject",
                 "description": "Supprimer une matière",
-                "operationId": "delete_subject_api_competence_subjects__subject_id__delete",
+                "operationId": "delete_subject_api_v1_subjects__subject_id__delete",
                 "parameters": [
                     {
                         "name": "subject_id",
@@ -1274,14 +1270,14 @@
                 }
             }
         },
-        "/api/competence/referentials/{referential_id}/competencies": {
+        "/api/v1/referentials/{referential_id}/competencies": {
             "post": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Create Competency",
                 "description": "Créer une nouvelle compétence",
-                "operationId": "create_competency_api_competence_referentials__referential_id__competencies_post",
+                "operationId": "create_competency_api_v1_referentials__referential_id__competencies_post",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -1345,7 +1341,7 @@
                 ],
                 "summary": "List Competencies",
                 "description": "Lister les compétences d'un référentiel avec filtres",
-                "operationId": "list_competencies_api_competence_referentials__referential_id__competencies_get",
+                "operationId": "list_competencies_api_v1_referentials__referential_id__competencies_get",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -1457,14 +1453,14 @@
                 }
             }
         },
-        "/api/competence/competencies/{competency_id}": {
+        "/api/v1/competencies/{competency_id}": {
             "get": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Get Competency",
                 "description": "Récupérer une compétence par ID",
-                "operationId": "get_competency_api_competence_competencies__competency_id__get",
+                "operationId": "get_competency_api_v1_competencies__competency_id__get",
                 "parameters": [
                     {
                         "name": "competency_id",
@@ -1501,13 +1497,13 @@
                     }
                 }
             },
-            "put": {
+            "patch": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Update Competency",
                 "description": "Mettre à jour une compétence",
-                "operationId": "update_competency_api_competence_competencies__competency_id__put",
+                "operationId": "update_competency_api_v1_competencies__competency_id__patch",
                 "parameters": [
                     {
                         "name": "competency_id",
@@ -1560,7 +1556,7 @@
                 ],
                 "summary": "Delete Competency",
                 "description": "Supprimer une compétence",
-                "operationId": "delete_competency_api_competence_competencies__competency_id__delete",
+                "operationId": "delete_competency_api_v1_competencies__competency_id__delete",
                 "parameters": [
                     {
                         "name": "competency_id",
@@ -1591,14 +1587,38 @@
                 }
             }
         },
-        "/api/competence/assignments": {
+        "/api/v1/referentials/{referential_id}/assignments": {
             "post": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Create Assignment",
                 "description": "Créer une nouvelle affectation",
-                "operationId": "create_assignment_api_competence_assignments_post",
+                "operationId": "create_assignment_api_v1_referentials__referential_id__assignments_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1615,11 +1635,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/AssignmentResponse"
-                                    },
-                                    "title": "Response Create Assignment Api Competence Assignments Post"
+                                    "$ref": "#/components/schemas/AssignmentResponse"
                                 }
                             }
                         }
@@ -1642,11 +1658,11 @@
                 ],
                 "summary": "List Assignments",
                 "description": "Lister les affectations d'un référentiel",
-                "operationId": "list_assignments_api_competence_assignments_get",
+                "operationId": "list_assignments_api_v1_referentials__referential_id__assignments_get",
                 "parameters": [
                     {
                         "name": "referential_id",
-                        "in": "query",
+                        "in": "path",
                         "required": true,
                         "schema": {
                             "type": "string",
@@ -1673,11 +1689,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/AssignmentResponse"
-                                    },
-                                    "title": "Response List Assignments Api Competence Assignments Get"
+                                    "$ref": "#/components/schemas/AssignmentListResponse"
                                 }
                             }
                         }
@@ -1695,14 +1707,14 @@
                 }
             }
         },
-        "/api/competence/assignments/{assignment_id}": {
+        "/api/v1/assignments/{assignment_id}": {
             "get": {
                 "tags": [
                     "referentials"
                 ],
                 "summary": "Get Assignment",
                 "description": "Récupérer une affectation par ID",
-                "operationId": "get_assignment_api_competence_assignments__assignment_id__get",
+                "operationId": "get_assignment_api_v1_assignments__assignment_id__get",
                 "parameters": [
                     {
                         "name": "assignment_id",
@@ -1745,7 +1757,7 @@
                 ],
                 "summary": "Delete Assignment",
                 "description": "Supprimer une affectation",
-                "operationId": "delete_assignment_api_competence_assignments__assignment_id__delete",
+                "operationId": "delete_assignment_api_v1_assignments__assignment_id__delete",
                 "parameters": [
                     {
                         "name": "assignment_id",
@@ -1776,14 +1788,14 @@
                 }
             }
         },
-        "/api/competence/public/referentials/{referential_id}/tree": {
+        "/api/v1/public/referentials/{referential_id}/tree": {
             "get": {
                 "tags": [
                     "public"
                 ],
                 "summary": "Get Referential Tree",
                 "description": "Récupérer l'arborescence complète d'un référentiel publié",
-                "operationId": "get_referential_tree_api_competence_public_referentials__referential_id__tree_get",
+                "operationId": "get_referential_tree_api_v1_public_referentials__referential_id__tree_get",
                 "parameters": [
                     {
                         "name": "referential_id",
@@ -1832,14 +1844,14 @@
                 }
             }
         },
-        "/api/competence/public/subjects": {
+        "/api/v1/public/subjects": {
             "get": {
                 "tags": [
                     "public"
                 ],
                 "summary": "List Subjects By Scope",
                 "description": "Lister les matières par cycle et niveau (pour les référentiels publiés)",
-                "operationId": "list_subjects_by_scope_api_competence_public_subjects_get",
+                "operationId": "list_subjects_by_scope_api_v1_public_subjects_get",
                 "parameters": [
                     {
                         "name": "cycle",
@@ -1878,7 +1890,7 @@
                                     "items": {
                                         "$ref": "#/components/schemas/SubjectResponse"
                                     },
-                                    "title": "Response List Subjects By Scope Api Competence Public Subjects Get"
+                                    "title": "Response List Subjects By Scope Api V1 Public Subjects Get"
                                 }
                             }
                         }
@@ -1896,14 +1908,14 @@
                 }
             }
         },
-        "/api/competence/public/subjects/{subject_id}/competencies": {
+        "/api/v1/public/subjects/{subject_id}/competencies": {
             "get": {
                 "tags": [
                     "public"
                 ],
                 "summary": "Get Competencies For Subject",
                 "description": "Récupérer les compétences d'une matière (pour les référentiels publiés)",
-                "operationId": "get_competencies_for_subject_api_competence_public_subjects__subject_id__competencies_get",
+                "operationId": "get_competencies_for_subject_api_v1_public_subjects__subject_id__competencies_get",
                 "parameters": [
                     {
                         "name": "subject_id",
@@ -1927,7 +1939,7 @@
                                     "items": {
                                         "$ref": "#/components/schemas/CompetencyResponse"
                                     },
-                                    "title": "Response Get Competencies For Subject Api Competence Public Subjects  Subject Id  Competencies Get"
+                                    "title": "Response Get Competencies For Subject Api V1 Public Subjects  Subject Id  Competencies Get"
                                 }
                             }
                         }
@@ -1945,14 +1957,14 @@
                 }
             }
         },
-        "/api/competence/public/competencies/by-code/{code}": {
+        "/api/v1/public/competencies/by-code/{code}": {
             "get": {
                 "tags": [
                     "public"
                 ],
                 "summary": "Lookup Competency By Code",
                 "description": "Rechercher une compétence par son code (pour les référentiels publiés)",
-                "operationId": "lookup_competency_by_code_api_competence_public_competencies_by_code__code__get",
+                "operationId": "lookup_competency_by_code_api_v1_public_competencies_by_code__code__get",
                 "parameters": [
                     {
                         "name": "code",
@@ -2026,14 +2038,14 @@
                 }
             }
         },
-        "/api/competence/events/events": {
+        "/api/v1/events/events": {
             "get": {
                 "tags": [
                     "events"
                 ],
                 "summary": "List Outbox Events",
                 "description": "List outbox events with filters and pagination",
-                "operationId": "list_outbox_events_api_competence_events_events_get",
+                "operationId": "list_outbox_events_api_v1_events_events_get",
                 "parameters": [
                     {
                         "name": "event_type",
@@ -2184,7 +2196,7 @@
                                     "items": {
                                         "$ref": "#/components/schemas/OutboxEventResponse"
                                     },
-                                    "title": "Response List Outbox Events Api Competence Events Events Get"
+                                    "title": "Response List Outbox Events Api V1 Events Events Get"
                                 }
                             }
                         }
@@ -2202,14 +2214,14 @@
                 }
             }
         },
-        "/api/competence/events/events/replay": {
+        "/api/v1/events/events/replay": {
             "post": {
                 "tags": [
                     "events"
                 ],
                 "summary": "Replay Events",
                 "description": "Manually trigger processing of pending outbox events",
-                "operationId": "replay_events_api_competence_events_events_replay_post",
+                "operationId": "replay_events_api_v1_events_events_replay_post",
                 "responses": {
                     "204": {
                         "description": "Successful Response"
@@ -2223,28 +2235,78 @@
             "AssignmentCreate": {
                 "properties": {
                     "referential_id": {
-                        "type": "string",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Referential Id"
                     },
                     "version_number": {
-                        "type": "integer",
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Version Number"
                     },
-                    "scopes": {
-                        "items": {
-                            "$ref": "#/components/schemas/AssignmentScope"
-                        },
-                        "type": "array",
-                        "title": "Scopes"
+                    "scope_type": {
+                        "type": "string",
+                        "title": "Scope Type"
+                    },
+                    "scope_value": {
+                        "type": "string",
+                        "title": "Scope Value"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "referential_id",
-                    "version_number",
-                    "scopes"
+                    "scope_type",
+                    "scope_value"
                 ],
                 "title": "AssignmentCreate"
+            },
+            "AssignmentListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/AssignmentResponse"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "title": "Size"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "size",
+                    "pages"
+                ],
+                "title": "AssignmentListResponse"
             },
             "AssignmentResponse": {
                 "properties": {
@@ -2285,27 +2347,6 @@
                 ],
                 "title": "AssignmentResponse"
             },
-            "AssignmentScope": {
-                "properties": {
-                    "type": {
-                        "type": "string",
-                        "pattern": "^(LEVEL|CLASS)$",
-                        "title": "Type"
-                    },
-                    "value": {
-                        "type": "string",
-                        "maxLength": 100,
-                        "minLength": 1,
-                        "title": "Value"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "type",
-                    "value"
-                ],
-                "title": "AssignmentScope"
-            },
             "CompetencyCreate": {
                 "properties": {
                     "subject_id": {
@@ -2320,9 +2361,16 @@
                         "title": "Code"
                     },
                     "label": {
-                        "type": "string",
-                        "maxLength": 500,
-                        "minLength": 1,
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 500,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Label"
                     },
                     "description": {
@@ -2355,13 +2403,45 @@
                         "minimum": 0.0,
                         "title": "Order Index",
                         "default": 0
+                    },
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "referential_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Referential Id"
+                    },
+                    "version_number": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Version Number"
                     }
                 },
                 "type": "object",
                 "required": [
                     "subject_id",
-                    "code",
-                    "label"
+                    "code"
                 ],
                 "title": "CompetencyCreate"
             },
@@ -2415,9 +2495,16 @@
                         "title": "Code"
                     },
                     "label": {
-                        "type": "string",
-                        "maxLength": 500,
-                        "minLength": 1,
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 500,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Label"
                     },
                     "description": {
@@ -2472,13 +2559,23 @@
                         "type": "string",
                         "format": "date-time",
                         "title": "Updated At"
+                    },
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
                     }
                 },
                 "type": "object",
                 "required": [
                     "subject_id",
                     "code",
-                    "label",
                     "id",
                     "referential_id",
                     "version_number",
@@ -2498,7 +2595,14 @@
                         "title": "Code"
                     },
                     "label": {
-                        "type": "string",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Label"
                     },
                     "description": {
@@ -2513,25 +2617,35 @@
                         "title": "Description"
                     },
                     "levels": {
-                        "items": {
-                            "type": "string"
-                        },
-                        "type": "array",
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Levels"
                     },
                     "order_index": {
-                        "type": "integer",
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Order Index"
                     }
                 },
                 "type": "object",
                 "required": [
                     "id",
-                    "code",
-                    "label",
-                    "description",
-                    "levels",
-                    "order_index"
+                    "code"
                 ],
                 "title": "CompetencyTree"
             },
@@ -2574,6 +2688,17 @@
                             }
                         ],
                         "title": "Label"
+                    },
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
                     },
                     "description": {
                         "anyOf": [
@@ -2624,6 +2749,7 @@
                     "PRIMAIRE",
                     "COLLEGE",
                     "LYCEE",
+                    "SECONDAIRE",
                     "UNIVERSITE"
                 ],
                 "title": "CycleEnum"
@@ -2648,6 +2774,42 @@
                     "name"
                 ],
                 "title": "DomainCreate"
+            },
+            "DomainListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/DomainResponse"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "title": "Size"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "size",
+                    "pages"
+                ],
+                "title": "DomainListResponse"
             },
             "DomainResponse": {
                 "properties": {
@@ -2708,7 +2870,14 @@
                         "title": "Name"
                     },
                     "order_index": {
-                        "type": "integer",
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Order Index"
                     },
                     "subjects": {
@@ -2716,15 +2885,14 @@
                             "$ref": "#/components/schemas/SubjectTree"
                         },
                         "type": "array",
-                        "title": "Subjects"
+                        "title": "Subjects",
+                        "default": []
                     }
                 },
                 "type": "object",
                 "required": [
                     "id",
-                    "name",
-                    "order_index",
-                    "subjects"
+                    "name"
                 ],
                 "title": "DomainTree"
             },
@@ -3229,7 +3397,14 @@
                         "$ref": "#/components/schemas/RefStateEnum"
                     },
                     "visibility": {
-                        "$ref": "#/components/schemas/VisibilityEnum"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/VisibilityEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "description": {
                         "anyOf": [
@@ -3247,7 +3422,32 @@
                             "$ref": "#/components/schemas/DomainTree"
                         },
                         "type": "array",
-                        "title": "Domains"
+                        "title": "Domains",
+                        "default": []
+                    },
+                    "created_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
                     }
                 },
                 "type": "object",
@@ -3256,10 +3456,7 @@
                     "name",
                     "cycle",
                     "version_number",
-                    "state",
-                    "visibility",
-                    "description",
-                    "domains"
+                    "state"
                 ],
                 "title": "ReferentialTree"
             },
@@ -3557,7 +3754,14 @@
                         "title": "Color"
                     },
                     "order_index": {
-                        "type": "integer",
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Order Index"
                     },
                     "competencies": {
@@ -3565,19 +3769,15 @@
                             "$ref": "#/components/schemas/CompetencyTree"
                         },
                         "type": "array",
-                        "title": "Competencies"
+                        "title": "Competencies",
+                        "default": []
                     }
                 },
                 "type": "object",
                 "required": [
                     "id",
                     "code",
-                    "name",
-                    "coefficient",
-                    "credit",
-                    "color",
-                    "order_index",
-                    "competencies"
+                    "name"
                 ],
                 "title": "SubjectTree"
             },

@@ -4,37 +4,37 @@ All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost**](#clonefromglobalreferentialapicompetenceglobalreferentialsglobalreferentialidclonepost) | **POST** /api/competence/global/referentials/{global_referential_id}/clone | Clone From Global Referential|
-|[**cloneReferentialApiCompetenceReferentialsReferentialIdClonePost**](#clonereferentialapicompetencereferentialsreferentialidclonepost) | **POST** /api/competence/referentials/{referential_id}/clone | Clone Referential|
-|[**createAssignmentApiCompetenceAssignmentsPost**](#createassignmentapicompetenceassignmentspost) | **POST** /api/competence/assignments | Create Assignment|
-|[**createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost**](#createcompetencyapicompetencereferentialsreferentialidcompetenciespost) | **POST** /api/competence/referentials/{referential_id}/competencies | Create Competency|
-|[**createDomainApiCompetenceReferentialsReferentialIdDomainsPost**](#createdomainapicompetencereferentialsreferentialiddomainspost) | **POST** /api/competence/referentials/{referential_id}/domains | Create Domain|
-|[**createReferentialApiCompetenceReferentialsPost**](#createreferentialapicompetencereferentialspost) | **POST** /api/competence/referentials | Create Referential|
-|[**createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost**](#createsubjectapicompetencereferentialsreferentialidsubjectspost) | **POST** /api/competence/referentials/{referential_id}/subjects | Create Subject|
-|[**deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete**](#deleteassignmentapicompetenceassignmentsassignmentiddelete) | **DELETE** /api/competence/assignments/{assignment_id} | Delete Assignment|
-|[**deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete**](#deletecompetencyapicompetencecompetenciescompetencyiddelete) | **DELETE** /api/competence/competencies/{competency_id} | Delete Competency|
-|[**deleteDomainApiCompetenceDomainsDomainIdDelete**](#deletedomainapicompetencedomainsdomainiddelete) | **DELETE** /api/competence/domains/{domain_id} | Delete Domain|
-|[**deleteReferentialApiCompetenceReferentialsReferentialIdDelete**](#deletereferentialapicompetencereferentialsreferentialiddelete) | **DELETE** /api/competence/referentials/{referential_id} | Delete Referential|
-|[**deleteSubjectApiCompetenceSubjectsSubjectIdDelete**](#deletesubjectapicompetencesubjectssubjectiddelete) | **DELETE** /api/competence/subjects/{subject_id} | Delete Subject|
-|[**getAssignmentApiCompetenceAssignmentsAssignmentIdGet**](#getassignmentapicompetenceassignmentsassignmentidget) | **GET** /api/competence/assignments/{assignment_id} | Get Assignment|
-|[**getCompetencyApiCompetenceCompetenciesCompetencyIdGet**](#getcompetencyapicompetencecompetenciescompetencyidget) | **GET** /api/competence/competencies/{competency_id} | Get Competency|
-|[**getDomainApiCompetenceDomainsDomainIdGet**](#getdomainapicompetencedomainsdomainidget) | **GET** /api/competence/domains/{domain_id} | Get Domain|
-|[**getReferentialApiCompetenceReferentialsReferentialIdGet**](#getreferentialapicompetencereferentialsreferentialidget) | **GET** /api/competence/referentials/{referential_id} | Get Referential|
-|[**getSubjectApiCompetenceSubjectsSubjectIdGet**](#getsubjectapicompetencesubjectssubjectidget) | **GET** /api/competence/subjects/{subject_id} | Get Subject|
-|[**listAssignmentsApiCompetenceAssignmentsGet**](#listassignmentsapicompetenceassignmentsget) | **GET** /api/competence/assignments | List Assignments|
-|[**listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet**](#listcompetenciesapicompetencereferentialsreferentialidcompetenciesget) | **GET** /api/competence/referentials/{referential_id}/competencies | List Competencies|
-|[**listDomainsApiCompetenceReferentialsReferentialIdDomainsGet**](#listdomainsapicompetencereferentialsreferentialiddomainsget) | **GET** /api/competence/referentials/{referential_id}/domains | List Domains|
-|[**listGlobalReferentialsApiCompetenceGlobalReferentialsGet**](#listglobalreferentialsapicompetenceglobalreferentialsget) | **GET** /api/competence/global/referentials | List Global Referentials|
-|[**listReferentialsApiCompetenceReferentialsGet**](#listreferentialsapicompetencereferentialsget) | **GET** /api/competence/referentials | List Referentials|
-|[**listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet**](#listsubjectsapicompetencereferentialsreferentialidsubjectsget) | **GET** /api/competence/referentials/{referential_id}/subjects | List Subjects|
-|[**publishReferentialApiCompetenceReferentialsReferentialIdPublishPost**](#publishreferentialapicompetencereferentialsreferentialidpublishpost) | **POST** /api/competence/referentials/{referential_id}/publish | Publish Referential|
-|[**updateCompetencyApiCompetenceCompetenciesCompetencyIdPut**](#updatecompetencyapicompetencecompetenciescompetencyidput) | **PUT** /api/competence/competencies/{competency_id} | Update Competency|
-|[**updateDomainApiCompetenceDomainsDomainIdPut**](#updatedomainapicompetencedomainsdomainidput) | **PUT** /api/competence/domains/{domain_id} | Update Domain|
-|[**updateReferentialApiCompetenceReferentialsReferentialIdPut**](#updatereferentialapicompetencereferentialsreferentialidput) | **PUT** /api/competence/referentials/{referential_id} | Update Referential|
-|[**updateSubjectApiCompetenceSubjectsSubjectIdPut**](#updatesubjectapicompetencesubjectssubjectidput) | **PUT** /api/competence/subjects/{subject_id} | Update Subject|
+|[**cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost**](#clonefromglobalreferentialapiv1globalreferentialsglobalreferentialidclonepost) | **POST** /api/v1/global/referentials/{global_referential_id}/clone | Clone From Global Referential|
+|[**cloneReferentialApiV1ReferentialsReferentialIdClonePost**](#clonereferentialapiv1referentialsreferentialidclonepost) | **POST** /api/v1/referentials/{referential_id}/clone | Clone Referential|
+|[**createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost**](#createassignmentapiv1referentialsreferentialidassignmentspost) | **POST** /api/v1/referentials/{referential_id}/assignments | Create Assignment|
+|[**createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost**](#createcompetencyapiv1referentialsreferentialidcompetenciespost) | **POST** /api/v1/referentials/{referential_id}/competencies | Create Competency|
+|[**createDomainApiV1ReferentialsReferentialIdDomainsPost**](#createdomainapiv1referentialsreferentialiddomainspost) | **POST** /api/v1/referentials/{referential_id}/domains | Create Domain|
+|[**createReferentialApiV1ReferentialsPost**](#createreferentialapiv1referentialspost) | **POST** /api/v1/referentials | Create Referential|
+|[**createSubjectApiV1ReferentialsReferentialIdSubjectsPost**](#createsubjectapiv1referentialsreferentialidsubjectspost) | **POST** /api/v1/referentials/{referential_id}/subjects | Create Subject|
+|[**deleteAssignmentApiV1AssignmentsAssignmentIdDelete**](#deleteassignmentapiv1assignmentsassignmentiddelete) | **DELETE** /api/v1/assignments/{assignment_id} | Delete Assignment|
+|[**deleteCompetencyApiV1CompetenciesCompetencyIdDelete**](#deletecompetencyapiv1competenciescompetencyiddelete) | **DELETE** /api/v1/competencies/{competency_id} | Delete Competency|
+|[**deleteDomainApiV1DomainsDomainIdDelete**](#deletedomainapiv1domainsdomainiddelete) | **DELETE** /api/v1/domains/{domain_id} | Delete Domain|
+|[**deleteReferentialApiV1ReferentialsReferentialIdDelete**](#deletereferentialapiv1referentialsreferentialiddelete) | **DELETE** /api/v1/referentials/{referential_id} | Delete Referential|
+|[**deleteSubjectApiV1SubjectsSubjectIdDelete**](#deletesubjectapiv1subjectssubjectiddelete) | **DELETE** /api/v1/subjects/{subject_id} | Delete Subject|
+|[**getAssignmentApiV1AssignmentsAssignmentIdGet**](#getassignmentapiv1assignmentsassignmentidget) | **GET** /api/v1/assignments/{assignment_id} | Get Assignment|
+|[**getCompetencyApiV1CompetenciesCompetencyIdGet**](#getcompetencyapiv1competenciescompetencyidget) | **GET** /api/v1/competencies/{competency_id} | Get Competency|
+|[**getDomainApiV1DomainsDomainIdGet**](#getdomainapiv1domainsdomainidget) | **GET** /api/v1/domains/{domain_id} | Get Domain|
+|[**getReferentialApiV1ReferentialsReferentialIdGet**](#getreferentialapiv1referentialsreferentialidget) | **GET** /api/v1/referentials/{referential_id} | Get Referential|
+|[**getSubjectApiV1SubjectsSubjectIdGet**](#getsubjectapiv1subjectssubjectidget) | **GET** /api/v1/subjects/{subject_id} | Get Subject|
+|[**listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet**](#listassignmentsapiv1referentialsreferentialidassignmentsget) | **GET** /api/v1/referentials/{referential_id}/assignments | List Assignments|
+|[**listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet**](#listcompetenciesapiv1referentialsreferentialidcompetenciesget) | **GET** /api/v1/referentials/{referential_id}/competencies | List Competencies|
+|[**listDomainsApiV1ReferentialsReferentialIdDomainsGet**](#listdomainsapiv1referentialsreferentialiddomainsget) | **GET** /api/v1/referentials/{referential_id}/domains | List Domains|
+|[**listGlobalReferentialsApiV1GlobalReferentialsGet**](#listglobalreferentialsapiv1globalreferentialsget) | **GET** /api/v1/global/referentials | List Global Referentials|
+|[**listReferentialsApiV1ReferentialsGet**](#listreferentialsapiv1referentialsget) | **GET** /api/v1/referentials | List Referentials|
+|[**listSubjectsApiV1ReferentialsReferentialIdSubjectsGet**](#listsubjectsapiv1referentialsreferentialidsubjectsget) | **GET** /api/v1/referentials/{referential_id}/subjects | List Subjects|
+|[**publishReferentialApiV1ReferentialsReferentialIdPublishPost**](#publishreferentialapiv1referentialsreferentialidpublishpost) | **POST** /api/v1/referentials/{referential_id}/publish | Publish Referential|
+|[**updateCompetencyApiV1CompetenciesCompetencyIdPatch**](#updatecompetencyapiv1competenciescompetencyidpatch) | **PATCH** /api/v1/competencies/{competency_id} | Update Competency|
+|[**updateDomainApiV1DomainsDomainIdPatch**](#updatedomainapiv1domainsdomainidpatch) | **PATCH** /api/v1/domains/{domain_id} | Update Domain|
+|[**updateReferentialApiV1ReferentialsReferentialIdPatch**](#updatereferentialapiv1referentialsreferentialidpatch) | **PATCH** /api/v1/referentials/{referential_id} | Update Referential|
+|[**updateSubjectApiV1SubjectsSubjectIdPatch**](#updatesubjectapiv1subjectssubjectidpatch) | **PATCH** /api/v1/subjects/{subject_id} | Update Subject|
 
-# **cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost**
-> ReferentialResponse cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(referentialCloneFromGlobalRequest)
+# **cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost**
+> ReferentialResponse cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost(referentialCloneFromGlobalRequest)
 
 Cloner un référentiel global dans le tenant courant
 
@@ -53,7 +53,7 @@ const apiInstance = new ReferentialsApi(configuration);
 let globalReferentialId: string; //ID du référentiel global à cloner (default to undefined)
 let referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest; //
 
-const { status, data } = await apiInstance.cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(
+const { status, data } = await apiInstance.cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost(
     globalReferentialId,
     referentialCloneFromGlobalRequest
 );
@@ -89,8 +89,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **cloneReferentialApiCompetenceReferentialsReferentialIdClonePost**
-> ReferentialResponse cloneReferentialApiCompetenceReferentialsReferentialIdClonePost(referentialCloneRequest)
+# **cloneReferentialApiV1ReferentialsReferentialIdClonePost**
+> ReferentialResponse cloneReferentialApiV1ReferentialsReferentialIdClonePost(referentialCloneRequest)
 
 Cloner un référentiel en nouvelle version
 
@@ -109,7 +109,7 @@ const apiInstance = new ReferentialsApi(configuration);
 let referentialId: string; //ID du référentiel à cloner (default to undefined)
 let referentialCloneRequest: ReferentialCloneRequest; //
 
-const { status, data } = await apiInstance.cloneReferentialApiCompetenceReferentialsReferentialIdClonePost(
+const { status, data } = await apiInstance.cloneReferentialApiV1ReferentialsReferentialIdClonePost(
     referentialId,
     referentialCloneRequest
 );
@@ -145,8 +145,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **createAssignmentApiCompetenceAssignmentsPost**
-> Array<AssignmentResponse> createAssignmentApiCompetenceAssignmentsPost(assignmentCreate)
+# **createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost**
+> AssignmentResponse createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost(assignmentCreate)
 
 Créer une nouvelle affectation
 
@@ -162,9 +162,13 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ReferentialsApi(configuration);
 
+let referentialId: string; //ID du référentiel (default to undefined)
+let versionNumber: number; //Numéro de version (default to undefined)
 let assignmentCreate: AssignmentCreate; //
 
-const { status, data } = await apiInstance.createAssignmentApiCompetenceAssignmentsPost(
+const { status, data } = await apiInstance.createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost(
+    referentialId,
+    versionNumber,
     assignmentCreate
 );
 ```
@@ -174,11 +178,13 @@ const { status, data } = await apiInstance.createAssignmentApiCompetenceAssignme
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **assignmentCreate** | **AssignmentCreate**|  | |
+| **referentialId** | [**string**] | ID du référentiel | defaults to undefined|
+| **versionNumber** | [**number**] | Numéro de version | defaults to undefined|
 
 
 ### Return type
 
-**Array<AssignmentResponse>**
+**AssignmentResponse**
 
 ### Authorization
 
@@ -198,8 +204,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost**
-> CompetencyResponse createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost(competencyCreate)
+# **createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost**
+> CompetencyResponse createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost(competencyCreate)
 
 Créer une nouvelle compétence
 
@@ -219,7 +225,7 @@ let referentialId: string; //ID du référentiel (default to undefined)
 let versionNumber: number; //Numéro de version (default to undefined)
 let competencyCreate: CompetencyCreate; //
 
-const { status, data } = await apiInstance.createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost(
+const { status, data } = await apiInstance.createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost(
     referentialId,
     versionNumber,
     competencyCreate
@@ -257,8 +263,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **createDomainApiCompetenceReferentialsReferentialIdDomainsPost**
-> DomainResponse createDomainApiCompetenceReferentialsReferentialIdDomainsPost(domainCreate)
+# **createDomainApiV1ReferentialsReferentialIdDomainsPost**
+> DomainResponse createDomainApiV1ReferentialsReferentialIdDomainsPost(domainCreate)
 
 Créer un nouveau domaine
 
@@ -278,7 +284,7 @@ let referentialId: string; //ID du référentiel (default to undefined)
 let versionNumber: number; //Numéro de version (default to undefined)
 let domainCreate: DomainCreate; //
 
-const { status, data } = await apiInstance.createDomainApiCompetenceReferentialsReferentialIdDomainsPost(
+const { status, data } = await apiInstance.createDomainApiV1ReferentialsReferentialIdDomainsPost(
     referentialId,
     versionNumber,
     domainCreate
@@ -316,8 +322,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **createReferentialApiCompetenceReferentialsPost**
-> ReferentialResponse createReferentialApiCompetenceReferentialsPost(referentialCreate)
+# **createReferentialApiV1ReferentialsPost**
+> ReferentialResponse createReferentialApiV1ReferentialsPost(referentialCreate)
 
 Créer un nouveau référentiel
 
@@ -335,7 +341,7 @@ const apiInstance = new ReferentialsApi(configuration);
 
 let referentialCreate: ReferentialCreate; //
 
-const { status, data } = await apiInstance.createReferentialApiCompetenceReferentialsPost(
+const { status, data } = await apiInstance.createReferentialApiV1ReferentialsPost(
     referentialCreate
 );
 ```
@@ -369,8 +375,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost**
-> SubjectResponse createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost(subjectCreate)
+# **createSubjectApiV1ReferentialsReferentialIdSubjectsPost**
+> SubjectResponse createSubjectApiV1ReferentialsReferentialIdSubjectsPost(subjectCreate)
 
 Créer une nouvelle matière
 
@@ -390,7 +396,7 @@ let referentialId: string; //ID du référentiel (default to undefined)
 let versionNumber: number; //Numéro de version (default to undefined)
 let subjectCreate: SubjectCreate; //
 
-const { status, data } = await apiInstance.createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost(
+const { status, data } = await apiInstance.createSubjectApiV1ReferentialsReferentialIdSubjectsPost(
     referentialId,
     versionNumber,
     subjectCreate
@@ -428,8 +434,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete**
-> deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete()
+# **deleteAssignmentApiV1AssignmentsAssignmentIdDelete**
+> deleteAssignmentApiV1AssignmentsAssignmentIdDelete()
 
 Supprimer une affectation
 
@@ -446,7 +452,7 @@ const apiInstance = new ReferentialsApi(configuration);
 
 let assignmentId: string; //ID de l\'affectation (default to undefined)
 
-const { status, data } = await apiInstance.deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete(
+const { status, data } = await apiInstance.deleteAssignmentApiV1AssignmentsAssignmentIdDelete(
     assignmentId
 );
 ```
@@ -480,8 +486,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete**
-> deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete()
+# **deleteCompetencyApiV1CompetenciesCompetencyIdDelete**
+> deleteCompetencyApiV1CompetenciesCompetencyIdDelete()
 
 Supprimer une compétence
 
@@ -498,7 +504,7 @@ const apiInstance = new ReferentialsApi(configuration);
 
 let competencyId: string; //ID de la compétence (default to undefined)
 
-const { status, data } = await apiInstance.deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete(
+const { status, data } = await apiInstance.deleteCompetencyApiV1CompetenciesCompetencyIdDelete(
     competencyId
 );
 ```
@@ -532,8 +538,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **deleteDomainApiCompetenceDomainsDomainIdDelete**
-> deleteDomainApiCompetenceDomainsDomainIdDelete()
+# **deleteDomainApiV1DomainsDomainIdDelete**
+> deleteDomainApiV1DomainsDomainIdDelete()
 
 Supprimer un domaine
 
@@ -550,7 +556,7 @@ const apiInstance = new ReferentialsApi(configuration);
 
 let domainId: string; //ID du domaine (default to undefined)
 
-const { status, data } = await apiInstance.deleteDomainApiCompetenceDomainsDomainIdDelete(
+const { status, data } = await apiInstance.deleteDomainApiV1DomainsDomainIdDelete(
     domainId
 );
 ```
@@ -584,8 +590,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **deleteReferentialApiCompetenceReferentialsReferentialIdDelete**
-> deleteReferentialApiCompetenceReferentialsReferentialIdDelete()
+# **deleteReferentialApiV1ReferentialsReferentialIdDelete**
+> deleteReferentialApiV1ReferentialsReferentialIdDelete()
 
 Supprimer un référentiel
 
@@ -603,7 +609,7 @@ const apiInstance = new ReferentialsApi(configuration);
 let referentialId: string; //ID du référentiel (default to undefined)
 let versionNumber: number; //Numéro de version (default to undefined)
 
-const { status, data } = await apiInstance.deleteReferentialApiCompetenceReferentialsReferentialIdDelete(
+const { status, data } = await apiInstance.deleteReferentialApiV1ReferentialsReferentialIdDelete(
     referentialId,
     versionNumber
 );
@@ -639,8 +645,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **deleteSubjectApiCompetenceSubjectsSubjectIdDelete**
-> deleteSubjectApiCompetenceSubjectsSubjectIdDelete()
+# **deleteSubjectApiV1SubjectsSubjectIdDelete**
+> deleteSubjectApiV1SubjectsSubjectIdDelete()
 
 Supprimer une matière
 
@@ -657,7 +663,7 @@ const apiInstance = new ReferentialsApi(configuration);
 
 let subjectId: string; //ID de la matière (default to undefined)
 
-const { status, data } = await apiInstance.deleteSubjectApiCompetenceSubjectsSubjectIdDelete(
+const { status, data } = await apiInstance.deleteSubjectApiV1SubjectsSubjectIdDelete(
     subjectId
 );
 ```
@@ -691,8 +697,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getAssignmentApiCompetenceAssignmentsAssignmentIdGet**
-> AssignmentResponse getAssignmentApiCompetenceAssignmentsAssignmentIdGet()
+# **getAssignmentApiV1AssignmentsAssignmentIdGet**
+> AssignmentResponse getAssignmentApiV1AssignmentsAssignmentIdGet()
 
 Récupérer une affectation par ID
 
@@ -709,7 +715,7 @@ const apiInstance = new ReferentialsApi(configuration);
 
 let assignmentId: string; //ID de l\'affectation (default to undefined)
 
-const { status, data } = await apiInstance.getAssignmentApiCompetenceAssignmentsAssignmentIdGet(
+const { status, data } = await apiInstance.getAssignmentApiV1AssignmentsAssignmentIdGet(
     assignmentId
 );
 ```
@@ -743,8 +749,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getCompetencyApiCompetenceCompetenciesCompetencyIdGet**
-> CompetencyResponse getCompetencyApiCompetenceCompetenciesCompetencyIdGet()
+# **getCompetencyApiV1CompetenciesCompetencyIdGet**
+> CompetencyResponse getCompetencyApiV1CompetenciesCompetencyIdGet()
 
 Récupérer une compétence par ID
 
@@ -761,7 +767,7 @@ const apiInstance = new ReferentialsApi(configuration);
 
 let competencyId: string; //ID de la compétence (default to undefined)
 
-const { status, data } = await apiInstance.getCompetencyApiCompetenceCompetenciesCompetencyIdGet(
+const { status, data } = await apiInstance.getCompetencyApiV1CompetenciesCompetencyIdGet(
     competencyId
 );
 ```
@@ -795,8 +801,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getDomainApiCompetenceDomainsDomainIdGet**
-> DomainResponse getDomainApiCompetenceDomainsDomainIdGet()
+# **getDomainApiV1DomainsDomainIdGet**
+> DomainResponse getDomainApiV1DomainsDomainIdGet()
 
 Récupérer un domaine par ID
 
@@ -813,7 +819,7 @@ const apiInstance = new ReferentialsApi(configuration);
 
 let domainId: string; //ID du domaine (default to undefined)
 
-const { status, data } = await apiInstance.getDomainApiCompetenceDomainsDomainIdGet(
+const { status, data } = await apiInstance.getDomainApiV1DomainsDomainIdGet(
     domainId
 );
 ```
@@ -847,8 +853,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getReferentialApiCompetenceReferentialsReferentialIdGet**
-> ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet getReferentialApiCompetenceReferentialsReferentialIdGet()
+# **getReferentialApiV1ReferentialsReferentialIdGet**
+> ResponseGetReferentialApiV1ReferentialsReferentialIdGet getReferentialApiV1ReferentialsReferentialIdGet()
 
 Récupérer un référentiel par ID et version
 
@@ -867,7 +873,7 @@ let referentialId: string; //ID du référentiel (default to undefined)
 let versionNumber: number; //Numéro de version (optional) (default to undefined)
 let includeTree: boolean; //Inclure l\'arborescence complète (domaines, matières, compétences) (optional) (default to false)
 
-const { status, data } = await apiInstance.getReferentialApiCompetenceReferentialsReferentialIdGet(
+const { status, data } = await apiInstance.getReferentialApiV1ReferentialsReferentialIdGet(
     referentialId,
     versionNumber,
     includeTree
@@ -885,7 +891,7 @@ const { status, data } = await apiInstance.getReferentialApiCompetenceReferentia
 
 ### Return type
 
-**ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet**
+**ResponseGetReferentialApiV1ReferentialsReferentialIdGet**
 
 ### Authorization
 
@@ -905,8 +911,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getSubjectApiCompetenceSubjectsSubjectIdGet**
-> SubjectResponse getSubjectApiCompetenceSubjectsSubjectIdGet()
+# **getSubjectApiV1SubjectsSubjectIdGet**
+> SubjectResponse getSubjectApiV1SubjectsSubjectIdGet()
 
 Récupérer une matière par ID
 
@@ -923,7 +929,7 @@ const apiInstance = new ReferentialsApi(configuration);
 
 let subjectId: string; //ID de la matière (default to undefined)
 
-const { status, data } = await apiInstance.getSubjectApiCompetenceSubjectsSubjectIdGet(
+const { status, data } = await apiInstance.getSubjectApiV1SubjectsSubjectIdGet(
     subjectId
 );
 ```
@@ -957,8 +963,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **listAssignmentsApiCompetenceAssignmentsGet**
-> Array<AssignmentResponse> listAssignmentsApiCompetenceAssignmentsGet()
+# **listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet**
+> AssignmentListResponse listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet()
 
 Lister les affectations d\'un référentiel
 
@@ -976,7 +982,7 @@ const apiInstance = new ReferentialsApi(configuration);
 let referentialId: string; //ID du référentiel (default to undefined)
 let versionNumber: number; //Numéro de version (default to undefined)
 
-const { status, data } = await apiInstance.listAssignmentsApiCompetenceAssignmentsGet(
+const { status, data } = await apiInstance.listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet(
     referentialId,
     versionNumber
 );
@@ -992,7 +998,7 @@ const { status, data } = await apiInstance.listAssignmentsApiCompetenceAssignmen
 
 ### Return type
 
-**Array<AssignmentResponse>**
+**AssignmentListResponse**
 
 ### Authorization
 
@@ -1012,8 +1018,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet**
-> CompetencyListResponse listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet()
+# **listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet**
+> CompetencyListResponse listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet()
 
 Lister les compétences d\'un référentiel avec filtres
 
@@ -1035,7 +1041,7 @@ let size: number; //Taille de page (optional) (default to 20)
 let subjectId: string; //Filtrer par matière (optional) (default to undefined)
 let q: string; //Recherche textuelle (optional) (default to undefined)
 
-const { status, data } = await apiInstance.listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet(
+const { status, data } = await apiInstance.listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet(
     referentialId,
     versionNumber,
     page,
@@ -1079,8 +1085,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **listDomainsApiCompetenceReferentialsReferentialIdDomainsGet**
-> Array<DomainResponse> listDomainsApiCompetenceReferentialsReferentialIdDomainsGet()
+# **listDomainsApiV1ReferentialsReferentialIdDomainsGet**
+> DomainListResponse listDomainsApiV1ReferentialsReferentialIdDomainsGet()
 
 Lister les domaines d\'un référentiel
 
@@ -1098,7 +1104,7 @@ const apiInstance = new ReferentialsApi(configuration);
 let referentialId: string; //ID du référentiel (default to undefined)
 let versionNumber: number; //Numéro de version (default to undefined)
 
-const { status, data } = await apiInstance.listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(
+const { status, data } = await apiInstance.listDomainsApiV1ReferentialsReferentialIdDomainsGet(
     referentialId,
     versionNumber
 );
@@ -1114,7 +1120,7 @@ const { status, data } = await apiInstance.listDomainsApiCompetenceReferentialsR
 
 ### Return type
 
-**Array<DomainResponse>**
+**DomainListResponse**
 
 ### Authorization
 
@@ -1134,8 +1140,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **listGlobalReferentialsApiCompetenceGlobalReferentialsGet**
-> GlobalReferentialListResponse listGlobalReferentialsApiCompetenceGlobalReferentialsGet()
+# **listGlobalReferentialsApiV1GlobalReferentialsGet**
+> GlobalReferentialListResponse listGlobalReferentialsApiV1GlobalReferentialsGet()
 
 Lister les référentiels globaux (catalogue EdConnect)
 
@@ -1155,7 +1161,7 @@ let size: number; //Taille de page (optional) (default to 20)
 let cycle: string; //Filtrer par cycle (optional) (default to undefined)
 let q: string; //Recherche textuelle (optional) (default to undefined)
 
-const { status, data } = await apiInstance.listGlobalReferentialsApiCompetenceGlobalReferentialsGet(
+const { status, data } = await apiInstance.listGlobalReferentialsApiV1GlobalReferentialsGet(
     page,
     size,
     cycle,
@@ -1195,8 +1201,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **listReferentialsApiCompetenceReferentialsGet**
-> ReferentialListResponse listReferentialsApiCompetenceReferentialsGet()
+# **listReferentialsApiV1ReferentialsGet**
+> ReferentialListResponse listReferentialsApiV1ReferentialsGet()
 
 Lister les référentiels avec filtres et pagination
 
@@ -1218,7 +1224,7 @@ let state: string; //Filtrer par état (optional) (default to undefined)
 let visibility: string; //Filtrer par visibilité (optional) (default to undefined)
 let q: string; //Recherche textuelle (optional) (default to undefined)
 
-const { status, data } = await apiInstance.listReferentialsApiCompetenceReferentialsGet(
+const { status, data } = await apiInstance.listReferentialsApiV1ReferentialsGet(
     page,
     size,
     cycle,
@@ -1262,8 +1268,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet**
-> SubjectListResponse listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet()
+# **listSubjectsApiV1ReferentialsReferentialIdSubjectsGet**
+> SubjectListResponse listSubjectsApiV1ReferentialsReferentialIdSubjectsGet()
 
 Lister les matières d\'un référentiel avec filtres
 
@@ -1285,7 +1291,7 @@ let size: number; //Taille de page (optional) (default to 20)
 let domainId: string; //Filtrer par domaine (optional) (default to undefined)
 let q: string; //Recherche textuelle (optional) (default to undefined)
 
-const { status, data } = await apiInstance.listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet(
+const { status, data } = await apiInstance.listSubjectsApiV1ReferentialsReferentialIdSubjectsGet(
     referentialId,
     versionNumber,
     page,
@@ -1329,8 +1335,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **publishReferentialApiCompetenceReferentialsReferentialIdPublishPost**
-> any publishReferentialApiCompetenceReferentialsReferentialIdPublishPost()
+# **publishReferentialApiV1ReferentialsReferentialIdPublishPost**
+> any publishReferentialApiV1ReferentialsReferentialIdPublishPost()
 
 Publier un référentiel
 
@@ -1348,7 +1354,7 @@ const apiInstance = new ReferentialsApi(configuration);
 let referentialId: string; //ID du référentiel (default to undefined)
 let versionNumber: number; //Numéro de version (default to undefined)
 
-const { status, data } = await apiInstance.publishReferentialApiCompetenceReferentialsReferentialIdPublishPost(
+const { status, data } = await apiInstance.publishReferentialApiV1ReferentialsReferentialIdPublishPost(
     referentialId,
     versionNumber
 );
@@ -1384,8 +1390,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **updateCompetencyApiCompetenceCompetenciesCompetencyIdPut**
-> CompetencyResponse updateCompetencyApiCompetenceCompetenciesCompetencyIdPut(competencyUpdate)
+# **updateCompetencyApiV1CompetenciesCompetencyIdPatch**
+> CompetencyResponse updateCompetencyApiV1CompetenciesCompetencyIdPatch(competencyUpdate)
 
 Mettre à jour une compétence
 
@@ -1404,7 +1410,7 @@ const apiInstance = new ReferentialsApi(configuration);
 let competencyId: string; //ID de la compétence (default to undefined)
 let competencyUpdate: CompetencyUpdate; //
 
-const { status, data } = await apiInstance.updateCompetencyApiCompetenceCompetenciesCompetencyIdPut(
+const { status, data } = await apiInstance.updateCompetencyApiV1CompetenciesCompetencyIdPatch(
     competencyId,
     competencyUpdate
 );
@@ -1440,8 +1446,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **updateDomainApiCompetenceDomainsDomainIdPut**
-> DomainResponse updateDomainApiCompetenceDomainsDomainIdPut(domainUpdate)
+# **updateDomainApiV1DomainsDomainIdPatch**
+> DomainResponse updateDomainApiV1DomainsDomainIdPatch(domainUpdate)
 
 Mettre à jour un domaine
 
@@ -1460,7 +1466,7 @@ const apiInstance = new ReferentialsApi(configuration);
 let domainId: string; //ID du domaine (default to undefined)
 let domainUpdate: DomainUpdate; //
 
-const { status, data } = await apiInstance.updateDomainApiCompetenceDomainsDomainIdPut(
+const { status, data } = await apiInstance.updateDomainApiV1DomainsDomainIdPatch(
     domainId,
     domainUpdate
 );
@@ -1496,8 +1502,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **updateReferentialApiCompetenceReferentialsReferentialIdPut**
-> ReferentialResponse updateReferentialApiCompetenceReferentialsReferentialIdPut(referentialUpdate)
+# **updateReferentialApiV1ReferentialsReferentialIdPatch**
+> ReferentialResponse updateReferentialApiV1ReferentialsReferentialIdPatch(referentialUpdate)
 
 Mettre à jour un référentiel
 
@@ -1517,7 +1523,7 @@ let referentialId: string; //ID du référentiel (default to undefined)
 let versionNumber: number; //Numéro de version (default to undefined)
 let referentialUpdate: ReferentialUpdate; //
 
-const { status, data } = await apiInstance.updateReferentialApiCompetenceReferentialsReferentialIdPut(
+const { status, data } = await apiInstance.updateReferentialApiV1ReferentialsReferentialIdPatch(
     referentialId,
     versionNumber,
     referentialUpdate
@@ -1555,8 +1561,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **updateSubjectApiCompetenceSubjectsSubjectIdPut**
-> SubjectResponse updateSubjectApiCompetenceSubjectsSubjectIdPut(subjectUpdate)
+# **updateSubjectApiV1SubjectsSubjectIdPatch**
+> SubjectResponse updateSubjectApiV1SubjectsSubjectIdPatch(subjectUpdate)
 
 Mettre à jour une matière
 
@@ -1575,7 +1581,7 @@ const apiInstance = new ReferentialsApi(configuration);
 let subjectId: string; //ID de la matière (default to undefined)
 let subjectUpdate: SubjectUpdate; //
 
-const { status, data } = await apiInstance.updateSubjectApiCompetenceSubjectsSubjectIdPut(
+const { status, data } = await apiInstance.updateSubjectApiV1SubjectsSubjectIdPatch(
     subjectId,
     subjectUpdate
 );

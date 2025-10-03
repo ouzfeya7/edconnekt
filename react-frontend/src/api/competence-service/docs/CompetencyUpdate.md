@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **subject_id** | **string** |  | [optional] [default to undefined]
 **code** | **string** |  | [optional] [default to undefined]
 **label** | **string** |  | [optional] [default to undefined]
+**name** | **string** |  | [optional] [default to undefined]
 **description** | **string** |  | [optional] [default to undefined]
 **levels** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 **order_index** | **number** |  | [optional] [default to undefined]
@@ -21,6 +22,7 @@ const instance: CompetencyUpdate = {
     subject_id,
     code,
     label,
+    name,
     description,
     levels,
     order_index,

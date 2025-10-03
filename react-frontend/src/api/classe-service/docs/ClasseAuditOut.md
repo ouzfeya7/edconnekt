@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **motif** | **string** |  | [default to undefined]
 **auteur_id** | **string** |  | [default to undefined]
 **auteur_nom** | **string** |  | [default to undefined]
+**tenant_id** | **string** |  | [optional] [default to undefined]
 **id** | **string** |  | [default to undefined]
 **date_operation** | **string** |  | [default to undefined]
 
@@ -24,6 +25,7 @@ const instance: ClasseAuditOut = {
     motif,
     auteur_id,
     auteur_nom,
+    tenant_id,
     id,
     date_operation,
 };

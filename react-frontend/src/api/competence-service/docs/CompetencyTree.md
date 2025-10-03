@@ -7,10 +7,10 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
 **code** | **string** |  | [default to undefined]
-**label** | **string** |  | [default to undefined]
-**description** | **string** |  | [default to undefined]
-**levels** | **Array&lt;string&gt;** |  | [default to undefined]
-**order_index** | **number** |  | [default to undefined]
+**label** | **string** |  | [optional] [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
+**levels** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
+**order_index** | **number** |  | [optional] [default to undefined]
 
 ## Example
 

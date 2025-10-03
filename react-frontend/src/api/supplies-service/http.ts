@@ -29,10 +29,14 @@ suppliesAxios.interceptors.request.use((config) => {
   if (activeEtabId) {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+    // Compatibilité passerelle: certains services attendent X-Etab
+    (config.headers as Record<string, string>)['X-Etab'] = activeEtabId;
   }
   if (activeRole) {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
+    // Compatibilité passerelle: certains services attendent X-Role
+    (config.headers as Record<string, string>)['X-Role'] = activeRole;
   }
 
   return config;
@@ -43,8 +47,12 @@ suppliesAxios.interceptors.response.use(
     try {
       const xEtab = response.headers?.['x-etab'] as string | undefined;
       const xRole = response.headers?.['x-role'] as string | undefined;
-      if (xEtab && xRole) setActiveContext(xEtab, xRole as any);
-    } catch {}
+      // Ne pas appeler setActiveContext si le rôle ne matche pas notre enum
+      const allowedRoles = new Set(['student', 'parent', 'teacher', 'admin_staff']);
+      if (xEtab && xRole && allowedRoles.has(xRole)) setActiveContext(xEtab, xRole as 'student' | 'parent' | 'teacher' | 'admin_staff');
+    } catch {
+      // no-op
+    }
     return response;
   },
   (error) => Promise.reject(error)
