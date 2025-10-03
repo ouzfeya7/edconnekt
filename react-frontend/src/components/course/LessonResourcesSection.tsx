@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ResourceCard from './ResourceCard';
 import { useAuth } from '../../pages/authentification/useAuth';
+import { useAppRolesFromIdentity } from '../../hooks/useAppRolesFromIdentity';
 import { ActionCard } from '../ui/ActionCard';
 import { Plus, Trash2, Eye } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
@@ -23,7 +24,8 @@ const LessonResourcesSection: React.FC<LessonResourcesSectionProps> = ({
   onViewResource,
 }) => {
   const { roles } = useAuth();
-  const userRole = rolesPriority.find(r => roles.includes(r));
+  const { capabilities } = useAppRolesFromIdentity();
+  const userRole = capabilities.isAdminStaff ? 'directeur' : capabilities.isTeacher ? 'enseignant' : capabilities.isStudent ? 'eleve' : capabilities.isParent ? 'parent' : rolesPriority.find(r => roles.includes(r));
   
   const [resources, setResources] = useState<CourseResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,7 +70,7 @@ const LessonResourcesSection: React.FC<LessonResourcesSectionProps> = ({
     }
   };
 
-  const canModifyResources = userRole === 'enseignant' || userRole === 'directeur' || userRole === 'administrateur';
+  const canModifyResources = capabilities.canManageResources || userRole === 'administrateur';
 
   if (isLoading) {
     return (

@@ -58,6 +58,8 @@ Les en-têtes de sélection (`X-Etab-Select`, `X-Role-Select`) restent envoyés 
 - Bouton header pour changer le contexte: `src/components/layout/Topbar.tsx`
 - Auth Keycloak: `src/pages/authentification/AuthContext.tsx`
   - Le token rafraîchi est réécrit en `sessionStorage` lors de `onTokenExpired`.
+  - Les rôles métiers ne proviennent plus du token Keycloak. Le rôle actif (source de vérité) est fourni par identity-service via `IdentityContext` et mappé vers les rôles UI.
+  - Le flag `administrateur` peut rester issu des Realm Roles Keycloak si nécessaire (sécurité/administration globale).
 
 ## Comportement UI
 

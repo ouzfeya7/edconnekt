@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getActiveContext, setActiveContext } from '../../utils/contextStorage';
+import { type EstablishmentRole, getActiveContext, setActiveContext } from '../../utils/contextStorage';
 import { attachAuthRefresh } from '../httpAuth';
 
 const DEFAULT_BASE_URL = 'https://api.uat1-engy-partners.com/identity';
@@ -53,9 +53,11 @@ identityAxios.interceptors.response.use(
       const xEtab = response.headers?.['x-etab'] as string | undefined;
       const xRole = response.headers?.['x-role'] as string | undefined;
       if (xEtab && xRole) {
-        setActiveContext(xEtab, xRole as any);
+        setActiveContext(xEtab, xRole as unknown as EstablishmentRole);
       }
-    } catch {}
+    } catch {
+      // do nothing
+    }
     if (import.meta.env.DEV) {
       console.debug('[identity-api][response]', {
         status: response.status,

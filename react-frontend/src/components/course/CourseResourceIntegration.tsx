@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, BookOpen, ExternalLink, Calendar } from 'lucide-react';
 import { useAuth } from '../../pages/authentification/useAuth';
+import { useAppRolesFromIdentity } from '../../hooks/useAppRolesFromIdentity';
 import ResourceAssociationModal from './ResourceAssociationModal';
 import { courseResourceService, CourseResource } from '../../services/courseResourceService';
 
@@ -18,10 +19,11 @@ const CourseResourceIntegration: React.FC<CourseResourceIntegrationProps> = ({
   onResourceSelected
 }) => {
   const { roles } = useAuth();
+  const { capabilities } = useAppRolesFromIdentity();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recentResources, setRecentResources] = useState<CourseResource[]>([]);
 
-  const canModifyResources = roles.includes('enseignant') || roles.includes('directeur') || roles.includes('administrateur');
+  const canModifyResources = capabilities.canManageResources || roles.includes('administrateur');
 
   // Charger les ressources récentes du cours
   useEffect(() => {

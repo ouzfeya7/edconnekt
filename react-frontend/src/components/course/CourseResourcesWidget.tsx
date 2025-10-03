@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BookOpen, Plus, Eye, Users, Globe, Lock, FileText, Video, Image, Link } from 'lucide-react';
 import { courseResourceService, CourseResource } from '../../services/courseResourceService';
 import { useAuth } from '../../pages/authentification/useAuth';
+import { useAppRolesFromIdentity } from '../../hooks/useAppRolesFromIdentity';
 import ResourceAssociationModal from './ResourceAssociationModal';
 
 interface CourseResourcesWidgetProps {
@@ -18,12 +19,13 @@ const CourseResourcesWidget: React.FC<CourseResourcesWidgetProps> = ({
   onResourceClick 
 }) => {
   const { roles } = useAuth();
+  const { capabilities } = useAppRolesFromIdentity();
   const [resources, setResources] = useState<CourseResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
-  const canModifyResources = roles.includes('enseignant') || roles.includes('directeur') || roles.includes('administrateur');
+  const canModifyResources = capabilities.canManageResources || roles.includes('administrateur');
 
   useEffect(() => {
     const loadResources = async () => {

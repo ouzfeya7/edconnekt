@@ -14,6 +14,7 @@ import { useClasses } from '../../hooks/useClasses';
 import { useClasseEnseignants } from '../../hooks/useClasseEnseignants';
 import { useDirector } from '../../contexts/DirectorContext';
 import { useAuth } from '../authentification/useAuth';
+import { useAppRolesFromIdentity } from '../../hooks/useAppRolesFromIdentity';
 import { useIcsFeed } from '../../hooks/useIcsFeed';
 
 interface NormalizedCourse {
@@ -48,14 +49,8 @@ const EmploiDuTempsPage = () => {
   const [editingCourse, setEditingCourse] = useState<NormalizedCourse | null>(null);
   const { user: authUser } = useAuth();
   const currentUserId = (authUser as unknown as { sub?: string })?.sub || authUser?.username || 'unknown';
-  const authRoles: string[] = Array.isArray((authUser as any)?.realm_access?.roles)
-    ? (authUser as any).realm_access.roles
-    : Array.isArray((authUser as any)?.roles)
-      ? (authUser as any).roles
-      : Array.isArray((authUser as any)?.resource_access?.account?.roles)
-        ? (authUser as any).resource_access.account.roles
-        : [];
-  const canCreateLesson = authRoles.includes('ENSEIGNANT') || authRoles.includes('COORDONNATEUR') || authRoles.includes('ADMIN');
+  const { capabilities } = useAppRolesFromIdentity();
+  const canCreateLesson = capabilities.canCreateLesson;
 
   // Nouveaux états pour le formulaire d'ajout
   const [selectedEtabId, setSelectedEtabId] = useState<string>(currentEtablissementId || '');

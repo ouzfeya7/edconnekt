@@ -1,5 +1,5 @@
 import { Bell, Menu, X, User as UserIcon, LogOut, Calendar } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useEvents } from "../events/EventContext";
 import { Link, useLocation } from "react-router-dom";
 import { User } from "../../layouts/DashboardLayout";
@@ -7,6 +7,7 @@ import Navbar from "./Navbar";
 import { Role } from "../../config/navigation";
 import { useAuth } from "../../pages/authentification/useAuth";
 import { useIdentityContext } from "../../contexts/IdentityContextProvider";
+import { useMyRolesDetailed } from "../../hooks/useMyRolesDetailed";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 
@@ -40,6 +41,7 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
   const { events } = useEvents();
   const { logout } = useAuth();
   const { openContextSelector, activeEtabId, activeRole } = useIdentityContext();
+  const { data: myRolesDetailed } = useMyRolesDetailed(activeEtabId ?? undefined, { enabled: !!activeEtabId });
 
   const location = useLocation();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -60,6 +62,24 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
   const initials = getInitials(userName);
   const fallbackAvatarUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(initials)}&backgroundColor=ff8c00`;
   const avatarUrl = user.imageUrl || fallbackAvatarUrl;
+
+  // Préférence: éviter les clés techniques (role.effectif.secretaire) et afficher un libellé lisible.
+  const formatLabel = useCallback((key?: string): string => {
+    if (!key) return '';
+    const localized = t(key, { defaultValue: '' }) as string;
+    if (localized && localized !== key) return localized;
+    const last = (key.split('.')?.pop() || key).replace(/_/g, ' ');
+    return last.charAt(0).toUpperCase() + last.slice(1);
+  }, [t]);
+
+  // Sélection du rôle détaillé correspondant au contexte actif
+  const activeRoleLabel = useMemo(() => {
+    if (!Array.isArray(myRolesDetailed) || myRolesDetailed.length === 0) return '';
+    if (!activeRole) return '';
+    const match = myRolesDetailed.find((r) => r.role_principal?.code === activeRole);
+    const labelKey = match?.role_effectif?.label_key || match?.role_principal?.label_key;
+    return formatLabel(labelKey);
+  }, [myRolesDetailed, activeRole, formatLabel]);
 
   const handleLogout = () => {
     logout();
@@ -165,7 +185,9 @@ const Topbar = ({ toggleSidebar, isSidebarOpen, user }: TopbarProps) => {
             />
             <div className="hidden md:flex flex-col text-left">
               <span className="text-sm font-semibold text-gray-800">{userName}</span>
-              <span className="text-xs text-gray-500">{t(getRoleTranslationKey(role))}</span>
+              <span className="text-xs text-gray-500">
+                {activeRoleLabel || t(getRoleTranslationKey(role))}
+              </span>
             </div>
           </button>
 

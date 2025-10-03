@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { Search, Upload, FileText, X, Eye, Users, Globe, Lock, DollarSign, Check } from 'lucide-react';
 import { useAuth } from '../../pages/authentification/useAuth';
+import { useAppRolesFromIdentity } from '../../hooks/useAppRolesFromIdentity';
 import { useAvailableResources, AvailableResource } from '../../hooks/useAvailableResources';
 import { useResources } from '../../contexts/ResourceContext';
 import { remediationResourceService } from '../../services/remediationResourceService';
@@ -39,11 +40,12 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
   remediationSubject
 }) => {
   const { roles } = useAuth();
+  const { capabilities } = useAppRolesFromIdentity();
   const { addResource } = useResources();
   const { searchResources } = useAvailableResources();
   
   const [activeTab, setActiveTab] = useState<'search' | 'upload'>(
-    roles.includes('parent') ? 'search' : 'search'
+    (capabilities.isParent || roles.includes('parent')) ? 'search' : 'search'
   );
      const [searchQuery, setSearchQuery] = useState('');
   const [filteredResources, setFilteredResources] = useState<AvailableResource[]>([]);
@@ -115,7 +117,7 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
   // Associer une ressource existante
   const associateExistingResource = async (resource: AvailableResource) => {
     try {
-      const addedBy = roles.includes('parent') ? 'Parent' : 'Enseignant';
+      const addedBy = (capabilities.isParent || roles.includes('parent')) ? 'Parent' : 'Enseignant';
       
       const success = await remediationResourceService.associateResourceToRemediation({
         remediationId,
@@ -178,7 +180,7 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
       addResource(newResourceData);
 
       // Associer la ressource à la remédiation via le service
-      const addedBy = roles.includes('parent') ? 'Parent' : 'Enseignant';
+      const addedBy = (capabilities.isParent || roles.includes('parent')) ? 'Parent' : 'Enseignant';
       
       const success = await remediationResourceService.createAndAssociateResource(
         remediationId,
@@ -264,7 +266,7 @@ const RemediationResourceAssociationModal: React.FC<RemediationResourceAssociati
          </DialogHeader>
 
                  {/* Onglets - seulement pour les enseignants */}
-         {!roles.includes('parent') && (
+         {!(capabilities.isParent || roles.includes('parent')) && (
            <div className="flex border-b border-gray-200 mb-6">
              <button
                onClick={() => setActiveTab('search')}

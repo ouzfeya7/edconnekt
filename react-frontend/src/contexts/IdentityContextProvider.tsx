@@ -1,4 +1,5 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../pages/authentification/useAuth';
 import { getActiveContext, setActiveContext, clearActiveContext, type EstablishmentRole } from '../utils/contextStorage';
@@ -10,7 +11,7 @@ interface IdentityContextState {
   activeEtabId: string | null;
   activeRole: EstablishmentRole | null;
   openContextSelector: () => void;
-  selectContext: (etabId: string, role: EstablishmentRole) => void;
+  selectContext: (etabId: string, role: EstablishmentRole) => Promise<void>;
   clearContext: () => void;
 }
 
@@ -22,10 +23,16 @@ export const useIdentityContext = (): IdentityContextState => {
   return ctx;
 };
 
+// Variante sûre: ne jette pas d'erreur si le Provider n'est pas dans l'arbre (retourne undefined)
+export const useIdentityContextOptional = (): IdentityContextState | undefined => {
+  return useContext(IdentityContext);
+};
+
 // Legacy constant removed: gating is now handled via dedicated route
 
 const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { isAuthenticated, roles } = useAuth();
   const isAdmin = Array.isArray(roles) && roles.includes('administrateur');
 
@@ -48,8 +55,18 @@ const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const openContextSelector = useCallback(() => {
     setSelectionError(undefined);
+    // Pré-sélectionner l'établissement courant si un contexte actif existe
+    setSelectedEtabId(activeEtabId ?? null);
     setModalOpen(true);
-  }, []);
+  }, [activeEtabId]);
+
+  // Lorsque le modal est ouvert et qu'il n'y a qu'un seul établissement, pré-sélectionner
+  React.useEffect(() => {
+    const list = Array.isArray(myEstabs) ? myEstabs : [];
+    if (modalOpen && !selectedEtabId && list.length === 1) {
+      setSelectedEtabId(list[0] as string);
+    }
+  }, [modalOpen, myEstabs, selectedEtabId]);
 
   const handleConfirm = useCallback(async (etabId: string, role: EstablishmentRole) => {
     try {
@@ -62,12 +79,14 @@ const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setModalOpen(false);
       // Invalidate identity-related queries so data refreshes under new context
       queryClient.invalidateQueries({ predicate: (q) => Array.isArray(q.queryKey) && String(q.queryKey[0]).startsWith('identity:') });
-    } catch (e: any) {
+      // Redirect to home after context selection from modal
+      navigate('/', { replace: true });
+    } catch (e: unknown) {
       // Surface a user-friendly error
-      const msg = e?.response?.data?.message || 'Sélection non autorisée pour cet établissement/rôle';
+      const msg = (e as { response?: { data?: { message?: string } } }).response?.data?.message || 'Sélection non autorisée pour cet établissement/rôle';
       setSelectionError(String(msg));
     }
-  }, [queryClient]);
+  }, [queryClient, navigate]);
 
   const handleClear = useCallback(() => {
     clearActiveContext();
@@ -77,8 +96,8 @@ const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     queryClient.invalidateQueries({ predicate: (q) => Array.isArray(q.queryKey) && String(q.queryKey[0]).startsWith('identity:') });
   }, [queryClient]);
 
-  const selectContext = useCallback((etabId: string, role: EstablishmentRole) => {
-    handleConfirm(etabId, role);
+  const selectContext = useCallback(async (etabId: string, role: EstablishmentRole) => {
+    await handleConfirm(etabId, role);
   }, [handleConfirm]);
 
   // No auto-modal flow at login; the selection is handled by a dedicated page. The modal is only for manual changes.

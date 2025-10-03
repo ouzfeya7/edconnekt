@@ -32,6 +32,7 @@ import { useTranslation } from "react-i18next";
 import { useResources as useRemoteResources } from "../hooks/useResources";
 import { useArchiveResource } from "../hooks/useArchiveResource";
 import { useAuth } from "../pages/authentification/useAuth"; // Utiliser useAuth
+import { useAppRolesFromIdentity } from "../hooks/useAppRolesFromIdentity";
 import { Visibility, ResourceStatus, ResourceOut } from "../api/resource-service/api";
 import { useReferentials, useReferentialTree } from "../hooks/competence/useReferentials";
 import { useCompetencies } from "../hooks/competence/useCompetencies";
@@ -300,17 +301,13 @@ function RessourcesPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, roles } = useAuth(); // Récupération des rôles de l'utilisateur
+  const { capabilities } = useAppRolesFromIdentity();
   const archiveMutation = useArchiveResource();
 
   // Détection des rôles pour masquer les fonctionnalités appropriées
-  const canModifyResources =
-    roles.includes("enseignant") ||
-    roles.includes("directeur") ||
-    roles.includes("administrateur");
+  const canModifyResources = capabilities.canManageResources || roles.includes("administrateur");
 
-  // Debug: afficher les rôles actuels
-  console.log("Rôles actuels:", roles);
-  console.log("Peut modifier les ressources:", canModifyResources);
+  // Debug retiré
 
   // Filtres dynamiques via Competence Service
   const [selectedReferentialId, setSelectedReferentialId] = useState<string | undefined>(undefined);

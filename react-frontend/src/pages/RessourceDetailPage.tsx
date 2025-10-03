@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../pages/authentification/useAuth";
+import { useAppRolesFromIdentity } from "../hooks/useAppRolesFromIdentity";
 import { useState, useEffect, useMemo } from "react";
 import { useResourceDetail } from "../hooks/useResourceDetail";
 import { useResourceAudit } from "../hooks/useResourceAudit";
@@ -39,6 +40,7 @@ const RessourceDetailPage = () => {
   const navigate = useNavigate();
 
   const { user, roles } = useAuth();
+  const { capabilities } = useAppRolesFromIdentity();
   const { data: resource, isLoading, error } = useResourceDetail(resourceId!);
   const { data: auditLogs } = useResourceAudit(resourceId!);
   const archiveMutation = useArchiveResource();
@@ -71,14 +73,8 @@ const RessourceDetailPage = () => {
   const [activeTab, setActiveTab] = useState<'details' | 'history' | 'journal'>('details');
   
   // Permissions
-  const canModifyResources =
-    roles.includes("enseignant") ||
-    roles.includes("directeur") ||
-    roles.includes("administrateur");
-  const canViewAudit =
-    roles.includes("directeur") || 
-    roles.includes("administrateur") || 
-    roles.includes("enseignant");
+  const canModifyResources = capabilities.canManageResources || roles.includes("administrateur");
+  const canViewAudit = capabilities.isAdminStaff || capabilities.isTeacher || roles.includes("administrateur");
 
   if (isLoading) {
     return (

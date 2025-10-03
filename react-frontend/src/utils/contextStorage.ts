@@ -31,20 +31,44 @@ export function setActiveContext(etabId: string, role: EstablishmentRole): void 
     localStorage.setItem(KEY_ROLE, role);
   }
   localStorage.setItem(KEY_CTX_AT, new Date().toISOString());
+  try {
+    const detail = getActiveContext();
+    window.dispatchEvent(new CustomEvent('edc:context:changed', { detail }));
+  } catch {
+    // no-op
+  }
 }
 
 export function setActiveEtabId(etabId: string): void {
   localStorage.setItem(KEY_ETAB_ID, (etabId ?? '').trim());
   localStorage.setItem(KEY_CTX_AT, new Date().toISOString());
+  try {
+    const detail = getActiveContext();
+    window.dispatchEvent(new CustomEvent('edc:context:changed', { detail }));
+  } catch {
+    // no-op
+  }
 }
 
 export function setActiveRole(role: EstablishmentRole): void {
   localStorage.setItem(KEY_ROLE, role);
   localStorage.setItem(KEY_CTX_AT, new Date().toISOString());
+  try {
+    const detail = getActiveContext();
+    window.dispatchEvent(new CustomEvent('edc:context:changed', { detail }));
+  } catch {
+    // no-op
+  }
 }
 
 export function clearActiveContext(): void {
   localStorage.removeItem(KEY_ETAB_ID);
   localStorage.removeItem(KEY_ROLE);
   localStorage.removeItem(KEY_CTX_AT);
+  try {
+    const detail = getActiveContext();
+    window.dispatchEvent(new CustomEvent('edc:context:changed', { detail }));
+  } catch {
+    // no-op
+  }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../pages/authentification/useAuth';
+import { useAppRolesFromIdentity } from '../../hooks/useAppRolesFromIdentity';
 import { Eye, Users, User, Lock, FileText, Calendar, Tag, Globe } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 
@@ -31,9 +32,10 @@ const ResourceMetadata: React.FC<ResourceMetadataProps> = ({
 }) => {
   const { t } = useTranslation();
   const { roles } = useAuth();
+  const { capabilities } = useAppRolesFromIdentity();
   
   // Permissions : les parents/élèves voient moins d'informations
-  const canViewDetailedMetadata = roles.includes('enseignant') || roles.includes('directeur') || roles.includes('administrateur');
+  const canViewDetailedMetadata = capabilities.isTeacher || capabilities.isAdminStaff || roles.includes('administrateur');
 
   const formatFileSize = (bytes?: number): string => {
     if (!bytes) return 'N/A';
