@@ -81,7 +81,6 @@ export default function AdmissionDetailPage() {
       parent_email: parentEmail || null,
       parent_phone: parentPhone || null,
       notes: notes || null,
-      attachments: null,
     };
     try {
       await updateAdmission(payload);
@@ -137,6 +136,7 @@ export default function AdmissionDetailPage() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={studentName}
                   onChange={(e) => setStudentName(e.target.value)}
+                  maxLength={255}
                   required
                 />
               </div>
@@ -156,6 +156,7 @@ export default function AdmissionDetailPage() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={classRequested}
                   onChange={(e) => setClassRequested(e.target.value)}
+                  maxLength={100}
                   required
                 />
               </div>
@@ -166,6 +167,7 @@ export default function AdmissionDetailPage() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={parentName}
                   onChange={(e) => setParentName(e.target.value)}
+                  maxLength={255}
                   required
                 />
               </div>
@@ -175,6 +177,7 @@ export default function AdmissionDetailPage() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={parentContact}
                   onChange={(e) => setParentContact(e.target.value)}
+                  maxLength={255}
                   required
                 />
               </div>
@@ -185,6 +188,7 @@ export default function AdmissionDetailPage() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={studentEmail}
                   onChange={(e) => setStudentEmail(e.target.value)}
+                  maxLength={255}
                 />
               </div>
               <div>
@@ -193,6 +197,7 @@ export default function AdmissionDetailPage() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={studentPhone}
                   onChange={(e) => setStudentPhone(e.target.value)}
+                  maxLength={50}
                 />
               </div>
               <div>
@@ -202,6 +207,7 @@ export default function AdmissionDetailPage() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={parentEmail}
                   onChange={(e) => setParentEmail(e.target.value)}
+                  maxLength={255}
                 />
               </div>
               <div>
@@ -210,6 +216,7 @@ export default function AdmissionDetailPage() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={parentPhone}
                   onChange={(e) => setParentPhone(e.target.value)}
+                  maxLength={50}
                 />
               </div>
               <div className="sm:col-span-2">
