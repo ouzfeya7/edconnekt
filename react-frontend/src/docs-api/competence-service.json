@@ -71,10 +71,2168 @@
                 }
             }
         },
-        "/api/v1/referentials": {
+        "/api/competence/referentials": {
             "post": {
                 "tags": [
                     "referentials"
+                ],
+                "summary": "Create Referential",
+                "description": "Créer un nouveau référentiel",
+                "operationId": "create_referential_api_competence_referentials_post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReferentialCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Referentials",
+                "description": "Lister les référentiels avec filtres et pagination",
+                "operationId": "list_referentials_api_competence_referentials_get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de page",
+                            "default": 20,
+                            "title": "Size"
+                        },
+                        "description": "Taille de page"
+                    },
+                    {
+                        "name": "cycle",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par cycle",
+                            "title": "Cycle"
+                        },
+                        "description": "Filtrer par cycle"
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par état",
+                            "title": "State"
+                        },
+                        "description": "Filtrer par état"
+                    },
+                    {
+                        "name": "visibility",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par visibilité",
+                            "title": "Visibility"
+                        },
+                        "description": "Filtrer par visibilité"
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Recherche textuelle",
+                            "title": "Q"
+                        },
+                        "description": "Recherche textuelle"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Get Referential",
+                "description": "Récupérer un référentiel par ID et version",
+                "operationId": "get_referential_api_competence_referentials__referential_id__get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    },
+                    {
+                        "name": "include_tree",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "description": "Inclure l'arborescence complète (domaines, matières, compétences)",
+                            "default": false,
+                            "title": "Include Tree"
+                        },
+                        "description": "Inclure l'arborescence complète (domaines, matières, compétences)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ReferentialResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ReferentialTree"
+                                        }
+                                    ],
+                                    "title": "Response Get Referential Api Competence Referentials  Referential Id  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Update Referential",
+                "description": "Mettre à jour un référentiel",
+                "operationId": "update_referential_api_competence_referentials__referential_id__patch",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReferentialUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Delete Referential",
+                "description": "Archiver un référentiel (soft delete)",
+                "operationId": "delete_referential_api_competence_referentials__referential_id__delete",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}/publish": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Publish Referential",
+                "description": "Publier un référentiel",
+                "operationId": "publish_referential_api_competence_referentials__referential_id__publish_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}/clone": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Clone Referential",
+                "description": "Cloner un référentiel en nouvelle version",
+                "operationId": "clone_referential_api_competence_referentials__referential_id__clone_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel à cloner",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel à cloner"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReferentialCloneRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/global/referentials": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Global Referentials",
+                "description": "Lister les référentiels globaux (catalogue EdConnect)",
+                "operationId": "list_global_referentials_api_competence_global_referentials_get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de page",
+                            "default": 20,
+                            "title": "Size"
+                        },
+                        "description": "Taille de page"
+                    },
+                    {
+                        "name": "cycle",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par cycle",
+                            "title": "Cycle"
+                        },
+                        "description": "Filtrer par cycle"
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Recherche textuelle",
+                            "title": "Q"
+                        },
+                        "description": "Recherche textuelle"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GlobalReferentialListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/global/referentials/{global_referential_id}/clone": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Clone From Global Referential",
+                "description": "Cloner un référentiel global dans le tenant courant",
+                "operationId": "clone_from_global_referential_api_competence_global_referentials__global_referential_id__clone_post",
+                "parameters": [
+                    {
+                        "name": "global_referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel global à cloner",
+                            "title": "Global Referential Id"
+                        },
+                        "description": "ID du référentiel global à cloner"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReferentialCloneFromGlobalRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}/domains": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Create Domain",
+                "description": "Créer un nouveau domaine",
+                "operationId": "create_domain_api_competence_referentials__referential_id__domains_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DomainCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DomainResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Domains",
+                "description": "Lister les domaines d'un référentiel",
+                "operationId": "list_domains_api_competence_referentials__referential_id__domains_get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DomainListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/domains/{domain_id}": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Get Domain",
+                "description": "Récupérer un domaine par ID",
+                "operationId": "get_domain_api_competence_domains__domain_id__get",
+                "parameters": [
+                    {
+                        "name": "domain_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du domaine",
+                            "title": "Domain Id"
+                        },
+                        "description": "ID du domaine"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DomainResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Update Domain",
+                "description": "Mettre à jour un domaine",
+                "operationId": "update_domain_api_competence_domains__domain_id__patch",
+                "parameters": [
+                    {
+                        "name": "domain_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du domaine",
+                            "title": "Domain Id"
+                        },
+                        "description": "ID du domaine"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DomainUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DomainResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Delete Domain",
+                "description": "Supprimer un domaine",
+                "operationId": "delete_domain_api_competence_domains__domain_id__delete",
+                "parameters": [
+                    {
+                        "name": "domain_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du domaine",
+                            "title": "Domain Id"
+                        },
+                        "description": "ID du domaine"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}/subjects": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Create Subject",
+                "description": "Créer une nouvelle matière",
+                "operationId": "create_subject_api_competence_referentials__referential_id__subjects_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubjectCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Subjects",
+                "description": "Lister les matières d'un référentiel avec filtres",
+                "operationId": "list_subjects_api_competence_referentials__referential_id__subjects_get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de page",
+                            "default": 20,
+                            "title": "Size"
+                        },
+                        "description": "Taille de page"
+                    },
+                    {
+                        "name": "domain_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par domaine",
+                            "title": "Domain Id"
+                        },
+                        "description": "Filtrer par domaine"
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Recherche textuelle",
+                            "title": "Q"
+                        },
+                        "description": "Recherche textuelle"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/subjects/{subject_id}": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Get Subject",
+                "description": "Récupérer une matière par ID",
+                "operationId": "get_subject_api_competence_subjects__subject_id__get",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la matière",
+                            "title": "Subject Id"
+                        },
+                        "description": "ID de la matière"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Update Subject",
+                "description": "Mettre à jour une matière",
+                "operationId": "update_subject_api_competence_subjects__subject_id__patch",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la matière",
+                            "title": "Subject Id"
+                        },
+                        "description": "ID de la matière"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubjectUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Delete Subject",
+                "description": "Supprimer une matière",
+                "operationId": "delete_subject_api_competence_subjects__subject_id__delete",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la matière",
+                            "title": "Subject Id"
+                        },
+                        "description": "ID de la matière"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}/competencies": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Create Competency",
+                "description": "Créer une nouvelle compétence",
+                "operationId": "create_competency_api_competence_referentials__referential_id__competencies_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompetencyCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompetencyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Competencies",
+                "description": "Lister les compétences d'un référentiel avec filtres",
+                "operationId": "list_competencies_api_competence_referentials__referential_id__competencies_get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Numéro de page",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Numéro de page"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Taille de page",
+                            "default": 20,
+                            "title": "Size"
+                        },
+                        "description": "Taille de page"
+                    },
+                    {
+                        "name": "subject_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filtrer par matière",
+                            "title": "Subject Id"
+                        },
+                        "description": "Filtrer par matière"
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Recherche textuelle",
+                            "title": "Q"
+                        },
+                        "description": "Recherche textuelle"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompetencyListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/competencies/{competency_id}": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Get Competency",
+                "description": "Récupérer une compétence par ID",
+                "operationId": "get_competency_api_competence_competencies__competency_id__get",
+                "parameters": [
+                    {
+                        "name": "competency_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la compétence",
+                            "title": "Competency Id"
+                        },
+                        "description": "ID de la compétence"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompetencyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Update Competency",
+                "description": "Mettre à jour une compétence",
+                "operationId": "update_competency_api_competence_competencies__competency_id__patch",
+                "parameters": [
+                    {
+                        "name": "competency_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la compétence",
+                            "title": "Competency Id"
+                        },
+                        "description": "ID de la compétence"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompetencyUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompetencyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Delete Competency",
+                "description": "Supprimer une compétence",
+                "operationId": "delete_competency_api_competence_competencies__competency_id__delete",
+                "parameters": [
+                    {
+                        "name": "competency_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la compétence",
+                            "title": "Competency Id"
+                        },
+                        "description": "ID de la compétence"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/referentials/{referential_id}/assignments": {
+            "post": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Create Assignment",
+                "description": "Créer une nouvelle affectation",
+                "operationId": "create_assignment_api_competence_referentials__referential_id__assignments_post",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AssignmentCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AssignmentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "List Assignments",
+                "description": "Lister les affectations d'un référentiel",
+                "operationId": "list_assignments_api_competence_referentials__referential_id__assignments_get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version Number"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AssignmentListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/assignments/{assignment_id}": {
+            "get": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Get Assignment",
+                "description": "Récupérer une affectation par ID",
+                "operationId": "get_assignment_api_competence_assignments__assignment_id__get",
+                "parameters": [
+                    {
+                        "name": "assignment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de l'affectation",
+                            "title": "Assignment Id"
+                        },
+                        "description": "ID de l'affectation"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AssignmentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "referentials"
+                ],
+                "summary": "Delete Assignment",
+                "description": "Supprimer une affectation",
+                "operationId": "delete_assignment_api_competence_assignments__assignment_id__delete",
+                "parameters": [
+                    {
+                        "name": "assignment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de l'affectation",
+                            "title": "Assignment Id"
+                        },
+                        "description": "ID de l'affectation"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/public/referentials/{referential_id}/tree": {
+            "get": {
+                "tags": [
+                    "public"
+                ],
+                "summary": "Get Referential Tree",
+                "description": "Récupérer l'arborescence complète d'un référentiel publié",
+                "operationId": "get_referential_tree_api_competence_public_referentials__referential_id__tree_get",
+                "parameters": [
+                    {
+                        "name": "referential_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Numéro de version",
+                            "title": "Version"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReferentialTree"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/public/subjects": {
+            "get": {
+                "tags": [
+                    "public"
+                ],
+                "summary": "List Subjects By Scope",
+                "description": "Lister les matières par cycle et niveau (pour les référentiels publiés)",
+                "operationId": "list_subjects_by_scope_api_competence_public_subjects_get",
+                "parameters": [
+                    {
+                        "name": "cycle",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/CycleEnum"
+                                }
+                            ],
+                            "description": "Filtrer par cycle",
+                            "title": "Cycle"
+                        },
+                        "description": "Filtrer par cycle"
+                    },
+                    {
+                        "name": "level",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "Filtrer par niveau",
+                            "title": "Level"
+                        },
+                        "description": "Filtrer par niveau"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SubjectResponse"
+                                    },
+                                    "title": "Response List Subjects By Scope Api Competence Public Subjects Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/public/subjects/{subject_id}/competencies": {
+            "get": {
+                "tags": [
+                    "public"
+                ],
+                "summary": "Get Competencies For Subject",
+                "description": "Récupérer les compétences d'une matière (pour les référentiels publiés)",
+                "operationId": "get_competencies_for_subject_api_competence_public_subjects__subject_id__competencies_get",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la matière",
+                            "title": "Subject Id"
+                        },
+                        "description": "ID de la matière"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CompetencyResponse"
+                                    },
+                                    "title": "Response Get Competencies For Subject Api Competence Public Subjects  Subject Id  Competencies Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/public/competencies/by-code/{code}": {
+            "get": {
+                "tags": [
+                    "public"
+                ],
+                "summary": "Lookup Competency By Code",
+                "description": "Rechercher une compétence par son code (pour les référentiels publiés)",
+                "operationId": "lookup_competency_by_code_api_competence_public_competencies_by_code__code__get",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "Code de la compétence",
+                            "title": "Code"
+                        },
+                        "description": "Code de la compétence"
+                    },
+                    {
+                        "name": "referential_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ID du référentiel",
+                            "title": "Referential Id"
+                        },
+                        "description": "ID du référentiel"
+                    },
+                    {
+                        "name": "version",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Numéro de version",
+                            "title": "Version"
+                        },
+                        "description": "Numéro de version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompetencyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/events/events": {
+            "get": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "List Outbox Events",
+                "description": "List outbox events with filters and pagination",
+                "operationId": "list_outbox_events_api_competence_events_events_get",
+                "parameters": [
+                    {
+                        "name": "event_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by event type",
+                            "title": "Event Type"
+                        },
+                        "description": "Filter by event type"
+                    },
+                    {
+                        "name": "aggregate_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by aggregate type",
+                            "title": "Aggregate Type"
+                        },
+                        "description": "Filter by aggregate type"
+                    },
+                    {
+                        "name": "aggregate_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by aggregate ID",
+                            "title": "Aggregate Id"
+                        },
+                        "description": "Filter by aggregate ID"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by status (PENDING, PROCESSED, FAILED)",
+                            "default": "PENDING",
+                            "title": "Status"
+                        },
+                        "description": "Filter by status (PENDING, PROCESSED, FAILED)"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by creation start date",
+                            "title": "Start Date"
+                        },
+                        "description": "Filter by creation start date"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by creation end date",
+                            "title": "End Date"
+                        },
+                        "description": "Filter by creation end date"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Page number",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Page number"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Page size",
+                            "default": 20,
+                            "title": "Size"
+                        },
+                        "description": "Page size"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/OutboxEventResponse"
+                                    },
+                                    "title": "Response List Outbox Events Api Competence Events Events Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competence/events/events/replay": {
+            "post": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "Replay Events",
+                "description": "Manually trigger processing of pending outbox events",
+                "operationId": "replay_events_api_competence_events_events_replay_post",
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    }
+                }
+            }
+        },
+        "/api/v1/referentials": {
+            "post": {
+                "tags": [
+                    "referentials-legacy"
                 ],
                 "summary": "Create Referential",
                 "description": "Créer un nouveau référentiel",
@@ -114,7 +2272,7 @@
             },
             "get": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "List Referentials",
                 "description": "Lister les référentiels avec filtres et pagination",
@@ -247,7 +2405,7 @@
         "/api/v1/referentials/{referential_id}": {
             "get": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Get Referential",
                 "description": "Récupérer un référentiel par ID et version",
@@ -328,7 +2486,7 @@
             },
             "patch": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Update Referential",
                 "description": "Mettre à jour un référentiel",
@@ -392,10 +2550,10 @@
             },
             "delete": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Delete Referential",
-                "description": "Supprimer un référentiel",
+                "description": "Archiver un référentiel (soft delete)",
                 "operationId": "delete_referential_api_v1_referentials__referential_id__delete",
                 "parameters": [
                     {
@@ -441,7 +2599,7 @@
         "/api/v1/referentials/{referential_id}/publish": {
             "post": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Publish Referential",
                 "description": "Publier un référentiel",
@@ -495,7 +2653,7 @@
         "/api/v1/referentials/{referential_id}/clone": {
             "post": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Clone Referential",
                 "description": "Cloner un référentiel en nouvelle version",
@@ -550,7 +2708,7 @@
         "/api/v1/global/referentials": {
             "get": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "List Global Referentials",
                 "description": "Lister les référentiels globaux (catalogue EdConnect)",
@@ -647,7 +2805,7 @@
         "/api/v1/global/referentials/{global_referential_id}/clone": {
             "post": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Clone From Global Referential",
                 "description": "Cloner un référentiel global dans le tenant courant",
@@ -702,7 +2860,7 @@
         "/api/v1/referentials/{referential_id}/domains": {
             "post": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Create Domain",
                 "description": "Créer un nouveau domaine",
@@ -766,7 +2924,7 @@
             },
             "get": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "List Domains",
                 "description": "Lister les domaines d'un référentiel",
@@ -822,7 +2980,7 @@
         "/api/v1/domains/{domain_id}": {
             "get": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Get Domain",
                 "description": "Récupérer un domaine par ID",
@@ -865,7 +3023,7 @@
             },
             "patch": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Update Domain",
                 "description": "Mettre à jour un domaine",
@@ -918,7 +3076,7 @@
             },
             "delete": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Delete Domain",
                 "description": "Supprimer un domaine",
@@ -956,7 +3114,7 @@
         "/api/v1/referentials/{referential_id}/subjects": {
             "post": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Create Subject",
                 "description": "Créer une nouvelle matière",
@@ -1020,7 +3178,7 @@
             },
             "get": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "List Subjects",
                 "description": "Lister les matières d'un référentiel avec filtres",
@@ -1139,7 +3297,7 @@
         "/api/v1/subjects/{subject_id}": {
             "get": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Get Subject",
                 "description": "Récupérer une matière par ID",
@@ -1182,7 +3340,7 @@
             },
             "patch": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Update Subject",
                 "description": "Mettre à jour une matière",
@@ -1235,7 +3393,7 @@
             },
             "delete": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Delete Subject",
                 "description": "Supprimer une matière",
@@ -1273,7 +3431,7 @@
         "/api/v1/referentials/{referential_id}/competencies": {
             "post": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Create Competency",
                 "description": "Créer une nouvelle compétence",
@@ -1337,7 +3495,7 @@
             },
             "get": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "List Competencies",
                 "description": "Lister les compétences d'un référentiel avec filtres",
@@ -1456,7 +3614,7 @@
         "/api/v1/competencies/{competency_id}": {
             "get": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Get Competency",
                 "description": "Récupérer une compétence par ID",
@@ -1499,7 +3657,7 @@
             },
             "patch": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Update Competency",
                 "description": "Mettre à jour une compétence",
@@ -1552,7 +3710,7 @@
             },
             "delete": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Delete Competency",
                 "description": "Supprimer une compétence",
@@ -1590,7 +3748,7 @@
         "/api/v1/referentials/{referential_id}/assignments": {
             "post": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Create Assignment",
                 "description": "Créer une nouvelle affectation",
@@ -1654,7 +3812,7 @@
             },
             "get": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "List Assignments",
                 "description": "Lister les affectations d'un référentiel",
@@ -1710,7 +3868,7 @@
         "/api/v1/assignments/{assignment_id}": {
             "get": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Get Assignment",
                 "description": "Récupérer une affectation par ID",
@@ -1753,7 +3911,7 @@
             },
             "delete": {
                 "tags": [
-                    "referentials"
+                    "referentials-legacy"
                 ],
                 "summary": "Delete Assignment",
                 "description": "Supprimer une affectation",
@@ -1791,7 +3949,7 @@
         "/api/v1/public/referentials/{referential_id}/tree": {
             "get": {
                 "tags": [
-                    "public"
+                    "public-legacy"
                 ],
                 "summary": "Get Referential Tree",
                 "description": "Récupérer l'arborescence complète d'un référentiel publié",
@@ -1847,7 +4005,7 @@
         "/api/v1/public/subjects": {
             "get": {
                 "tags": [
-                    "public"
+                    "public-legacy"
                 ],
                 "summary": "List Subjects By Scope",
                 "description": "Lister les matières par cycle et niveau (pour les référentiels publiés)",
@@ -1911,7 +4069,7 @@
         "/api/v1/public/subjects/{subject_id}/competencies": {
             "get": {
                 "tags": [
-                    "public"
+                    "public-legacy"
                 ],
                 "summary": "Get Competencies For Subject",
                 "description": "Récupérer les compétences d'une matière (pour les référentiels publiés)",
@@ -1960,7 +4118,7 @@
         "/api/v1/public/competencies/by-code/{code}": {
             "get": {
                 "tags": [
-                    "public"
+                    "public-legacy"
                 ],
                 "summary": "Lookup Competency By Code",
                 "description": "Rechercher une compétence par son code (pour les référentiels publiés)",
@@ -2041,7 +4199,7 @@
         "/api/v1/events/events": {
             "get": {
                 "tags": [
-                    "events"
+                    "events-legacy"
                 ],
                 "summary": "List Outbox Events",
                 "description": "List outbox events with filters and pagination",
@@ -2217,7 +4375,7 @@
         "/api/v1/events/events/replay": {
             "post": {
                 "tags": [
-                    "events"
+                    "events-legacy"
                 ],
                 "summary": "Replay Events",
                 "description": "Manually trigger processing of pending outbox events",

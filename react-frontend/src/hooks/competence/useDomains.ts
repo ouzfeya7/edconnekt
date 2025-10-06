@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { competenceReferentialsApi } from '../../api/competence-service/client';
-import type { DomainResponse } from '../../api/competence-service/api';
+import type { DomainResponse, DomainListResponse } from '../../api/competence-service/api';
 
 export function useDomains(params: { referentialId?: string; versionNumber?: number }) {
   const { referentialId, versionNumber } = params;
@@ -9,8 +9,8 @@ export function useDomains(params: { referentialId?: string; versionNumber?: num
     enabled: Boolean(referentialId) && (versionNumber !== undefined && versionNumber !== null),
     queryFn: async () => {
       if (!referentialId || versionNumber === undefined || versionNumber === null) throw new Error('referentialId et versionNumber requis');
-      const { data } = await competenceReferentialsApi.listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(referentialId, versionNumber);
-      return data;
+      const { data } = await competenceReferentialsApi.listDomainsApiV1ReferentialsReferentialIdDomainsGet(referentialId, versionNumber);
+      return (data as DomainListResponse).items;
     },
     staleTime: 60_000,
   });
@@ -22,7 +22,7 @@ export function useDomain(domainId?: string) {
     enabled: Boolean(domainId),
     queryFn: async () => {
       if (!domainId) throw new Error('domainId requis');
-      const { data } = await competenceReferentialsApi.getDomainApiCompetenceDomainsDomainIdGet(domainId);
+      const { data } = await competenceReferentialsApi.getDomainApiV1DomainsDomainIdGet(domainId);
       return data;
     },
     staleTime: 60_000,

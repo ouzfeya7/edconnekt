@@ -653,6 +653,7 @@ const ReferentielsManager: React.FC = () => {
                     { value: 'PRIMAIRE', label: 'Primaire' },
                     { value: 'COLLEGE', label: 'Collège' },
                     { value: 'LYCEE', label: 'Lycée' },
+                    { value: 'SECONDAIRE', label: 'Secondaire' },
                     { value: 'UNIVERSITE', label: 'Université' }
                   ]
                 },

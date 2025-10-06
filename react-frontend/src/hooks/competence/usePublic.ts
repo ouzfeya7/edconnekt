@@ -6,7 +6,7 @@ export function useGlobalReferentials(page: number = 1, size: number = 20, cycle
   return useQuery<GlobalReferentialListResponse, Error>({
     queryKey: ['competence:global-referentials', { page, size, cycle, q }],
     queryFn: async () => {
-      const { data } = await competenceReferentialsApi.listGlobalReferentialsApiCompetenceGlobalReferentialsGet(
+      const { data } = await competenceReferentialsApi.listGlobalReferentialsApiV1GlobalReferentialsGet(
         page,
         size,
         cycle,
@@ -22,7 +22,16 @@ export function useOutboxEvents(page: number = 1, size: number = 20) {
   return useQuery<OutboxEventResponse[], Error>({
     queryKey: ['competence:outbox-events', { page, size }],
     queryFn: async () => {
-      const { data } = await competenceEventsApi.listOutboxEventsApiCompetenceEventsEventsGet(page.toString(), size.toString());
+      const { data } = await competenceEventsApi.listOutboxEventsApiV1EventsEventsGet(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        page,
+        size
+      );
       return data;
     },
     staleTime: 30_000, // Plus court car les événements changent fréquemment
