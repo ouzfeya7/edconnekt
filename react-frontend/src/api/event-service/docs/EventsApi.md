@@ -6,6 +6,7 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 |[**cancelRegistrationApiV1EventsEventIdRegisterRegistrationIdDelete**](#cancelregistrationapiv1eventseventidregisterregistrationiddelete) | **DELETE** /api/v1/events/{event_id}/register/{registration_id} | Cancel Registration|
 |[**createEventApiV1EventsPost**](#createeventapiv1eventspost) | **POST** /api/v1/events/ | Create Event|
+|[**deleteEventApiV1EventsEventIdDelete**](#deleteeventapiv1eventseventiddelete) | **DELETE** /api/v1/events/{event_id} | Delete Event|
 |[**exportAttendanceApiV1EventsEventIdExportGet**](#exportattendanceapiv1eventseventidexportget) | **GET** /api/v1/events/{event_id}/export | Export Attendance|
 |[**getEventByIdApiV1EventsEventIdGet**](#geteventbyidapiv1eventseventidget) | **GET** /api/v1/events/{event_id} | Get Event By Id|
 |[**getParticipantsApiV1EventsEventIdParticipantsGet**](#getparticipantsapiv1eventseventidparticipantsget) | **GET** /api/v1/events/{event_id}/participants | Get Participants|
@@ -17,7 +18,7 @@ All URIs are relative to *http://localhost*
 # **cancelRegistrationApiV1EventsEventIdRegisterRegistrationIdDelete**
 > CancellationResponse cancelRegistrationApiV1EventsEventIdRegisterRegistrationIdDelete()
 
-Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)
+Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)
 
 ### Example
 
@@ -72,7 +73,7 @@ No authorization required
 # **createEventApiV1EventsPost**
 > EventOut createEventApiV1EventsPost(eventCreate)
 
-Créer un nouvel événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+Créer un nouvel événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
 
 ### Example
 
@@ -122,10 +123,62 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **deleteEventApiV1EventsEventIdDelete**
+> deleteEventApiV1EventsEventIdDelete()
+
+Supprimer un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
+
+### Example
+
+```typescript
+import {
+    EventsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new EventsApi(configuration);
+
+let eventId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteEventApiV1EventsEventIdDelete(
+    eventId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **eventId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **exportAttendanceApiV1EventsEventIdExportGet**
 > any exportAttendanceApiV1EventsEventIdExportGet()
 
-Télécharger la feuille de présence d\'un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+Télécharger la feuille de présence d\'un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
 
 ### Example
 
@@ -180,7 +233,7 @@ No authorization required
 # **getEventByIdApiV1EventsEventIdGet**
 > EventOut getEventByIdApiV1EventsEventIdGet()
 
-Récupérer un événement spécifique par ID (accès public)
+Récupérer un événement spécifique par ID avec validation tenant.
 
 ### Example
 
@@ -232,7 +285,7 @@ No authorization required
 # **getParticipantsApiV1EventsEventIdParticipantsGet**
 > object getParticipantsApiV1EventsEventIdParticipantsGet()
 
-Récupère tous les participants à un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+Récupère tous les participants à un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
 
 ### Example
 
@@ -284,7 +337,7 @@ No authorization required
 # **listEventsApiV1EventsGet**
 > object listEventsApiV1EventsGet()
 
-Lister tous les événements avec pagination et filtrage (accès public)
+Lister tous les événements avec pagination et filtrage selon le contexte tenant.
 
 ### Example
 
@@ -302,15 +355,13 @@ let size: number; //Items per page (1-100) (optional) (default to 20)
 let category: string; //Filter by event category (optional) (default to undefined)
 let startDate: string; //Filter events starting after this date (optional) (default to undefined)
 let endDate: string; //Filter events ending before this date (optional) (default to undefined)
-let etablissementId: string; //Filter by establishment ID (optional) (default to undefined)
 
 const { status, data } = await apiInstance.listEventsApiV1EventsGet(
     page,
     size,
     category,
     startDate,
-    endDate,
-    etablissementId
+    endDate
 );
 ```
 
@@ -323,7 +374,6 @@ const { status, data } = await apiInstance.listEventsApiV1EventsGet(
 | **category** | [**string**] | Filter by event category | (optional) defaults to undefined|
 | **startDate** | [**string**] | Filter events starting after this date | (optional) defaults to undefined|
 | **endDate** | [**string**] | Filter events ending before this date | (optional) defaults to undefined|
-| **etablissementId** | [**string**] | Filter by establishment ID | (optional) defaults to undefined|
 
 
 ### Return type
@@ -351,7 +401,7 @@ No authorization required
 # **publishEventApiV1EventsEventIdPublishPost**
 > EventOut publishEventApiV1EventsEventIdPublishPost()
 
-Publier un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+Publier un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
 
 ### Example
 
@@ -403,7 +453,7 @@ No authorization required
 # **registerParticipantApiV1EventsEventIdRegisterPost**
 > RegistrationResponse registerParticipantApiV1EventsEventIdRegisterPost(registrationRequest)
 
-S\'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)
+S\'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)
 
 ### Example
 
@@ -459,7 +509,7 @@ No authorization required
 # **updateEventApiV1EventsEventIdPatch**
 > EventOut updateEventApiV1EventsEventIdPatch(eventUpdate)
 
-Modifier un événement existant (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+Modifier un événement existant (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
 
 ### Example
 

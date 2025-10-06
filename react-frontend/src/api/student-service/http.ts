@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
-import { getActiveContext, setActiveContext } from '../../utils/contextStorage';
+import { getActiveContext, setActiveContext, type EstablishmentRole } from '../../utils/contextStorage';
 import { attachAuthRefresh } from '../httpAuth';
 
 // Base URL configurable via Vite env, avec fallback par défaut
@@ -18,12 +18,7 @@ export const studentAxios = axios.create({
   baseURL: BASE_URL,
 });
 
-// Déprécié: ancien scoping par service
-let inMemoryEstablishmentId: string | undefined;
-export function setStudentServiceEstablishmentId(_id?: string) {
-  // NOOP pour compat : le service se base désormais sur le contexte global (X-Etab-Select/X-Role-Select)
-  inMemoryEstablishmentId = undefined;
-}
+// Déprécié: ancien scoping par service (supprimé car non utilisé)
 
 // Intercepteur: normalise l'URL, injecte le token et l'établissement
 studentAxios.interceptors.request.use((config) => {
@@ -43,7 +38,7 @@ studentAxios.interceptors.request.use((config) => {
   }
   if (activeRole) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
+    (config.headers as Record<string, string>)['X-Roles-Select'] = activeRole;
   }
   if ((import.meta as any)?.env?.DEV) {
     const headers = { ...(config.headers as Record<string, unknown>) };
@@ -62,9 +57,10 @@ studentAxios.interceptors.response.use(
   (response) => {
     try {
       const xEtab = response.headers?.['x-etab'] as string | undefined;
-      const xRole = response.headers?.['x-role'] as string | undefined;
-      if (xEtab && xRole) setActiveContext(xEtab, xRole as any);
-    } catch {}
+      const xRoles = response.headers?.['x-roles'] as string | undefined;
+      const xRole = (xRoles?.split(',')[0]?.trim() || (response.headers?.['x-role'] as string | undefined)) as string | undefined;
+      if (xEtab && xRole) setActiveContext(xEtab, xRole as EstablishmentRole);
+    } catch { /* no-op */ }
     if ((import.meta as any)?.env?.DEV) {
       console.debug('[student-api][response]', {
         status: response.status,

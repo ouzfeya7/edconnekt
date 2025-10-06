@@ -33,11 +33,11 @@ resourceAxios.interceptors.request.use((config) => {
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
   if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+    (config.headers as Record<string, string>)['X-Etab'] = activeEtabId;
   }
   if (activeRole) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
+    (config.headers as Record<string, string>)['X-Roles'] = activeRole;
   }
   return config;
 });
@@ -47,9 +47,10 @@ resourceAxios.interceptors.response.use(
   (response) => {
     try {
       const xEtab = response.headers?.['x-etab'] as string | undefined;
-      const xRole = response.headers?.['x-role'] as string | undefined;
-      if (xEtab && xRole) setActiveContext(xEtab, xRole as any);
-    } catch {}
+      const xRoles = response.headers?.['x-roles'] as string | undefined;
+      const xRole = (xRoles?.split(',')[0]?.trim() || (response.headers?.['x-role'] as string | undefined)) as string | undefined;
+      if (xEtab && xRole) setActiveContext(xEtab, xRole as import('../../utils/contextStorage').EstablishmentRole);
+    } catch { /* no-op */ }
     return response;
   },
   (error) => Promise.reject(error)

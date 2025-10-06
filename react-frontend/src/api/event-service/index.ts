@@ -1,4 +1,5 @@
 /* tslint:disable */
+/* eslint-disable */
 /**
  * Event Service
  * FastAPI microservice for event management

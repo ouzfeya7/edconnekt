@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import resourceAxios from '../api/resource-service/http';
+import { resourcesApi } from '../api/resource-service/client';
 import { Visibility, ResourceStatus } from '../api/resource-service/api';
 
 export interface UpdateResourceVariables {
@@ -7,8 +7,8 @@ export interface UpdateResourceVariables {
   title?: string;
   description?: string;
   visibility?: Visibility;
-  subjectId?: number | null;
-  competenceId?: number | null;
+  subjectId?: string | null; // UUID
+  competenceId?: string | null; // UUID
   status?: ResourceStatus;
   file?: File;
 }
@@ -19,28 +19,16 @@ export function useUpdateResource() {
   return useMutation({
     mutationFn: async (variables: UpdateResourceVariables) => {
       const { resourceId, title, description, visibility, subjectId, competenceId, status, file } = variables;
-
-      const form = new FormData();
-      if (title !== undefined) form.append('title', title);
-      if (description !== undefined) form.append('description', description);
-      if (visibility !== undefined) form.append('visibility', visibility);
-
-      if (subjectId !== undefined) {
-        const n = Number(subjectId);
-        if (Number.isFinite(n)) form.append('subject_id', String(n));
-      }
-
-      if (competenceId !== undefined) {
-        const n = Number(competenceId);
-        if (Number.isFinite(n)) form.append('competence_id', String(n));
-      }
-
-      if (status !== undefined) form.append('status', status);
-      if (file !== undefined) form.append('file', file);
-
-      const { data } = await resourceAxios.patch(`/resources/${resourceId}`, form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const { data } = await resourcesApi.updateResourceResourcesResourceIdPatch(
+        resourceId,
+        title ?? null,
+        description ?? null,
+        visibility ?? null,
+        subjectId ?? null,
+        competenceId ?? null,
+        status ?? null,
+        file ?? null,
+      );
       return data;
     },
     onSuccess: (data, variables) => {

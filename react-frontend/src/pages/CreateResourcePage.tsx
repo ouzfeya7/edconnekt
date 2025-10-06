@@ -258,18 +258,12 @@ function CreateResourcePage() {
         if (!subjectId) return;
 
         if (isEditMode && editingResourceId) {
-            const subjectIdNum = Number(subjectId);
-            const competenceIdNum = Number(competenceId);
-            if (!Number.isFinite(subjectIdNum) || !Number.isFinite(competenceIdNum)) {
-                setCreationError('IDs de matière/compétence invalides (attendus: nombres).');
-                return;
-            }
             updateResourceMutation.mutate({
                 resourceId: editingResourceId,
                 title: formData.title,
                 description: formData.description,
-                subjectId: subjectIdNum,
-                competenceId: competenceIdNum,
+                subjectId: subjectId,
+                competenceId: competenceId ?? null,
                 visibility: formData.visibility,
                 file: uploadedFile || undefined,
             }, {
@@ -281,17 +275,11 @@ function CreateResourcePage() {
                 }
             });
         } else if (uploadedFile) {
-            const subjectIdNum = Number(subjectId);
-            const competenceIdNum = Number(competenceId);
-            if (!Number.isFinite(subjectIdNum) || !Number.isFinite(competenceIdNum)) {
-                setCreationError('IDs de matière/compétence invalides (attendus: nombres).');
-                return;
-            }
             createResourceMutation.mutate({
                 title: formData.title,
                 description: formData.description,
-                subjectId: subjectIdNum,
-                competenceId: competenceIdNum,
+                subjectId: subjectId,
+                competenceId: (competenceId ?? ''),
                 visibility: formData.visibility,
                 file: uploadedFile,
             }, {

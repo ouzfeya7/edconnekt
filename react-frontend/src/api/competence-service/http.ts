@@ -30,7 +30,7 @@ competenceAxios.interceptors.request.use((config) => {
   }
   if (activeRole) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Role'] = activeRole;
+    (config.headers as Record<string, string>)['X-Roles'] = activeRole;
   }
   if (import.meta.env.DEV) {
     const headers = { ...(config.headers as Record<string, unknown>) };
@@ -48,7 +48,8 @@ competenceAxios.interceptors.request.use((config) => {
 competenceAxios.interceptors.response.use(
   (response) => {
     const xEtab = response.headers?.['x-etab'] as string | undefined;
-    const xRole = response.headers?.['x-role'] as string | undefined;
+    const xRoles = response.headers?.['x-roles'] as string | undefined;
+    const xRole = (xRoles?.split(',')[0]?.trim() || (response.headers?.['x-role'] as string | undefined)) as string | undefined;
     const allowedRoles = new Set<EstablishmentRole>(['student', 'parent', 'teacher', 'admin_staff']);
     if (xEtab && xRole && allowedRoles.has(xRole as EstablishmentRole)) {
       setActiveContext(xEtab, xRole as EstablishmentRole);
