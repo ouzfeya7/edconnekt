@@ -483,6 +483,38 @@
     "admissions": "Admissions",
     "admission": "Admission"
   ,
+  "resource": {
+    "toast": {
+      "archived": "Ressource archivée",
+      "archive_failed": "Échec de l'archivage de la ressource",
+      "restored": "Ressource restaurée",
+      "restore_failed": "Échec de la restauration",
+      "download_started": "Téléchargement lancé",
+      "download_failed": "Téléchargement impossible"
+    },
+    "confirm": {
+      "archive": "Archiver cette ressource ? Vous pourrez la restaurer ultérieurement."
+    },
+    "form": {
+      "title": "Titre de la ressource",
+      "domain": "Domaine de compétence",
+      "subject": "Matière",
+      "competency": "Compétence",
+      "visibility": "Visibilité",
+      "description": "Description",
+      "file": "Fichier"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "ARCHIVED": "Archivée",
+      "BLOCKED": "Bloquée"
+    },
+    "visibility": {
+      "PRIVATE": "Privé",
+      "CLASS": "Classe",
+      "SCHOOL": "École"
+    }
+  },
   "competency_lookup": "Recherche par code",
   "competency": {
     "common": {

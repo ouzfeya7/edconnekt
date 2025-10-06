@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getActiveContext, setActiveContext } from '../../utils/contextStorage';
+import { getActiveContext, setActiveContext, EstablishmentRole } from '../../utils/contextStorage';
 import { attachAuthRefresh } from '../httpAuth';
 
 const DEFAULT_BASE_URL = 'https://api.uat1-engy-partners.com/competence';
@@ -26,11 +26,11 @@ competenceAxios.interceptors.request.use((config) => {
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
   if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+    (config.headers as Record<string, string>)['X-Etab'] = activeEtabId;
   }
   if (activeRole) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
+    (config.headers as Record<string, string>)['X-Role'] = activeRole;
   }
   if (import.meta.env.DEV) {
     const headers = { ...(config.headers as Record<string, unknown>) };
@@ -47,11 +47,12 @@ competenceAxios.interceptors.request.use((config) => {
 
 competenceAxios.interceptors.response.use(
   (response) => {
-    try {
-      const xEtab = response.headers?.['x-etab'] as string | undefined;
-      const xRole = response.headers?.['x-role'] as string | undefined;
-      if (xEtab && xRole) setActiveContext(xEtab, xRole as any);
-    } catch {}
+    const xEtab = response.headers?.['x-etab'] as string | undefined;
+    const xRole = response.headers?.['x-role'] as string | undefined;
+    const allowedRoles = new Set<EstablishmentRole>(['student', 'parent', 'teacher', 'admin_staff']);
+    if (xEtab && xRole && allowedRoles.has(xRole as EstablishmentRole)) {
+      setActiveContext(xEtab, xRole as EstablishmentRole);
+    }
     if (import.meta.env.DEV) {
       console.debug('[competence-api][response]', {
         status: response.status,

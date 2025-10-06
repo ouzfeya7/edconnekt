@@ -117,19 +117,19 @@ function CreateResourcePage() {
 
         if (isEditMode && resourceToEdit) {
             // Pré-remplir données et IDs
-            setSelectedSubjectId(resourceToEdit.subject_id);
-            if (resourceToEdit.competence_id) setSelectedCompetencyId(resourceToEdit.competence_id);
+            setSelectedSubjectId(String(resourceToEdit.subject_id));
+            if (resourceToEdit.competence_id) setSelectedCompetencyId(String(resourceToEdit.competence_id));
 
             // Essayer de déduire le domaine à partir de l'arbre quand chargé
             if (refTree) {
                 const tree = refTree as ReferentialTree;
                 for (const d of (tree.domains || [] as DomainTree[])) {
-                    if ((d.subjects || [] as SubjectTree[]).some((s: SubjectTree) => s.id === resourceToEdit.subject_id)) {
+                    if ((d.subjects || [] as SubjectTree[]).some((s: SubjectTree) => String(s.id) === String(resourceToEdit.subject_id))) {
                         setSelectedDomainId(d.id);
                         setFormData((prev) => ({
                             ...prev,
                             domain: d.name,
-                            subject: (d.subjects || [] as SubjectTree[]).find((s: SubjectTree) => s.id === resourceToEdit.subject_id)?.name,
+                            subject: (d.subjects || [] as SubjectTree[]).find((s: SubjectTree) => String(s.id) === String(resourceToEdit.subject_id))?.name,
                             title: resourceToEdit.title || '',
                             description: resourceToEdit.description || '',
                             competence: undefined,
@@ -154,7 +154,7 @@ function CreateResourcePage() {
 
     // Validation des étapes (maintenant 3 étapes au lieu de 4)
     const isStep1Valid = uploadedFile !== null || isEditMode;
-    const isStep2Valid = formData.title.trim() !== '' && !!selectedSubjectId;
+    const isStep2Valid = formData.title.trim() !== '' && !!selectedSubjectId && !!selectedCompetencyId;
     const isStep3Valid = true; // Étape de validation
     const canProceed = currentStep === 1 ? isStep1Valid : 
                       currentStep === 2 ? isStep2Valid : 
@@ -254,16 +254,22 @@ function CreateResourcePage() {
         setCreationError(null);
 
         const subjectId = selectedSubjectId;
-        const competenceId: string | null = selectedCompetencyId ?? null;
+        const competenceId = selectedCompetencyId;
         if (!subjectId) return;
 
         if (isEditMode && editingResourceId) {
+            const subjectIdNum = Number(subjectId);
+            const competenceIdNum = Number(competenceId);
+            if (!Number.isFinite(subjectIdNum) || !Number.isFinite(competenceIdNum)) {
+                setCreationError('IDs de matière/compétence invalides (attendus: nombres).');
+                return;
+            }
             updateResourceMutation.mutate({
                 resourceId: editingResourceId,
                 title: formData.title,
                 description: formData.description,
-                subjectId: subjectId,
-                competenceId: competenceId,
+                subjectId: subjectIdNum,
+                competenceId: competenceIdNum,
                 visibility: formData.visibility,
                 file: uploadedFile || undefined,
             }, {
@@ -275,11 +281,17 @@ function CreateResourcePage() {
                 }
             });
         } else if (uploadedFile) {
+            const subjectIdNum = Number(subjectId);
+            const competenceIdNum = Number(competenceId);
+            if (!Number.isFinite(subjectIdNum) || !Number.isFinite(competenceIdNum)) {
+                setCreationError('IDs de matière/compétence invalides (attendus: nombres).');
+                return;
+            }
             createResourceMutation.mutate({
                 title: formData.title,
                 description: formData.description,
-                subjectId: subjectId,
-                competenceId: competenceId,
+                subjectId: subjectIdNum,
+                competenceId: competenceIdNum,
                 visibility: formData.visibility,
                 file: uploadedFile,
             }, {
@@ -588,7 +600,7 @@ function CreateResourcePage() {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Compétence (facultatif)
+                            Compétence *
                         </label>
                         <select
                             value={selectedCompetencyId || ''}
@@ -596,12 +608,12 @@ function CreateResourcePage() {
                                 const compId = e.target.value || undefined;
                                 setSelectedCompetencyId(compId);
                                 const compName = (competenciesPage as CompetencyListResponse | undefined)?.items?.find((c: CompetencyResponse) => c.id === compId)?.label;
-                                setFormData({ ...formData, competence: compName });
+                                setFormData({ ...formData, competence: compName ?? undefined });
                             }}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                             disabled={!selectedReferentialId || selectedVersionNumber === undefined || !selectedSubjectId}
                         >
-                            <option value="" disabled={isLoadingCompetencies}> {isLoadingCompetencies ? 'Chargement...' : 'Sélectionnez une compétence (optionnel)'} </option>
+                            <option value="" disabled={isLoadingCompetencies}> {isLoadingCompetencies ? 'Chargement...' : 'Sélectionnez une compétence'} </option>
                             {(competenciesPage as CompetencyListResponse | undefined)?.items?.map((c: CompetencyResponse) => (
                                 <option key={c.id} value={c.id}>{c.label}</option>
                             ))}

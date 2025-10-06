@@ -7,8 +7,8 @@ export interface UpdateResourceVariables {
   title?: string;
   description?: string;
   visibility?: Visibility;
-  subjectId?: string | null; // UUID string
-  competenceId?: string | null; // UUID string
+  subjectId?: number | null;
+  competenceId?: number | null;
   status?: ResourceStatus;
   file?: File;
 }
@@ -24,8 +24,17 @@ export function useUpdateResource() {
       if (title !== undefined) form.append('title', title);
       if (description !== undefined) form.append('description', description);
       if (visibility !== undefined) form.append('visibility', visibility);
-      if (subjectId !== undefined && subjectId !== null && subjectId !== '') form.append('subject_id', subjectId);
-      if (competenceId !== undefined && competenceId !== null && competenceId !== '') form.append('competence_id', competenceId);
+
+      if (subjectId !== undefined) {
+        const n = Number(subjectId);
+        if (Number.isFinite(n)) form.append('subject_id', String(n));
+      }
+
+      if (competenceId !== undefined) {
+        const n = Number(competenceId);
+        if (Number.isFinite(n)) form.append('competence_id', String(n));
+      }
+
       if (status !== undefined) form.append('status', status);
       if (file !== undefined) form.append('file', file);
 
@@ -35,7 +44,6 @@ export function useUpdateResource() {
       return data;
     },
     onSuccess: (data, variables) => {
-      // Invalidate the specific resource query as well as the list
       queryClient.invalidateQueries({ queryKey: ['resources', variables.resourceId] });
       queryClient.invalidateQueries({ queryKey: ['resources'] });
     },

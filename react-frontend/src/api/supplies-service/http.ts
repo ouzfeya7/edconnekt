@@ -28,14 +28,10 @@ suppliesAxios.interceptors.request.use((config) => {
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
   if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
-    // Compatibilité passerelle: certains services attendent X-Etab
     (config.headers as Record<string, string>)['X-Etab'] = activeEtabId;
   }
   if (activeRole) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
-    // Compatibilité passerelle: certains services attendent X-Role
     (config.headers as Record<string, string>)['X-Role'] = activeRole;
   }
 

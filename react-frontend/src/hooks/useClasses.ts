@@ -9,6 +9,7 @@ export interface UseClassesParams {
   nom?: string;
   niveau?: string;
   isArchived?: boolean;
+  status?: string;
 }
 
 export function useClasses(params: UseClassesParams) {
@@ -19,18 +20,19 @@ export function useClasses(params: UseClassesParams) {
     nom = undefined,
     niveau = undefined,
     isArchived = undefined,
+    status = undefined,
   } = params;
 
   return useQuery<StandardResponseListClasseOut, Error>({
-    queryKey: ['classes', { etablissementId, skip, limit, nom, niveau, isArchived }],
+    queryKey: ['classes', { etablissementId, skip, limit, nom, niveau, isArchived, status }],
     queryFn: async () => {
       const { data } = await classesApi.getClassesApiV1ClassesGet(
-        etablissementId,
         skip,
         limit,
         nom,
         niveau,
-        isArchived
+        isArchived,
+        status
       );
       return data;
     },

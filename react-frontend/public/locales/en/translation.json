@@ -222,6 +222,38 @@
     "file_read_error": "Error reading file",
     "admissions": "Admissions",
     "admission": "Admission",
+  "resource": {
+    "toast": {
+      "archived": "Resource archived",
+      "archive_failed": "Failed to archive resource",
+      "restored": "Resource restored",
+      "restore_failed": "Failed to restore resource",
+      "download_started": "Download started",
+      "download_failed": "Download failed"
+    },
+    "confirm": {
+      "archive": "Archive this resource? You can restore it later."
+    },
+    "form": {
+      "title": "Resource title",
+      "domain": "Competency domain",
+      "subject": "Subject",
+      "competency": "Competency",
+      "visibility": "Visibility",
+      "description": "Description",
+      "file": "File"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "ARCHIVED": "Archived",
+      "BLOCKED": "Blocked"
+    },
+    "visibility": {
+      "PRIVATE": "Private",
+      "CLASS": "Class",
+      "SCHOOL": "School"
+    }
+  },
   "competency_lookup": "Lookup by code",
   "competency": {
     "common": {

@@ -30,18 +30,18 @@ const apiInstance = new ResourcesApi(configuration);
 
 let title: string; // (default to undefined)
 let visibility: Visibility; // (default to undefined)
-let subjectId: string; // (default to undefined)
+let subjectId: number; // (default to undefined)
+let competenceId: number; // (default to undefined)
 let file: File; // (default to undefined)
 let description: string; // (optional) (default to undefined)
-let competenceId: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.createResourceResourcesPost(
     title,
     visibility,
     subjectId,
+    competenceId,
     file,
-    description,
-    competenceId
+    description
 );
 ```
 
@@ -51,10 +51,10 @@ const { status, data } = await apiInstance.createResourceResourcesPost(
 |------------- | ------------- | ------------- | -------------|
 | **title** | [**string**] |  | defaults to undefined|
 | **visibility** | **Visibility** |  | defaults to undefined|
-| **subjectId** | [**string**] |  | defaults to undefined|
+| **subjectId** | [**number**] |  | defaults to undefined|
+| **competenceId** | [**number**] |  | defaults to undefined|
 | **file** | [**File**] |  | defaults to undefined|
 | **description** | [**string**] |  | (optional) defaults to undefined|
-| **competenceId** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -307,8 +307,8 @@ const apiInstance = new ResourcesApi(configuration);
 
 let authorUserId: string; // (optional) (default to undefined)
 let visibility: Visibility; // (optional) (default to undefined)
-let subjectId: string; // (optional) (default to undefined)
-let competenceId: string; // (optional) (default to undefined)
+let subjectId: number; // (optional) (default to undefined)
+let competenceId: number; // (optional) (default to undefined)
 let status: ResourceStatus; // (optional) (default to undefined)
 let limit: number; // (optional) (default to 10)
 let offset: number; // (optional) (default to 0)
@@ -330,8 +330,8 @@ const { status, data } = await apiInstance.listResourcesResourcesGet(
 |------------- | ------------- | ------------- | -------------|
 | **authorUserId** | [**string**] |  | (optional) defaults to undefined|
 | **visibility** | **Visibility** |  | (optional) defaults to undefined|
-| **subjectId** | [**string**] |  | (optional) defaults to undefined|
-| **competenceId** | [**string**] |  | (optional) defaults to undefined|
+| **subjectId** | [**number**] |  | (optional) defaults to undefined|
+| **competenceId** | [**number**] |  | (optional) defaults to undefined|
 | **status** | **ResourceStatus** |  | (optional) defaults to undefined|
 | **limit** | [**number**] |  | (optional) defaults to 10|
 | **offset** | [**number**] |  | (optional) defaults to 0|

@@ -8,7 +8,6 @@ import type {
   IdentityUpdate,
   EstablishmentLinkCreate,
   IdentityWithRoles,
-  ImportResponse,
   RoleAssignmentCreate,
   RoleAssignmentResponse,
   RoleAssignmentUpdate,
@@ -25,7 +24,7 @@ export type IdentityBatchItem = {
   phone?: string;
   role_principal?: string | null;
   role_effectif?: string | null;
-  cycle_codes?: any; // could be string[] | string | null; backend returns null when absent
+  cycle_codes?: string[] | string | null | undefined; // backend may return array, string or null
   status?: string;
   processed_at?: string;
   identity_id?: string;
@@ -60,20 +59,31 @@ export function useIdentityBatches(params?: { page?: number; size?: number; stat
         params?.status ?? undefined,
       );
       // Normalize response into StandardListResponse-like shape { data, total, page, size }
-      const obj: any = data as any;
-      const list = Array.isArray(obj?.data)
-        ? obj.data
-        : Array.isArray(obj?.items)
-          ? obj.items
-          : Array.isArray(obj?.batches)
-            ? obj.batches
-            : Array.isArray(obj)
-              ? obj
-              : [];
-      const page = obj?.page ?? params?.page ?? 1;
-      const size = obj?.size ?? params?.size ?? list.length;
-      const total = obj?.total ?? obj?.count ?? list.length;
-      return { data: list, page, size, total } as unknown as StandardListResponse;
+      const objUnknown: unknown = data;
+      let list: unknown[] = [];
+      let page = params?.page ?? 1;
+      let size = params?.size ?? 0;
+      let total = 0;
+
+      const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+
+      if (Array.isArray(objUnknown)) {
+        list = objUnknown as unknown[];
+        size = list.length;
+        total = list.length;
+      } else if (isRecord(objUnknown)) {
+        const o = objUnknown;
+        const d = o.data;
+        const items = o.items as unknown;
+        const batches = o.batches as unknown;
+        if (Array.isArray(d)) list = d as unknown[];
+        else if (Array.isArray(items)) list = items as unknown[];
+        else if (Array.isArray(batches)) list = batches as unknown[];
+        page = (typeof o.page === 'number' ? o.page : page) as number;
+        size = (typeof o.size === 'number' ? o.size : (list.length || size)) as number;
+        total = (typeof o.total === 'number' ? o.total : (typeof (o as { count?: unknown }).count === 'number' ? (o as { count?: number }).count : list.length)) as number;
+      }
+      return { data: list as unknown[], page, size, total } as unknown as StandardListResponse;
     },
     placeholderData: (prev: StandardListResponse | undefined) => prev as StandardListResponse | undefined,
   });
@@ -108,13 +118,62 @@ export function useIdentityBatchItems(
         params.itemStatus ?? undefined,
         undefined,
       );
-      const obj = data as any;
-      const root = obj?.items ? obj : (obj?.data && (typeof obj.data === 'object') ? obj.data : obj);
-      const items = Array.isArray(root?.items) ? (root.items as IdentityBatchItem[]) : [];
-      const page = root?.page ?? params.page ?? 1;
-      const size = root?.size ?? params.size ?? items.length;
-      const total = root?.total ?? root?.count ?? items.length;
-      const pages = root?.pages ?? (total && size ? Math.ceil(total / size) : undefined);
+      const obj: unknown = data;
+
+      // Normalisation robuste: supporte
+      // - { items: [...], page, size, total, pages }
+      // - { data: [...], page, size, total, pages }
+      // - { data: { items: [...], page, size, total, pages } }
+      // - [ ... ] (tableau brut)
+      let items: IdentityBatchItem[] = [];
+      let page = params.page ?? 1;
+      let size = params.size ?? 50;
+      let total: number | undefined = undefined;
+      let pages: number | undefined = undefined;
+
+      const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+
+      if (isRecord(obj) && Array.isArray((obj as { items?: unknown[] }).items)) {
+        const root = obj as { items?: unknown[]; page?: number; size?: number; total?: number; count?: number; pages?: number };
+        items = (root.items ?? []) as IdentityBatchItem[];
+        page = (typeof root.page === 'number' ? root.page : page);
+        size = (typeof root.size === 'number' ? root.size : size);
+        total = (typeof root.total === 'number' ? root.total : (typeof root.count === 'number' ? root.count : items.length));
+        pages = (typeof root.pages === 'number' ? root.pages : (total && size ? Math.ceil(total / size) : undefined));
+      } else if (isRecord(obj) && Array.isArray((obj as { data?: unknown[] }).data)) {
+        const root = obj as { data?: unknown[]; page?: number; size?: number; total?: number; count?: number; pages?: number };
+        items = (root.data ?? []) as IdentityBatchItem[];
+        page = (typeof root.page === 'number' ? root.page : page);
+        size = (typeof root.size === 'number' ? root.size : size);
+        total = (typeof root.total === 'number' ? root.total : (typeof root.count === 'number' ? root.count : items.length));
+        pages = (typeof root.pages === 'number' ? root.pages : (total && size ? Math.ceil(total / size) : undefined));
+      } else if (isRecord(obj) && isRecord((obj as { data?: unknown }).data) && Array.isArray(((obj as { data?: Record<string, unknown> }).data as Record<string, unknown>).items as unknown[])) {
+        const root = (obj as { data?: Record<string, unknown> }).data as { items?: unknown[]; page?: number; size?: number; total?: number; count?: number; pages?: number };
+        items = (root.items ?? []) as IdentityBatchItem[];
+        page = (typeof root.page === 'number' ? root.page : page);
+        size = (typeof root.size === 'number' ? root.size : size);
+        total = (typeof root.total === 'number' ? root.total : (typeof root.count === 'number' ? root.count : items.length));
+        pages = (typeof root.pages === 'number' ? root.pages : (total && size ? Math.ceil(total / size) : undefined));
+      } else if (Array.isArray(obj)) {
+        items = obj as IdentityBatchItem[];
+        total = items.length;
+        size = items.length;
+        pages = 1;
+      } else {
+        // Dernier recours: tenter root.items d'un objet quelconque
+        if (isRecord(obj)) {
+          const nested = isRecord((obj as { data?: unknown }).data) ? (obj as { data?: Record<string, unknown> }).data : obj;
+          if (isRecord(nested) && Array.isArray((nested as { items?: unknown[] }).items)) {
+            const r = nested as { items?: unknown[]; page?: number; size?: number; total?: number; count?: number; pages?: number };
+            items = (r.items ?? []) as IdentityBatchItem[];
+            page = (typeof r.page === 'number' ? r.page : page);
+            size = (typeof r.size === 'number' ? r.size : size);
+            total = (typeof r.total === 'number' ? r.total : (typeof r.count === 'number' ? r.count : items.length));
+            pages = (typeof r.pages === 'number' ? r.pages : (total && size ? Math.ceil(total / size) : undefined));
+          }
+        }
+      }
+
       return { items, total, page, size, pages } as IdentityBatchItemsResult;
     },
     placeholderData: (prev: IdentityBatchItemsResult | undefined) => prev as IdentityBatchItemsResult | undefined,
@@ -123,7 +182,7 @@ export function useIdentityBatchItems(
 }
 
 export type IdentityBatchErrorsResult = {
-  errors: any[];
+  errors: unknown[];
   total?: number;
   page?: number;
   size?: number;
@@ -145,13 +204,37 @@ export function useIdentityBatchErrors(
         params.size ?? 50,
         params.errorType ?? undefined,
       );
-      const obj = data as any;
-      const root = obj?.errors ? obj : (obj?.data && (typeof obj.data === 'object') ? obj.data : obj);
-      const errors = Array.isArray(root?.errors) ? (root.errors as any[]) : (Array.isArray(root) ? root : []);
-      const page = root?.page ?? params.page ?? 1;
-      const size = root?.size ?? params.size ?? errors.length;
-      const total = root?.total ?? root?.count ?? errors.length;
-      const pages = root?.pages ?? (total && size ? Math.ceil(total / size) : undefined);
+      const obj: unknown = data;
+      const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+      let errors: unknown[] = [];
+      let page = params.page ?? 1;
+      let size = params.size ?? 50;
+      let total = 0;
+      let pages: number | undefined = undefined;
+
+      if (isRecord(obj) && Array.isArray((obj as { errors?: unknown[] }).errors)) {
+        const root = obj as { errors?: unknown[]; page?: number; size?: number; total?: number; count?: number; pages?: number };
+        errors = root.errors ?? [];
+        page = (typeof root.page === 'number' ? root.page : page);
+        size = (typeof root.size === 'number' ? root.size : size);
+        total = (typeof root.total === 'number' ? root.total : (typeof root.count === 'number' ? root.count : errors.length));
+        pages = (typeof root.pages === 'number' ? root.pages : (total && size ? Math.ceil(total / size) : undefined));
+      } else if (isRecord(obj) && isRecord((obj as { data?: unknown }).data)) {
+        const d = (obj as { data?: Record<string, unknown> }).data as { errors?: unknown[]; page?: number; size?: number; total?: number; count?: number; pages?: number };
+        if (Array.isArray(d?.errors)) {
+          errors = d.errors;
+          page = (typeof d.page === 'number' ? d.page : page);
+          size = (typeof d.size === 'number' ? d.size : size);
+          total = (typeof d.total === 'number' ? d.total : (typeof d.count === 'number' ? d.count : errors.length));
+          pages = (typeof d.pages === 'number' ? d.pages : (total && size ? Math.ceil(total / size) : undefined));
+        }
+      } else if (Array.isArray(obj)) {
+        errors = obj as unknown[];
+        total = errors.length;
+        size = errors.length;
+        pages = 1;
+      }
+
       return { errors, total, page, size, pages } as IdentityBatchErrorsResult;
     },
     placeholderData: (prev: IdentityBatchErrorsResult | undefined) => prev as IdentityBatchErrorsResult | undefined,
@@ -161,13 +244,13 @@ export function useIdentityBatchErrors(
 
 export function useIdentityBulkImport() {
   const queryClient = useQueryClient();
-  return useMutation<ImportResponse, Error, { file: File; establishmentId: string; sourceFileUrl?: string | null }>(
+  return useMutation<StandardSingleResponse, Error, { file: File; establishmentId: string }>(
     {
       mutationKey: ['identity:bulkimport'],
-      mutationFn: async ({ file, establishmentId, sourceFileUrl }) => {
+      mutationFn: async ({ file, establishmentId }) => {
         // sourceFileUrl n'est plus supporté directement par l'API
         const { data } = await identityApi.bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId);
-        return data as ImportResponse;
+        return data as StandardSingleResponse;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['identity:batches'] });
@@ -184,18 +267,19 @@ export function useIdentityBulkProgress(batchId?: string, options?: { refetchInt
       if (!batchId) throw new Error('batchId requis');
       // Utiliser le statut du batch comme fallback de progression
       const { data } = await identityApi.getBatchStatusApiV1IdentityBulkimportBatchesBatchIdStatusGet(batchId);
-      const obj = data as any;
-      const root = (obj && typeof obj === 'object' && (obj.status !== undefined || obj.total_items !== undefined || obj.total !== undefined))
+      const obj: unknown = data;
+      const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+      const root: Record<string, unknown> | unknown = (isRecord(obj) && ('status' in obj || 'total_items' in obj || 'total' in obj))
         ? obj
-        : (obj?.data && typeof obj.data === 'object' ? obj.data : obj);
-      const pick = (...vals: any[]) => vals.find((v) => v !== undefined && v !== null);
+        : (isRecord(obj) && isRecord((obj as { data?: unknown }).data) ? (obj as { data?: Record<string, unknown> }).data as Record<string, unknown> : obj);
+      const pick = <T>(...vals: (T | undefined | null)[]): T | undefined => vals.find((v) => v !== undefined && v !== null) as T | undefined;
       const normalized = {
-        status: pick(root?.status, root?.state, root?.progress_status),
-        total_items: pick(root?.total_items, root?.total, root?.count, root?.totalCount),
-        new_count: pick(root?.new_count, root?.created_count, root?.new, root?.created, root?.success_new, root?.inserted_count),
-        updated_count: pick(root?.updated_count, root?.update_count, root?.updated),
-        skipped_count: pick(root?.skipped_count, root?.skip_count, root?.skipped),
-        invalid_count: pick(root?.invalid_count, root?.error_count, root?.errors, root?.invalid),
+        status: isRecord(root) ? pick<string>(root.status as string, root.state as string, (root as { progress_status?: string }).progress_status) : undefined,
+        total_items: isRecord(root) ? pick<number>(root.total_items as number, root.total as number, (root as { count?: number }).count, (root as { totalCount?: number }).totalCount) : undefined,
+        new_count: isRecord(root) ? pick<number>(root.new_count as number, (root as { created_count?: number }).created_count, (root as { new?: number }).new, (root as { created?: number }).created, (root as { success_new?: number }).success_new, (root as { inserted_count?: number }).inserted_count) : undefined,
+        updated_count: isRecord(root) ? pick<number>(root.updated_count as number, (root as { update_count?: number }).update_count, (root as { updated?: number }).updated) : undefined,
+        skipped_count: isRecord(root) ? pick<number>(root.skipped_count as number, (root as { skip_count?: number }).skip_count, (root as { skipped?: number }).skipped) : undefined,
+        invalid_count: isRecord(root) ? pick<number>(root.invalid_count as number, (root as { error_count?: number }).error_count, (root as { errors?: number }).errors, (root as { invalid?: number }).invalid) : undefined,
         raw: obj,
       };
       return normalized as unknown;
@@ -204,15 +288,16 @@ export function useIdentityBulkProgress(batchId?: string, options?: { refetchInt
   });
 }
 
-export function useIdentityCsvTemplate(domain?: string) {
-  return useQuery<string | unknown, Error>({
-    queryKey: ['identity:bulkimport:template', domain],
-    enabled: !!domain,
+export function useIdentityCsvTemplate(params?: { role?: string; formatType?: 'csv' | 'xlsx' }) {
+  return useQuery<Blob, Error>({
+    queryKey: ['identity:bulkimport:template', params?.role, params?.formatType ?? 'csv'],
+    enabled: !!params?.role,
     queryFn: async () => {
-      if (!domain) throw new Error('domain requis');
-      // API: role (domain) + formatType optionnel (csv/xlsx)
-      const { data } = await identityApi.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(domain);
-      return data as unknown;
+      const role = params?.role;
+      const format = params?.formatType ?? 'csv';
+      if (!role) throw new Error('role requis');
+      const resp = await identityApi.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(role, format, { responseType: 'blob' });
+      return resp.data as unknown as Blob;
     },
   });
 }
@@ -248,7 +333,7 @@ export function useIdentities(params?: {
       );
       return data as StandardListResponse;
     },
-    placeholderData: (prev) => prev,
+    placeholderData: (prev: StandardListResponse | undefined) => prev,
   });
 }
 
@@ -393,18 +478,19 @@ export function useIdentityLastCode() {
       const { data } = await identityApi.getLastCodeIdentiteApiV1IdentityLastCodeGet();
       // Prefer LastCodeResponse { last_code: string }
       // Back-compat fallbacks: StandardSingleResponse { data: string | { last_code } } | raw string
-      const v = data as unknown;
-      if (v && typeof v === 'object' && (v as any).last_code) {
-        return String((v as any).last_code);
+      const v: unknown = data;
+      const isRecord = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
+      if (isRecord(v) && typeof (v as { last_code?: unknown }).last_code === 'string') {
+        return String((v as { last_code?: unknown }).last_code);
       }
       const maybeSingle = v as Partial<StandardSingleResponse> | undefined;
-      const inner = (maybeSingle as any)?.data;
+      const inner: unknown = (maybeSingle as { data?: unknown } | undefined)?.data;
       if (typeof inner === 'string') return inner;
-      if (inner && typeof inner === 'object' && (inner as any).last_code) return String((inner as any).last_code);
+      if (isRecord(inner) && typeof (inner as { last_code?: unknown }).last_code === 'string') return String((inner as { last_code?: unknown }).last_code);
       if (typeof v === 'string') return v;
       return undefined;
     },
-    placeholderData: (prev) => prev,
+    placeholderData: (prev: string | undefined) => prev,
   });
 }
 
@@ -421,7 +507,7 @@ export function useIdentityCatalogRolesPrincipaux(params?: { page?: number; size
       );
       return data as StandardListResponse;
     },
-    placeholderData: (prev) => prev,
+    placeholderData: (prev: StandardListResponse | undefined) => prev,
   });
 }
 
@@ -439,7 +525,19 @@ export function useIdentityCatalogRolesEffectifs(params?: { page?: number; size?
       );
       return data as StandardListResponse;
     },
-    placeholderData: (prev) => prev,
+    placeholderData: (prev: StandardListResponse | undefined) => prev,
+  });
+}
+
+export function useIdentityCatalogRolesEffectifsMapping() {
+  return useQuery<unknown, Error>({
+    queryKey: ['identity:catalog:roles-effectifs:mapping'],
+    queryFn: async () => {
+      const { data } = await identityApi.getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet();
+      return data as unknown;
+    },
+    placeholderData: (prev: unknown) => prev,
+    staleTime: 60_000,
   });
 }
 
@@ -455,7 +553,7 @@ export function useIdentityCatalogCycles(params?: { page?: number; size?: number
       );
       return data as StandardListResponse;
     },
-    placeholderData: (prev) => prev,
+    placeholderData: (prev: StandardListResponse | undefined) => prev,
   });
 }
 
@@ -469,7 +567,7 @@ export function useIdentityRoles(identityId?: string, establishmentId?: string) 
       const { data } = await identityApi.getIdentityRolesApiV1IdentityIdentitiesIdentityIdRolesGet(identityId, establishmentId ?? undefined);
       return (data as RoleAssignmentResponse[]) ?? [];
     },
-    placeholderData: (prev) => prev,
+    placeholderData: (prev: RoleAssignmentResponse[] | undefined) => prev,
   });
 }
 

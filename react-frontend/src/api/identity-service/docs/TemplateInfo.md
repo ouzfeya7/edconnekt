@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **format** | **string** | Format du template (csv ou xlsx) | [default to undefined]
 **columns** | **Array&lt;string&gt;** | Colonnes du template | [default to undefined]
 **example_data** | **Array&lt;{ [key: string]: any; }&gt;** | Données d\&#39;exemple | [default to undefined]
+**role_mapping** | **{ [key: string]: any; }** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -21,6 +22,7 @@ const instance: TemplateInfo = {
     format,
     columns,
     example_data,
+    role_mapping,
 };
 ```
 

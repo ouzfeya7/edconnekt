@@ -91,8 +91,7 @@
                         "schema": {
                             "anyOf": [
                                 {
-                                    "type": "string",
-                                    "format": "uuid"
+                                    "type": "integer"
                                 },
                                 {
                                     "type": "null"
@@ -108,8 +107,7 @@
                         "schema": {
                             "anyOf": [
                                 {
-                                    "type": "string",
-                                    "format": "uuid"
+                                    "type": "integer"
                                 },
                                 {
                                     "type": "null"
@@ -553,20 +551,11 @@
                         "$ref": "#/components/schemas/Visibility"
                     },
                     "subject_id": {
-                        "type": "string",
-                        "format": "uuid",
+                        "type": "integer",
                         "title": "Subject Id"
                     },
                     "competence_id": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "uuid"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
+                        "type": "integer",
                         "title": "Competence Id"
                     },
                     "file": {
@@ -580,6 +569,7 @@
                     "title",
                     "visibility",
                     "subject_id",
+                    "competence_id",
                     "file"
                 ],
                 "title": "Body_create_resource_resources_post"
@@ -734,20 +724,11 @@
                         "title": "Author User Id"
                     },
                     "subject_id": {
-                        "type": "string",
-                        "format": "uuid",
+                        "type": "integer",
                         "title": "Subject Id"
                     },
                     "competence_id": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "uuid"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
+                        "type": "integer",
                         "title": "Competence Id"
                     },
                     "visibility": {

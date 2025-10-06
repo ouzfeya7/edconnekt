@@ -8,6 +8,7 @@ import { useArchiveResource } from "../hooks/useArchiveResource";
 import { useRestoreResource } from "../hooks/useRestoreResource";
 import { useResources as useRemoteResources } from "../hooks/useResources"; // Pour les ressources similaires
 import { useDownloadResourceFile } from "../hooks/useDownloadResourceFile";
+import toast from "react-hot-toast";
 import { useReferentials, useReferentialTree } from "../hooks/competence/useReferentials";
 import type { ReferentialListResponse, ReferentialResponse, ReferentialTree, DomainTree, SubjectTree } from "../api/competence-service/api";
 import {
@@ -191,7 +192,13 @@ const RessourceDetailPage = () => {
     if (!resource) return;
     const ext = getFileExtension(resource.mime_type);
     const suggestedFilename = `${resource.title}.${ext}`;
-    downloadMutation.mutate({ resourceId: String(resource.id), suggestedFilename });
+    downloadMutation.mutate(
+      { resourceId: String(resource.id), suggestedFilename },
+      {
+        onError: () => toast.error("Téléchargement impossible"),
+        onSuccess: () => toast.success("Téléchargement lancé"),
+      }
+    );
   };
 
   // Fonction pour fermer le visualiseur
@@ -470,11 +477,21 @@ const RessourceDetailPage = () => {
                     onClick={() => {
                       if (resource.status === 'ARCHIVED') {
                         restoreMutation.mutate(resource.id, {
-                          onSuccess: () => navigate("/ressources")
+                          onSuccess: () => {
+                            toast.success('Ressource restaurée');
+                            navigate("/ressources");
+                          },
+                          onError: () => toast.error('Échec de la restauration'),
                         });
                       } else {
+                        const confirm = window.confirm("Archiver cette ressource ? Vous pourrez la restaurer ultérieurement.");
+                        if (!confirm) return;
                         archiveMutation.mutate(resource.id, {
-                          onSuccess: () => navigate("/ressources")
+                          onSuccess: () => {
+                            toast.success('Ressource archivée');
+                            navigate("/ressources");
+                          },
+                          onError: () => toast.error("Échec de l'archivage"),
                         });
                       }
                     }}

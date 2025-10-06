@@ -1,8 +1,8 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { useIdentities, useIdentityCreate, useIdentityUpdate, useIdentityDelete, useIdentityGet, useIdentityGetFull, useIdentityLinkToEstablishment, useIdentityUnlinkFromEstablishment, useIdentityLastCode, useIdentityCatalogRolesEffectifs, useIdentityCatalogCycles, useIdentityCatalogRolesPrincipaux, useIdentityRoles, useIdentityRoleCreate, useIdentityRoleUpdate, useIdentityRoleDelete } from '../../../hooks/useIdentity';
-import type { IdentityCreate, IdentityUpdate, IdentityStatus, IdentityWithRoles, EstablishmentLinkCreate, RoleAssignmentCreate, RoleAssignmentUpdate, RoleAssignmentResponse } from '../../../api/identity-service/api';
+import { useIdentities, useIdentityCreate, useIdentityUpdate, useIdentityDelete, useIdentityGet, useIdentityGetFull, useIdentityLinkToEstablishment, useIdentityUnlinkFromEstablishment, useIdentityLastCode, useIdentityCatalogRolesEffectifs, useIdentityCatalogCycles, useIdentityCatalogRolesPrincipaux, useIdentityRoles, useIdentityRoleCreate, useIdentityRoleUpdate, useIdentityRoleDelete, useIdentityCatalogRolesEffectifsMapping } from '../../../hooks/useIdentity';
+import type { IdentityCreate, IdentityUpdate, IdentityStatus, IdentityWithRoles, EstablishmentLinkCreate, RoleAssignmentCreate, RoleAssignmentUpdate, RoleAssignmentResponse, RoleEffectifInfo, CycleInfo, RolePrincipalInfo, StandardListResponse, SubjectInfo } from '../../../api/identity-service/api';
 import type { EstablishmentRole } from '../../../utils/contextStorage';
 
 type NullableString = string | null | undefined;
@@ -32,6 +32,7 @@ export default function IdentitiesManagement(): JSX.Element {
   const [linkRoleEffectif, setLinkRoleEffectif] = React.useState<string>('');
   const [linkFunctionDisplay, setLinkFunctionDisplay] = React.useState<string>('');
   const [linkCycles, setLinkCycles] = React.useState<string[]>([]);
+  const [linkSubjectCodes, setLinkSubjectCodes] = React.useState<string[]>([]);
 
   const [unlinkOpen, setUnlinkOpen] = React.useState<boolean>(false);
   const [unlinkId, setUnlinkId] = React.useState<string | null>(null);
@@ -67,9 +68,17 @@ export default function IdentitiesManagement(): JSX.Element {
   const { data: rolesEffResp } = useIdentityCatalogRolesEffectifs({ page: 1, size: 100, isActive: true });
   const { data: cyclesResp } = useIdentityCatalogCycles({ page: 1, size: 100, isActive: true });
   const { data: rolesPrinResp } = useIdentityCatalogRolesPrincipaux({ page: 1, size: 100, isActive: true });
-  const rolesEffList: any[] = Array.isArray(rolesEffResp?.data) ? (rolesEffResp?.data as any[]) : [];
-  const cyclesList: any[] = Array.isArray(cyclesResp?.data) ? (cyclesResp?.data as any[]) : [];
-  const rolesPrinList: any[] = Array.isArray(rolesPrinResp?.data) ? (rolesPrinResp?.data as any[]) : [];
+  const { data: rolesEffMapping } = useIdentityCatalogRolesEffectifsMapping();
+  const rolesEffList: RoleEffectifInfo[] = Array.isArray((rolesEffResp as StandardListResponse | undefined)?.data) ? ((rolesEffResp as StandardListResponse).data as RoleEffectifInfo[]) : [];
+  const cyclesList: CycleInfo[] = Array.isArray((cyclesResp as StandardListResponse | undefined)?.data) ? ((cyclesResp as StandardListResponse).data as CycleInfo[]) : [];
+  const rolesPrinList: RolePrincipalInfo[] = Array.isArray((rolesPrinResp as StandardListResponse | undefined)?.data) ? ((rolesPrinResp as StandardListResponse).data as RolePrincipalInfo[]) : [];
+
+  const byPrincipal: Record<string, string[]> | undefined = (rolesEffMapping as { by_principal?: Record<string, string[]> } | undefined)?.by_principal;
+  const filterRolesEffectifs = (principalCode: string): RoleEffectifInfo[] => {
+    const allowed = byPrincipal && Array.isArray(byPrincipal[principalCode]) ? new Set(byPrincipal[principalCode]) : undefined;
+    if (!allowed) return rolesEffList;
+    return rolesEffList.filter((r) => allowed.has(r.code));
+  };
 
   const { data: rolesList, isLoading: rolesLoading } = useIdentityRoles(rolesIdentityId || undefined);
   const roleCreate = useIdentityRoleCreate(rolesIdentityId || undefined);
@@ -111,7 +120,9 @@ export default function IdentitiesManagement(): JSX.Element {
       );
       setCreateOpen(false);
       form.reset();
-    } catch {}
+    } catch {
+      // ignore
+    }
   };
 
   const handleSubmitEdit: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -138,7 +149,9 @@ export default function IdentitiesManagement(): JSX.Element {
       setEditOpen(false);
       setEditing(null);
       setEditingId(null);
-    } catch {}
+    } catch {
+      // ignore
+    }
   };
 
   const handleSubmitLink: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -146,9 +159,10 @@ export default function IdentitiesManagement(): JSX.Element {
     if (!linkId || !linkEstablishmentId || !linkRole) return;
     try {
       const payload: EstablishmentLinkCreate = { establishment_id: linkEstablishmentId, role_principal_code: linkRole as string };
-      if (linkRoleEffectif) (payload as any).role_effectif_code = linkRoleEffectif;
-      if (linkFunctionDisplay) (payload as any).function_display = linkFunctionDisplay;
-      if (linkCycles && linkCycles.length > 0) (payload as any).cycle_codes = linkCycles;
+      if (linkRoleEffectif) (payload as EstablishmentLinkCreate & { role_effectif_code?: string }).role_effectif_code = linkRoleEffectif;
+      if (linkFunctionDisplay) (payload as EstablishmentLinkCreate & { function_display?: string }).function_display = linkFunctionDisplay;
+      if (linkCycles && linkCycles.length > 0) (payload as EstablishmentLinkCreate & { cycle_codes?: string[] }).cycle_codes = linkCycles;
+      if (linkSubjectCodes && linkSubjectCodes.length > 0) (payload as EstablishmentLinkCreate & { subject_codes?: string[] }).subject_codes = linkSubjectCodes;
       await toast.promise(
         linkMutation.mutateAsync(payload),
         {
@@ -162,9 +176,12 @@ export default function IdentitiesManagement(): JSX.Element {
       setLinkRoleEffectif('');
       setLinkFunctionDisplay('');
       setLinkCycles([]);
+      setLinkSubjectCodes([]);
       setLinkOpen(false);
       setLinkId(null);
-    } catch {}
+    } catch {
+      // ignore
+    }
   };
 
   const handleSubmitUnlink: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -182,7 +199,9 @@ export default function IdentitiesManagement(): JSX.Element {
       setUnlinkEstablishmentId('');
       setUnlinkOpen(false);
       setUnlinkId(null);
-    } catch {}
+    } catch {
+      // ignore
+    }
   };
 
   return (
@@ -296,7 +315,9 @@ export default function IdentitiesManagement(): JSX.Element {
                               error: (e) => errorMessage(e, 'Échec de la suppression'),
                             }
                           );
-                        } catch {}
+                        } catch {
+                          // ignore
+                        }
                       }}
                     >Supprimer</button>
                   </td>
@@ -337,21 +358,21 @@ export default function IdentitiesManagement(): JSX.Element {
                   {(Array.isArray(rolesList) ? rolesList as RoleAssignmentResponse[] : []).map((r) => (
                     <div key={r.id} className="p-3 flex items-center justify-between gap-2">
                       <div className="text-sm">
-                        <div className="font-medium">{(r as any)?.role_principal?.code ?? '—'} { (r as any)?.role_effectif?.code ? `· ${(r as any)?.role_effectif?.code}` : '' }</div>
-                        <div className="text-gray-500">Etab: {(r as any)?.identity_establishment_id ?? '—'} · Fonction: {r.function_display ?? '—'}</div>
-                        {Array.isArray((r as any)?.subjects) && (r as any).subjects.length > 0 && (
-                          <div className="text-gray-500">Matières: {((r as any).subjects as any[]).map((s: any) => s?.code ?? s).filter(Boolean).join(', ')}</div>
+                        <div className="font-medium">{r.role_principal?.code ?? '—'} { r.role_effectif?.code ? `· ${r.role_effectif.code}` : '' }</div>
+                        <div className="text-gray-500">Etab: {r.identity_establishment_id ?? '—'} · Fonction: {r.function_display ?? '—'}</div>
+                        {Array.isArray(r.subjects) && r.subjects.length > 0 && (
+                          <div className="text-gray-500">Matières: {(r.subjects as SubjectInfo[]).map((s) => s.code).filter(Boolean).join(', ')}</div>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
                         <button className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200" onClick={() => {
                           setEditRoleId(r.id);
-                          setRoleEstabId((r as any)?.identity_establishment_id ?? '');
-                          setRolePrincipalCode((r as any)?.role_principal?.code ?? '');
-                          setRoleEffectifCode((r as any)?.role_effectif?.code ?? '');
+                          setRoleEstabId(r.identity_establishment_id ?? '');
+                          setRolePrincipalCode(r.role_principal?.code ?? '');
+                          setRoleEffectifCode(r.role_effectif?.code ?? '');
                           setRoleFunctionDisplay(r.function_display ?? '');
-                          setRoleCycleCodes(((r as any)?.cycles ?? []).map((c: any) => c.code));
-                          setRoleSubjectCodes(((r as any)?.subjects ?? []).map((s: any) => s.code));
+                          setRoleCycleCodes(((r.cycles ?? []) as CycleInfo[]).map((c) => c.code));
+                          setRoleSubjectCodes(((r.subjects ?? []) as SubjectInfo[]).map((s) => s.code));
                         }}>Éditer</button>
                         <button className="px-2 py-1 text-xs rounded bg-red-100 text-red-700 hover:bg-red-200" onClick={async () => {
                           if (!confirm('Supprimer ce rôle ?')) return;
@@ -360,7 +381,9 @@ export default function IdentitiesManagement(): JSX.Element {
                               roleDelete.mutateAsync({ roleId: r.id }),
                               { loading: 'Suppression…', success: 'Rôle supprimé', error: (e) => errorMessage(e, 'Échec de la suppression') }
                             );
-                          } catch { }
+                          } catch {
+                            // ignore
+                          }
                         }}>Supprimer</button>
                       </div>
                     </div>
@@ -390,17 +413,16 @@ export default function IdentitiesManagement(): JSX.Element {
               <form onSubmit={async (e) => {
                 e.preventDefault();
                 if (!rolesIdentityId) return;
-                if (!roleEstabId || !rolePrincipalCode) return;
+                // En création on exige etab + rôle principal; en édition ils ne sont pas requis par l'API
+                if (!editRoleId && (!roleEstabId || !rolePrincipalCode)) return;
                 try {
                   if (editRoleId) {
                     const payload: RoleAssignmentUpdate = {
-                      establishment_id: roleEstabId,
-                      role_principal_code: rolePrincipalCode,
                       role_effectif_code: roleEffectifCode || undefined,
                       function_display: roleFunctionDisplay || undefined,
                       cycle_codes: roleCycleCodes.length ? roleCycleCodes : undefined,
                       subject_codes: roleSubjectCodes.length ? roleSubjectCodes : undefined,
-                    } as any;
+                    };
                     await toast.promise(
                       roleUpdate.mutateAsync(payload),
                       { loading: 'Enregistrement…', success: 'Rôle mis à jour', error: (e) => errorMessage(e, 'Échec de la mise à jour') }
@@ -413,7 +435,7 @@ export default function IdentitiesManagement(): JSX.Element {
                       function_display: roleFunctionDisplay || undefined,
                       cycle_codes: roleCycleCodes.length ? roleCycleCodes : undefined,
                       subject_codes: roleSubjectCodes.length ? roleSubjectCodes : undefined,
-                    } as any;
+                    } as RoleAssignmentCreate;
                     await toast.promise(
                       roleCreate.mutateAsync(payload),
                       { loading: 'Création…', success: 'Rôle créé', error: (e) => errorMessage(e, 'Échec de la création') }
@@ -426,18 +448,26 @@ export default function IdentitiesManagement(): JSX.Element {
                   setRoleFunctionDisplay('');
                   setRoleCycleCodes([]);
                   setRoleSubjectCodes([]);
-                } catch {}
+                } catch {
+                  // ignore
+                }
               }} className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm mb-1">Établissement ID *</label>
-                  <input value={roleEstabId} onChange={(e) => setRoleEstabId(e.target.value)} className="w-full border rounded px-3 py-2 text-sm" required />
+                  <input value={roleEstabId} onChange={(e) => setRoleEstabId(e.target.value)} className="w-full border rounded px-3 py-2 text-sm" required={!editRoleId} />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Rôle principal *</label>
-                  <select value={rolePrincipalCode} onChange={(e) => setRolePrincipalCode(e.target.value)} className="w-full border rounded px-3 py-2 text-sm" required>
+                  <select value={rolePrincipalCode} onChange={(e) => {
+                    const next = e.target.value;
+                    setRolePrincipalCode(next);
+                    // si le rôle effectif courant n'est pas autorisé pour le nouveau principal, le réinitialiser
+                    const allowedNow = filterRolesEffectifs(next).some((r) => r.code === roleEffectifCode);
+                    if (!allowedNow) setRoleEffectifCode('');
+                  }} className="w-full border rounded px-3 py-2 text-sm" required={!editRoleId}>
                     <option value="" disabled>Choisir…</option>
-                    {rolesPrinList.map((r: any) => (
-                      <option key={r.id ?? r.code} value={r.code}>{r.label_key ?? r.code}</option>
+                    {rolesPrinList.map((r) => (
+                      <option key={(r.id || r.code)} value={r.code}>{r.label_key ?? r.code}</option>
                     ))}
                   </select>
                 </div>
@@ -445,8 +475,8 @@ export default function IdentitiesManagement(): JSX.Element {
                   <label className="block text-sm mb-1">Rôle effectif</label>
                   <select value={roleEffectifCode} onChange={(e) => setRoleEffectifCode(e.target.value)} className="w-full border rounded px-3 py-2 text-sm">
                     <option value="">(aucun)</option>
-                    {rolesEffList.map((r: any) => (
-                      <option key={r.id ?? r.code} value={r.code}>{r.label_key ?? r.code}</option>
+                    {filterRolesEffectifs(rolePrincipalCode).map((r) => (
+                      <option key={(r.id || r.code)} value={r.code}>{r.label_key ?? r.code}</option>
                     ))}
                   </select>
                 </div>
@@ -457,10 +487,10 @@ export default function IdentitiesManagement(): JSX.Element {
                 <div className="md:col-span-2">
                   <label className="block text-sm mb-1">Cycles</label>
                   <div className="flex flex-wrap gap-2 max-h-32 overflow-auto border rounded p-2">
-                    {cyclesList.map((c: any) => {
+                    {cyclesList.map((c) => {
                       const checked = roleCycleCodes.includes(c.code);
                       return (
-                        <label key={c.id ?? c.code} className="inline-flex items-center gap-1 text-sm">
+                        <label key={(c.id || c.code)} className="inline-flex items-center gap-1 text-sm">
                           <input type="checkbox" checked={checked} onChange={(e) => {
                             setRoleCycleCodes((prev) => e.target.checked ? [...prev, c.code] : prev.filter((x) => x !== c.code));
                           }} />
@@ -563,26 +593,26 @@ export default function IdentitiesManagement(): JSX.Element {
                 {/* Rôles complexes */}
                 <div className="md:col-span-2">
                   <div className="mt-2 text-sm text-gray-600 font-medium">Rôles complexes</div>
-                  {Array.isArray((detail as any)?.role_assignments) && (detail as any).role_assignments.length > 0 ? (
+                  {Array.isArray((detail as unknown as { role_assignments?: RoleAssignmentResponse[] })?.role_assignments) && ((detail as unknown as { role_assignments?: RoleAssignmentResponse[] })?.role_assignments?.length ?? 0) > 0 ? (
                     <div className="mt-2 space-y-2">
-                      {((detail as any).role_assignments as any[]).map((r: any) => (
+                      {(((detail as unknown as { role_assignments?: RoleAssignmentResponse[] })?.role_assignments) ?? []).map((r: RoleAssignmentResponse) => (
                         <div key={r.id} className="p-3 border rounded-lg bg-gray-50">
                           <div className="flex flex-wrap items-center gap-2 text-sm">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 text-blue-700">{r?.role_principal?.code ?? '—'}</span>
-                            {r?.role_effectif?.code && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 text-blue-700">{r.role_principal?.code ?? '—'}</span>
+                            {r.role_effectif?.code && (
                               <span className="inline-flex items-center px-2 py-0.5 rounded bg-indigo-100 text-indigo-700">{r.role_effectif.code}</span>
                             )}
-                            {r?.function_display && (
+                            {r.function_display && (
                               <span className="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-gray-700">{r.function_display}</span>
                             )}
                           </div>
-                          {(Array.isArray(r?.cycles) && r.cycles.length > 0) && (
-                            <div className="mt-1 text-xs text-gray-600">Cycles: {r.cycles.map((c: any) => c?.code ?? c).filter(Boolean).join(', ')}</div>
+                          {(Array.isArray(r.cycles) && r.cycles.length > 0) && (
+                            <div className="mt-1 text-xs text-gray-600">Cycles: {(r.cycles as CycleInfo[]).map((c) => c.code).filter(Boolean).join(', ')}</div>
                           )}
-                          {(Array.isArray(r?.subjects) && r.subjects.length > 0) && (
-                            <div className="mt-1 text-xs text-gray-600">Matières: {r.subjects.map((s: any) => s?.code ?? s).filter(Boolean).join(', ')}</div>
+                          {(Array.isArray(r.subjects) && r.subjects.length > 0) && (
+                            <div className="mt-1 text-xs text-gray-600">Matières: {(r.subjects as SubjectInfo[]).map((s) => s.code).filter(Boolean).join(', ')}</div>
                           )}
-                          <div className="mt-1 text-[11px] text-gray-400">Etab: {r?.identity_establishment_id ?? '—'}</div>
+                          <div className="mt-1 text-[11px] text-gray-400">Etab: {r.identity_establishment_id ?? '—'}</div>
                         </div>
                       ))}
                     </div>
@@ -664,7 +694,12 @@ export default function IdentitiesManagement(): JSX.Element {
               </div>
               <div>
                 <label className="block text-sm mb-1">Rôle</label>
-                <select value={linkRole} onChange={(e) => setLinkRole(e.target.value as EstablishmentRole)} className="w-full border rounded px-3 py-2 text-sm" required>
+                <select value={linkRole} onChange={(e) => {
+                  const next = e.target.value as EstablishmentRole;
+                  setLinkRole(next);
+                  const allowedNow = filterRolesEffectifs(next).some((r) => r.code === linkRoleEffectif);
+                  if (!allowedNow) setLinkRoleEffectif('');
+                }} className="w-full border rounded px-3 py-2 text-sm" required>
                   <option value="" disabled>Choisir un rôle…</option>
                   <option value="student">Élève</option>
                   <option value="parent">Parent</option>
@@ -676,8 +711,8 @@ export default function IdentitiesManagement(): JSX.Element {
                 <label className="block text-sm mb-1">Rôle effectif (optionnel)</label>
                 <select value={linkRoleEffectif} onChange={(e) => setLinkRoleEffectif(e.target.value)} className="w-full border rounded px-3 py-2 text-sm">
                   <option value="">(aucun)</option>
-                  {rolesEffList.map((r: any) => (
-                    <option key={r.id ?? r.code} value={r.code}>{r.label_key ?? r.code}</option>
+                  {filterRolesEffectifs(linkRole as string).map((r) => (
+                    <option key={(r.id || r.code)} value={r.code}>{r.label_key ?? r.code}</option>
                   ))}
                 </select>
               </div>
@@ -688,10 +723,10 @@ export default function IdentitiesManagement(): JSX.Element {
               <div>
                 <label className="block text-sm mb-1">Cycles (optionnel)</label>
                 <div className="flex flex-wrap gap-2 max-h-32 overflow-auto border rounded p-2">
-                  {cyclesList.map((c: any) => {
+                  {cyclesList.map((c) => {
                     const checked = linkCycles.includes(c.code);
                     return (
-                      <label key={c.id ?? c.code} className="inline-flex items-center gap-1 text-sm">
+                      <label key={(c.id || c.code)} className="inline-flex items-center gap-1 text-sm">
                         <input type="checkbox" checked={checked} onChange={(e) => {
                           setLinkCycles((prev) => e.target.checked ? [...prev, c.code] : prev.filter((x) => x !== c.code));
                         }} />
@@ -700,6 +735,21 @@ export default function IdentitiesManagement(): JSX.Element {
                     );
                   })}
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Matières (codes, séparés par des virgules) (optionnel)</label>
+                <input
+                  value={linkSubjectCodes.join(',')}
+                  onChange={(e) => {
+                    const arr = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                    setLinkSubjectCodes(Array.from(new Set(arr)));
+                  }}
+                  placeholder="ex: MATH, PHYS, HIST"
+                  className="w-full border rounded px-3 py-2 text-sm"
+                />
+                {linkSubjectCodes.length > 0 && (
+                  <div className="text-xs text-gray-500 mt-1">Sélection: {linkSubjectCodes.join(', ')}</div>
+                )}
               </div>
               <div className="flex justify-end gap-2">
                 <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded text-sm" disabled={linkMutation.isPending}>
@@ -750,8 +800,9 @@ function errorMessage(e: unknown, fallback: string): string {
   // AxiosError-like shape support
   if (typeof e === 'string') return e || fallback;
   if (e && typeof e === 'object') {
-    const anyErr = e as { response?: { data?: any }; message?: string };
-    const apiMsg = anyErr?.response?.data?.message;
+    const anyErr = e as { response?: { data?: unknown }; message?: string };
+    const data = anyErr?.response?.data as { message?: string } | undefined;
+    const apiMsg = data?.message;
     if (typeof apiMsg === 'string' && apiMsg.trim()) return apiMsg;
     if (anyErr?.message) return anyErr.message;
   }
