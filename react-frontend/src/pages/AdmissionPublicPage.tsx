@@ -220,6 +220,7 @@ export default function AdmissionPublicPage() {
                       placeholder="Prénom et nom de famille"
                       value={studentName} 
                       onChange={(e) => setStudentName(e.target.value)} 
+                      maxLength={255}
                       required 
                     />
                   </div>
@@ -244,6 +245,7 @@ export default function AdmissionPublicPage() {
                       placeholder="Ex: 6ème A, CP, Terminale S..."
                       value={classRequested} 
                       onChange={(e) => setClassRequested(e.target.value)} 
+                      maxLength={100}
                       required 
                     />
                   </div>
@@ -255,6 +257,7 @@ export default function AdmissionPublicPage() {
                       placeholder="email@exemple.com"
                       value={studentEmail} 
                       onChange={(e) => setStudentEmail(e.target.value)} 
+                      maxLength={255}
                     />
                   </div>
                   <div>
@@ -265,6 +268,7 @@ export default function AdmissionPublicPage() {
                       placeholder="+221 XX XXX XX XX"
                       value={studentPhone} 
                       onChange={(e) => setStudentPhone(e.target.value)} 
+                      maxLength={50}
                     />
                   </div>
                 </div>
@@ -289,6 +293,7 @@ export default function AdmissionPublicPage() {
                       placeholder="Prénom et nom du parent ou tuteur légal"
                       value={parentName} 
                       onChange={(e) => setParentName(e.target.value)} 
+                      maxLength={255}
                       required 
                     />
                   </div>
@@ -301,6 +306,7 @@ export default function AdmissionPublicPage() {
                       placeholder="Email ou numéro de téléphone principal"
                       value={parentContact} 
                       onChange={(e) => setParentContact(e.target.value)} 
+                      maxLength={255}
                       required 
                     />
                   </div>
@@ -312,6 +318,7 @@ export default function AdmissionPublicPage() {
                       placeholder="parent@exemple.com"
                       value={parentEmail} 
                       onChange={(e) => setParentEmail(e.target.value)} 
+                      maxLength={255}
                     />
                   </div>
                   <div>
@@ -322,6 +329,7 @@ export default function AdmissionPublicPage() {
                       placeholder="+221 XX XXX XX XX"
                       value={parentPhone} 
                       onChange={(e) => setParentPhone(e.target.value)} 
+                      maxLength={50}
                     />
                   </div>
                 </div>
