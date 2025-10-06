@@ -50,6 +50,7 @@
                     "Resources"
                 ],
                 "summary": "List Resources",
+                "description": "Liste les ressources avec métadonnées de pagination.\n\nRetourne une réponse structurée contenant :\n- items: Liste des ressources\n- total: Nombre total de ressources correspondant aux filtres\n- page: Numéro de page actuelle\n- size: Nombre d'éléments par page\n\nCela permet au frontend de gérer correctement la pagination.",
                 "operationId": "list_resources_resources_get",
                 "parameters": [
                     {
@@ -91,7 +92,8 @@
                         "schema": {
                             "anyOf": [
                                 {
-                                    "type": "integer"
+                                    "type": "string",
+                                    "format": "uuid"
                                 },
                                 {
                                     "type": "null"
@@ -107,7 +109,8 @@
                         "schema": {
                             "anyOf": [
                                 {
-                                    "type": "integer"
+                                    "type": "string",
+                                    "format": "uuid"
                                 },
                                 {
                                     "type": "null"
@@ -162,11 +165,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/ResourceOut"
-                                    },
-                                    "title": "Response List Resources Resources Get"
+                                    "$ref": "#/components/schemas/ResourceListResponse"
                                 }
                             }
                         }
@@ -317,7 +316,7 @@
                     "Resources"
                 ],
                 "summary": "Restore Resource",
-                "description": "Restaure une ressource archivée en la remettant au statut ACTIVE.\nSeuls les COORDONNATEUR, DIRECTION ou l'auteur original peuvent restaurer.",
+                "description": "Restaure une ressource archivée en la remettant au statut ACTIVE.\nSeuls les COORDONNATEUR, ADMINSTAFF ou l'auteur original peuvent restaurer.",
                 "operationId": "restore_resource_resources__resource_id__restore_patch",
                 "parameters": [
                     {
@@ -551,11 +550,13 @@
                         "$ref": "#/components/schemas/Visibility"
                     },
                     "subject_id": {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "title": "Subject Id"
                     },
                     "competence_id": {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "title": "Competence Id"
                     },
                     "file": {
@@ -611,7 +612,8 @@
                     "subject_id": {
                         "anyOf": [
                             {
-                                "type": "integer"
+                                "type": "string",
+                                "format": "uuid"
                             },
                             {
                                 "type": "null"
@@ -622,7 +624,8 @@
                     "competence_id": {
                         "anyOf": [
                             {
-                                "type": "integer"
+                                "type": "string",
+                                "format": "uuid"
                             },
                             {
                                 "type": "null"
@@ -668,6 +671,48 @@
                 },
                 "type": "object",
                 "title": "HTTPValidationError"
+            },
+            "ResourceListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/ResourceOut"
+                        },
+                        "type": "array",
+                        "title": "Items",
+                        "description": "Liste des ressources"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total",
+                        "description": "Nombre total de ressources correspondant aux filtres"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page",
+                        "description": "Numéro de page actuelle (basé sur offset/limit)"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "title": "Size",
+                        "description": "Nombre d'éléments par page"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "size"
+                ],
+                "title": "ResourceListResponse",
+                "description": "Schéma de réponse pour la liste paginée des ressources.\nInclut les métadonnées de pagination nécessaires au frontend.",
+                "example": {
+                    "items": [],
+                    "page": 1,
+                    "size": 10,
+                    "total": 42
+                }
             },
             "ResourceOut": {
                 "properties": {
@@ -724,11 +769,13 @@
                         "title": "Author User Id"
                     },
                     "subject_id": {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "title": "Subject Id"
                     },
                     "competence_id": {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "title": "Competence Id"
                     },
                     "visibility": {

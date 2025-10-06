@@ -86,6 +86,37 @@ export interface HTTPValidationError {
     'detail'?: Array<ValidationError>;
 }
 /**
+ * Schéma de réponse pour la liste paginée des ressources. Inclut les métadonnées de pagination nécessaires au frontend.
+ * @export
+ * @interface ResourceListResponse
+ */
+export interface ResourceListResponse {
+    /**
+     * Liste des ressources
+     * @type {Array<ResourceOut>}
+     * @memberof ResourceListResponse
+     */
+    'items': Array<ResourceOut>;
+    /**
+     * Nombre total de ressources correspondant aux filtres
+     * @type {number}
+     * @memberof ResourceListResponse
+     */
+    'total': number;
+    /**
+     * Numéro de page actuelle (basé sur offset/limit)
+     * @type {number}
+     * @memberof ResourceListResponse
+     */
+    'page': number;
+    /**
+     * Nombre d\'éléments par page
+     * @type {number}
+     * @memberof ResourceListResponse
+     */
+    'size': number;
+}
+/**
  * 
  * @export
  * @interface ResourceOut
@@ -147,16 +178,16 @@ export interface ResourceOut {
     'author_user_id': string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof ResourceOut
      */
-    'subject_id': number;
+    'subject_id': string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof ResourceOut
      */
-    'competence_id': number;
+    'competence_id': string;
     /**
      * 
      * @type {Visibility}
@@ -359,14 +390,14 @@ export const ResourcesApiAxiosParamCreator = function (configuration?: Configura
          * @summary Create Resource
          * @param {string} title 
          * @param {Visibility} visibility 
-         * @param {number} subjectId 
-         * @param {number} competenceId 
+         * @param {string} subjectId 
+         * @param {string} competenceId 
          * @param {File} file 
          * @param {string | null} [description] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createResourceResourcesPost: async (title: string, visibility: Visibility, subjectId: number, competenceId: number, file: File, description?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createResourceResourcesPost: async (title: string, visibility: Visibility, subjectId: string, competenceId: string, file: File, description?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'title' is not null or undefined
             assertParamExists('createResourceResourcesPost', 'title', title)
             // verify required parameter 'visibility' is not null or undefined
@@ -575,19 +606,19 @@ export const ResourcesApiAxiosParamCreator = function (configuration?: Configura
             };
         },
         /**
-         * 
+         * Liste les ressources avec métadonnées de pagination.  Retourne une réponse structurée contenant : - items: Liste des ressources - total: Nombre total de ressources correspondant aux filtres - page: Numéro de page actuelle - size: Nombre d\'éléments par page  Cela permet au frontend de gérer correctement la pagination.
          * @summary List Resources
          * @param {string | null} [authorUserId] 
          * @param {Visibility | null} [visibility] 
-         * @param {number | null} [subjectId] 
-         * @param {number | null} [competenceId] 
+         * @param {string | null} [subjectId] 
+         * @param {string | null} [competenceId] 
          * @param {ResourceStatus | null} [status] 
          * @param {number} [limit] 
          * @param {number} [offset] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listResourcesResourcesGet: async (authorUserId?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listResourcesResourcesGet: async (authorUserId?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/resources`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -640,7 +671,7 @@ export const ResourcesApiAxiosParamCreator = function (configuration?: Configura
             };
         },
         /**
-         * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, DIRECTION ou l\'auteur original peuvent restaurer.
+         * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, ADMINSTAFF ou l\'auteur original peuvent restaurer.
          * @summary Restore Resource
          * @param {string} resourceId 
          * @param {*} [options] Override http request option.
@@ -680,14 +711,14 @@ export const ResourcesApiAxiosParamCreator = function (configuration?: Configura
          * @param {string | null} [title] 
          * @param {string | null} [description] 
          * @param {Visibility | null} [visibility] 
-         * @param {number | null} [subjectId] 
-         * @param {number | null} [competenceId] 
+         * @param {string | null} [subjectId] 
+         * @param {string | null} [competenceId] 
          * @param {ResourceStatus | null} [status] 
          * @param {File | null} [file] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateResourceResourcesResourceIdPatch: async (resourceId: string, title?: string | null, description?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, file?: File | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateResourceResourcesResourceIdPatch: async (resourceId: string, title?: string | null, description?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, file?: File | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'resourceId' is not null or undefined
             assertParamExists('updateResourceResourcesResourceIdPatch', 'resourceId', resourceId)
             const localVarPath = `/resources/{resource_id}`
@@ -761,14 +792,14 @@ export const ResourcesApiFp = function(configuration?: Configuration) {
          * @summary Create Resource
          * @param {string} title 
          * @param {Visibility} visibility 
-         * @param {number} subjectId 
-         * @param {number} competenceId 
+         * @param {string} subjectId 
+         * @param {string} competenceId 
          * @param {File} file 
          * @param {string | null} [description] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createResourceResourcesPost(title: string, visibility: Visibility, subjectId: number, competenceId: number, file: File, description?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResourceOut>> {
+        async createResourceResourcesPost(title: string, visibility: Visibility, subjectId: string, competenceId: string, file: File, description?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResourceOut>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createResourceResourcesPost(title, visibility, subjectId, competenceId, file, description, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ResourcesApi.createResourceResourcesPost']?.[localVarOperationServerIndex]?.url;
@@ -829,26 +860,26 @@ export const ResourcesApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
+         * Liste les ressources avec métadonnées de pagination.  Retourne une réponse structurée contenant : - items: Liste des ressources - total: Nombre total de ressources correspondant aux filtres - page: Numéro de page actuelle - size: Nombre d\'éléments par page  Cela permet au frontend de gérer correctement la pagination.
          * @summary List Resources
          * @param {string | null} [authorUserId] 
          * @param {Visibility | null} [visibility] 
-         * @param {number | null} [subjectId] 
-         * @param {number | null} [competenceId] 
+         * @param {string | null} [subjectId] 
+         * @param {string | null} [competenceId] 
          * @param {ResourceStatus | null} [status] 
          * @param {number} [limit] 
          * @param {number} [offset] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ResourceOut>>> {
+        async listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResourceListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listResourcesResourcesGet(authorUserId, visibility, subjectId, competenceId, status, limit, offset, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ResourcesApi.listResourcesResourcesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, DIRECTION ou l\'auteur original peuvent restaurer.
+         * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, ADMINSTAFF ou l\'auteur original peuvent restaurer.
          * @summary Restore Resource
          * @param {string} resourceId 
          * @param {*} [options] Override http request option.
@@ -867,14 +898,14 @@ export const ResourcesApiFp = function(configuration?: Configuration) {
          * @param {string | null} [title] 
          * @param {string | null} [description] 
          * @param {Visibility | null} [visibility] 
-         * @param {number | null} [subjectId] 
-         * @param {number | null} [competenceId] 
+         * @param {string | null} [subjectId] 
+         * @param {string | null} [competenceId] 
          * @param {ResourceStatus | null} [status] 
          * @param {File | null} [file] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateResourceResourcesResourceIdPatch(resourceId: string, title?: string | null, description?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, file?: File | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResourceOut>> {
+        async updateResourceResourcesResourceIdPatch(resourceId: string, title?: string | null, description?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, file?: File | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResourceOut>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateResourceResourcesResourceIdPatch(resourceId, title, description, visibility, subjectId, competenceId, status, file, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ResourcesApi.updateResourceResourcesResourceIdPatch']?.[localVarOperationServerIndex]?.url;
@@ -895,14 +926,14 @@ export const ResourcesApiFactory = function (configuration?: Configuration, base
          * @summary Create Resource
          * @param {string} title 
          * @param {Visibility} visibility 
-         * @param {number} subjectId 
-         * @param {number} competenceId 
+         * @param {string} subjectId 
+         * @param {string} competenceId 
          * @param {File} file 
          * @param {string | null} [description] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createResourceResourcesPost(title: string, visibility: Visibility, subjectId: number, competenceId: number, file: File, description?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<ResourceOut> {
+        createResourceResourcesPost(title: string, visibility: Visibility, subjectId: string, competenceId: string, file: File, description?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<ResourceOut> {
             return localVarFp.createResourceResourcesPost(title, visibility, subjectId, competenceId, file, description, options).then((request) => request(axios, basePath));
         },
         /**
@@ -948,23 +979,23 @@ export const ResourcesApiFactory = function (configuration?: Configuration, base
             return localVarFp.getResourceResourcesResourceIdGet(resourceId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
+         * Liste les ressources avec métadonnées de pagination.  Retourne une réponse structurée contenant : - items: Liste des ressources - total: Nombre total de ressources correspondant aux filtres - page: Numéro de page actuelle - size: Nombre d\'éléments par page  Cela permet au frontend de gérer correctement la pagination.
          * @summary List Resources
          * @param {string | null} [authorUserId] 
          * @param {Visibility | null} [visibility] 
-         * @param {number | null} [subjectId] 
-         * @param {number | null} [competenceId] 
+         * @param {string | null} [subjectId] 
+         * @param {string | null} [competenceId] 
          * @param {ResourceStatus | null} [status] 
          * @param {number} [limit] 
          * @param {number} [offset] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<ResourceOut>> {
+        listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResourceListResponse> {
             return localVarFp.listResourcesResourcesGet(authorUserId, visibility, subjectId, competenceId, status, limit, offset, options).then((request) => request(axios, basePath));
         },
         /**
-         * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, DIRECTION ou l\'auteur original peuvent restaurer.
+         * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, ADMINSTAFF ou l\'auteur original peuvent restaurer.
          * @summary Restore Resource
          * @param {string} resourceId 
          * @param {*} [options] Override http request option.
@@ -980,14 +1011,14 @@ export const ResourcesApiFactory = function (configuration?: Configuration, base
          * @param {string | null} [title] 
          * @param {string | null} [description] 
          * @param {Visibility | null} [visibility] 
-         * @param {number | null} [subjectId] 
-         * @param {number | null} [competenceId] 
+         * @param {string | null} [subjectId] 
+         * @param {string | null} [competenceId] 
          * @param {ResourceStatus | null} [status] 
          * @param {File | null} [file] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateResourceResourcesResourceIdPatch(resourceId: string, title?: string | null, description?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, file?: File | null, options?: RawAxiosRequestConfig): AxiosPromise<ResourceOut> {
+        updateResourceResourcesResourceIdPatch(resourceId: string, title?: string | null, description?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, file?: File | null, options?: RawAxiosRequestConfig): AxiosPromise<ResourceOut> {
             return localVarFp.updateResourceResourcesResourceIdPatch(resourceId, title, description, visibility, subjectId, competenceId, status, file, options).then((request) => request(axios, basePath));
         },
     };
@@ -1005,15 +1036,15 @@ export class ResourcesApi extends BaseAPI {
      * @summary Create Resource
      * @param {string} title 
      * @param {Visibility} visibility 
-     * @param {number} subjectId 
-     * @param {number} competenceId 
+     * @param {string} subjectId 
+     * @param {string} competenceId 
      * @param {File} file 
      * @param {string | null} [description] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ResourcesApi
      */
-    public createResourceResourcesPost(title: string, visibility: Visibility, subjectId: number, competenceId: number, file: File, description?: string | null, options?: RawAxiosRequestConfig) {
+    public createResourceResourcesPost(title: string, visibility: Visibility, subjectId: string, competenceId: string, file: File, description?: string | null, options?: RawAxiosRequestConfig) {
         return ResourcesApiFp(this.configuration).createResourceResourcesPost(title, visibility, subjectId, competenceId, file, description, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -1068,12 +1099,12 @@ export class ResourcesApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Liste les ressources avec métadonnées de pagination.  Retourne une réponse structurée contenant : - items: Liste des ressources - total: Nombre total de ressources correspondant aux filtres - page: Numéro de page actuelle - size: Nombre d\'éléments par page  Cela permet au frontend de gérer correctement la pagination.
      * @summary List Resources
      * @param {string | null} [authorUserId] 
      * @param {Visibility | null} [visibility] 
-     * @param {number | null} [subjectId] 
-     * @param {number | null} [competenceId] 
+     * @param {string | null} [subjectId] 
+     * @param {string | null} [competenceId] 
      * @param {ResourceStatus | null} [status] 
      * @param {number} [limit] 
      * @param {number} [offset] 
@@ -1081,12 +1112,12 @@ export class ResourcesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof ResourcesApi
      */
-    public listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
+    public listResourcesResourcesGet(authorUserId?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
         return ResourcesApiFp(this.configuration).listResourcesResourcesGet(authorUserId, visibility, subjectId, competenceId, status, limit, offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, DIRECTION ou l\'auteur original peuvent restaurer.
+     * Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, ADMINSTAFF ou l\'auteur original peuvent restaurer.
      * @summary Restore Resource
      * @param {string} resourceId 
      * @param {*} [options] Override http request option.
@@ -1104,15 +1135,15 @@ export class ResourcesApi extends BaseAPI {
      * @param {string | null} [title] 
      * @param {string | null} [description] 
      * @param {Visibility | null} [visibility] 
-     * @param {number | null} [subjectId] 
-     * @param {number | null} [competenceId] 
+     * @param {string | null} [subjectId] 
+     * @param {string | null} [competenceId] 
      * @param {ResourceStatus | null} [status] 
      * @param {File | null} [file] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ResourcesApi
      */
-    public updateResourceResourcesResourceIdPatch(resourceId: string, title?: string | null, description?: string | null, visibility?: Visibility | null, subjectId?: number | null, competenceId?: number | null, status?: ResourceStatus | null, file?: File | null, options?: RawAxiosRequestConfig) {
+    public updateResourceResourcesResourceIdPatch(resourceId: string, title?: string | null, description?: string | null, visibility?: Visibility | null, subjectId?: string | null, competenceId?: string | null, status?: ResourceStatus | null, file?: File | null, options?: RawAxiosRequestConfig) {
         return ResourcesApiFp(this.configuration).updateResourceResourcesResourceIdPatch(resourceId, title, description, visibility, subjectId, competenceId, status, file, options).then((request) => request(this.axios, this.basePath));
     }
 }

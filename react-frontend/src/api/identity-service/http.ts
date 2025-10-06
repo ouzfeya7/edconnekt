@@ -26,11 +26,11 @@ identityAxios.interceptors.request.use((config) => {
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
   if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+    (config.headers as Record<string, string>)['X-Etab'] = activeEtabId;
   }
   if (activeRole) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Role-Select'] = activeRole;
+    (config.headers as Record<string, string>)['X-Roles'] = activeRole;
   }
   if (import.meta.env.DEV) {
     const headers = { ...(config.headers as Record<string, unknown>) };
@@ -51,7 +51,8 @@ identityAxios.interceptors.response.use(
     // Persist confirmed context from Gateway if present
     try {
       const xEtab = response.headers?.['x-etab'] as string | undefined;
-      const xRole = response.headers?.['x-role'] as string | undefined;
+      const xRoles = response.headers?.['x-roles'] as string | undefined;
+      const xRole = (xRoles?.split(',')[0]?.trim() || (response.headers?.['x-role'] as string | undefined)) as string | undefined;
       if (xEtab && xRole) {
         setActiveContext(xEtab, xRole as unknown as EstablishmentRole);
       }

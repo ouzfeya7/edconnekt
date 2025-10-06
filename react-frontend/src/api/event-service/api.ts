@@ -547,7 +547,7 @@ export class DefaultApi extends BaseAPI {
 export const EventsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)
+         * Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)
          * @summary Cancel Registration
          * @param {string} eventId 
          * @param {string} registrationId 
@@ -585,7 +585,7 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * Créer un nouvel événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Créer un nouvel événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Create Event
          * @param {EventCreate} eventCreate 
          * @param {*} [options] Override http request option.
@@ -621,7 +621,41 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * Télécharger la feuille de présence d\'un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Supprimer un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
+         * @summary Delete Event
+         * @param {string} eventId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteEventApiV1EventsEventIdDelete: async (eventId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'eventId' is not null or undefined
+            assertParamExists('deleteEventApiV1EventsEventIdDelete', 'eventId', eventId)
+            const localVarPath = `/api/v1/events/{event_id}`
+                .replace(`{${"event_id"}}`, encodeURIComponent(String(eventId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Télécharger la feuille de présence d\'un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Export Attendance
          * @param {string} eventId 
          * @param {string} [format] Format d\&#39;export (pdf ou csv)
@@ -660,7 +694,7 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * Récupérer un événement spécifique par ID (accès public)
+         * Récupérer un événement spécifique par ID avec validation tenant.
          * @summary Get Event By Id
          * @param {string} eventId 
          * @param {*} [options] Override http request option.
@@ -694,7 +728,7 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * Récupère tous les participants à un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Récupère tous les participants à un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Get Participants
          * @param {string} eventId 
          * @param {*} [options] Override http request option.
@@ -728,18 +762,17 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * Lister tous les événements avec pagination et filtrage (accès public)
+         * Lister tous les événements avec pagination et filtrage selon le contexte tenant.
          * @summary List Events
          * @param {number} [page] Page number (minimum 1)
          * @param {number} [size] Items per page (1-100)
          * @param {string | null} [category] Filter by event category
          * @param {string | null} [startDate] Filter events starting after this date
          * @param {string | null} [endDate] Filter events ending before this date
-         * @param {string | null} [etablissementId] Filter by establishment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listEventsApiV1EventsGet: async (page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, etablissementId?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listEventsApiV1EventsGet: async (page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/events/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -776,10 +809,6 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
                     endDate;
             }
 
-            if (etablissementId !== undefined) {
-                localVarQueryParameter['etablissement_id'] = etablissementId;
-            }
-
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -792,7 +821,7 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * Publier un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Publier un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Publish Event
          * @param {string} eventId 
          * @param {*} [options] Override http request option.
@@ -826,7 +855,7 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * S\'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)
+         * S\'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)
          * @summary Register Participant
          * @param {string} eventId 
          * @param {RegistrationRequest} registrationRequest 
@@ -866,7 +895,7 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * Modifier un événement existant (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Modifier un événement existant (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Update Event
          * @param {string} eventId 
          * @param {EventUpdate} eventUpdate 
@@ -916,7 +945,7 @@ export const EventsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = EventsApiAxiosParamCreator(configuration)
     return {
         /**
-         * Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)
+         * Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)
          * @summary Cancel Registration
          * @param {string} eventId 
          * @param {string} registrationId 
@@ -930,7 +959,7 @@ export const EventsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Créer un nouvel événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Créer un nouvel événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Create Event
          * @param {EventCreate} eventCreate 
          * @param {*} [options] Override http request option.
@@ -943,7 +972,20 @@ export const EventsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Télécharger la feuille de présence d\'un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Supprimer un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
+         * @summary Delete Event
+         * @param {string} eventId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteEventApiV1EventsEventIdDelete(eventId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteEventApiV1EventsEventIdDelete(eventId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EventsApi.deleteEventApiV1EventsEventIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Télécharger la feuille de présence d\'un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Export Attendance
          * @param {string} eventId 
          * @param {string} [format] Format d\&#39;export (pdf ou csv)
@@ -957,7 +999,7 @@ export const EventsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupérer un événement spécifique par ID (accès public)
+         * Récupérer un événement spécifique par ID avec validation tenant.
          * @summary Get Event By Id
          * @param {string} eventId 
          * @param {*} [options] Override http request option.
@@ -970,7 +1012,7 @@ export const EventsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère tous les participants à un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Récupère tous les participants à un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Get Participants
          * @param {string} eventId 
          * @param {*} [options] Override http request option.
@@ -983,25 +1025,24 @@ export const EventsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Lister tous les événements avec pagination et filtrage (accès public)
+         * Lister tous les événements avec pagination et filtrage selon le contexte tenant.
          * @summary List Events
          * @param {number} [page] Page number (minimum 1)
          * @param {number} [size] Items per page (1-100)
          * @param {string | null} [category] Filter by event category
          * @param {string | null} [startDate] Filter events starting after this date
          * @param {string | null} [endDate] Filter events ending before this date
-         * @param {string | null} [etablissementId] Filter by establishment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, etablissementId?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listEventsApiV1EventsGet(page, size, category, startDate, endDate, etablissementId, options);
+        async listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listEventsApiV1EventsGet(page, size, category, startDate, endDate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['EventsApi.listEventsApiV1EventsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Publier un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Publier un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Publish Event
          * @param {string} eventId 
          * @param {*} [options] Override http request option.
@@ -1014,7 +1055,7 @@ export const EventsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * S\'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)
+         * S\'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)
          * @summary Register Participant
          * @param {string} eventId 
          * @param {RegistrationRequest} registrationRequest 
@@ -1028,7 +1069,7 @@ export const EventsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Modifier un événement existant (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Modifier un événement existant (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Update Event
          * @param {string} eventId 
          * @param {EventUpdate} eventUpdate 
@@ -1052,7 +1093,7 @@ export const EventsApiFactory = function (configuration?: Configuration, basePat
     const localVarFp = EventsApiFp(configuration)
     return {
         /**
-         * Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)
+         * Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)
          * @summary Cancel Registration
          * @param {string} eventId 
          * @param {string} registrationId 
@@ -1063,7 +1104,7 @@ export const EventsApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.cancelRegistrationApiV1EventsEventIdRegisterRegistrationIdDelete(eventId, registrationId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Créer un nouvel événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Créer un nouvel événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Create Event
          * @param {EventCreate} eventCreate 
          * @param {*} [options] Override http request option.
@@ -1073,7 +1114,17 @@ export const EventsApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.createEventApiV1EventsPost(eventCreate, options).then((request) => request(axios, basePath));
         },
         /**
-         * Télécharger la feuille de présence d\'un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Supprimer un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
+         * @summary Delete Event
+         * @param {string} eventId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteEventApiV1EventsEventIdDelete(eventId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteEventApiV1EventsEventIdDelete(eventId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Télécharger la feuille de présence d\'un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Export Attendance
          * @param {string} eventId 
          * @param {string} [format] Format d\&#39;export (pdf ou csv)
@@ -1084,7 +1135,7 @@ export const EventsApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.exportAttendanceApiV1EventsEventIdExportGet(eventId, format, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupérer un événement spécifique par ID (accès public)
+         * Récupérer un événement spécifique par ID avec validation tenant.
          * @summary Get Event By Id
          * @param {string} eventId 
          * @param {*} [options] Override http request option.
@@ -1094,7 +1145,7 @@ export const EventsApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.getEventByIdApiV1EventsEventIdGet(eventId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère tous les participants à un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Récupère tous les participants à un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Get Participants
          * @param {string} eventId 
          * @param {*} [options] Override http request option.
@@ -1104,22 +1155,21 @@ export const EventsApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.getParticipantsApiV1EventsEventIdParticipantsGet(eventId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Lister tous les événements avec pagination et filtrage (accès public)
+         * Lister tous les événements avec pagination et filtrage selon le contexte tenant.
          * @summary List Events
          * @param {number} [page] Page number (minimum 1)
          * @param {number} [size] Items per page (1-100)
          * @param {string | null} [category] Filter by event category
          * @param {string | null} [startDate] Filter events starting after this date
          * @param {string | null} [endDate] Filter events ending before this date
-         * @param {string | null} [etablissementId] Filter by establishment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, etablissementId?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<object> {
-            return localVarFp.listEventsApiV1EventsGet(page, size, category, startDate, endDate, etablissementId, options).then((request) => request(axios, basePath));
+        listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<object> {
+            return localVarFp.listEventsApiV1EventsGet(page, size, category, startDate, endDate, options).then((request) => request(axios, basePath));
         },
         /**
-         * Publier un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Publier un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Publish Event
          * @param {string} eventId 
          * @param {*} [options] Override http request option.
@@ -1129,7 +1179,7 @@ export const EventsApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.publishEventApiV1EventsEventIdPublishPost(eventId, options).then((request) => request(axios, basePath));
         },
         /**
-         * S\'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)
+         * S\'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)
          * @summary Register Participant
          * @param {string} eventId 
          * @param {RegistrationRequest} registrationRequest 
@@ -1140,7 +1190,7 @@ export const EventsApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.registerParticipantApiV1EventsEventIdRegisterPost(eventId, registrationRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * Modifier un événement existant (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+         * Modifier un événement existant (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
          * @summary Update Event
          * @param {string} eventId 
          * @param {EventUpdate} eventUpdate 
@@ -1161,7 +1211,7 @@ export const EventsApiFactory = function (configuration?: Configuration, basePat
  */
 export class EventsApi extends BaseAPI {
     /**
-     * Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)
+     * Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)
      * @summary Cancel Registration
      * @param {string} eventId 
      * @param {string} registrationId 
@@ -1174,7 +1224,7 @@ export class EventsApi extends BaseAPI {
     }
 
     /**
-     * Créer un nouvel événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+     * Créer un nouvel événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
      * @summary Create Event
      * @param {EventCreate} eventCreate 
      * @param {*} [options] Override http request option.
@@ -1186,7 +1236,19 @@ export class EventsApi extends BaseAPI {
     }
 
     /**
-     * Télécharger la feuille de présence d\'un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+     * Supprimer un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
+     * @summary Delete Event
+     * @param {string} eventId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EventsApi
+     */
+    public deleteEventApiV1EventsEventIdDelete(eventId: string, options?: RawAxiosRequestConfig) {
+        return EventsApiFp(this.configuration).deleteEventApiV1EventsEventIdDelete(eventId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Télécharger la feuille de présence d\'un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
      * @summary Export Attendance
      * @param {string} eventId 
      * @param {string} [format] Format d\&#39;export (pdf ou csv)
@@ -1199,7 +1261,7 @@ export class EventsApi extends BaseAPI {
     }
 
     /**
-     * Récupérer un événement spécifique par ID (accès public)
+     * Récupérer un événement spécifique par ID avec validation tenant.
      * @summary Get Event By Id
      * @param {string} eventId 
      * @param {*} [options] Override http request option.
@@ -1211,7 +1273,7 @@ export class EventsApi extends BaseAPI {
     }
 
     /**
-     * Récupère tous les participants à un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+     * Récupère tous les participants à un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
      * @summary Get Participants
      * @param {string} eventId 
      * @param {*} [options] Override http request option.
@@ -1223,24 +1285,23 @@ export class EventsApi extends BaseAPI {
     }
 
     /**
-     * Lister tous les événements avec pagination et filtrage (accès public)
+     * Lister tous les événements avec pagination et filtrage selon le contexte tenant.
      * @summary List Events
      * @param {number} [page] Page number (minimum 1)
      * @param {number} [size] Items per page (1-100)
      * @param {string | null} [category] Filter by event category
      * @param {string | null} [startDate] Filter events starting after this date
      * @param {string | null} [endDate] Filter events ending before this date
-     * @param {string | null} [etablissementId] Filter by establishment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof EventsApi
      */
-    public listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, etablissementId?: string | null, options?: RawAxiosRequestConfig) {
-        return EventsApiFp(this.configuration).listEventsApiV1EventsGet(page, size, category, startDate, endDate, etablissementId, options).then((request) => request(this.axios, this.basePath));
+    public listEventsApiV1EventsGet(page?: number, size?: number, category?: string | null, startDate?: string | null, endDate?: string | null, options?: RawAxiosRequestConfig) {
+        return EventsApiFp(this.configuration).listEventsApiV1EventsGet(page, size, category, startDate, endDate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Publier un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+     * Publier un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
      * @summary Publish Event
      * @param {string} eventId 
      * @param {*} [options] Override http request option.
@@ -1252,7 +1313,7 @@ export class EventsApi extends BaseAPI {
     }
 
     /**
-     * S\'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)
+     * S\'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)
      * @summary Register Participant
      * @param {string} eventId 
      * @param {RegistrationRequest} registrationRequest 
@@ -1265,7 +1326,7 @@ export class EventsApi extends BaseAPI {
     }
 
     /**
-     * Modifier un événement existant (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)
+     * Modifier un événement existant (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)
      * @summary Update Event
      * @param {string} eventId 
      * @param {EventUpdate} eventUpdate 

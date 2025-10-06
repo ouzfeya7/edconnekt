@@ -5,8 +5,8 @@ import type { ResourceOut, Visibility, ResourceStatus } from '../api/resource-se
 export interface UseResourcesParams {
 	authorUserId?: string | null;
 	visibility?: Visibility | null;
-	subjectId?: string | number | null;
-	competenceId?: string | number | null;
+	subjectId?: string | null; // UUID
+	competenceId?: string | null; // UUID
 	status?: ResourceStatus | null;
 	limit?: number;
 	offset?: number;
@@ -25,25 +25,17 @@ export function useResources(params: UseResourcesParams = {}) {
 
 	return useQuery({
 		queryKey: ['resources', { limit, offset, visibility, subjectId, competenceId, status, authorUserId }],
-		queryFn: async (): Promise<ResourceOut[]> => {
-			const toNumberOrUndefined = (v: string | number | null | undefined) => {
-				if (v === null || v === undefined) return undefined;
-				const n = typeof v === 'string' ? Number(v) : v;
-				return Number.isFinite(n) ? (n as number) : undefined;
-			};
-			const subjectIdNum = toNumberOrUndefined(subjectId);
-			const competenceIdNum = toNumberOrUndefined(competenceId);
-
+		queryFn: async (): Promise<{ items: ResourceOut[]; total: number; page: number; size: number }> => {
 			const { data } = await resourcesApi.listResourcesResourcesGet(
-				authorUserId,
-				visibility,
-				subjectIdNum ?? null,
-				competenceIdNum ?? null,
-				status,
+				authorUserId ?? null,
+				visibility ?? null,
+				subjectId ?? null,
+				competenceId ?? null,
+				status ?? null,
 				limit,
 				offset
 			);
-			return data;
+			return data as unknown as { items: ResourceOut[]; total: number; page: number; size: number };
 		},
 	});
 }

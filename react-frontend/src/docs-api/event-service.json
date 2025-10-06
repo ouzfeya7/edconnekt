@@ -12,7 +12,7 @@
                     "events"
                 ],
                 "summary": "Create Event",
-                "description": "Créer un nouvel événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)",
+                "description": "Créer un nouvel événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)",
                 "operationId": "create_event_api_v1_events__post",
                 "requestBody": {
                     "required": true,
@@ -52,7 +52,7 @@
                     "events"
                 ],
                 "summary": "List Events",
-                "description": "Lister tous les événements avec pagination et filtrage (accès public)",
+                "description": "Lister tous les événements avec pagination et filtrage selon le contexte tenant.",
                 "operationId": "list_events_api_v1_events__get",
                 "parameters": [
                     {
@@ -137,25 +137,6 @@
                             "title": "End Date"
                         },
                         "description": "Filter events ending before this date"
-                    },
-                    {
-                        "name": "etablissement_id",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string",
-                                    "format": "uuid"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "description": "Filter by establishment ID",
-                            "title": "Etablissement Id"
-                        },
-                        "description": "Filter by establishment ID"
                     }
                 ],
                 "responses": {
@@ -189,7 +170,7 @@
                     "events"
                 ],
                 "summary": "Get Event By Id",
-                "description": "Récupérer un événement spécifique par ID (accès public)",
+                "description": "Récupérer un événement spécifique par ID avec validation tenant.",
                 "operationId": "get_event_by_id_api_v1_events__event_id__get",
                 "parameters": [
                     {
@@ -231,7 +212,7 @@
                     "events"
                 ],
                 "summary": "Update Event",
-                "description": "Modifier un événement existant (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)",
+                "description": "Modifier un événement existant (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)",
                 "operationId": "update_event_api_v1_events__event_id__patch",
                 "parameters": [
                     {
@@ -277,6 +258,41 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "events"
+                ],
+                "summary": "Delete Event",
+                "description": "Supprimer un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)",
+                "operationId": "delete_event_api_v1_events__event_id__delete",
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Event Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/v1/events/{event_id}/publish": {
@@ -285,7 +301,7 @@
                     "events"
                 ],
                 "summary": "Publish Event",
-                "description": "Publier un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)",
+                "description": "Publier un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)",
                 "operationId": "publish_event_api_v1_events__event_id__publish_post",
                 "parameters": [
                     {
@@ -329,7 +345,7 @@
                     "events"
                 ],
                 "summary": "Register Participant",
-                "description": "S'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)",
+                "description": "S'inscrire à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)",
                 "operationId": "register_participant_api_v1_events__event_id__register_post",
                 "parameters": [
                     {
@@ -383,7 +399,7 @@
                     "events"
                 ],
                 "summary": "Cancel Registration",
-                "description": "Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_DIRECTEUR)",
+                "description": "Annuler une inscription à un événement (ROLE_ELEVE, ROLE_PARENT, ROLE_ADMINSTAFF)",
                 "operationId": "cancel_registration_api_v1_events__event_id__register__registration_id__delete",
                 "parameters": [
                     {
@@ -437,7 +453,7 @@
                     "events"
                 ],
                 "summary": "Get Participants",
-                "description": "Récupère tous les participants à un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)",
+                "description": "Récupère tous les participants à un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)",
                 "operationId": "get_participants_api_v1_events__event_id__participants_get",
                 "parameters": [
                     {
@@ -482,7 +498,7 @@
                     "events"
                 ],
                 "summary": "Export Attendance",
-                "description": "Télécharger la feuille de présence d'un événement (ROLE_DIRECTEUR, ROLE_ADMIN uniquement)",
+                "description": "Télécharger la feuille de présence d'un événement (ROLE_ADMINSTAFF, ROLE_ADMIN uniquement)",
                 "operationId": "export_attendance_api_v1_events__event_id__export_get",
                 "parameters": [
                     {

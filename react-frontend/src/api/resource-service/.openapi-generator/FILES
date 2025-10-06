@@ -7,6 +7,7 @@ configuration.ts
 docs/AuditOut.md
 docs/DefaultApi.md
 docs/HTTPValidationError.md
+docs/ResourceListResponse.md
 docs/ResourceOut.md
 docs/ResourceStatus.md
 docs/ResourcesApi.md

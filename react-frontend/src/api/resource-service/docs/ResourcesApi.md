@@ -30,8 +30,8 @@ const apiInstance = new ResourcesApi(configuration);
 
 let title: string; // (default to undefined)
 let visibility: Visibility; // (default to undefined)
-let subjectId: number; // (default to undefined)
-let competenceId: number; // (default to undefined)
+let subjectId: string; // (default to undefined)
+let competenceId: string; // (default to undefined)
 let file: File; // (default to undefined)
 let description: string; // (optional) (default to undefined)
 
@@ -51,8 +51,8 @@ const { status, data } = await apiInstance.createResourceResourcesPost(
 |------------- | ------------- | ------------- | -------------|
 | **title** | [**string**] |  | defaults to undefined|
 | **visibility** | **Visibility** |  | defaults to undefined|
-| **subjectId** | [**number**] |  | defaults to undefined|
-| **competenceId** | [**number**] |  | defaults to undefined|
+| **subjectId** | [**string**] |  | defaults to undefined|
+| **competenceId** | [**string**] |  | defaults to undefined|
 | **file** | [**File**] |  | defaults to undefined|
 | **description** | [**string**] |  | (optional) defaults to undefined|
 
@@ -291,8 +291,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **listResourcesResourcesGet**
-> Array<ResourceOut> listResourcesResourcesGet()
+> ResourceListResponse listResourcesResourcesGet()
 
+Liste les ressources avec métadonnées de pagination.  Retourne une réponse structurée contenant : - items: Liste des ressources - total: Nombre total de ressources correspondant aux filtres - page: Numéro de page actuelle - size: Nombre d\'éléments par page  Cela permet au frontend de gérer correctement la pagination.
 
 ### Example
 
@@ -307,8 +308,8 @@ const apiInstance = new ResourcesApi(configuration);
 
 let authorUserId: string; // (optional) (default to undefined)
 let visibility: Visibility; // (optional) (default to undefined)
-let subjectId: number; // (optional) (default to undefined)
-let competenceId: number; // (optional) (default to undefined)
+let subjectId: string; // (optional) (default to undefined)
+let competenceId: string; // (optional) (default to undefined)
 let status: ResourceStatus; // (optional) (default to undefined)
 let limit: number; // (optional) (default to 10)
 let offset: number; // (optional) (default to 0)
@@ -330,8 +331,8 @@ const { status, data } = await apiInstance.listResourcesResourcesGet(
 |------------- | ------------- | ------------- | -------------|
 | **authorUserId** | [**string**] |  | (optional) defaults to undefined|
 | **visibility** | **Visibility** |  | (optional) defaults to undefined|
-| **subjectId** | [**number**] |  | (optional) defaults to undefined|
-| **competenceId** | [**number**] |  | (optional) defaults to undefined|
+| **subjectId** | [**string**] |  | (optional) defaults to undefined|
+| **competenceId** | [**string**] |  | (optional) defaults to undefined|
 | **status** | **ResourceStatus** |  | (optional) defaults to undefined|
 | **limit** | [**number**] |  | (optional) defaults to 10|
 | **offset** | [**number**] |  | (optional) defaults to 0|
@@ -339,7 +340,7 @@ const { status, data } = await apiInstance.listResourcesResourcesGet(
 
 ### Return type
 
-**Array<ResourceOut>**
+**ResourceListResponse**
 
 ### Authorization
 
@@ -362,7 +363,7 @@ No authorization required
 # **restoreResourceResourcesResourceIdRestorePatch**
 > ResourceOut restoreResourceResourcesResourceIdRestorePatch()
 
-Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, DIRECTION ou l\'auteur original peuvent restaurer.
+Restaure une ressource archivée en la remettant au statut ACTIVE. Seuls les COORDONNATEUR, ADMINSTAFF ou l\'auteur original peuvent restaurer.
 
 ### Example
 
@@ -430,8 +431,8 @@ let resourceId: string; // (default to undefined)
 let title: string; // (optional) (default to undefined)
 let description: string; // (optional) (default to undefined)
 let visibility: Visibility; // (optional) (default to undefined)
-let subjectId: number; // (optional) (default to undefined)
-let competenceId: number; // (optional) (default to undefined)
+let subjectId: string; // (optional) (default to undefined)
+let competenceId: string; // (optional) (default to undefined)
 let status: ResourceStatus; // (optional) (default to undefined)
 let file: File; // (optional) (default to undefined)
 
@@ -455,8 +456,8 @@ const { status, data } = await apiInstance.updateResourceResourcesResourceIdPatc
 | **title** | [**string**] |  | (optional) defaults to undefined|
 | **description** | [**string**] |  | (optional) defaults to undefined|
 | **visibility** | **Visibility** |  | (optional) defaults to undefined|
-| **subjectId** | [**number**] |  | (optional) defaults to undefined|
-| **competenceId** | [**number**] |  | (optional) defaults to undefined|
+| **subjectId** | [**string**] |  | (optional) defaults to undefined|
+| **competenceId** | [**string**] |  | (optional) defaults to undefined|
 | **status** | **ResourceStatus** |  | (optional) defaults to undefined|
 | **file** | [**File**] |  | (optional) defaults to undefined|
 

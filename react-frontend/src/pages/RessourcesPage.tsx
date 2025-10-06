@@ -358,13 +358,13 @@ function RessourcesPage() {
   });
 
   const {
-    data: apiResources,
+    data: apiResourcesPage,
   } = useRemoteResources({
     limit: itemsPerPage,
     offset: (currentPage - 1) * itemsPerPage,
     visibility: (visibilityFilter as Visibility) || null,
-    subjectId: selectedSubjectId ? Number(selectedSubjectId) : undefined,
-    competenceId: selectedCompetencyId ? Number(selectedCompetencyId) : undefined,
+    subjectId: selectedSubjectId ?? null,
+    competenceId: selectedCompetencyId ?? null,
     authorUserId: onlyMyResources && user?.id ? user.id : undefined,
     status: ResourceStatus.Active,
   });
@@ -408,7 +408,7 @@ function RessourcesPage() {
     };
   };
 
-  const displayedResources: DisplayResource[] = (apiResources ?? [])
+  const displayedResources: DisplayResource[] = ((apiResourcesPage?.items ?? []) as ResourceOut[])
     .map(mapApiResourceToDisplay)
     .filter((resource) => {
       if (!searchTerm) return true;
@@ -427,7 +427,7 @@ function RessourcesPage() {
     return true;
   });
 
-  const totalPages = apiResources ? Math.ceil(displayedResources.length / itemsPerPage) : 1; // This will need to be adjusted once the API returns total count
+  const totalPages = apiResourcesPage ? Math.ceil((apiResourcesPage.total || 0) / itemsPerPage) : 1;
 
   const handleArchive = (resourceId: string | number) => {
     const confirm = window.confirm("Archiver cette ressource ? Vous pourrez la restaurer ultérieurement.");

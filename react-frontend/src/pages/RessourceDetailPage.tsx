@@ -48,7 +48,7 @@ const RessourceDetailPage = () => {
   const restoreMutation = useRestoreResource();
   const downloadMutation = useDownloadResourceFile();
   // Pour les ressources similaires, on peut utiliser le hook existant
-  const { data: similarResourcesData } = useRemoteResources({ subjectId: resource?.subject_id });
+  const { data: similarResourcesData } = useRemoteResources({ subjectId: resource?.subject_id ?? null });
 
   // Charger un référentiel pour mapper subject_id -> nom (UUID)
   const { data: referentials } = useReferentials({ state: 'PUBLISHED' });
@@ -274,7 +274,7 @@ const RessourceDetailPage = () => {
                 Ressources similaires
               </h2>
               <div className="space-y-3">
-                {(similarResourcesData || [])
+                {((similarResourcesData?.items ?? []))
                   .filter(
                     (r) =>
                       r.id !== resource.id && r.subject_id === resource.subject_id
@@ -305,7 +305,7 @@ const RessourceDetailPage = () => {
                       </div>
                     </div>
                   ))}
-                {(similarResourcesData || []).filter(r => r.id !== resource.id && r.subject_id === resource.subject_id).length === 0 && (
+                {((similarResourcesData?.items ?? []).filter(r => r.id !== resource.id && r.subject_id === resource.subject_id).length === 0) && (
                   <div className="text-center py-8 text-gray-500">
                     <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     <p>Aucune ressource similaire trouvée</p>

@@ -32,7 +32,7 @@ suppliesAxios.interceptors.request.use((config) => {
   }
   if (activeRole) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Role'] = activeRole;
+    (config.headers as Record<string, string>)['X-Roles'] = activeRole;
   }
 
   return config;
@@ -42,7 +42,8 @@ suppliesAxios.interceptors.response.use(
   (response) => {
     try {
       const xEtab = response.headers?.['x-etab'] as string | undefined;
-      const xRole = response.headers?.['x-role'] as string | undefined;
+      const xRoles = response.headers?.['x-roles'] as string | undefined;
+      const xRole = (xRoles?.split(',')[0]?.trim() || (response.headers?.['x-role'] as string | undefined)) as string | undefined;
       // Ne pas appeler setActiveContext si le rôle ne matche pas notre enum
       const allowedRoles = new Set(['student', 'parent', 'teacher', 'admin_staff']);
       if (xEtab && xRole && allowedRoles.has(xRole)) setActiveContext(xEtab, xRole as 'student' | 'parent' | 'teacher' | 'admin_staff');
