@@ -40,6 +40,7 @@ import type { ReferentialTree, DomainTree, SubjectTree, CompetencyListResponse, 
 
 
 import AuditTrail from "../components/ressources/AuditTrail";
+import toast from "react-hot-toast";
 
 const subjectBadgeColors: { [key: string]: string } = {
   // CRÉATIVITÉ & SPORT
@@ -362,8 +363,8 @@ function RessourcesPage() {
     limit: itemsPerPage,
     offset: (currentPage - 1) * itemsPerPage,
     visibility: (visibilityFilter as Visibility) || null,
-    subjectId: selectedSubjectId ?? undefined,
-    competenceId: selectedCompetencyId ?? undefined,
+    subjectId: selectedSubjectId ? Number(selectedSubjectId) : undefined,
+    competenceId: selectedCompetencyId ? Number(selectedCompetencyId) : undefined,
     authorUserId: onlyMyResources && user?.id ? user.id : undefined,
     status: ResourceStatus.Active,
   });
@@ -429,7 +430,12 @@ function RessourcesPage() {
   const totalPages = apiResources ? Math.ceil(displayedResources.length / itemsPerPage) : 1; // This will need to be adjusted once the API returns total count
 
   const handleArchive = (resourceId: string | number) => {
-    archiveMutation.mutate(String(resourceId));
+    const confirm = window.confirm("Archiver cette ressource ? Vous pourrez la restaurer ultérieurement.");
+    if (!confirm) return;
+    archiveMutation.mutate(String(resourceId), {
+      onSuccess: () => toast.success("Ressource archivée"),
+      onError: () => toast.error("Échec de l'archivage de la ressource"),
+    });
   };
 
   return (

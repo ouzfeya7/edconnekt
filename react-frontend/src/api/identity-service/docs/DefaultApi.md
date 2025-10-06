@@ -22,6 +22,7 @@ All URIs are relative to *http://localhost*
 |[**getLastCodeIdentiteApiV1IdentityLastCodeGet**](#getlastcodeidentiteapiv1identitylastcodeget) | **GET** /api/v1/identity/last-code | Get Last Code Identite|
 |[**getRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdGet**](#getroleassignmentapiv1identityidentitiesidentityidrolesroleidget) | **GET** /api/v1/identity/identities/{identity_id}/roles/{role_id} | Get Role Assignment|
 |[**getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet**](#getroleseffectifsapiv1identitycatalogsroleseffectifsget) | **GET** /api/v1/identity/catalogs/roles-effectifs | Get Roles Effectifs|
+|[**getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet**](#getroleseffectifsmappingapiv1identitycatalogsroleseffectifsmappingget) | **GET** /api/v1/identity/catalogs/roles-effectifs/mapping | Get Roles Effectifs Mapping|
 |[**getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet**](#getrolesprincipauxapiv1identitycatalogsroleprincipalget) | **GET** /api/v1/identity/catalogs/role-principal | Get Roles Principaux|
 |[**getRolesPrincipauxApiV1IdentityCatalogsRolesPrincipauxGet**](#getrolesprincipauxapiv1identitycatalogsrolesprincipauxget) | **GET** /api/v1/identity/catalogs/roles-principaux | Get Roles Principaux|
 |[**getTemplateInfoApiV1IdentityBulkimportTemplateRoleInfoGet**](#gettemplateinfoapiv1identitybulkimporttemplateroleinfoget) | **GET** /api/v1/identity/bulkimport/template/{role}/info | Get Template Info|
@@ -37,7 +38,7 @@ All URIs are relative to *http://localhost*
 |[**updateRoleAssignmentApiV1IdentityIdentitiesIdentityIdRolesRoleIdPut**](#updateroleassignmentapiv1identityidentitiesidentityidrolesroleidput) | **PUT** /api/v1/identity/identities/{identity_id}/roles/{role_id} | Update Role Assignment|
 
 # **bulkImportIdentitiesApiV1IdentityBulkimportPost**
-> ImportResponse bulkImportIdentitiesApiV1IdentityBulkimportPost()
+> any bulkImportIdentitiesApiV1IdentityBulkimportPost()
 
 Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée - Erreurs de validation des établissements
 
@@ -53,7 +54,7 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let file: File; //Fichier CSV ou Excel à importer (default to undefined)
-let establishmentId: string; //ID de l\\\'établissement (obligatoire) (default to undefined)
+let establishmentId: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.bulkImportIdentitiesApiV1IdentityBulkimportPost(
     file,
@@ -66,12 +67,12 @@ const { status, data } = await apiInstance.bulkImportIdentitiesApiV1IdentityBulk
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **file** | [**File**] | Fichier CSV ou Excel à importer | defaults to undefined|
-| **establishmentId** | [**string**] | ID de l\\\&#39;établissement (obligatoire) | defaults to undefined|
+| **establishmentId** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
 
-**ImportResponse**
+**any**
 
 ### Authorization
 
@@ -86,7 +87,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Successful Response |  -  |
+|**202** | Successful Response |  -  |
 |**422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -139,7 +140,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Successful Response |  -  |
+|**201** | Successful Response |  -  |
 |**422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -820,7 +821,7 @@ No authorization required
 # **getImportTemplateApiV1IdentityBulkimportTemplateRoleGet**
 > any getImportTemplateApiV1IdentityBulkimportTemplateRoleGet()
 
-Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
+Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template (standardisées) :** - `lastname` : Nom de famille - `firstname` : Prénom - `email` : Adresse email - `phone` : Numéro de téléphone - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Liste de cycles parmi `preschool, primary, middle, high` (séparés par virgules) - `class_code` et `school_year` : pour teacher/student (optionnels pour admin_staff/parent) - `birth_date`, `gender`, `level`, `account_required` : champs additionnels pour student  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
 
 ### Example
 
@@ -1035,6 +1036,50 @@ No authorization required
 |-------------|-------------|------------------|
 |**200** | Successful Response |  -  |
 |**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet**
+> any getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet()
+
+Récupère le catalogue des rôles effectifs (DB) et le mapping par rôle principal.  Retourne:   - roles_effectifs: liste des rôles effectifs actifs (code, label_key, group_key, is_sensitive, sort_order)   - by_principal: mapping des rôles principaux vers les codes effectifs autorisés (intersection DB ∩ mapping service)
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**any**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -15,9 +15,6 @@ docs/IdentityCreate.md
 docs/IdentityStatus.md
 docs/IdentityUpdate.md
 docs/IdentityWithRoles.md
-docs/ImportResponse.md
-docs/ImportResult.md
-docs/ImportSummary.md
 docs/LastCodeResponse.md
 docs/MeContexteUtilisateurApi.md
 docs/RoleAssignmentCreate.md

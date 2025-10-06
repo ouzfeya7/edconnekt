@@ -28,6 +28,7 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
   const [nomFilter, setNomFilter] = useState<string>('');
   const [niveauFilter, setNiveauFilter] = useState<string>('');
   const [isArchived, setIsArchived] = useState<string>('false');
+  const [statusFilter, setStatusFilter] = useState<string>('');
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
   const [isImportOpen, setIsImportOpen] = useState<boolean>(false);
   const [editTarget, setEditTarget] = useState<ClasseOut | null>(null);
@@ -69,6 +70,7 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
     nom: nomFilter || undefined,
     niveau: niveauFilter || undefined,
     isArchived: isArchived === 'true' ? true : isArchived === 'false' ? false : undefined,
+    status: statusFilter || undefined,
   });
   const { data: classesArchivedResponse, isLoading: isLoadingClassesArchived } = useClasses({
     etablissementId: selectedEtablissementId,
@@ -77,6 +79,7 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
     nom: nomFilter || undefined,
     niveau: niveauFilter || undefined,
     isArchived: true,
+    status: statusFilter || undefined,
   });
   const classes: ClasseOut[] = useMemo(() => {
     const nonArchived = classesResponse?.data ?? [];
@@ -169,6 +172,19 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
             <option value="false">Non</option>
             <option value="true">Oui</option>
             <option value="all">Toutes</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+          <select
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">Tous</option>
+            <option value="actif">Actif</option>
+            <option value="inactif">Inactif</option>
+            <option value="archive">Archivé</option>
           </select>
         </div>
       </div>

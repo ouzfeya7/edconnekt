@@ -412,135 +412,6 @@ export interface IdentityWithRoles {
     'role_assignments'?: Array<RoleAssignmentResponse>;
 }
 /**
- * Réponse de l\'import en masse.
- * @export
- * @interface ImportResponse
- */
-export interface ImportResponse {
-    /**
-     * True si l\'import s\'est bien déroulé
-     * @type {boolean}
-     * @memberof ImportResponse
-     */
-    'success': boolean;
-    /**
-     * Message global de l\'import
-     * @type {string}
-     * @memberof ImportResponse
-     */
-    'message': string;
-    /**
-     * ID du batch créé pour suivre l\'import
-     * @type {string}
-     * @memberof ImportResponse
-     */
-    'batch_id': string;
-    /**
-     * Résumé de l\'import
-     * @type {ImportSummary}
-     * @memberof ImportResponse
-     */
-    'summary': ImportSummary;
-    /**
-     * Détails par identité
-     * @type {Array<ImportResult>}
-     * @memberof ImportResponse
-     */
-    'results': Array<ImportResult>;
-    /**
-     * Informations sur le fichier traité
-     * @type {{ [key: string]: any; }}
-     * @memberof ImportResponse
-     */
-    'file_info': { [key: string]: any; };
-    /**
-     * Date/heure de traitement
-     * @type {string}
-     * @memberof ImportResponse
-     */
-    'processed_at'?: string;
-}
-/**
- * Résultat d\'import pour une identité.
- * @export
- * @interface ImportResult
- */
-export interface ImportResult {
-    /**
-     * Email de l\'identité
-     * @type {string}
-     * @memberof ImportResult
-     */
-    'email': string;
-    /**
-     * Statut de l\'import (SUCCESS, ERROR, SKIPPED)
-     * @type {string}
-     * @memberof ImportResult
-     */
-    'status': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ImportResult
-     */
-    'message'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ImportResult
-     */
-    'identity_id'?: string | null;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof ImportResult
-     */
-    'is_new'?: boolean | null;
-}
-/**
- * Résumé de l\'import.
- * @export
- * @interface ImportSummary
- */
-export interface ImportSummary {
-    /**
-     * Nombre total d\'identités traitées
-     * @type {number}
-     * @memberof ImportSummary
-     */
-    'total_processed': number;
-    /**
-     * Nombre d\'imports réussis
-     * @type {number}
-     * @memberof ImportSummary
-     */
-    'success_count': number;
-    /**
-     * Nombre d\'erreurs
-     * @type {number}
-     * @memberof ImportSummary
-     */
-    'error_count': number;
-    /**
-     * Nombre d\'identités ignorées
-     * @type {number}
-     * @memberof ImportSummary
-     */
-    'skipped_count': number;
-    /**
-     * Nombre de nouvelles identités créées
-     * @type {number}
-     * @memberof ImportSummary
-     */
-    'new_identities': number;
-    /**
-     * Nombre d\'identités mises à jour
-     * @type {number}
-     * @memberof ImportSummary
-     */
-    'updated_identities': number;
-}
-/**
  * Schéma pour la réponse du dernier code utilisé.
  * @export
  * @interface LastCodeResponse
@@ -940,6 +811,12 @@ export interface TemplateInfo {
      * @memberof TemplateInfo
      */
     'example_data': Array<{ [key: string]: any; }>;
+    /**
+     * 
+     * @type {{ [key: string]: any; }}
+     * @memberof TemplateInfo
+     */
+    'role_mapping'?: { [key: string]: any; } | null;
 }
 /**
  * Réponse pour l\'export de template.
@@ -1015,15 +892,13 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée - Erreurs de validation des établissements
          * @summary Bulk Import Identities
          * @param {File} file Fichier CSV ou Excel à importer
-         * @param {string} establishmentId ID de l\\\&#39;établissement (obligatoire)
+         * @param {string | null} [establishmentId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        bulkImportIdentitiesApiV1IdentityBulkimportPost: async (file: File, establishmentId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        bulkImportIdentitiesApiV1IdentityBulkimportPost: async (file: File, establishmentId?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'file' is not null or undefined
             assertParamExists('bulkImportIdentitiesApiV1IdentityBulkimportPost', 'file', file)
-            // verify required parameter 'establishmentId' is not null or undefined
-            assertParamExists('bulkImportIdentitiesApiV1IdentityBulkimportPost', 'establishmentId', establishmentId)
             const localVarPath = `/api/v1/identity/bulkimport`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1386,6 +1261,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {string | null} [search] Terme de recherche
          * @param {boolean | null} [isActive] Filtrer par statut actif
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         getCyclesApiV1IdentityCatalogsCycleGet: async (page?: number, size?: number, search?: string | null, isActive?: boolean | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -1586,7 +1462,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
+         * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template (standardisées) :** - `lastname` : Nom de famille - `firstname` : Prénom - `email` : Adresse email - `phone` : Numéro de téléphone - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Liste de cycles parmi `preschool, primary, middle, high` (séparés par virgules) - `class_code` et `school_year` : pour teacher/student (optionnels pour admin_staff/parent) - `birth_date`, `gender`, `level`, `account_required` : champs additionnels pour student  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
          * @summary Get Import Template
          * @param {string} role 
          * @param {string} [formatType] 
@@ -1753,6 +1629,36 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * Récupère le catalogue des rôles effectifs (DB) et le mapping par rôle principal.  Retourne:   - roles_effectifs: liste des rôles effectifs actifs (code, label_key, group_key, is_sensitive, sort_order)   - by_principal: mapping des rôles principaux vers les codes effectifs autorisés (intersection DB ∩ mapping service)
+         * @summary Get Roles Effectifs Mapping
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/identity/catalogs/roles-effectifs/mapping`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
          * @summary Get Roles Principaux
          * @param {number} [page] Numéro de page
@@ -1760,6 +1666,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {string | null} [search] Terme de recherche
          * @param {boolean | null} [isActive] Filtrer par statut actif
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet: async (page?: number, size?: number, search?: string | null, isActive?: boolean | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -2326,11 +2233,11 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée - Erreurs de validation des établissements
          * @summary Bulk Import Identities
          * @param {File} file Fichier CSV ou Excel à importer
-         * @param {string} establishmentId ID de l\\\&#39;établissement (obligatoire)
+         * @param {string | null} [establishmentId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ImportResponse>> {
+        async bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.bulkImportIdentitiesApiV1IdentityBulkimportPost']?.[localVarOperationServerIndex]?.url;
@@ -2457,6 +2364,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {string | null} [search] Terme de recherche
          * @param {boolean | null} [isActive] Filtrer par statut actif
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async getCyclesApiV1IdentityCatalogsCycleGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardListResponse>> {
@@ -2522,7 +2430,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
+         * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template (standardisées) :** - `lastname` : Nom de famille - `firstname` : Prénom - `email` : Adresse email - `phone` : Numéro de téléphone - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Liste de cycles parmi `preschool, primary, middle, high` (séparés par virgules) - `class_code` et `school_year` : pour teacher/student (optionnels pour admin_staff/parent) - `birth_date`, `gender`, `level`, `account_required` : champs additionnels pour student  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
          * @summary Get Import Template
          * @param {string} role 
          * @param {string} [formatType] 
@@ -2580,6 +2488,18 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Récupère le catalogue des rôles effectifs (DB) et le mapping par rôle principal.  Retourne:   - roles_effectifs: liste des rôles effectifs actifs (code, label_key, group_key, is_sensitive, sort_order)   - by_principal: mapping des rôles principaux vers les codes effectifs autorisés (intersection DB ∩ mapping service)
+         * @summary Get Roles Effectifs Mapping
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
          * @summary Get Roles Principaux
          * @param {number} [page] Numéro de page
@@ -2587,6 +2507,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {string | null} [search] Terme de recherche
          * @param {boolean | null} [isActive] Filtrer par statut actif
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StandardListResponse>> {
@@ -2784,11 +2705,11 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée - Erreurs de validation des établissements
          * @summary Bulk Import Identities
          * @param {File} file Fichier CSV ou Excel à importer
-         * @param {string} establishmentId ID de l\\\&#39;établissement (obligatoire)
+         * @param {string | null} [establishmentId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<ImportResponse> {
+        bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<any> {
             return localVarFp.bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -2888,6 +2809,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {string | null} [search] Terme de recherche
          * @param {boolean | null} [isActive] Filtrer par statut actif
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         getCyclesApiV1IdentityCatalogsCycleGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): AxiosPromise<StandardListResponse> {
@@ -2938,7 +2860,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getIdentityWithRolesApiV1IdentityIdentitiesIdentityIdFullGet(identityId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
+         * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template (standardisées) :** - `lastname` : Nom de famille - `firstname` : Prénom - `email` : Adresse email - `phone` : Numéro de téléphone - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Liste de cycles parmi `preschool, primary, middle, high` (séparés par virgules) - `class_code` et `school_year` : pour teacher/student (optionnels pour admin_staff/parent) - `birth_date`, `gender`, `level`, `account_required` : champs additionnels pour student  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
          * @summary Get Import Template
          * @param {string} role 
          * @param {string} [formatType] 
@@ -2984,6 +2906,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getRolesEffectifsApiV1IdentityCatalogsRolesEffectifsGet(page, size, search, groupKey, isSensitive, isActive, options).then((request) => request(axios, basePath));
         },
         /**
+         * Récupère le catalogue des rôles effectifs (DB) et le mapping par rôle principal.  Retourne:   - roles_effectifs: liste des rôles effectifs actifs (code, label_key, group_key, is_sensitive, sort_order)   - by_principal: mapping des rôles principaux vers les codes effectifs autorisés (intersection DB ∩ mapping service)
+         * @summary Get Roles Effectifs Mapping
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet(options).then((request) => request(axios, basePath));
+        },
+        /**
          * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
          * @summary Get Roles Principaux
          * @param {number} [page] Numéro de page
@@ -2991,6 +2922,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {string | null} [search] Terme de recherche
          * @param {boolean | null} [isActive] Filtrer par statut actif
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         getRolesPrincipauxApiV1IdentityCatalogsRolePrincipalGet(page?: number, size?: number, search?: string | null, isActive?: boolean | null, options?: RawAxiosRequestConfig): AxiosPromise<StandardListResponse> {
@@ -3149,12 +3081,12 @@ export class DefaultApi extends BaseAPI {
      * Import en masse d\'identités via fichier CSV ou Excel.  **Formats supportés :** - **CSV** : Fichier avec séparateur point-virgule (;) - **Excel** : Fichier .xlsx avec onglets (identities, roles, cycles)  **Colonnes attendues :** - `nom` : Nom de famille (requis) - `prenom` : Prénom (requis) - `email` : Adresse email (requis, unique) - `numero_telephone` : Numéro de téléphone (optionnel, unique si fourni) - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts, séparés par virgules (ex: primary,middle)  **Exemple de fichier CSV :** ```csv nom;prenom;email;numero_telephone;role_principal;role_effectif;cycle Martin;Jean;jean.martin@example.com;0123456789;student;;primary Bernard;Marie;marie.bernard@example.com;0987654321;teacher;prof_principal;primary,middle ```  **Exemple de fichier Excel :** - Onglet \"identities\" : Données de base des identités - Onglet \"roles\" : Rôles et établissements - Onglet \"cycles\" : Cycles couverts par chaque identité  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Rapport détaillé de l\'import - Statistiques (succès, erreurs, nouvelles identités) - Détails par identité traitée - Erreurs de validation des établissements
      * @summary Bulk Import Identities
      * @param {File} file Fichier CSV ou Excel à importer
-     * @param {string} establishmentId ID de l\\\&#39;établissement (obligatoire)
+     * @param {string | null} [establishmentId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId: string, options?: RawAxiosRequestConfig) {
+    public bulkImportIdentitiesApiV1IdentityBulkimportPost(file: File, establishmentId?: string | null, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).bulkImportIdentitiesApiV1IdentityBulkimportPost(file, establishmentId, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -3271,6 +3203,7 @@ export class DefaultApi extends BaseAPI {
      * @param {string | null} [search] Terme de recherche
      * @param {boolean | null} [isActive] Filtrer par statut actif
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
@@ -3331,7 +3264,7 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template :** - `nom` : Nom de famille - `prenom` : Prénom - `email` : Adresse email - `numero_telephone` : Numéro de téléphone - `role_principal` : Rôle principal - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Cycles couverts  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
+     * Exporter un template pour l\'import d\'identités.  **Rôles supportés :** - `admin_staff` : Personnel administratif - `teacher` : Enseignants - `student` : Élèves - `parent` : Parents  **Formats supportés :** - `csv` : Fichier CSV avec séparateur point-virgule - `xlsx` : Fichier Excel avec onglet  **Colonnes du template (standardisées) :** - `lastname` : Nom de famille - `firstname` : Prénom - `email` : Adresse email - `phone` : Numéro de téléphone - `role_principal` : Rôle principal (student, parent, teacher, admin_staff) - `role_effectif` : Rôle effectif (optionnel) - `cycle` : Liste de cycles parmi `preschool, primary, middle, high` (séparés par virgules) - `class_code` et `school_year` : pour teacher/student (optionnels pour admin_staff/parent) - `birth_date`, `gender`, `level`, `account_required` : champs additionnels pour student  **Exemples inclus :** Chaque template contient 2 lignes d\'exemple pour montrer la structure des données attendue.  **Établissement :** - L\'établissement est fourni via le paramètre `establishment_id` du formulaire - Toutes les identités du fichier seront associées à cet établissement - Pas besoin de spécifier l\'établissement dans le fichier  **Réponse :** - Fichier téléchargeable au format demandé - Headers appropriés pour le téléchargement
      * @summary Get Import Template
      * @param {string} role 
      * @param {string} [formatType] 
@@ -3385,6 +3318,17 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * Récupère le catalogue des rôles effectifs (DB) et le mapping par rôle principal.  Retourne:   - roles_effectifs: liste des rôles effectifs actifs (code, label_key, group_key, is_sensitive, sort_order)   - by_principal: mapping des rôles principaux vers les codes effectifs autorisés (intersection DB ∩ mapping service)
+     * @summary Get Roles Effectifs Mapping
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getRolesEffectifsMappingApiV1IdentityCatalogsRolesEffectifsMappingGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Récupère la liste des rôles principaux.  Args:     page: Numéro de page     size: Taille de la page     search: Terme de recherche     is_active: Filtrer par statut actif     db: Session de base de données      Returns:     List[RolePrincipalResponse]: Liste des rôles principaux
      * @summary Get Roles Principaux
      * @param {number} [page] Numéro de page
@@ -3392,6 +3336,7 @@ export class DefaultApi extends BaseAPI {
      * @param {string | null} [search] Terme de recherche
      * @param {boolean | null} [isActive] Filtrer par statut actif
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
