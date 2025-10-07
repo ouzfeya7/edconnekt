@@ -9,7 +9,7 @@ export function useDomains(params: { referentialId?: string; versionNumber?: num
     enabled: Boolean(referentialId) && (versionNumber !== undefined && versionNumber !== null),
     queryFn: async () => {
       if (!referentialId || versionNumber === undefined || versionNumber === null) throw new Error('referentialId et versionNumber requis');
-      const { data } = await competenceReferentialsApi.listDomainsApiV1ReferentialsReferentialIdDomainsGet(referentialId, versionNumber);
+      const { data } = await competenceReferentialsApi.listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(referentialId, versionNumber);
       return (data as DomainListResponse).items;
     },
     staleTime: 60_000,
@@ -22,7 +22,7 @@ export function useDomain(domainId?: string) {
     enabled: Boolean(domainId),
     queryFn: async () => {
       if (!domainId) throw new Error('domainId requis');
-      const { data } = await competenceReferentialsApi.getDomainApiV1DomainsDomainIdGet(domainId);
+      const { data } = await competenceReferentialsApi.getDomainApiCompetenceDomainsDomainIdGet(domainId);
       return data;
     },
     staleTime: 60_000,

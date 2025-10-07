@@ -15,7 +15,7 @@ export function useGlobalReferentials(params: UseGlobalReferentialsParams = {}) 
   return useQuery<GlobalReferentialListResponse, Error>({
     queryKey: ['competence:global-referentials', { page, size, cycle, q }],
     queryFn: async () => {
-      const { data } = await competenceReferentialsApi.listGlobalReferentialsApiV1GlobalReferentialsGet(
+      const { data } = await competenceReferentialsApi.listGlobalReferentialsApiCompetenceGlobalReferentialsGet(
         page,
         size,
         cycle ?? undefined,

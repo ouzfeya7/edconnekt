@@ -9,7 +9,7 @@ export function useAssignments(params: { referentialId?: string; versionNumber?:
     enabled: Boolean(referentialId) && (versionNumber !== undefined && versionNumber !== null),
     queryFn: async () => {
       if (!referentialId || versionNumber === undefined || versionNumber === null) throw new Error('referentialId et versionNumber requis');
-      const { data } = await competenceReferentialsApi.listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet(referentialId, versionNumber);
+      const { data } = await competenceReferentialsApi.listAssignmentsApiCompetenceReferentialsReferentialIdAssignmentsGet(referentialId, versionNumber);
       const list = data as unknown as AssignmentListResponse | AssignmentResponse[];
       if (Array.isArray(list)) return list as AssignmentResponse[];
       if (list && Array.isArray((list as AssignmentListResponse).items)) {
@@ -27,7 +27,7 @@ export function useAssignment(assignmentId?: string) {
     enabled: Boolean(assignmentId),
     queryFn: async () => {
       if (!assignmentId) throw new Error('assignmentId requis');
-      const { data } = await competenceReferentialsApi.getAssignmentApiV1AssignmentsAssignmentIdGet(assignmentId);
+      const { data } = await competenceReferentialsApi.getAssignmentApiCompetenceAssignmentsAssignmentIdGet(assignmentId);
       return data;
     },
     staleTime: 60_000,
@@ -41,7 +41,7 @@ export function useCreateAssignment(params: { referentialId: string; versionNumb
   return useMutation<AssignmentResponse, Error, AssignmentCreate>({
     mutationKey: ['competence:assignment:create', { referentialId, versionNumber }],
     mutationFn: async (payload: AssignmentCreate) => {
-      const { data } = await competenceReferentialsApi.createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost(referentialId, versionNumber, payload);
+      const { data } = await competenceReferentialsApi.createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost(referentialId, versionNumber, payload);
       return data;
     },
     onSuccess: () => {
@@ -55,7 +55,7 @@ export function useDeleteAssignment() {
   return useMutation<void, Error, { assignmentId: string }>({
     mutationKey: ['competence:assignment:delete'],
     mutationFn: async ({ assignmentId }) => {
-      await competenceReferentialsApi.deleteAssignmentApiV1AssignmentsAssignmentIdDelete(assignmentId);
+      await competenceReferentialsApi.deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete(assignmentId);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['competence:assignments'] });

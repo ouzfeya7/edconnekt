@@ -10,12 +10,13 @@ export function useReferential(params: { referentialId?: string; versionNumber?:
     enabled: Boolean(referentialId),
     queryFn: async () => {
       if (!referentialId) throw new Error('referentialId requis');
-      const { data } = await competenceReferentialsApi.getReferentialApiV1ReferentialsReferentialIdGet(
+      const { data } = await competenceReferentialsApi.getReferentialApiCompetenceReferentialsReferentialIdGet(
         referentialId,
         versionNumber ?? undefined,
         includeTree
       );
-      return data;
+      // Nouveau type spécifique renvoyé par l'API -> on caste vers l'union attendue par les appels existants
+      return data as unknown as ReferentialResponse | ReferentialTree;
     },
     staleTime: 60_000,
   });

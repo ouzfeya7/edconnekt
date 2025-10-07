@@ -1,14 +1,14 @@
-# EventsApi
+# EventsLegacyApi
 
 All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**listOutboxEventsApiCompetenceEventsEventsGet**](#listoutboxeventsapicompetenceeventseventsget) | **GET** /api/competence/events/events | List Outbox Events|
-|[**replayEventsApiCompetenceEventsEventsReplayPost**](#replayeventsapicompetenceeventseventsreplaypost) | **POST** /api/competence/events/events/replay | Replay Events|
+|[**listOutboxEventsApiV1EventsEventsGet**](#listoutboxeventsapiv1eventseventsget) | **GET** /api/v1/events/events | List Outbox Events|
+|[**replayEventsApiV1EventsEventsReplayPost**](#replayeventsapiv1eventseventsreplaypost) | **POST** /api/v1/events/events/replay | Replay Events|
 
-# **listOutboxEventsApiCompetenceEventsEventsGet**
-> Array<OutboxEventResponse> listOutboxEventsApiCompetenceEventsEventsGet()
+# **listOutboxEventsApiV1EventsEventsGet**
+> Array<OutboxEventResponse> listOutboxEventsApiV1EventsEventsGet()
 
 List outbox events with filters and pagination
 
@@ -16,12 +16,12 @@ List outbox events with filters and pagination
 
 ```typescript
 import {
-    EventsApi,
+    EventsLegacyApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new EventsApi(configuration);
+const apiInstance = new EventsLegacyApi(configuration);
 
 let eventType: string; //Filter by event type (optional) (default to undefined)
 let aggregateType: string; //Filter by aggregate type (optional) (default to undefined)
@@ -32,7 +32,7 @@ let endDate: string; //Filter by creation end date (optional) (default to undefi
 let page: number; //Page number (optional) (default to 1)
 let size: number; //Page size (optional) (default to 20)
 
-const { status, data } = await apiInstance.listOutboxEventsApiCompetenceEventsEventsGet(
+const { status, data } = await apiInstance.listOutboxEventsApiV1EventsEventsGet(
     eventType,
     aggregateType,
     aggregateId,
@@ -80,8 +80,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **replayEventsApiCompetenceEventsEventsReplayPost**
-> replayEventsApiCompetenceEventsEventsReplayPost()
+# **replayEventsApiV1EventsEventsReplayPost**
+> replayEventsApiV1EventsEventsReplayPost()
 
 Manually trigger processing of pending outbox events
 
@@ -89,14 +89,14 @@ Manually trigger processing of pending outbox events
 
 ```typescript
 import {
-    EventsApi,
+    EventsLegacyApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new EventsApi(configuration);
+const apiInstance = new EventsLegacyApi(configuration);
 
-const { status, data } = await apiInstance.replayEventsApiCompetenceEventsEventsReplayPost();
+const { status, data } = await apiInstance.replayEventsApiV1EventsEventsReplayPost();
 ```
 
 ### Parameters
