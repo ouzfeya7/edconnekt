@@ -7,8 +7,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **string** |  | [default to undefined]
 **cycle** | [**CycleEnum**](CycleEnum.md) |  | [default to undefined]
-**description** | **string** |  | [default to undefined]
-**visibility** | [**VisibilityEnum**](VisibilityEnum.md) |  | [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
+**visibility** | [**VisibilityEnum**](VisibilityEnum.md) |  | [optional] [default to undefined]
 **id** | **string** |  | [default to undefined]
 **tenant_id** | **string** |  | [default to undefined]
 **version_number** | **number** |  | [default to undefined]
@@ -18,7 +18,7 @@ Name | Type | Description | Notes
 **created_at** | **string** |  | [default to undefined]
 **updated_at** | **string** |  | [default to undefined]
 **published_at** | **string** |  | [default to undefined]
-**domains** | [**Array&lt;DomainTree&gt;**](DomainTree.md) |  | [default to undefined]
+**domains** | [**Array&lt;DomainTree&gt;**](DomainTree.md) |  | [optional] [default to undefined]
 
 ## Example
 

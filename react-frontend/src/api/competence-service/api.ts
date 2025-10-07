@@ -1058,6 +1058,99 @@ export interface ReferentialUpdate {
 /**
  * 
  * @export
+ * @interface ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+ */
+export interface ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet {
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'name': string;
+    /**
+     * 
+     * @type {CycleEnum}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'cycle': CycleEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'description'?: string;
+    /**
+     * 
+     * @type {VisibilityEnum}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'visibility'?: VisibilityEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'tenant_id': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'version_number': number;
+    /**
+     * 
+     * @type {RefStateEnum}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'state': RefStateEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'created_by': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'updated_by': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'updated_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'published_at': string;
+    /**
+     * 
+     * @type {Array<DomainTree>}
+     * @memberof ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet
+     */
+    'domains'?: Array<DomainTree>;
+}
+
+
+/**
+ * 
+ * @export
  * @interface ResponseGetReferentialApiV1ReferentialsReferentialIdGet
  */
 export interface ResponseGetReferentialApiV1ReferentialsReferentialIdGet {
@@ -1771,6 +1864,237 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        listOutboxEventsApiCompetenceEventsEventsGet: async (eventType?: string | null, aggregateType?: string | null, aggregateId?: string | null, status?: string | null, startDate?: string | null, endDate?: string | null, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/competence/events/events`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (eventType !== undefined) {
+                localVarQueryParameter['event_type'] = eventType;
+            }
+
+            if (aggregateType !== undefined) {
+                localVarQueryParameter['aggregate_type'] = aggregateType;
+            }
+
+            if (aggregateId !== undefined) {
+                localVarQueryParameter['aggregate_id'] = aggregateId;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (startDate !== undefined) {
+                localVarQueryParameter['start_date'] = (startDate as any instanceof Date) ?
+                    (startDate as any).toISOString() :
+                    startDate;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['end_date'] = (endDate as any instanceof Date) ?
+                    (endDate as any).toISOString() :
+                    endDate;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Manually trigger processing of pending outbox events
+         * @summary Replay Events
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        replayEventsApiCompetenceEventsEventsReplayPost: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/competence/events/events/replay`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * EventsApi - functional programming interface
+ * @export
+ */
+export const EventsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = EventsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * List outbox events with filters and pagination
+         * @summary List Outbox Events
+         * @param {string | null} [eventType] Filter by event type
+         * @param {string | null} [aggregateType] Filter by aggregate type
+         * @param {string | null} [aggregateId] Filter by aggregate ID
+         * @param {string | null} [status] Filter by status (PENDING, PROCESSED, FAILED)
+         * @param {string | null} [startDate] Filter by creation start date
+         * @param {string | null} [endDate] Filter by creation end date
+         * @param {number} [page] Page number
+         * @param {number} [size] Page size
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listOutboxEventsApiCompetenceEventsEventsGet(eventType?: string | null, aggregateType?: string | null, aggregateId?: string | null, status?: string | null, startDate?: string | null, endDate?: string | null, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<OutboxEventResponse>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listOutboxEventsApiCompetenceEventsEventsGet(eventType, aggregateType, aggregateId, status, startDate, endDate, page, size, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EventsApi.listOutboxEventsApiCompetenceEventsEventsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Manually trigger processing of pending outbox events
+         * @summary Replay Events
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async replayEventsApiCompetenceEventsEventsReplayPost(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.replayEventsApiCompetenceEventsEventsReplayPost(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EventsApi.replayEventsApiCompetenceEventsEventsReplayPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * EventsApi - factory interface
+ * @export
+ */
+export const EventsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = EventsApiFp(configuration)
+    return {
+        /**
+         * List outbox events with filters and pagination
+         * @summary List Outbox Events
+         * @param {string | null} [eventType] Filter by event type
+         * @param {string | null} [aggregateType] Filter by aggregate type
+         * @param {string | null} [aggregateId] Filter by aggregate ID
+         * @param {string | null} [status] Filter by status (PENDING, PROCESSED, FAILED)
+         * @param {string | null} [startDate] Filter by creation start date
+         * @param {string | null} [endDate] Filter by creation end date
+         * @param {number} [page] Page number
+         * @param {number} [size] Page size
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listOutboxEventsApiCompetenceEventsEventsGet(eventType?: string | null, aggregateType?: string | null, aggregateId?: string | null, status?: string | null, startDate?: string | null, endDate?: string | null, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<OutboxEventResponse>> {
+            return localVarFp.listOutboxEventsApiCompetenceEventsEventsGet(eventType, aggregateType, aggregateId, status, startDate, endDate, page, size, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Manually trigger processing of pending outbox events
+         * @summary Replay Events
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        replayEventsApiCompetenceEventsEventsReplayPost(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.replayEventsApiCompetenceEventsEventsReplayPost(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * EventsApi - object-oriented interface
+ * @export
+ * @class EventsApi
+ * @extends {BaseAPI}
+ */
+export class EventsApi extends BaseAPI {
+    /**
+     * List outbox events with filters and pagination
+     * @summary List Outbox Events
+     * @param {string | null} [eventType] Filter by event type
+     * @param {string | null} [aggregateType] Filter by aggregate type
+     * @param {string | null} [aggregateId] Filter by aggregate ID
+     * @param {string | null} [status] Filter by status (PENDING, PROCESSED, FAILED)
+     * @param {string | null} [startDate] Filter by creation start date
+     * @param {string | null} [endDate] Filter by creation end date
+     * @param {number} [page] Page number
+     * @param {number} [size] Page size
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EventsApi
+     */
+    public listOutboxEventsApiCompetenceEventsEventsGet(eventType?: string | null, aggregateType?: string | null, aggregateId?: string | null, status?: string | null, startDate?: string | null, endDate?: string | null, page?: number, size?: number, options?: RawAxiosRequestConfig) {
+        return EventsApiFp(this.configuration).listOutboxEventsApiCompetenceEventsEventsGet(eventType, aggregateType, aggregateId, status, startDate, endDate, page, size, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Manually trigger processing of pending outbox events
+     * @summary Replay Events
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EventsApi
+     */
+    public replayEventsApiCompetenceEventsEventsReplayPost(options?: RawAxiosRequestConfig) {
+        return EventsApiFp(this.configuration).replayEventsApiCompetenceEventsEventsReplayPost(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * EventsLegacyApi - axios parameter creator
+ * @export
+ */
+export const EventsLegacyApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * List outbox events with filters and pagination
+         * @summary List Outbox Events
+         * @param {string | null} [eventType] Filter by event type
+         * @param {string | null} [aggregateType] Filter by aggregate type
+         * @param {string | null} [aggregateId] Filter by aggregate ID
+         * @param {string | null} [status] Filter by status (PENDING, PROCESSED, FAILED)
+         * @param {string | null} [startDate] Filter by creation start date
+         * @param {string | null} [endDate] Filter by creation end date
+         * @param {number} [page] Page number
+         * @param {number} [size] Page size
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         listOutboxEventsApiV1EventsEventsGet: async (eventType?: string | null, aggregateType?: string | null, aggregateId?: string | null, status?: string | null, startDate?: string | null, endDate?: string | null, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/events/events`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -1865,11 +2189,11 @@ export const EventsApiAxiosParamCreator = function (configuration?: Configuratio
 };
 
 /**
- * EventsApi - functional programming interface
+ * EventsLegacyApi - functional programming interface
  * @export
  */
-export const EventsApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = EventsApiAxiosParamCreator(configuration)
+export const EventsLegacyApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = EventsLegacyApiAxiosParamCreator(configuration)
     return {
         /**
          * List outbox events with filters and pagination
@@ -1888,7 +2212,7 @@ export const EventsApiFp = function(configuration?: Configuration) {
         async listOutboxEventsApiV1EventsEventsGet(eventType?: string | null, aggregateType?: string | null, aggregateId?: string | null, status?: string | null, startDate?: string | null, endDate?: string | null, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<OutboxEventResponse>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listOutboxEventsApiV1EventsEventsGet(eventType, aggregateType, aggregateId, status, startDate, endDate, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['EventsApi.listOutboxEventsApiV1EventsEventsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['EventsLegacyApi.listOutboxEventsApiV1EventsEventsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1900,18 +2224,18 @@ export const EventsApiFp = function(configuration?: Configuration) {
         async replayEventsApiV1EventsEventsReplayPost(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.replayEventsApiV1EventsEventsReplayPost(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['EventsApi.replayEventsApiV1EventsEventsReplayPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['EventsLegacyApi.replayEventsApiV1EventsEventsReplayPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
 };
 
 /**
- * EventsApi - factory interface
+ * EventsLegacyApi - factory interface
  * @export
  */
-export const EventsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = EventsApiFp(configuration)
+export const EventsLegacyApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = EventsLegacyApiFp(configuration)
     return {
         /**
          * List outbox events with filters and pagination
@@ -1943,12 +2267,12 @@ export const EventsApiFactory = function (configuration?: Configuration, basePat
 };
 
 /**
- * EventsApi - object-oriented interface
+ * EventsLegacyApi - object-oriented interface
  * @export
- * @class EventsApi
+ * @class EventsLegacyApi
  * @extends {BaseAPI}
  */
-export class EventsApi extends BaseAPI {
+export class EventsLegacyApi extends BaseAPI {
     /**
      * List outbox events with filters and pagination
      * @summary List Outbox Events
@@ -1962,10 +2286,10 @@ export class EventsApi extends BaseAPI {
      * @param {number} [size] Page size
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EventsApi
+     * @memberof EventsLegacyApi
      */
     public listOutboxEventsApiV1EventsEventsGet(eventType?: string | null, aggregateType?: string | null, aggregateId?: string | null, status?: string | null, startDate?: string | null, endDate?: string | null, page?: number, size?: number, options?: RawAxiosRequestConfig) {
-        return EventsApiFp(this.configuration).listOutboxEventsApiV1EventsEventsGet(eventType, aggregateType, aggregateId, status, startDate, endDate, page, size, options).then((request) => request(this.axios, this.basePath));
+        return EventsLegacyApiFp(this.configuration).listOutboxEventsApiV1EventsEventsGet(eventType, aggregateType, aggregateId, status, startDate, endDate, page, size, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1973,10 +2297,10 @@ export class EventsApi extends BaseAPI {
      * @summary Replay Events
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EventsApi
+     * @memberof EventsLegacyApi
      */
     public replayEventsApiV1EventsEventsReplayPost(options?: RawAxiosRequestConfig) {
-        return EventsApiFp(this.configuration).replayEventsApiV1EventsEventsReplayPost(options).then((request) => request(this.axios, this.basePath));
+        return EventsLegacyApiFp(this.configuration).replayEventsApiV1EventsEventsReplayPost(options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1987,6 +2311,360 @@ export class EventsApi extends BaseAPI {
  * @export
  */
 export const PublicApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Récupérer les compétences d\'une matière (pour les référentiels publiés)
+         * @summary Get Competencies For Subject
+         * @param {string} subjectId ID de la matière
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCompetenciesForSubjectApiCompetencePublicSubjectsSubjectIdCompetenciesGet: async (subjectId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'subjectId' is not null or undefined
+            assertParamExists('getCompetenciesForSubjectApiCompetencePublicSubjectsSubjectIdCompetenciesGet', 'subjectId', subjectId)
+            const localVarPath = `/api/competence/public/subjects/{subject_id}/competencies`
+                .replace(`{${"subject_id"}}`, encodeURIComponent(String(subjectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupérer l\'arborescence complète d\'un référentiel publié
+         * @summary Get Referential Tree
+         * @param {string} referentialId ID du référentiel
+         * @param {number} version Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReferentialTreeApiCompetencePublicReferentialsReferentialIdTreeGet: async (referentialId: string, version: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('getReferentialTreeApiCompetencePublicReferentialsReferentialIdTreeGet', 'referentialId', referentialId)
+            // verify required parameter 'version' is not null or undefined
+            assertParamExists('getReferentialTreeApiCompetencePublicReferentialsReferentialIdTreeGet', 'version', version)
+            const localVarPath = `/api/competence/public/referentials/{referential_id}/tree`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (version !== undefined) {
+                localVarQueryParameter['version'] = version;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Lister les matières par cycle et niveau (pour les référentiels publiés)
+         * @summary List Subjects By Scope
+         * @param {CycleEnum} cycle Filtrer par cycle
+         * @param {string} level Filtrer par niveau
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSubjectsByScopeApiCompetencePublicSubjectsGet: async (cycle: CycleEnum, level: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'cycle' is not null or undefined
+            assertParamExists('listSubjectsByScopeApiCompetencePublicSubjectsGet', 'cycle', cycle)
+            // verify required parameter 'level' is not null or undefined
+            assertParamExists('listSubjectsByScopeApiCompetencePublicSubjectsGet', 'level', level)
+            const localVarPath = `/api/competence/public/subjects`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (cycle !== undefined) {
+                localVarQueryParameter['cycle'] = cycle;
+            }
+
+            if (level !== undefined) {
+                localVarQueryParameter['level'] = level;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Rechercher une compétence par son code (pour les référentiels publiés)
+         * @summary Lookup Competency By Code
+         * @param {string} code Code de la compétence
+         * @param {string | null} [referentialId] ID du référentiel
+         * @param {number | null} [version] Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        lookupCompetencyByCodeApiCompetencePublicCompetenciesByCodeCodeGet: async (code: string, referentialId?: string | null, version?: number | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'code' is not null or undefined
+            assertParamExists('lookupCompetencyByCodeApiCompetencePublicCompetenciesByCodeCodeGet', 'code', code)
+            const localVarPath = `/api/competence/public/competencies/by-code/{code}`
+                .replace(`{${"code"}}`, encodeURIComponent(String(code)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (referentialId !== undefined) {
+                localVarQueryParameter['referential_id'] = referentialId;
+            }
+
+            if (version !== undefined) {
+                localVarQueryParameter['version'] = version;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PublicApi - functional programming interface
+ * @export
+ */
+export const PublicApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PublicApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Récupérer les compétences d\'une matière (pour les référentiels publiés)
+         * @summary Get Competencies For Subject
+         * @param {string} subjectId ID de la matière
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCompetenciesForSubjectApiCompetencePublicSubjectsSubjectIdCompetenciesGet(subjectId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CompetencyResponse>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCompetenciesForSubjectApiCompetencePublicSubjectsSubjectIdCompetenciesGet(subjectId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PublicApi.getCompetenciesForSubjectApiCompetencePublicSubjectsSubjectIdCompetenciesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupérer l\'arborescence complète d\'un référentiel publié
+         * @summary Get Referential Tree
+         * @param {string} referentialId ID du référentiel
+         * @param {number} version Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getReferentialTreeApiCompetencePublicReferentialsReferentialIdTreeGet(referentialId: string, version: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialTree>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getReferentialTreeApiCompetencePublicReferentialsReferentialIdTreeGet(referentialId, version, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PublicApi.getReferentialTreeApiCompetencePublicReferentialsReferentialIdTreeGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Lister les matières par cycle et niveau (pour les référentiels publiés)
+         * @summary List Subjects By Scope
+         * @param {CycleEnum} cycle Filtrer par cycle
+         * @param {string} level Filtrer par niveau
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listSubjectsByScopeApiCompetencePublicSubjectsGet(cycle: CycleEnum, level: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<SubjectResponse>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listSubjectsByScopeApiCompetencePublicSubjectsGet(cycle, level, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PublicApi.listSubjectsByScopeApiCompetencePublicSubjectsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Rechercher une compétence par son code (pour les référentiels publiés)
+         * @summary Lookup Competency By Code
+         * @param {string} code Code de la compétence
+         * @param {string | null} [referentialId] ID du référentiel
+         * @param {number | null} [version] Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async lookupCompetencyByCodeApiCompetencePublicCompetenciesByCodeCodeGet(code: string, referentialId?: string | null, version?: number | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompetencyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.lookupCompetencyByCodeApiCompetencePublicCompetenciesByCodeCodeGet(code, referentialId, version, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PublicApi.lookupCompetencyByCodeApiCompetencePublicCompetenciesByCodeCodeGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PublicApi - factory interface
+ * @export
+ */
+export const PublicApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PublicApiFp(configuration)
+    return {
+        /**
+         * Récupérer les compétences d\'une matière (pour les référentiels publiés)
+         * @summary Get Competencies For Subject
+         * @param {string} subjectId ID de la matière
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCompetenciesForSubjectApiCompetencePublicSubjectsSubjectIdCompetenciesGet(subjectId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<CompetencyResponse>> {
+            return localVarFp.getCompetenciesForSubjectApiCompetencePublicSubjectsSubjectIdCompetenciesGet(subjectId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupérer l\'arborescence complète d\'un référentiel publié
+         * @summary Get Referential Tree
+         * @param {string} referentialId ID du référentiel
+         * @param {number} version Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReferentialTreeApiCompetencePublicReferentialsReferentialIdTreeGet(referentialId: string, version: number, options?: RawAxiosRequestConfig): AxiosPromise<ReferentialTree> {
+            return localVarFp.getReferentialTreeApiCompetencePublicReferentialsReferentialIdTreeGet(referentialId, version, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Lister les matières par cycle et niveau (pour les référentiels publiés)
+         * @summary List Subjects By Scope
+         * @param {CycleEnum} cycle Filtrer par cycle
+         * @param {string} level Filtrer par niveau
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSubjectsByScopeApiCompetencePublicSubjectsGet(cycle: CycleEnum, level: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<SubjectResponse>> {
+            return localVarFp.listSubjectsByScopeApiCompetencePublicSubjectsGet(cycle, level, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Rechercher une compétence par son code (pour les référentiels publiés)
+         * @summary Lookup Competency By Code
+         * @param {string} code Code de la compétence
+         * @param {string | null} [referentialId] ID du référentiel
+         * @param {number | null} [version] Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        lookupCompetencyByCodeApiCompetencePublicCompetenciesByCodeCodeGet(code: string, referentialId?: string | null, version?: number | null, options?: RawAxiosRequestConfig): AxiosPromise<CompetencyResponse> {
+            return localVarFp.lookupCompetencyByCodeApiCompetencePublicCompetenciesByCodeCodeGet(code, referentialId, version, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PublicApi - object-oriented interface
+ * @export
+ * @class PublicApi
+ * @extends {BaseAPI}
+ */
+export class PublicApi extends BaseAPI {
+    /**
+     * Récupérer les compétences d\'une matière (pour les référentiels publiés)
+     * @summary Get Competencies For Subject
+     * @param {string} subjectId ID de la matière
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PublicApi
+     */
+    public getCompetenciesForSubjectApiCompetencePublicSubjectsSubjectIdCompetenciesGet(subjectId: string, options?: RawAxiosRequestConfig) {
+        return PublicApiFp(this.configuration).getCompetenciesForSubjectApiCompetencePublicSubjectsSubjectIdCompetenciesGet(subjectId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupérer l\'arborescence complète d\'un référentiel publié
+     * @summary Get Referential Tree
+     * @param {string} referentialId ID du référentiel
+     * @param {number} version Numéro de version
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PublicApi
+     */
+    public getReferentialTreeApiCompetencePublicReferentialsReferentialIdTreeGet(referentialId: string, version: number, options?: RawAxiosRequestConfig) {
+        return PublicApiFp(this.configuration).getReferentialTreeApiCompetencePublicReferentialsReferentialIdTreeGet(referentialId, version, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Lister les matières par cycle et niveau (pour les référentiels publiés)
+     * @summary List Subjects By Scope
+     * @param {CycleEnum} cycle Filtrer par cycle
+     * @param {string} level Filtrer par niveau
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PublicApi
+     */
+    public listSubjectsByScopeApiCompetencePublicSubjectsGet(cycle: CycleEnum, level: string, options?: RawAxiosRequestConfig) {
+        return PublicApiFp(this.configuration).listSubjectsByScopeApiCompetencePublicSubjectsGet(cycle, level, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Rechercher une compétence par son code (pour les référentiels publiés)
+     * @summary Lookup Competency By Code
+     * @param {string} code Code de la compétence
+     * @param {string | null} [referentialId] ID du référentiel
+     * @param {number | null} [version] Numéro de version
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PublicApi
+     */
+    public lookupCompetencyByCodeApiCompetencePublicCompetenciesByCodeCodeGet(code: string, referentialId?: string | null, version?: number | null, options?: RawAxiosRequestConfig) {
+        return PublicApiFp(this.configuration).lookupCompetencyByCodeApiCompetencePublicCompetenciesByCodeCodeGet(code, referentialId, version, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * PublicLegacyApi - axios parameter creator
+ * @export
+ */
+export const PublicLegacyApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
          * Récupérer les compétences d\'une matière (pour les référentiels publiés)
@@ -2155,11 +2833,11 @@ export const PublicApiAxiosParamCreator = function (configuration?: Configuratio
 };
 
 /**
- * PublicApi - functional programming interface
+ * PublicLegacyApi - functional programming interface
  * @export
  */
-export const PublicApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = PublicApiAxiosParamCreator(configuration)
+export const PublicLegacyApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PublicLegacyApiAxiosParamCreator(configuration)
     return {
         /**
          * Récupérer les compétences d\'une matière (pour les référentiels publiés)
@@ -2171,7 +2849,7 @@ export const PublicApiFp = function(configuration?: Configuration) {
         async getCompetenciesForSubjectApiV1PublicSubjectsSubjectIdCompetenciesGet(subjectId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CompetencyResponse>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getCompetenciesForSubjectApiV1PublicSubjectsSubjectIdCompetenciesGet(subjectId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PublicApi.getCompetenciesForSubjectApiV1PublicSubjectsSubjectIdCompetenciesGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['PublicLegacyApi.getCompetenciesForSubjectApiV1PublicSubjectsSubjectIdCompetenciesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2185,7 +2863,7 @@ export const PublicApiFp = function(configuration?: Configuration) {
         async getReferentialTreeApiV1PublicReferentialsReferentialIdTreeGet(referentialId: string, version: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialTree>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getReferentialTreeApiV1PublicReferentialsReferentialIdTreeGet(referentialId, version, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PublicApi.getReferentialTreeApiV1PublicReferentialsReferentialIdTreeGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['PublicLegacyApi.getReferentialTreeApiV1PublicReferentialsReferentialIdTreeGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2199,7 +2877,7 @@ export const PublicApiFp = function(configuration?: Configuration) {
         async listSubjectsByScopeApiV1PublicSubjectsGet(cycle: CycleEnum, level: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<SubjectResponse>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listSubjectsByScopeApiV1PublicSubjectsGet(cycle, level, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PublicApi.listSubjectsByScopeApiV1PublicSubjectsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['PublicLegacyApi.listSubjectsByScopeApiV1PublicSubjectsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2214,18 +2892,18 @@ export const PublicApiFp = function(configuration?: Configuration) {
         async lookupCompetencyByCodeApiV1PublicCompetenciesByCodeCodeGet(code: string, referentialId?: string | null, version?: number | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompetencyResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.lookupCompetencyByCodeApiV1PublicCompetenciesByCodeCodeGet(code, referentialId, version, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PublicApi.lookupCompetencyByCodeApiV1PublicCompetenciesByCodeCodeGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['PublicLegacyApi.lookupCompetencyByCodeApiV1PublicCompetenciesByCodeCodeGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
 };
 
 /**
- * PublicApi - factory interface
+ * PublicLegacyApi - factory interface
  * @export
  */
-export const PublicApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = PublicApiFp(configuration)
+export const PublicLegacyApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PublicLegacyApiFp(configuration)
     return {
         /**
          * Récupérer les compétences d\'une matière (pour les référentiels publiés)
@@ -2275,22 +2953,22 @@ export const PublicApiFactory = function (configuration?: Configuration, basePat
 };
 
 /**
- * PublicApi - object-oriented interface
+ * PublicLegacyApi - object-oriented interface
  * @export
- * @class PublicApi
+ * @class PublicLegacyApi
  * @extends {BaseAPI}
  */
-export class PublicApi extends BaseAPI {
+export class PublicLegacyApi extends BaseAPI {
     /**
      * Récupérer les compétences d\'une matière (pour les référentiels publiés)
      * @summary Get Competencies For Subject
      * @param {string} subjectId ID de la matière
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PublicApi
+     * @memberof PublicLegacyApi
      */
     public getCompetenciesForSubjectApiV1PublicSubjectsSubjectIdCompetenciesGet(subjectId: string, options?: RawAxiosRequestConfig) {
-        return PublicApiFp(this.configuration).getCompetenciesForSubjectApiV1PublicSubjectsSubjectIdCompetenciesGet(subjectId, options).then((request) => request(this.axios, this.basePath));
+        return PublicLegacyApiFp(this.configuration).getCompetenciesForSubjectApiV1PublicSubjectsSubjectIdCompetenciesGet(subjectId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2300,10 +2978,10 @@ export class PublicApi extends BaseAPI {
      * @param {number} version Numéro de version
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PublicApi
+     * @memberof PublicLegacyApi
      */
     public getReferentialTreeApiV1PublicReferentialsReferentialIdTreeGet(referentialId: string, version: number, options?: RawAxiosRequestConfig) {
-        return PublicApiFp(this.configuration).getReferentialTreeApiV1PublicReferentialsReferentialIdTreeGet(referentialId, version, options).then((request) => request(this.axios, this.basePath));
+        return PublicLegacyApiFp(this.configuration).getReferentialTreeApiV1PublicReferentialsReferentialIdTreeGet(referentialId, version, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2313,10 +2991,10 @@ export class PublicApi extends BaseAPI {
      * @param {string} level Filtrer par niveau
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PublicApi
+     * @memberof PublicLegacyApi
      */
     public listSubjectsByScopeApiV1PublicSubjectsGet(cycle: CycleEnum, level: string, options?: RawAxiosRequestConfig) {
-        return PublicApiFp(this.configuration).listSubjectsByScopeApiV1PublicSubjectsGet(cycle, level, options).then((request) => request(this.axios, this.basePath));
+        return PublicLegacyApiFp(this.configuration).listSubjectsByScopeApiV1PublicSubjectsGet(cycle, level, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2327,10 +3005,10 @@ export class PublicApi extends BaseAPI {
      * @param {number | null} [version] Numéro de version
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PublicApi
+     * @memberof PublicLegacyApi
      */
     public lookupCompetencyByCodeApiV1PublicCompetenciesByCodeCodeGet(code: string, referentialId?: string | null, version?: number | null, options?: RawAxiosRequestConfig) {
-        return PublicApiFp(this.configuration).lookupCompetencyByCodeApiV1PublicCompetenciesByCodeCodeGet(code, referentialId, version, options).then((request) => request(this.axios, this.basePath));
+        return PublicLegacyApiFp(this.configuration).lookupCompetencyByCodeApiV1PublicCompetenciesByCodeCodeGet(code, referentialId, version, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -2341,6 +3019,2325 @@ export class PublicApi extends BaseAPI {
  * @export
  */
 export const ReferentialsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Cloner un référentiel global dans le tenant courant
+         * @summary Clone From Global Referential
+         * @param {string} globalReferentialId ID du référentiel global à cloner
+         * @param {ReferentialCloneFromGlobalRequest} referentialCloneFromGlobalRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost: async (globalReferentialId: string, referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'globalReferentialId' is not null or undefined
+            assertParamExists('cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost', 'globalReferentialId', globalReferentialId)
+            // verify required parameter 'referentialCloneFromGlobalRequest' is not null or undefined
+            assertParamExists('cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost', 'referentialCloneFromGlobalRequest', referentialCloneFromGlobalRequest)
+            const localVarPath = `/api/competence/global/referentials/{global_referential_id}/clone`
+                .replace(`{${"global_referential_id"}}`, encodeURIComponent(String(globalReferentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(referentialCloneFromGlobalRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Cloner un référentiel en nouvelle version
+         * @summary Clone Referential
+         * @param {string} referentialId ID du référentiel à cloner
+         * @param {ReferentialCloneRequest} referentialCloneRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloneReferentialApiCompetenceReferentialsReferentialIdClonePost: async (referentialId: string, referentialCloneRequest: ReferentialCloneRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('cloneReferentialApiCompetenceReferentialsReferentialIdClonePost', 'referentialId', referentialId)
+            // verify required parameter 'referentialCloneRequest' is not null or undefined
+            assertParamExists('cloneReferentialApiCompetenceReferentialsReferentialIdClonePost', 'referentialCloneRequest', referentialCloneRequest)
+            const localVarPath = `/api/competence/referentials/{referential_id}/clone`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(referentialCloneRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Créer une nouvelle affectation
+         * @summary Create Assignment
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {AssignmentCreate} assignmentCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost: async (referentialId: string, versionNumber: number, assignmentCreate: AssignmentCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost', 'referentialId', referentialId)
+            // verify required parameter 'versionNumber' is not null or undefined
+            assertParamExists('createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost', 'versionNumber', versionNumber)
+            // verify required parameter 'assignmentCreate' is not null or undefined
+            assertParamExists('createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost', 'assignmentCreate', assignmentCreate)
+            const localVarPath = `/api/competence/referentials/{referential_id}/assignments`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(assignmentCreate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Créer une nouvelle compétence
+         * @summary Create Competency
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {CompetencyCreate} competencyCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost: async (referentialId: string, versionNumber: number, competencyCreate: CompetencyCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost', 'referentialId', referentialId)
+            // verify required parameter 'versionNumber' is not null or undefined
+            assertParamExists('createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost', 'versionNumber', versionNumber)
+            // verify required parameter 'competencyCreate' is not null or undefined
+            assertParamExists('createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost', 'competencyCreate', competencyCreate)
+            const localVarPath = `/api/competence/referentials/{referential_id}/competencies`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(competencyCreate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Créer un nouveau domaine
+         * @summary Create Domain
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {DomainCreate} domainCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createDomainApiCompetenceReferentialsReferentialIdDomainsPost: async (referentialId: string, versionNumber: number, domainCreate: DomainCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('createDomainApiCompetenceReferentialsReferentialIdDomainsPost', 'referentialId', referentialId)
+            // verify required parameter 'versionNumber' is not null or undefined
+            assertParamExists('createDomainApiCompetenceReferentialsReferentialIdDomainsPost', 'versionNumber', versionNumber)
+            // verify required parameter 'domainCreate' is not null or undefined
+            assertParamExists('createDomainApiCompetenceReferentialsReferentialIdDomainsPost', 'domainCreate', domainCreate)
+            const localVarPath = `/api/competence/referentials/{referential_id}/domains`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(domainCreate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Créer un nouveau référentiel
+         * @summary Create Referential
+         * @param {ReferentialCreate} referentialCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createReferentialApiCompetenceReferentialsPost: async (referentialCreate: ReferentialCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialCreate' is not null or undefined
+            assertParamExists('createReferentialApiCompetenceReferentialsPost', 'referentialCreate', referentialCreate)
+            const localVarPath = `/api/competence/referentials`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(referentialCreate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Créer une nouvelle matière
+         * @summary Create Subject
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {SubjectCreate} subjectCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost: async (referentialId: string, versionNumber: number, subjectCreate: SubjectCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost', 'referentialId', referentialId)
+            // verify required parameter 'versionNumber' is not null or undefined
+            assertParamExists('createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost', 'versionNumber', versionNumber)
+            // verify required parameter 'subjectCreate' is not null or undefined
+            assertParamExists('createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost', 'subjectCreate', subjectCreate)
+            const localVarPath = `/api/competence/referentials/{referential_id}/subjects`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(subjectCreate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Supprimer une affectation
+         * @summary Delete Assignment
+         * @param {string} assignmentId ID de l\&#39;affectation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete: async (assignmentId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'assignmentId' is not null or undefined
+            assertParamExists('deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete', 'assignmentId', assignmentId)
+            const localVarPath = `/api/competence/assignments/{assignment_id}`
+                .replace(`{${"assignment_id"}}`, encodeURIComponent(String(assignmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Supprimer une compétence
+         * @summary Delete Competency
+         * @param {string} competencyId ID de la compétence
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete: async (competencyId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'competencyId' is not null or undefined
+            assertParamExists('deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete', 'competencyId', competencyId)
+            const localVarPath = `/api/competence/competencies/{competency_id}`
+                .replace(`{${"competency_id"}}`, encodeURIComponent(String(competencyId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Supprimer un domaine
+         * @summary Delete Domain
+         * @param {string} domainId ID du domaine
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteDomainApiCompetenceDomainsDomainIdDelete: async (domainId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'domainId' is not null or undefined
+            assertParamExists('deleteDomainApiCompetenceDomainsDomainIdDelete', 'domainId', domainId)
+            const localVarPath = `/api/competence/domains/{domain_id}`
+                .replace(`{${"domain_id"}}`, encodeURIComponent(String(domainId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Archiver un référentiel (soft delete)
+         * @summary Delete Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteReferentialApiCompetenceReferentialsReferentialIdDelete: async (referentialId: string, versionNumber: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('deleteReferentialApiCompetenceReferentialsReferentialIdDelete', 'referentialId', referentialId)
+            // verify required parameter 'versionNumber' is not null or undefined
+            assertParamExists('deleteReferentialApiCompetenceReferentialsReferentialIdDelete', 'versionNumber', versionNumber)
+            const localVarPath = `/api/competence/referentials/{referential_id}`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Supprimer une matière
+         * @summary Delete Subject
+         * @param {string} subjectId ID de la matière
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteSubjectApiCompetenceSubjectsSubjectIdDelete: async (subjectId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'subjectId' is not null or undefined
+            assertParamExists('deleteSubjectApiCompetenceSubjectsSubjectIdDelete', 'subjectId', subjectId)
+            const localVarPath = `/api/competence/subjects/{subject_id}`
+                .replace(`{${"subject_id"}}`, encodeURIComponent(String(subjectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupérer une affectation par ID
+         * @summary Get Assignment
+         * @param {string} assignmentId ID de l\&#39;affectation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAssignmentApiCompetenceAssignmentsAssignmentIdGet: async (assignmentId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'assignmentId' is not null or undefined
+            assertParamExists('getAssignmentApiCompetenceAssignmentsAssignmentIdGet', 'assignmentId', assignmentId)
+            const localVarPath = `/api/competence/assignments/{assignment_id}`
+                .replace(`{${"assignment_id"}}`, encodeURIComponent(String(assignmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupérer une compétence par ID
+         * @summary Get Competency
+         * @param {string} competencyId ID de la compétence
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCompetencyApiCompetenceCompetenciesCompetencyIdGet: async (competencyId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'competencyId' is not null or undefined
+            assertParamExists('getCompetencyApiCompetenceCompetenciesCompetencyIdGet', 'competencyId', competencyId)
+            const localVarPath = `/api/competence/competencies/{competency_id}`
+                .replace(`{${"competency_id"}}`, encodeURIComponent(String(competencyId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupérer un domaine par ID
+         * @summary Get Domain
+         * @param {string} domainId ID du domaine
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDomainApiCompetenceDomainsDomainIdGet: async (domainId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'domainId' is not null or undefined
+            assertParamExists('getDomainApiCompetenceDomainsDomainIdGet', 'domainId', domainId)
+            const localVarPath = `/api/competence/domains/{domain_id}`
+                .replace(`{${"domain_id"}}`, encodeURIComponent(String(domainId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupérer un référentiel par ID et version
+         * @summary Get Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number | null} [versionNumber] Numéro de version
+         * @param {boolean} [includeTree] Inclure l\&#39;arborescence complète (domaines, matières, compétences)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReferentialApiCompetenceReferentialsReferentialIdGet: async (referentialId: string, versionNumber?: number | null, includeTree?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('getReferentialApiCompetenceReferentialsReferentialIdGet', 'referentialId', referentialId)
+            const localVarPath = `/api/competence/referentials/{referential_id}`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+            if (includeTree !== undefined) {
+                localVarQueryParameter['include_tree'] = includeTree;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupérer une matière par ID
+         * @summary Get Subject
+         * @param {string} subjectId ID de la matière
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSubjectApiCompetenceSubjectsSubjectIdGet: async (subjectId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'subjectId' is not null or undefined
+            assertParamExists('getSubjectApiCompetenceSubjectsSubjectIdGet', 'subjectId', subjectId)
+            const localVarPath = `/api/competence/subjects/{subject_id}`
+                .replace(`{${"subject_id"}}`, encodeURIComponent(String(subjectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Lister les affectations d\'un référentiel
+         * @summary List Assignments
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAssignmentsApiCompetenceReferentialsReferentialIdAssignmentsGet: async (referentialId: string, versionNumber: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('listAssignmentsApiCompetenceReferentialsReferentialIdAssignmentsGet', 'referentialId', referentialId)
+            // verify required parameter 'versionNumber' is not null or undefined
+            assertParamExists('listAssignmentsApiCompetenceReferentialsReferentialIdAssignmentsGet', 'versionNumber', versionNumber)
+            const localVarPath = `/api/competence/referentials/{referential_id}/assignments`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Lister les compétences d\'un référentiel avec filtres
+         * @summary List Competencies
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [subjectId] Filtrer par matière
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet: async (referentialId: string, versionNumber: number, page?: number, size?: number, subjectId?: string | null, q?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet', 'referentialId', referentialId)
+            // verify required parameter 'versionNumber' is not null or undefined
+            assertParamExists('listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet', 'versionNumber', versionNumber)
+            const localVarPath = `/api/competence/referentials/{referential_id}/competencies`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (subjectId !== undefined) {
+                localVarQueryParameter['subject_id'] = subjectId;
+            }
+
+            if (q !== undefined) {
+                localVarQueryParameter['q'] = q;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Lister les domaines d\'un référentiel
+         * @summary List Domains
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listDomainsApiCompetenceReferentialsReferentialIdDomainsGet: async (referentialId: string, versionNumber: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('listDomainsApiCompetenceReferentialsReferentialIdDomainsGet', 'referentialId', referentialId)
+            // verify required parameter 'versionNumber' is not null or undefined
+            assertParamExists('listDomainsApiCompetenceReferentialsReferentialIdDomainsGet', 'versionNumber', versionNumber)
+            const localVarPath = `/api/competence/referentials/{referential_id}/domains`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Lister les référentiels globaux (catalogue EdConnect)
+         * @summary List Global Referentials
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [cycle] Filtrer par cycle
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listGlobalReferentialsApiCompetenceGlobalReferentialsGet: async (page?: number, size?: number, cycle?: string | null, q?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/competence/global/referentials`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (cycle !== undefined) {
+                localVarQueryParameter['cycle'] = cycle;
+            }
+
+            if (q !== undefined) {
+                localVarQueryParameter['q'] = q;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Lister les référentiels avec filtres et pagination
+         * @summary List Referentials
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [cycle] Filtrer par cycle
+         * @param {string | null} [state] Filtrer par état
+         * @param {string | null} [visibility] Filtrer par visibilité
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listReferentialsApiCompetenceReferentialsGet: async (page?: number, size?: number, cycle?: string | null, state?: string | null, visibility?: string | null, q?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/competence/referentials`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (cycle !== undefined) {
+                localVarQueryParameter['cycle'] = cycle;
+            }
+
+            if (state !== undefined) {
+                localVarQueryParameter['state'] = state;
+            }
+
+            if (visibility !== undefined) {
+                localVarQueryParameter['visibility'] = visibility;
+            }
+
+            if (q !== undefined) {
+                localVarQueryParameter['q'] = q;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Lister les matières d\'un référentiel avec filtres
+         * @summary List Subjects
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [domainId] Filtrer par domaine
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet: async (referentialId: string, versionNumber: number, page?: number, size?: number, domainId?: string | null, q?: string | null, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet', 'referentialId', referentialId)
+            // verify required parameter 'versionNumber' is not null or undefined
+            assertParamExists('listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet', 'versionNumber', versionNumber)
+            const localVarPath = `/api/competence/referentials/{referential_id}/subjects`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (domainId !== undefined) {
+                localVarQueryParameter['domain_id'] = domainId;
+            }
+
+            if (q !== undefined) {
+                localVarQueryParameter['q'] = q;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Publier un référentiel
+         * @summary Publish Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        publishReferentialApiCompetenceReferentialsReferentialIdPublishPost: async (referentialId: string, versionNumber: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('publishReferentialApiCompetenceReferentialsReferentialIdPublishPost', 'referentialId', referentialId)
+            // verify required parameter 'versionNumber' is not null or undefined
+            assertParamExists('publishReferentialApiCompetenceReferentialsReferentialIdPublishPost', 'versionNumber', versionNumber)
+            const localVarPath = `/api/competence/referentials/{referential_id}/publish`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Mettre à jour une compétence
+         * @summary Update Competency
+         * @param {string} competencyId ID de la compétence
+         * @param {CompetencyUpdate} competencyUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateCompetencyApiCompetenceCompetenciesCompetencyIdPatch: async (competencyId: string, competencyUpdate: CompetencyUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'competencyId' is not null or undefined
+            assertParamExists('updateCompetencyApiCompetenceCompetenciesCompetencyIdPatch', 'competencyId', competencyId)
+            // verify required parameter 'competencyUpdate' is not null or undefined
+            assertParamExists('updateCompetencyApiCompetenceCompetenciesCompetencyIdPatch', 'competencyUpdate', competencyUpdate)
+            const localVarPath = `/api/competence/competencies/{competency_id}`
+                .replace(`{${"competency_id"}}`, encodeURIComponent(String(competencyId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(competencyUpdate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Mettre à jour un domaine
+         * @summary Update Domain
+         * @param {string} domainId ID du domaine
+         * @param {DomainUpdate} domainUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateDomainApiCompetenceDomainsDomainIdPatch: async (domainId: string, domainUpdate: DomainUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'domainId' is not null or undefined
+            assertParamExists('updateDomainApiCompetenceDomainsDomainIdPatch', 'domainId', domainId)
+            // verify required parameter 'domainUpdate' is not null or undefined
+            assertParamExists('updateDomainApiCompetenceDomainsDomainIdPatch', 'domainUpdate', domainUpdate)
+            const localVarPath = `/api/competence/domains/{domain_id}`
+                .replace(`{${"domain_id"}}`, encodeURIComponent(String(domainId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(domainUpdate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Mettre à jour un référentiel
+         * @summary Update Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {ReferentialUpdate} referentialUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateReferentialApiCompetenceReferentialsReferentialIdPatch: async (referentialId: string, versionNumber: number, referentialUpdate: ReferentialUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'referentialId' is not null or undefined
+            assertParamExists('updateReferentialApiCompetenceReferentialsReferentialIdPatch', 'referentialId', referentialId)
+            // verify required parameter 'versionNumber' is not null or undefined
+            assertParamExists('updateReferentialApiCompetenceReferentialsReferentialIdPatch', 'versionNumber', versionNumber)
+            // verify required parameter 'referentialUpdate' is not null or undefined
+            assertParamExists('updateReferentialApiCompetenceReferentialsReferentialIdPatch', 'referentialUpdate', referentialUpdate)
+            const localVarPath = `/api/competence/referentials/{referential_id}`
+                .replace(`{${"referential_id"}}`, encodeURIComponent(String(referentialId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (versionNumber !== undefined) {
+                localVarQueryParameter['version_number'] = versionNumber;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(referentialUpdate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Mettre à jour une matière
+         * @summary Update Subject
+         * @param {string} subjectId ID de la matière
+         * @param {SubjectUpdate} subjectUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateSubjectApiCompetenceSubjectsSubjectIdPatch: async (subjectId: string, subjectUpdate: SubjectUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'subjectId' is not null or undefined
+            assertParamExists('updateSubjectApiCompetenceSubjectsSubjectIdPatch', 'subjectId', subjectId)
+            // verify required parameter 'subjectUpdate' is not null or undefined
+            assertParamExists('updateSubjectApiCompetenceSubjectsSubjectIdPatch', 'subjectUpdate', subjectUpdate)
+            const localVarPath = `/api/competence/subjects/{subject_id}`
+                .replace(`{${"subject_id"}}`, encodeURIComponent(String(subjectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(subjectUpdate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ReferentialsApi - functional programming interface
+ * @export
+ */
+export const ReferentialsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ReferentialsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Cloner un référentiel global dans le tenant courant
+         * @summary Clone From Global Referential
+         * @param {string} globalReferentialId ID du référentiel global à cloner
+         * @param {ReferentialCloneFromGlobalRequest} referentialCloneFromGlobalRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId: string, referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId, referentialCloneFromGlobalRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Cloner un référentiel en nouvelle version
+         * @summary Clone Referential
+         * @param {string} referentialId ID du référentiel à cloner
+         * @param {ReferentialCloneRequest} referentialCloneRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cloneReferentialApiCompetenceReferentialsReferentialIdClonePost(referentialId: string, referentialCloneRequest: ReferentialCloneRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cloneReferentialApiCompetenceReferentialsReferentialIdClonePost(referentialId, referentialCloneRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.cloneReferentialApiCompetenceReferentialsReferentialIdClonePost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Créer une nouvelle affectation
+         * @summary Create Assignment
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {AssignmentCreate} assignmentCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost(referentialId: string, versionNumber: number, assignmentCreate: AssignmentCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AssignmentResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost(referentialId, versionNumber, assignmentCreate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Créer une nouvelle compétence
+         * @summary Create Competency
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {CompetencyCreate} competencyCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost(referentialId: string, versionNumber: number, competencyCreate: CompetencyCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompetencyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost(referentialId, versionNumber, competencyCreate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Créer un nouveau domaine
+         * @summary Create Domain
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {DomainCreate} domainCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createDomainApiCompetenceReferentialsReferentialIdDomainsPost(referentialId: string, versionNumber: number, domainCreate: DomainCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DomainResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createDomainApiCompetenceReferentialsReferentialIdDomainsPost(referentialId, versionNumber, domainCreate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.createDomainApiCompetenceReferentialsReferentialIdDomainsPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Créer un nouveau référentiel
+         * @summary Create Referential
+         * @param {ReferentialCreate} referentialCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createReferentialApiCompetenceReferentialsPost(referentialCreate: ReferentialCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createReferentialApiCompetenceReferentialsPost(referentialCreate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.createReferentialApiCompetenceReferentialsPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Créer une nouvelle matière
+         * @summary Create Subject
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {SubjectCreate} subjectCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost(referentialId: string, versionNumber: number, subjectCreate: SubjectCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SubjectResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost(referentialId, versionNumber, subjectCreate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Supprimer une affectation
+         * @summary Delete Assignment
+         * @param {string} assignmentId ID de l\&#39;affectation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete(assignmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete(assignmentId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Supprimer une compétence
+         * @summary Delete Competency
+         * @param {string} competencyId ID de la compétence
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete(competencyId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete(competencyId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Supprimer un domaine
+         * @summary Delete Domain
+         * @param {string} domainId ID du domaine
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteDomainApiCompetenceDomainsDomainIdDelete(domainId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteDomainApiCompetenceDomainsDomainIdDelete(domainId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.deleteDomainApiCompetenceDomainsDomainIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Archiver un référentiel (soft delete)
+         * @summary Delete Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteReferentialApiCompetenceReferentialsReferentialIdDelete(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteReferentialApiCompetenceReferentialsReferentialIdDelete(referentialId, versionNumber, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.deleteReferentialApiCompetenceReferentialsReferentialIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Supprimer une matière
+         * @summary Delete Subject
+         * @param {string} subjectId ID de la matière
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteSubjectApiCompetenceSubjectsSubjectIdDelete(subjectId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteSubjectApiCompetenceSubjectsSubjectIdDelete(subjectId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.deleteSubjectApiCompetenceSubjectsSubjectIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupérer une affectation par ID
+         * @summary Get Assignment
+         * @param {string} assignmentId ID de l\&#39;affectation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAssignmentApiCompetenceAssignmentsAssignmentIdGet(assignmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AssignmentResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAssignmentApiCompetenceAssignmentsAssignmentIdGet(assignmentId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.getAssignmentApiCompetenceAssignmentsAssignmentIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupérer une compétence par ID
+         * @summary Get Competency
+         * @param {string} competencyId ID de la compétence
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCompetencyApiCompetenceCompetenciesCompetencyIdGet(competencyId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompetencyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCompetencyApiCompetenceCompetenciesCompetencyIdGet(competencyId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.getCompetencyApiCompetenceCompetenciesCompetencyIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupérer un domaine par ID
+         * @summary Get Domain
+         * @param {string} domainId ID du domaine
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getDomainApiCompetenceDomainsDomainIdGet(domainId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DomainResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getDomainApiCompetenceDomainsDomainIdGet(domainId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.getDomainApiCompetenceDomainsDomainIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupérer un référentiel par ID et version
+         * @summary Get Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number | null} [versionNumber] Numéro de version
+         * @param {boolean} [includeTree] Inclure l\&#39;arborescence complète (domaines, matières, compétences)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getReferentialApiCompetenceReferentialsReferentialIdGet(referentialId: string, versionNumber?: number | null, includeTree?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getReferentialApiCompetenceReferentialsReferentialIdGet(referentialId, versionNumber, includeTree, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.getReferentialApiCompetenceReferentialsReferentialIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupérer une matière par ID
+         * @summary Get Subject
+         * @param {string} subjectId ID de la matière
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getSubjectApiCompetenceSubjectsSubjectIdGet(subjectId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SubjectResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSubjectApiCompetenceSubjectsSubjectIdGet(subjectId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.getSubjectApiCompetenceSubjectsSubjectIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Lister les affectations d\'un référentiel
+         * @summary List Assignments
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listAssignmentsApiCompetenceReferentialsReferentialIdAssignmentsGet(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AssignmentListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listAssignmentsApiCompetenceReferentialsReferentialIdAssignmentsGet(referentialId, versionNumber, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listAssignmentsApiCompetenceReferentialsReferentialIdAssignmentsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Lister les compétences d\'un référentiel avec filtres
+         * @summary List Competencies
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [subjectId] Filtrer par matière
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet(referentialId: string, versionNumber: number, page?: number, size?: number, subjectId?: string | null, q?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompetencyListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet(referentialId, versionNumber, page, size, subjectId, q, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Lister les domaines d\'un référentiel
+         * @summary List Domains
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DomainListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(referentialId, versionNumber, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listDomainsApiCompetenceReferentialsReferentialIdDomainsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Lister les référentiels globaux (catalogue EdConnect)
+         * @summary List Global Referentials
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [cycle] Filtrer par cycle
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page?: number, size?: number, cycle?: string | null, q?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlobalReferentialListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page, size, cycle, q, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listGlobalReferentialsApiCompetenceGlobalReferentialsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Lister les référentiels avec filtres et pagination
+         * @summary List Referentials
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [cycle] Filtrer par cycle
+         * @param {string | null} [state] Filtrer par état
+         * @param {string | null} [visibility] Filtrer par visibilité
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listReferentialsApiCompetenceReferentialsGet(page?: number, size?: number, cycle?: string | null, state?: string | null, visibility?: string | null, q?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listReferentialsApiCompetenceReferentialsGet(page, size, cycle, state, visibility, q, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listReferentialsApiCompetenceReferentialsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Lister les matières d\'un référentiel avec filtres
+         * @summary List Subjects
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [domainId] Filtrer par domaine
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet(referentialId: string, versionNumber: number, page?: number, size?: number, domainId?: string | null, q?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SubjectListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet(referentialId, versionNumber, page, size, domainId, q, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Publier un référentiel
+         * @summary Publish Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async publishReferentialApiCompetenceReferentialsReferentialIdPublishPost(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.publishReferentialApiCompetenceReferentialsReferentialIdPublishPost(referentialId, versionNumber, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.publishReferentialApiCompetenceReferentialsReferentialIdPublishPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Mettre à jour une compétence
+         * @summary Update Competency
+         * @param {string} competencyId ID de la compétence
+         * @param {CompetencyUpdate} competencyUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateCompetencyApiCompetenceCompetenciesCompetencyIdPatch(competencyId: string, competencyUpdate: CompetencyUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompetencyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateCompetencyApiCompetenceCompetenciesCompetencyIdPatch(competencyId, competencyUpdate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.updateCompetencyApiCompetenceCompetenciesCompetencyIdPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Mettre à jour un domaine
+         * @summary Update Domain
+         * @param {string} domainId ID du domaine
+         * @param {DomainUpdate} domainUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateDomainApiCompetenceDomainsDomainIdPatch(domainId: string, domainUpdate: DomainUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DomainResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateDomainApiCompetenceDomainsDomainIdPatch(domainId, domainUpdate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.updateDomainApiCompetenceDomainsDomainIdPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Mettre à jour un référentiel
+         * @summary Update Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {ReferentialUpdate} referentialUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateReferentialApiCompetenceReferentialsReferentialIdPatch(referentialId: string, versionNumber: number, referentialUpdate: ReferentialUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateReferentialApiCompetenceReferentialsReferentialIdPatch(referentialId, versionNumber, referentialUpdate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.updateReferentialApiCompetenceReferentialsReferentialIdPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Mettre à jour une matière
+         * @summary Update Subject
+         * @param {string} subjectId ID de la matière
+         * @param {SubjectUpdate} subjectUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateSubjectApiCompetenceSubjectsSubjectIdPatch(subjectId: string, subjectUpdate: SubjectUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SubjectResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateSubjectApiCompetenceSubjectsSubjectIdPatch(subjectId, subjectUpdate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.updateSubjectApiCompetenceSubjectsSubjectIdPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ReferentialsApi - factory interface
+ * @export
+ */
+export const ReferentialsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ReferentialsApiFp(configuration)
+    return {
+        /**
+         * Cloner un référentiel global dans le tenant courant
+         * @summary Clone From Global Referential
+         * @param {string} globalReferentialId ID du référentiel global à cloner
+         * @param {ReferentialCloneFromGlobalRequest} referentialCloneFromGlobalRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId: string, referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest, options?: RawAxiosRequestConfig): AxiosPromise<ReferentialResponse> {
+            return localVarFp.cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId, referentialCloneFromGlobalRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Cloner un référentiel en nouvelle version
+         * @summary Clone Referential
+         * @param {string} referentialId ID du référentiel à cloner
+         * @param {ReferentialCloneRequest} referentialCloneRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloneReferentialApiCompetenceReferentialsReferentialIdClonePost(referentialId: string, referentialCloneRequest: ReferentialCloneRequest, options?: RawAxiosRequestConfig): AxiosPromise<ReferentialResponse> {
+            return localVarFp.cloneReferentialApiCompetenceReferentialsReferentialIdClonePost(referentialId, referentialCloneRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Créer une nouvelle affectation
+         * @summary Create Assignment
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {AssignmentCreate} assignmentCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost(referentialId: string, versionNumber: number, assignmentCreate: AssignmentCreate, options?: RawAxiosRequestConfig): AxiosPromise<AssignmentResponse> {
+            return localVarFp.createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost(referentialId, versionNumber, assignmentCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Créer une nouvelle compétence
+         * @summary Create Competency
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {CompetencyCreate} competencyCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost(referentialId: string, versionNumber: number, competencyCreate: CompetencyCreate, options?: RawAxiosRequestConfig): AxiosPromise<CompetencyResponse> {
+            return localVarFp.createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost(referentialId, versionNumber, competencyCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Créer un nouveau domaine
+         * @summary Create Domain
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {DomainCreate} domainCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createDomainApiCompetenceReferentialsReferentialIdDomainsPost(referentialId: string, versionNumber: number, domainCreate: DomainCreate, options?: RawAxiosRequestConfig): AxiosPromise<DomainResponse> {
+            return localVarFp.createDomainApiCompetenceReferentialsReferentialIdDomainsPost(referentialId, versionNumber, domainCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Créer un nouveau référentiel
+         * @summary Create Referential
+         * @param {ReferentialCreate} referentialCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createReferentialApiCompetenceReferentialsPost(referentialCreate: ReferentialCreate, options?: RawAxiosRequestConfig): AxiosPromise<ReferentialResponse> {
+            return localVarFp.createReferentialApiCompetenceReferentialsPost(referentialCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Créer une nouvelle matière
+         * @summary Create Subject
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {SubjectCreate} subjectCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost(referentialId: string, versionNumber: number, subjectCreate: SubjectCreate, options?: RawAxiosRequestConfig): AxiosPromise<SubjectResponse> {
+            return localVarFp.createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost(referentialId, versionNumber, subjectCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Supprimer une affectation
+         * @summary Delete Assignment
+         * @param {string} assignmentId ID de l\&#39;affectation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete(assignmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete(assignmentId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Supprimer une compétence
+         * @summary Delete Competency
+         * @param {string} competencyId ID de la compétence
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete(competencyId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete(competencyId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Supprimer un domaine
+         * @summary Delete Domain
+         * @param {string} domainId ID du domaine
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteDomainApiCompetenceDomainsDomainIdDelete(domainId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteDomainApiCompetenceDomainsDomainIdDelete(domainId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Archiver un référentiel (soft delete)
+         * @summary Delete Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteReferentialApiCompetenceReferentialsReferentialIdDelete(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteReferentialApiCompetenceReferentialsReferentialIdDelete(referentialId, versionNumber, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Supprimer une matière
+         * @summary Delete Subject
+         * @param {string} subjectId ID de la matière
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteSubjectApiCompetenceSubjectsSubjectIdDelete(subjectId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteSubjectApiCompetenceSubjectsSubjectIdDelete(subjectId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupérer une affectation par ID
+         * @summary Get Assignment
+         * @param {string} assignmentId ID de l\&#39;affectation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAssignmentApiCompetenceAssignmentsAssignmentIdGet(assignmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<AssignmentResponse> {
+            return localVarFp.getAssignmentApiCompetenceAssignmentsAssignmentIdGet(assignmentId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupérer une compétence par ID
+         * @summary Get Competency
+         * @param {string} competencyId ID de la compétence
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCompetencyApiCompetenceCompetenciesCompetencyIdGet(competencyId: string, options?: RawAxiosRequestConfig): AxiosPromise<CompetencyResponse> {
+            return localVarFp.getCompetencyApiCompetenceCompetenciesCompetencyIdGet(competencyId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupérer un domaine par ID
+         * @summary Get Domain
+         * @param {string} domainId ID du domaine
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDomainApiCompetenceDomainsDomainIdGet(domainId: string, options?: RawAxiosRequestConfig): AxiosPromise<DomainResponse> {
+            return localVarFp.getDomainApiCompetenceDomainsDomainIdGet(domainId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupérer un référentiel par ID et version
+         * @summary Get Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number | null} [versionNumber] Numéro de version
+         * @param {boolean} [includeTree] Inclure l\&#39;arborescence complète (domaines, matières, compétences)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReferentialApiCompetenceReferentialsReferentialIdGet(referentialId: string, versionNumber?: number | null, includeTree?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<ResponseGetReferentialApiCompetenceReferentialsReferentialIdGet> {
+            return localVarFp.getReferentialApiCompetenceReferentialsReferentialIdGet(referentialId, versionNumber, includeTree, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupérer une matière par ID
+         * @summary Get Subject
+         * @param {string} subjectId ID de la matière
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSubjectApiCompetenceSubjectsSubjectIdGet(subjectId: string, options?: RawAxiosRequestConfig): AxiosPromise<SubjectResponse> {
+            return localVarFp.getSubjectApiCompetenceSubjectsSubjectIdGet(subjectId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Lister les affectations d\'un référentiel
+         * @summary List Assignments
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAssignmentsApiCompetenceReferentialsReferentialIdAssignmentsGet(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): AxiosPromise<AssignmentListResponse> {
+            return localVarFp.listAssignmentsApiCompetenceReferentialsReferentialIdAssignmentsGet(referentialId, versionNumber, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Lister les compétences d\'un référentiel avec filtres
+         * @summary List Competencies
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [subjectId] Filtrer par matière
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet(referentialId: string, versionNumber: number, page?: number, size?: number, subjectId?: string | null, q?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<CompetencyListResponse> {
+            return localVarFp.listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet(referentialId, versionNumber, page, size, subjectId, q, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Lister les domaines d\'un référentiel
+         * @summary List Domains
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): AxiosPromise<DomainListResponse> {
+            return localVarFp.listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(referentialId, versionNumber, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Lister les référentiels globaux (catalogue EdConnect)
+         * @summary List Global Referentials
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [cycle] Filtrer par cycle
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page?: number, size?: number, cycle?: string | null, q?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<GlobalReferentialListResponse> {
+            return localVarFp.listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page, size, cycle, q, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Lister les référentiels avec filtres et pagination
+         * @summary List Referentials
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [cycle] Filtrer par cycle
+         * @param {string | null} [state] Filtrer par état
+         * @param {string | null} [visibility] Filtrer par visibilité
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listReferentialsApiCompetenceReferentialsGet(page?: number, size?: number, cycle?: string | null, state?: string | null, visibility?: string | null, q?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<ReferentialListResponse> {
+            return localVarFp.listReferentialsApiCompetenceReferentialsGet(page, size, cycle, state, visibility, q, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Lister les matières d\'un référentiel avec filtres
+         * @summary List Subjects
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {number} [page] Numéro de page
+         * @param {number} [size] Taille de page
+         * @param {string | null} [domainId] Filtrer par domaine
+         * @param {string | null} [q] Recherche textuelle
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet(referentialId: string, versionNumber: number, page?: number, size?: number, domainId?: string | null, q?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<SubjectListResponse> {
+            return localVarFp.listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet(referentialId, versionNumber, page, size, domainId, q, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Publier un référentiel
+         * @summary Publish Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        publishReferentialApiCompetenceReferentialsReferentialIdPublishPost(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.publishReferentialApiCompetenceReferentialsReferentialIdPublishPost(referentialId, versionNumber, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Mettre à jour une compétence
+         * @summary Update Competency
+         * @param {string} competencyId ID de la compétence
+         * @param {CompetencyUpdate} competencyUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateCompetencyApiCompetenceCompetenciesCompetencyIdPatch(competencyId: string, competencyUpdate: CompetencyUpdate, options?: RawAxiosRequestConfig): AxiosPromise<CompetencyResponse> {
+            return localVarFp.updateCompetencyApiCompetenceCompetenciesCompetencyIdPatch(competencyId, competencyUpdate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Mettre à jour un domaine
+         * @summary Update Domain
+         * @param {string} domainId ID du domaine
+         * @param {DomainUpdate} domainUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateDomainApiCompetenceDomainsDomainIdPatch(domainId: string, domainUpdate: DomainUpdate, options?: RawAxiosRequestConfig): AxiosPromise<DomainResponse> {
+            return localVarFp.updateDomainApiCompetenceDomainsDomainIdPatch(domainId, domainUpdate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Mettre à jour un référentiel
+         * @summary Update Referential
+         * @param {string} referentialId ID du référentiel
+         * @param {number} versionNumber Numéro de version
+         * @param {ReferentialUpdate} referentialUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateReferentialApiCompetenceReferentialsReferentialIdPatch(referentialId: string, versionNumber: number, referentialUpdate: ReferentialUpdate, options?: RawAxiosRequestConfig): AxiosPromise<ReferentialResponse> {
+            return localVarFp.updateReferentialApiCompetenceReferentialsReferentialIdPatch(referentialId, versionNumber, referentialUpdate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Mettre à jour une matière
+         * @summary Update Subject
+         * @param {string} subjectId ID de la matière
+         * @param {SubjectUpdate} subjectUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateSubjectApiCompetenceSubjectsSubjectIdPatch(subjectId: string, subjectUpdate: SubjectUpdate, options?: RawAxiosRequestConfig): AxiosPromise<SubjectResponse> {
+            return localVarFp.updateSubjectApiCompetenceSubjectsSubjectIdPatch(subjectId, subjectUpdate, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ReferentialsApi - object-oriented interface
+ * @export
+ * @class ReferentialsApi
+ * @extends {BaseAPI}
+ */
+export class ReferentialsApi extends BaseAPI {
+    /**
+     * Cloner un référentiel global dans le tenant courant
+     * @summary Clone From Global Referential
+     * @param {string} globalReferentialId ID du référentiel global à cloner
+     * @param {ReferentialCloneFromGlobalRequest} referentialCloneFromGlobalRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId: string, referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).cloneFromGlobalReferentialApiCompetenceGlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId, referentialCloneFromGlobalRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Cloner un référentiel en nouvelle version
+     * @summary Clone Referential
+     * @param {string} referentialId ID du référentiel à cloner
+     * @param {ReferentialCloneRequest} referentialCloneRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public cloneReferentialApiCompetenceReferentialsReferentialIdClonePost(referentialId: string, referentialCloneRequest: ReferentialCloneRequest, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).cloneReferentialApiCompetenceReferentialsReferentialIdClonePost(referentialId, referentialCloneRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Créer une nouvelle affectation
+     * @summary Create Assignment
+     * @param {string} referentialId ID du référentiel
+     * @param {number} versionNumber Numéro de version
+     * @param {AssignmentCreate} assignmentCreate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost(referentialId: string, versionNumber: number, assignmentCreate: AssignmentCreate, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).createAssignmentApiCompetenceReferentialsReferentialIdAssignmentsPost(referentialId, versionNumber, assignmentCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Créer une nouvelle compétence
+     * @summary Create Competency
+     * @param {string} referentialId ID du référentiel
+     * @param {number} versionNumber Numéro de version
+     * @param {CompetencyCreate} competencyCreate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost(referentialId: string, versionNumber: number, competencyCreate: CompetencyCreate, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).createCompetencyApiCompetenceReferentialsReferentialIdCompetenciesPost(referentialId, versionNumber, competencyCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Créer un nouveau domaine
+     * @summary Create Domain
+     * @param {string} referentialId ID du référentiel
+     * @param {number} versionNumber Numéro de version
+     * @param {DomainCreate} domainCreate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public createDomainApiCompetenceReferentialsReferentialIdDomainsPost(referentialId: string, versionNumber: number, domainCreate: DomainCreate, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).createDomainApiCompetenceReferentialsReferentialIdDomainsPost(referentialId, versionNumber, domainCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Créer un nouveau référentiel
+     * @summary Create Referential
+     * @param {ReferentialCreate} referentialCreate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public createReferentialApiCompetenceReferentialsPost(referentialCreate: ReferentialCreate, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).createReferentialApiCompetenceReferentialsPost(referentialCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Créer une nouvelle matière
+     * @summary Create Subject
+     * @param {string} referentialId ID du référentiel
+     * @param {number} versionNumber Numéro de version
+     * @param {SubjectCreate} subjectCreate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost(referentialId: string, versionNumber: number, subjectCreate: SubjectCreate, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).createSubjectApiCompetenceReferentialsReferentialIdSubjectsPost(referentialId, versionNumber, subjectCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Supprimer une affectation
+     * @summary Delete Assignment
+     * @param {string} assignmentId ID de l\&#39;affectation
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete(assignmentId: string, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).deleteAssignmentApiCompetenceAssignmentsAssignmentIdDelete(assignmentId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Supprimer une compétence
+     * @summary Delete Competency
+     * @param {string} competencyId ID de la compétence
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete(competencyId: string, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).deleteCompetencyApiCompetenceCompetenciesCompetencyIdDelete(competencyId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Supprimer un domaine
+     * @summary Delete Domain
+     * @param {string} domainId ID du domaine
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public deleteDomainApiCompetenceDomainsDomainIdDelete(domainId: string, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).deleteDomainApiCompetenceDomainsDomainIdDelete(domainId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Archiver un référentiel (soft delete)
+     * @summary Delete Referential
+     * @param {string} referentialId ID du référentiel
+     * @param {number} versionNumber Numéro de version
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public deleteReferentialApiCompetenceReferentialsReferentialIdDelete(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).deleteReferentialApiCompetenceReferentialsReferentialIdDelete(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Supprimer une matière
+     * @summary Delete Subject
+     * @param {string} subjectId ID de la matière
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public deleteSubjectApiCompetenceSubjectsSubjectIdDelete(subjectId: string, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).deleteSubjectApiCompetenceSubjectsSubjectIdDelete(subjectId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupérer une affectation par ID
+     * @summary Get Assignment
+     * @param {string} assignmentId ID de l\&#39;affectation
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public getAssignmentApiCompetenceAssignmentsAssignmentIdGet(assignmentId: string, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).getAssignmentApiCompetenceAssignmentsAssignmentIdGet(assignmentId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupérer une compétence par ID
+     * @summary Get Competency
+     * @param {string} competencyId ID de la compétence
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public getCompetencyApiCompetenceCompetenciesCompetencyIdGet(competencyId: string, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).getCompetencyApiCompetenceCompetenciesCompetencyIdGet(competencyId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupérer un domaine par ID
+     * @summary Get Domain
+     * @param {string} domainId ID du domaine
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public getDomainApiCompetenceDomainsDomainIdGet(domainId: string, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).getDomainApiCompetenceDomainsDomainIdGet(domainId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupérer un référentiel par ID et version
+     * @summary Get Referential
+     * @param {string} referentialId ID du référentiel
+     * @param {number | null} [versionNumber] Numéro de version
+     * @param {boolean} [includeTree] Inclure l\&#39;arborescence complète (domaines, matières, compétences)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public getReferentialApiCompetenceReferentialsReferentialIdGet(referentialId: string, versionNumber?: number | null, includeTree?: boolean, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).getReferentialApiCompetenceReferentialsReferentialIdGet(referentialId, versionNumber, includeTree, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupérer une matière par ID
+     * @summary Get Subject
+     * @param {string} subjectId ID de la matière
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public getSubjectApiCompetenceSubjectsSubjectIdGet(subjectId: string, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).getSubjectApiCompetenceSubjectsSubjectIdGet(subjectId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Lister les affectations d\'un référentiel
+     * @summary List Assignments
+     * @param {string} referentialId ID du référentiel
+     * @param {number} versionNumber Numéro de version
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public listAssignmentsApiCompetenceReferentialsReferentialIdAssignmentsGet(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).listAssignmentsApiCompetenceReferentialsReferentialIdAssignmentsGet(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Lister les compétences d\'un référentiel avec filtres
+     * @summary List Competencies
+     * @param {string} referentialId ID du référentiel
+     * @param {number} versionNumber Numéro de version
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de page
+     * @param {string | null} [subjectId] Filtrer par matière
+     * @param {string | null} [q] Recherche textuelle
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet(referentialId: string, versionNumber: number, page?: number, size?: number, subjectId?: string | null, q?: string | null, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).listCompetenciesApiCompetenceReferentialsReferentialIdCompetenciesGet(referentialId, versionNumber, page, size, subjectId, q, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Lister les domaines d\'un référentiel
+     * @summary List Domains
+     * @param {string} referentialId ID du référentiel
+     * @param {number} versionNumber Numéro de version
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).listDomainsApiCompetenceReferentialsReferentialIdDomainsGet(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Lister les référentiels globaux (catalogue EdConnect)
+     * @summary List Global Referentials
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de page
+     * @param {string | null} [cycle] Filtrer par cycle
+     * @param {string | null} [q] Recherche textuelle
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page?: number, size?: number, cycle?: string | null, q?: string | null, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).listGlobalReferentialsApiCompetenceGlobalReferentialsGet(page, size, cycle, q, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Lister les référentiels avec filtres et pagination
+     * @summary List Referentials
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de page
+     * @param {string | null} [cycle] Filtrer par cycle
+     * @param {string | null} [state] Filtrer par état
+     * @param {string | null} [visibility] Filtrer par visibilité
+     * @param {string | null} [q] Recherche textuelle
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public listReferentialsApiCompetenceReferentialsGet(page?: number, size?: number, cycle?: string | null, state?: string | null, visibility?: string | null, q?: string | null, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).listReferentialsApiCompetenceReferentialsGet(page, size, cycle, state, visibility, q, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Lister les matières d\'un référentiel avec filtres
+     * @summary List Subjects
+     * @param {string} referentialId ID du référentiel
+     * @param {number} versionNumber Numéro de version
+     * @param {number} [page] Numéro de page
+     * @param {number} [size] Taille de page
+     * @param {string | null} [domainId] Filtrer par domaine
+     * @param {string | null} [q] Recherche textuelle
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet(referentialId: string, versionNumber: number, page?: number, size?: number, domainId?: string | null, q?: string | null, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet(referentialId, versionNumber, page, size, domainId, q, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Publier un référentiel
+     * @summary Publish Referential
+     * @param {string} referentialId ID du référentiel
+     * @param {number} versionNumber Numéro de version
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public publishReferentialApiCompetenceReferentialsReferentialIdPublishPost(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).publishReferentialApiCompetenceReferentialsReferentialIdPublishPost(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Mettre à jour une compétence
+     * @summary Update Competency
+     * @param {string} competencyId ID de la compétence
+     * @param {CompetencyUpdate} competencyUpdate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public updateCompetencyApiCompetenceCompetenciesCompetencyIdPatch(competencyId: string, competencyUpdate: CompetencyUpdate, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).updateCompetencyApiCompetenceCompetenciesCompetencyIdPatch(competencyId, competencyUpdate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Mettre à jour un domaine
+     * @summary Update Domain
+     * @param {string} domainId ID du domaine
+     * @param {DomainUpdate} domainUpdate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public updateDomainApiCompetenceDomainsDomainIdPatch(domainId: string, domainUpdate: DomainUpdate, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).updateDomainApiCompetenceDomainsDomainIdPatch(domainId, domainUpdate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Mettre à jour un référentiel
+     * @summary Update Referential
+     * @param {string} referentialId ID du référentiel
+     * @param {number} versionNumber Numéro de version
+     * @param {ReferentialUpdate} referentialUpdate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public updateReferentialApiCompetenceReferentialsReferentialIdPatch(referentialId: string, versionNumber: number, referentialUpdate: ReferentialUpdate, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).updateReferentialApiCompetenceReferentialsReferentialIdPatch(referentialId, versionNumber, referentialUpdate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Mettre à jour une matière
+     * @summary Update Subject
+     * @param {string} subjectId ID de la matière
+     * @param {SubjectUpdate} subjectUpdate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReferentialsApi
+     */
+    public updateSubjectApiCompetenceSubjectsSubjectIdPatch(subjectId: string, subjectUpdate: SubjectUpdate, options?: RawAxiosRequestConfig) {
+        return ReferentialsApiFp(this.configuration).updateSubjectApiCompetenceSubjectsSubjectIdPatch(subjectId, subjectUpdate, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ReferentialsLegacyApi - axios parameter creator
+ * @export
+ */
+export const ReferentialsLegacyApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
          * Cloner un référentiel global dans le tenant courant
@@ -2749,7 +5746,7 @@ export const ReferentialsApiAxiosParamCreator = function (configuration?: Config
             };
         },
         /**
-         * Supprimer un référentiel
+         * Archiver un référentiel (soft delete)
          * @summary Delete Referential
          * @param {string} referentialId ID du référentiel
          * @param {number} versionNumber Numéro de version
@@ -3529,11 +6526,11 @@ export const ReferentialsApiAxiosParamCreator = function (configuration?: Config
 };
 
 /**
- * ReferentialsApi - functional programming interface
+ * ReferentialsLegacyApi - functional programming interface
  * @export
  */
-export const ReferentialsApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ReferentialsApiAxiosParamCreator(configuration)
+export const ReferentialsLegacyApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ReferentialsLegacyApiAxiosParamCreator(configuration)
     return {
         /**
          * Cloner un référentiel global dans le tenant courant
@@ -3546,7 +6543,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId: string, referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId, referentialCloneFromGlobalRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3560,7 +6557,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async cloneReferentialApiV1ReferentialsReferentialIdClonePost(referentialId: string, referentialCloneRequest: ReferentialCloneRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.cloneReferentialApiV1ReferentialsReferentialIdClonePost(referentialId, referentialCloneRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.cloneReferentialApiV1ReferentialsReferentialIdClonePost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.cloneReferentialApiV1ReferentialsReferentialIdClonePost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3575,7 +6572,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost(referentialId: string, versionNumber: number, assignmentCreate: AssignmentCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AssignmentResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost(referentialId, versionNumber, assignmentCreate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3590,7 +6587,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost(referentialId: string, versionNumber: number, competencyCreate: CompetencyCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompetencyResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost(referentialId, versionNumber, competencyCreate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3605,7 +6602,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async createDomainApiV1ReferentialsReferentialIdDomainsPost(referentialId: string, versionNumber: number, domainCreate: DomainCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DomainResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createDomainApiV1ReferentialsReferentialIdDomainsPost(referentialId, versionNumber, domainCreate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.createDomainApiV1ReferentialsReferentialIdDomainsPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.createDomainApiV1ReferentialsReferentialIdDomainsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3618,7 +6615,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async createReferentialApiV1ReferentialsPost(referentialCreate: ReferentialCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createReferentialApiV1ReferentialsPost(referentialCreate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.createReferentialApiV1ReferentialsPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.createReferentialApiV1ReferentialsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3633,7 +6630,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async createSubjectApiV1ReferentialsReferentialIdSubjectsPost(referentialId: string, versionNumber: number, subjectCreate: SubjectCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SubjectResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createSubjectApiV1ReferentialsReferentialIdSubjectsPost(referentialId, versionNumber, subjectCreate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.createSubjectApiV1ReferentialsReferentialIdSubjectsPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.createSubjectApiV1ReferentialsReferentialIdSubjectsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3646,7 +6643,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async deleteAssignmentApiV1AssignmentsAssignmentIdDelete(assignmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteAssignmentApiV1AssignmentsAssignmentIdDelete(assignmentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.deleteAssignmentApiV1AssignmentsAssignmentIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.deleteAssignmentApiV1AssignmentsAssignmentIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3659,7 +6656,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async deleteCompetencyApiV1CompetenciesCompetencyIdDelete(competencyId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteCompetencyApiV1CompetenciesCompetencyIdDelete(competencyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.deleteCompetencyApiV1CompetenciesCompetencyIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.deleteCompetencyApiV1CompetenciesCompetencyIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3672,11 +6669,11 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async deleteDomainApiV1DomainsDomainIdDelete(domainId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteDomainApiV1DomainsDomainIdDelete(domainId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.deleteDomainApiV1DomainsDomainIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.deleteDomainApiV1DomainsDomainIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Supprimer un référentiel
+         * Archiver un référentiel (soft delete)
          * @summary Delete Referential
          * @param {string} referentialId ID du référentiel
          * @param {number} versionNumber Numéro de version
@@ -3686,7 +6683,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async deleteReferentialApiV1ReferentialsReferentialIdDelete(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteReferentialApiV1ReferentialsReferentialIdDelete(referentialId, versionNumber, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.deleteReferentialApiV1ReferentialsReferentialIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.deleteReferentialApiV1ReferentialsReferentialIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3699,7 +6696,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async deleteSubjectApiV1SubjectsSubjectIdDelete(subjectId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteSubjectApiV1SubjectsSubjectIdDelete(subjectId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.deleteSubjectApiV1SubjectsSubjectIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.deleteSubjectApiV1SubjectsSubjectIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3712,7 +6709,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async getAssignmentApiV1AssignmentsAssignmentIdGet(assignmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AssignmentResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAssignmentApiV1AssignmentsAssignmentIdGet(assignmentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.getAssignmentApiV1AssignmentsAssignmentIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.getAssignmentApiV1AssignmentsAssignmentIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3725,7 +6722,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async getCompetencyApiV1CompetenciesCompetencyIdGet(competencyId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompetencyResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getCompetencyApiV1CompetenciesCompetencyIdGet(competencyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.getCompetencyApiV1CompetenciesCompetencyIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.getCompetencyApiV1CompetenciesCompetencyIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3738,7 +6735,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async getDomainApiV1DomainsDomainIdGet(domainId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DomainResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getDomainApiV1DomainsDomainIdGet(domainId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.getDomainApiV1DomainsDomainIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.getDomainApiV1DomainsDomainIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3753,7 +6750,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async getReferentialApiV1ReferentialsReferentialIdGet(referentialId: string, versionNumber?: number | null, includeTree?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseGetReferentialApiV1ReferentialsReferentialIdGet>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getReferentialApiV1ReferentialsReferentialIdGet(referentialId, versionNumber, includeTree, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.getReferentialApiV1ReferentialsReferentialIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.getReferentialApiV1ReferentialsReferentialIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3766,7 +6763,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async getSubjectApiV1SubjectsSubjectIdGet(subjectId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SubjectResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getSubjectApiV1SubjectsSubjectIdGet(subjectId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.getSubjectApiV1SubjectsSubjectIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.getSubjectApiV1SubjectsSubjectIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3780,7 +6777,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AssignmentListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet(referentialId, versionNumber, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3798,7 +6795,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet(referentialId: string, versionNumber: number, page?: number, size?: number, subjectId?: string | null, q?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompetencyListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet(referentialId, versionNumber, page, size, subjectId, q, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3812,7 +6809,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async listDomainsApiV1ReferentialsReferentialIdDomainsGet(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DomainListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listDomainsApiV1ReferentialsReferentialIdDomainsGet(referentialId, versionNumber, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listDomainsApiV1ReferentialsReferentialIdDomainsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.listDomainsApiV1ReferentialsReferentialIdDomainsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3828,7 +6825,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async listGlobalReferentialsApiV1GlobalReferentialsGet(page?: number, size?: number, cycle?: string | null, q?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlobalReferentialListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listGlobalReferentialsApiV1GlobalReferentialsGet(page, size, cycle, q, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listGlobalReferentialsApiV1GlobalReferentialsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.listGlobalReferentialsApiV1GlobalReferentialsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3846,7 +6843,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async listReferentialsApiV1ReferentialsGet(page?: number, size?: number, cycle?: string | null, state?: string | null, visibility?: string | null, q?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listReferentialsApiV1ReferentialsGet(page, size, cycle, state, visibility, q, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listReferentialsApiV1ReferentialsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.listReferentialsApiV1ReferentialsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3864,7 +6861,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async listSubjectsApiV1ReferentialsReferentialIdSubjectsGet(referentialId: string, versionNumber: number, page?: number, size?: number, domainId?: string | null, q?: string | null, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SubjectListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listSubjectsApiV1ReferentialsReferentialIdSubjectsGet(referentialId, versionNumber, page, size, domainId, q, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.listSubjectsApiV1ReferentialsReferentialIdSubjectsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.listSubjectsApiV1ReferentialsReferentialIdSubjectsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3878,7 +6875,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async publishReferentialApiV1ReferentialsReferentialIdPublishPost(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.publishReferentialApiV1ReferentialsReferentialIdPublishPost(referentialId, versionNumber, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.publishReferentialApiV1ReferentialsReferentialIdPublishPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.publishReferentialApiV1ReferentialsReferentialIdPublishPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3892,7 +6889,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async updateCompetencyApiV1CompetenciesCompetencyIdPatch(competencyId: string, competencyUpdate: CompetencyUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompetencyResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateCompetencyApiV1CompetenciesCompetencyIdPatch(competencyId, competencyUpdate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.updateCompetencyApiV1CompetenciesCompetencyIdPatch']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.updateCompetencyApiV1CompetenciesCompetencyIdPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3906,7 +6903,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async updateDomainApiV1DomainsDomainIdPatch(domainId: string, domainUpdate: DomainUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DomainResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateDomainApiV1DomainsDomainIdPatch(domainId, domainUpdate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.updateDomainApiV1DomainsDomainIdPatch']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.updateDomainApiV1DomainsDomainIdPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3921,7 +6918,7 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async updateReferentialApiV1ReferentialsReferentialIdPatch(referentialId: string, versionNumber: number, referentialUpdate: ReferentialUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReferentialResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateReferentialApiV1ReferentialsReferentialIdPatch(referentialId, versionNumber, referentialUpdate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.updateReferentialApiV1ReferentialsReferentialIdPatch']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.updateReferentialApiV1ReferentialsReferentialIdPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3935,18 +6932,18 @@ export const ReferentialsApiFp = function(configuration?: Configuration) {
         async updateSubjectApiV1SubjectsSubjectIdPatch(subjectId: string, subjectUpdate: SubjectUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SubjectResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateSubjectApiV1SubjectsSubjectIdPatch(subjectId, subjectUpdate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ReferentialsApi.updateSubjectApiV1SubjectsSubjectIdPatch']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ReferentialsLegacyApi.updateSubjectApiV1SubjectsSubjectIdPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
 };
 
 /**
- * ReferentialsApi - factory interface
+ * ReferentialsLegacyApi - factory interface
  * @export
  */
-export const ReferentialsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ReferentialsApiFp(configuration)
+export const ReferentialsLegacyApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ReferentialsLegacyApiFp(configuration)
     return {
         /**
          * Cloner un référentiel global dans le tenant courant
@@ -4059,7 +7056,7 @@ export const ReferentialsApiFactory = function (configuration?: Configuration, b
             return localVarFp.deleteDomainApiV1DomainsDomainIdDelete(domainId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Supprimer un référentiel
+         * Archiver un référentiel (soft delete)
          * @summary Delete Referential
          * @param {string} referentialId ID du référentiel
          * @param {number} versionNumber Numéro de version
@@ -4271,12 +7268,12 @@ export const ReferentialsApiFactory = function (configuration?: Configuration, b
 };
 
 /**
- * ReferentialsApi - object-oriented interface
+ * ReferentialsLegacyApi - object-oriented interface
  * @export
- * @class ReferentialsApi
+ * @class ReferentialsLegacyApi
  * @extends {BaseAPI}
  */
-export class ReferentialsApi extends BaseAPI {
+export class ReferentialsLegacyApi extends BaseAPI {
     /**
      * Cloner un référentiel global dans le tenant courant
      * @summary Clone From Global Referential
@@ -4284,10 +7281,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {ReferentialCloneFromGlobalRequest} referentialCloneFromGlobalRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId: string, referentialCloneFromGlobalRequest: ReferentialCloneFromGlobalRequest, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId, referentialCloneFromGlobalRequest, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).cloneFromGlobalReferentialApiV1GlobalReferentialsGlobalReferentialIdClonePost(globalReferentialId, referentialCloneFromGlobalRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4297,10 +7294,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {ReferentialCloneRequest} referentialCloneRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public cloneReferentialApiV1ReferentialsReferentialIdClonePost(referentialId: string, referentialCloneRequest: ReferentialCloneRequest, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).cloneReferentialApiV1ReferentialsReferentialIdClonePost(referentialId, referentialCloneRequest, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).cloneReferentialApiV1ReferentialsReferentialIdClonePost(referentialId, referentialCloneRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4311,10 +7308,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {AssignmentCreate} assignmentCreate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost(referentialId: string, versionNumber: number, assignmentCreate: AssignmentCreate, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost(referentialId, versionNumber, assignmentCreate, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).createAssignmentApiV1ReferentialsReferentialIdAssignmentsPost(referentialId, versionNumber, assignmentCreate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4325,10 +7322,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {CompetencyCreate} competencyCreate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost(referentialId: string, versionNumber: number, competencyCreate: CompetencyCreate, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost(referentialId, versionNumber, competencyCreate, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).createCompetencyApiV1ReferentialsReferentialIdCompetenciesPost(referentialId, versionNumber, competencyCreate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4339,10 +7336,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {DomainCreate} domainCreate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public createDomainApiV1ReferentialsReferentialIdDomainsPost(referentialId: string, versionNumber: number, domainCreate: DomainCreate, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).createDomainApiV1ReferentialsReferentialIdDomainsPost(referentialId, versionNumber, domainCreate, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).createDomainApiV1ReferentialsReferentialIdDomainsPost(referentialId, versionNumber, domainCreate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4351,10 +7348,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {ReferentialCreate} referentialCreate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public createReferentialApiV1ReferentialsPost(referentialCreate: ReferentialCreate, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).createReferentialApiV1ReferentialsPost(referentialCreate, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).createReferentialApiV1ReferentialsPost(referentialCreate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4365,10 +7362,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {SubjectCreate} subjectCreate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public createSubjectApiV1ReferentialsReferentialIdSubjectsPost(referentialId: string, versionNumber: number, subjectCreate: SubjectCreate, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).createSubjectApiV1ReferentialsReferentialIdSubjectsPost(referentialId, versionNumber, subjectCreate, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).createSubjectApiV1ReferentialsReferentialIdSubjectsPost(referentialId, versionNumber, subjectCreate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4377,10 +7374,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string} assignmentId ID de l\&#39;affectation
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public deleteAssignmentApiV1AssignmentsAssignmentIdDelete(assignmentId: string, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).deleteAssignmentApiV1AssignmentsAssignmentIdDelete(assignmentId, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).deleteAssignmentApiV1AssignmentsAssignmentIdDelete(assignmentId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4389,10 +7386,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string} competencyId ID de la compétence
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public deleteCompetencyApiV1CompetenciesCompetencyIdDelete(competencyId: string, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).deleteCompetencyApiV1CompetenciesCompetencyIdDelete(competencyId, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).deleteCompetencyApiV1CompetenciesCompetencyIdDelete(competencyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4401,23 +7398,23 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string} domainId ID du domaine
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public deleteDomainApiV1DomainsDomainIdDelete(domainId: string, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).deleteDomainApiV1DomainsDomainIdDelete(domainId, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).deleteDomainApiV1DomainsDomainIdDelete(domainId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Supprimer un référentiel
+     * Archiver un référentiel (soft delete)
      * @summary Delete Referential
      * @param {string} referentialId ID du référentiel
      * @param {number} versionNumber Numéro de version
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public deleteReferentialApiV1ReferentialsReferentialIdDelete(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).deleteReferentialApiV1ReferentialsReferentialIdDelete(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).deleteReferentialApiV1ReferentialsReferentialIdDelete(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4426,10 +7423,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string} subjectId ID de la matière
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public deleteSubjectApiV1SubjectsSubjectIdDelete(subjectId: string, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).deleteSubjectApiV1SubjectsSubjectIdDelete(subjectId, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).deleteSubjectApiV1SubjectsSubjectIdDelete(subjectId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4438,10 +7435,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string} assignmentId ID de l\&#39;affectation
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public getAssignmentApiV1AssignmentsAssignmentIdGet(assignmentId: string, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).getAssignmentApiV1AssignmentsAssignmentIdGet(assignmentId, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).getAssignmentApiV1AssignmentsAssignmentIdGet(assignmentId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4450,10 +7447,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string} competencyId ID de la compétence
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public getCompetencyApiV1CompetenciesCompetencyIdGet(competencyId: string, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).getCompetencyApiV1CompetenciesCompetencyIdGet(competencyId, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).getCompetencyApiV1CompetenciesCompetencyIdGet(competencyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4462,10 +7459,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string} domainId ID du domaine
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public getDomainApiV1DomainsDomainIdGet(domainId: string, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).getDomainApiV1DomainsDomainIdGet(domainId, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).getDomainApiV1DomainsDomainIdGet(domainId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4476,10 +7473,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {boolean} [includeTree] Inclure l\&#39;arborescence complète (domaines, matières, compétences)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public getReferentialApiV1ReferentialsReferentialIdGet(referentialId: string, versionNumber?: number | null, includeTree?: boolean, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).getReferentialApiV1ReferentialsReferentialIdGet(referentialId, versionNumber, includeTree, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).getReferentialApiV1ReferentialsReferentialIdGet(referentialId, versionNumber, includeTree, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4488,10 +7485,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string} subjectId ID de la matière
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public getSubjectApiV1SubjectsSubjectIdGet(subjectId: string, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).getSubjectApiV1SubjectsSubjectIdGet(subjectId, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).getSubjectApiV1SubjectsSubjectIdGet(subjectId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4501,10 +7498,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {number} versionNumber Numéro de version
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).listAssignmentsApiV1ReferentialsReferentialIdAssignmentsGet(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4518,10 +7515,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string | null} [q] Recherche textuelle
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet(referentialId: string, versionNumber: number, page?: number, size?: number, subjectId?: string | null, q?: string | null, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet(referentialId, versionNumber, page, size, subjectId, q, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).listCompetenciesApiV1ReferentialsReferentialIdCompetenciesGet(referentialId, versionNumber, page, size, subjectId, q, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4531,10 +7528,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {number} versionNumber Numéro de version
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public listDomainsApiV1ReferentialsReferentialIdDomainsGet(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).listDomainsApiV1ReferentialsReferentialIdDomainsGet(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).listDomainsApiV1ReferentialsReferentialIdDomainsGet(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4546,10 +7543,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string | null} [q] Recherche textuelle
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public listGlobalReferentialsApiV1GlobalReferentialsGet(page?: number, size?: number, cycle?: string | null, q?: string | null, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).listGlobalReferentialsApiV1GlobalReferentialsGet(page, size, cycle, q, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).listGlobalReferentialsApiV1GlobalReferentialsGet(page, size, cycle, q, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4563,10 +7560,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string | null} [q] Recherche textuelle
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public listReferentialsApiV1ReferentialsGet(page?: number, size?: number, cycle?: string | null, state?: string | null, visibility?: string | null, q?: string | null, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).listReferentialsApiV1ReferentialsGet(page, size, cycle, state, visibility, q, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).listReferentialsApiV1ReferentialsGet(page, size, cycle, state, visibility, q, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4580,10 +7577,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {string | null} [q] Recherche textuelle
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public listSubjectsApiV1ReferentialsReferentialIdSubjectsGet(referentialId: string, versionNumber: number, page?: number, size?: number, domainId?: string | null, q?: string | null, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).listSubjectsApiV1ReferentialsReferentialIdSubjectsGet(referentialId, versionNumber, page, size, domainId, q, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).listSubjectsApiV1ReferentialsReferentialIdSubjectsGet(referentialId, versionNumber, page, size, domainId, q, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4593,10 +7590,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {number} versionNumber Numéro de version
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public publishReferentialApiV1ReferentialsReferentialIdPublishPost(referentialId: string, versionNumber: number, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).publishReferentialApiV1ReferentialsReferentialIdPublishPost(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).publishReferentialApiV1ReferentialsReferentialIdPublishPost(referentialId, versionNumber, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4606,10 +7603,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {CompetencyUpdate} competencyUpdate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public updateCompetencyApiV1CompetenciesCompetencyIdPatch(competencyId: string, competencyUpdate: CompetencyUpdate, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).updateCompetencyApiV1CompetenciesCompetencyIdPatch(competencyId, competencyUpdate, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).updateCompetencyApiV1CompetenciesCompetencyIdPatch(competencyId, competencyUpdate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4619,10 +7616,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {DomainUpdate} domainUpdate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public updateDomainApiV1DomainsDomainIdPatch(domainId: string, domainUpdate: DomainUpdate, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).updateDomainApiV1DomainsDomainIdPatch(domainId, domainUpdate, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).updateDomainApiV1DomainsDomainIdPatch(domainId, domainUpdate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4633,10 +7630,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {ReferentialUpdate} referentialUpdate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public updateReferentialApiV1ReferentialsReferentialIdPatch(referentialId: string, versionNumber: number, referentialUpdate: ReferentialUpdate, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).updateReferentialApiV1ReferentialsReferentialIdPatch(referentialId, versionNumber, referentialUpdate, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).updateReferentialApiV1ReferentialsReferentialIdPatch(referentialId, versionNumber, referentialUpdate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4646,10 +7643,10 @@ export class ReferentialsApi extends BaseAPI {
      * @param {SubjectUpdate} subjectUpdate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ReferentialsApi
+     * @memberof ReferentialsLegacyApi
      */
     public updateSubjectApiV1SubjectsSubjectIdPatch(subjectId: string, subjectUpdate: SubjectUpdate, options?: RawAxiosRequestConfig) {
-        return ReferentialsApiFp(this.configuration).updateSubjectApiV1SubjectsSubjectIdPatch(subjectId, subjectUpdate, options).then((request) => request(this.axios, this.basePath));
+        return ReferentialsLegacyApiFp(this.configuration).updateSubjectApiV1SubjectsSubjectIdPatch(subjectId, subjectUpdate, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

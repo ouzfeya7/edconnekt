@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { competenceReferentialsApi, competencePublicApi } from '../../api/competence-service/client';
-import type { SubjectListResponse, SubjectResponse } from '../../api/competence-service/api';
+import type { SubjectListResponse, SubjectResponse, CycleEnum } from '../../api/competence-service/api';
 
 export interface UseSubjectsParams {
   referentialId: string;
@@ -18,7 +18,7 @@ export function useSubjects(params: UseSubjectsParams) {
     queryKey: ['competence:subjects', { referentialId, versionNumber, page, size, domainId, q }],
     enabled: Boolean(referentialId) && Boolean(versionNumber || versionNumber === 0),
     queryFn: async () => {
-      const { data } = await competenceReferentialsApi.listSubjectsApiV1ReferentialsReferentialIdSubjectsGet(
+      const { data } = await competenceReferentialsApi.listSubjectsApiCompetenceReferentialsReferentialIdSubjectsGet(
         referentialId,
         versionNumber,
         page,
@@ -39,7 +39,7 @@ export function useSubject(subjectId?: string) {
     enabled: Boolean(subjectId),
     queryFn: async () => {
       if (!subjectId) throw new Error('subjectId requis');
-      const { data } = await competenceReferentialsApi.getSubjectApiV1SubjectsSubjectIdGet(subjectId);
+      const { data } = await competenceReferentialsApi.getSubjectApiCompetenceSubjectsSubjectIdGet(subjectId);
       return data;
     },
     staleTime: 60_000,
@@ -53,10 +53,7 @@ export function usePublicSubjectsByScope(params: { cycle: string; level: string 
     queryKey: ['competence:public-subjects', { cycle, level }],
     enabled: Boolean(cycle) && Boolean(level),
     queryFn: async () => {
-      const { data } = await competencePublicApi.listSubjectsByScopeApiV1PublicSubjectsGet(
-        cycle as unknown as 'PRESCOLAIRE' | 'PRIMAIRE' | 'COLLEGE' | 'LYCEE' | 'UNIVERSITE',
-        level
-      );
+      const { data } = await competencePublicApi.listSubjectsByScopeApiCompetencePublicSubjectsGet(cycle as unknown as CycleEnum, level);
       return data;
     },
     staleTime: 60_000,
