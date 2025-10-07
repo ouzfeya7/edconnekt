@@ -1,19 +1,20 @@
 # Data
 
-Un établissement unique ou une liste d\'établissements à créer
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**nom** | **string** | Nom de l\&#39;établissement | [default to undefined]
-**adresse** | **string** | Adresse de l\&#39;établissement | [default to undefined]
-**email** | **string** | Email de contact | [default to undefined]
-**telephone** | **string** | Numéro de téléphone | [default to undefined]
+**nom** | **string** |  | [default to undefined]
+**adresse** | **string** |  | [default to undefined]
+**email** | **string** |  | [default to undefined]
+**telephone** | **string** |  | [default to undefined]
 **ville** | **string** |  | [optional] [default to undefined]
 **pays** | **string** |  | [optional] [default to undefined]
+**code_etablissement** | **string** |  | [default to undefined]
 **plan** | [**PlanEnum**](PlanEnum.md) |  | [optional] [default to undefined]
 **status** | [**StatusEnum**](StatusEnum.md) |  | [optional] [default to undefined]
+**active** | **boolean** |  | [optional] [default to true]
 
 ## Example
 
@@ -27,8 +28,10 @@ const instance: Data = {
     telephone,
     ville,
     pays,
+    code_etablissement,
     plan,
     status,
+    active,
 };
 ```
 

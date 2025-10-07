@@ -1,12 +1,11 @@
 # ManualAuditCreate
 
-Schéma pour la création manuelle d\'une entrée d\'audit (sans etablissement_id)
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**operation** | **string** | Type d\&#39;opération effectuée | [default to undefined]
+**operation** | **string** |  | [default to undefined]
 **motif** | **string** |  | [optional] [default to undefined]
 **auteur_id** | **string** |  | [optional] [default to undefined]
 **auteur_nom** | **string** |  | [optional] [default to undefined]

@@ -4,6 +4,7 @@ import type { EtablissementCreate, PlanEnum, StatusEnum } from '../../../api/est
 import { useCreateEstablishmentsBulk } from '../../../hooks/useCreateEstablishmentsBulk';
 import toast from 'react-hot-toast';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
+import { useEstablishmentLastCode } from '../../../hooks/useEstablishmentLastCode';
 
 interface EstablishmentsBulkImportProps {
   onSuccessClose?: () => void;
@@ -11,6 +12,7 @@ interface EstablishmentsBulkImportProps {
 
 type ParsedRow = {
   nom: string;
+  code_etablissement: string;
   adresse: string;
   email: string;
   telephone: string;
@@ -23,11 +25,11 @@ type ParsedRow = {
   line: number;
 };
 
-const expectedHeaders = ['nom', 'adresse', 'email', 'telephone', 'ville', 'pays', 'plan', 'status', 'date_debut', 'date_fin'];
+const expectedHeaders = ['nom', 'code_etablissement', 'adresse', 'email', 'telephone', 'ville', 'pays', 'plan', 'status', 'date_debut', 'date_fin'];
 
-const sampleCsv = `nom,adresse,email,telephone,ville,pays,plan,status,date_debut,date_fin\n` +
-  `Lycée Cheikh Anta Diop,Avenue Blaise Diagne,contact@l-cad.com,+221338000000,Dakar,Sénégal,PRO,ACTIVE,2024-10-01,2025-09-30\n` +
-  `Collège Yoff Route de l’aéroport,Route de l’aéroport,info@college-yoff.com,0337000000,Dakar,Sénégal,BASIC,TRIAL,2024-10-01,`;
+const sampleCsv = `nom,code_etablissement,adresse,email,telephone,ville,pays,plan,status,date_debut,date_fin\n` +
+  `Lycée Cheikh Anta Diop,ETB0002,Avenue Blaise Diagne,contact@l-cad.sn,+221338000000,Dakar,Sénégal,PRO,ACTIVE,2024-10-01,2025-09-30\n` +
+  `Collège Yoff Route de l'aéroport,ETB0003,Route de l'aéroport,info@college-yoff.sn,0337000000,Dakar,Sénégal,BASIC,TRIAL,2024-10-01,`;
 
 function downloadSample() {
   const blob = new Blob([sampleCsv], { type: 'text/csv;charset=utf-8;' });
@@ -57,6 +59,7 @@ function parseCsv(content: string): { rows: ParsedRow[]; errors: string[] } {
     const statusRaw = (cols[idx('status')] || '').trim() as StatusEnum;
     const row: ParsedRow = {
       nom: (cols[idx('nom')] || '').trim(),
+      code_etablissement: (cols[idx('code_etablissement')] || '').trim(),
       adresse: (cols[idx('adresse')] || '').trim(),
       email: (cols[idx('email')] || '').trim(),
       telephone: (cols[idx('telephone')] || '').trim(),
@@ -76,11 +79,15 @@ function parseCsv(content: string): { rows: ParsedRow[]; errors: string[] } {
 function validateRow(r: ParsedRow): string[] {
   const errs: string[] = [];
   if (!r.nom) errs.push('nom requis');
+  // code_etablissement peut être vide: sera auto-généré
+  if (r.code_etablissement) {
+    const ce = (r.code_etablissement || '').trim().toUpperCase();
+    if (!/^ETB\d{4}$/.test(ce)) errs.push('code_etablissement invalide (format ETB0001)');
+  }
   if (!r.adresse) errs.push('adresse requise');
   if (!r.email) errs.push('email requis');
   if (!r.telephone) errs.push('telephone requis');
   if (r.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email)) errs.push('email invalide');
-  if (r.email && !/\.com$/i.test(r.email)) errs.push("email doit se terminer par .com");
   const tel = (r.telephone || '').replace(/\s+/g, '');
   const phoneOk = /^\+221\d{9}$/.test(tel) || /^0\d{9}$/.test(tel);
   if (!phoneOk) errs.push('telephone invalide (formats: +221XXXXXXXXX ou 0XXXXXXXXX)');
@@ -102,6 +109,14 @@ const EstablishmentsBulkImport: React.FC<EstablishmentsBulkImportProps> = ({ onS
   const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
 
   const createBulkMutation = useCreateEstablishmentsBulk();
+  const { data: lastCode } = useEstablishmentLastCode();
+
+  function computeNextEtb(from?: string): string {
+    const match = (from || '').toUpperCase().match(/^ETB(\d{4})$/);
+    const n = match ? parseInt(match[1], 10) : 0;
+    const next = (n + 1);
+    return `ETB${String(next).padStart(4, '0')}`;
+  }
 
   const isValid = useMemo(() => {
     if (parseErrors.length > 0) return false;
@@ -132,18 +147,43 @@ const EstablishmentsBulkImport: React.FC<EstablishmentsBulkImportProps> = ({ onS
   const doSubmit = async () => {
     if (!isValid) return;
     setSubmitting(true);
-    const payloads: EtablissementCreate[] = parsed.map((r) => ({
-      nom: r.nom,
-      adresse: r.adresse,
-      email: r.email,
-      telephone: normalizeTelephoneSn(r.telephone),
-      ville: r.ville ?? undefined,
-      pays: r.pays ?? undefined,
-      plan: r.plan,
-      status: r.status,
-      date_debut: r.date_debut ?? undefined,
-      date_fin: r.date_fin ?? undefined,
-    }));
+    // Préparer un générateur séquentiel unique à partir du lastCode
+    let cursor = lastCode && /^ETB\d{4}$/.test(lastCode.toUpperCase()) ? lastCode.toUpperCase() : 'ETB0000';
+    const used = new Set<string>();
+    // Marquer les codes fournis pour éviter collisions
+    parsed.forEach(r => {
+      const c = (r.code_etablissement || '').trim().toUpperCase();
+      if (c) used.add(c);
+    });
+    const nextUnique = (): string => {
+      let candidate = computeNextEtb(cursor);
+      // Incrémenter jusqu'à trouver un code non utilisé localement
+      while (used.has(candidate)) {
+        cursor = candidate;
+        candidate = computeNextEtb(cursor);
+      }
+      cursor = candidate;
+      used.add(candidate);
+      return candidate;
+    };
+
+    const payloads: EtablissementCreate[] = parsed.map((r) => {
+      let code = (r.code_etablissement || '').trim().toUpperCase();
+      if (!code) {
+        code = nextUnique();
+      }
+      return {
+        nom: r.nom,
+        code_etablissement: code,
+        adresse: r.adresse,
+        email: r.email,
+        telephone: normalizeTelephoneSn(r.telephone),
+        ville: r.ville ?? undefined,
+        pays: r.pays ?? undefined,
+        plan: r.plan,
+        status: r.status,
+      } as EtablissementCreate;
+    });
     try {
       await createBulkMutation.mutateAsync(payloads);
       toast.success(`${payloads.length} établissement(s) créés`);
@@ -207,45 +247,49 @@ function normalizeTelephoneSn(input: string): string {
       )}
       {parsed.length > 0 && (
         <div className="overflow-x-auto mb-4">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="p-2 text-left">#</th>
-                <th className="p-2 text-left">Nom</th>
-                <th className="p-2 text-left">Adresse</th>
-                <th className="p-2 text-left">Email</th>
-                <th className="p-2 text-left">Téléphone</th>
-                <th className="p-2 text-left">Ville</th>
-                <th className="p-2 text-left">Pays</th>
-                <th className="p-2 text-left">Plan</th>
-                <th className="p-2 text-left">Statut</th>
-                <th className="p-2 text-left">Erreurs</th>
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="p-2 text-left">#</th>
+              <th className="p-2 text-left">Nom</th>
+              <th className="p-2 text-left">Code établissement</th>
+              <th className="p-2 text-left">Adresse</th>
+              <th className="p-2 text-left">Email</th>
+              <th className="p-2 text-left">Téléphone</th>
+              <th className="p-2 text-left">Ville</th>
+              <th className="p-2 text-left">Pays</th>
+              <th className="p-2 text-left">Plan</th>
+              <th className="p-2 text-left">Statut</th>
+              <th className="p-2 text-left">Erreurs</th>
+            </tr>
+          </thead>
+          <tbody>
+            {parsed.map((r) => (
+              <tr key={r.line} className="border-b">
+                <td className="p-2">{r.line}</td>
+                <td className="p-2">{r.nom}</td>
+                <td className="p-2">{r.code_etablissement || <span className="text-xs text-gray-500">(auto)</span>}</td>
+                <td className="p-2">{r.adresse}</td>
+                <td className="p-2">{r.email}</td>
+                <td className="p-2">{r.telephone}</td>
+                <td className="p-2">{r.ville ?? ''}</td>
+                <td className="p-2">{r.pays ?? ''}</td>
+                <td className="p-2">{r.plan ?? ''}</td>
+                <td className="p-2">{r.status ?? ''}</td>
+                <td className="p-2 text-red-600">{(rowErrors[r.line] || []).join(', ')}</td>
               </tr>
-            </thead>
-            <tbody>
-              {parsed.map((r) => (
-                <tr key={r.line} className="border-b">
-                  <td className="p-2">{r.line}</td>
-                  <td className="p-2">{r.nom}</td>
-                  <td className="p-2">{r.adresse}</td>
-                  <td className="p-2">{r.email}</td>
-                  <td className="p-2">{r.telephone}</td>
-                  <td className="p-2">{r.ville ?? ''}</td>
-                  <td className="p-2">{r.pays ?? ''}</td>
-                  <td className="p-2">{r.plan ?? ''}</td>
-                  <td className="p-2">{r.status ?? ''}</td>
-                  <td className="p-2 text-red-600">{(rowErrors[r.line] || []).join(', ')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      )}
+      {parsed.length > 0 && (
+        <div className="text-xs text-gray-500 mb-2">Remarque: si le code établissement est vide, il sera auto-généré à partir du dernier code ({(lastCode || 'ETB0000')}).</div>
       )}
       <div className="flex items-center justify-end">
         <Button onClick={() => setIsConfirmOpen(true)} disabled={!isValid || submitting}>
           {submitting ? 'Import en cours…' : 'Importer les établissements'}
         </Button>
-      </div>
       <ConfirmDialog
         isOpen={isConfirmOpen}
         onCancel={() => setIsConfirmOpen(false)}
@@ -253,6 +297,7 @@ function normalizeTelephoneSn(input: string): string {
         title={`Confirmer l'import de ${parsed.length} établissement(s)`}
         description="Cette opération va créer tous les établissements listés. Vérifiez les erreurs éventuelles avant de confirmer."
       />
+    </div>
     </div>
   );
 };

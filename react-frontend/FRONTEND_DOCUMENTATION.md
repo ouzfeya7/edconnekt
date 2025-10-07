@@ -349,6 +349,27 @@ Géré par `react-router-dom` v6, configuré principalement dans `src/App.tsx`.
 *   **Legacy supprimé :** Plus d’utilisation de `X-Establishment-Id` ni de `current-etab-id` pour les headers. Voir `docs/IDENTITY_CONTEXT.md`.
 *   **TanStack Query :** Utilisé pour l’état serveur (fetch, cache, invalidations) et la cohérence des écrans.
 
+#### Etablissement Service – Intégration UI (Mises à jour récentes)
+
+* Salles unifiées via establishment-service:
+  * Feature flag `src/config/featureFlags.ts` `roomsFromEstablishment` activé par défaut.
+  * Pages: `src/pages/admin/etablissements/EtablissementDetailPage.tsx` (onglets Bâtiments/Salles), `src/pages/directeur/EmploiDuTempsPage.tsx` (sélection des salles basée sur l’établissement).
+  * Hook ajouté: `src/hooks/useAllEstablishmentRooms.ts` (agrège les salles de tous les bâtiments).
+
+* Bâtiments et salles:
+  * CRUD bâtiments/salles opérationnels via establishment-service.
+  * Formulaire salle inclut `type_salle` (enum: CLASSROOM, LAB, OFFICE, OTHER), `capacite`, `etage`.
+
+* Audit établissement:
+  * Liste, statistiques, export CSV, création manuelle OK.
+  * Résumé d’audit (N jours) ajouté dans l’onglet Audit.
+
+* Établissements publics:
+  * Intégrés à `src/pages/context/SelectContextPage.tsx` avec pagination (limit/offset).
+
+* Normalisation des champs établissement:
+  * `EtablissementFormModal` mappe `date_debut`/`date_fin` vers `subscription_start`/`subscription_end` (format ISO) et filtre les payloads aux champs du schéma.
+
 ### Tests
 
 *   **À Développer :** `DEVBOOK.md` suggère Vitest, React Testing Library, Cypress/Playwright. Actuellement, la couverture de test semble minimale ou inexistante.

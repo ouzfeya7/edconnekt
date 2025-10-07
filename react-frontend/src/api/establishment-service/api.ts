@@ -24,44 +24,44 @@ import type { RequestArgs } from './base';
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
 /**
- * Réponse pour la liste des audits avec pagination
+ * 
  * @export
  * @interface AuditListResponse
  */
 export interface AuditListResponse {
     /**
-     * Liste des audits
+     * 
      * @type {Array<EtablissementAuditResponse>}
      * @memberof AuditListResponse
      */
     'items': Array<EtablissementAuditResponse>;
     /**
-     * Nombre total d\'audits
+     * 
      * @type {number}
      * @memberof AuditListResponse
      */
     'total': number;
     /**
-     * Limite utilisée
+     * 
      * @type {number}
      * @memberof AuditListResponse
      */
     'limit': number;
     /**
-     * Offset utilisé
+     * 
      * @type {number}
      * @memberof AuditListResponse
      */
     'offset': number;
     /**
-     * Y a-t-il plus d\'éléments ?
+     * 
      * @type {boolean}
      * @memberof AuditListResponse
      */
     'has_more': boolean;
 }
 /**
- * Types d\'opérations d\'audit
+ * 
  * @export
  * @enum {string}
  */
@@ -71,26 +71,27 @@ export const AuditOperationEnum = {
     Update: 'UPDATE',
     Delete: 'DELETE',
     StatusChange: 'STATUS_CHANGE',
-    Insert: 'INSERT'
+    Insert: 'INSERT',
+    AccessDenied: 'ACCESS_DENIED'
 } as const;
 
 export type AuditOperationEnum = typeof AuditOperationEnum[keyof typeof AuditOperationEnum];
 
 
 /**
- * Statistiques d\'audit pour un établissement
+ * 
  * @export
  * @interface AuditStatistics
  */
 export interface AuditStatistics {
     /**
-     * Nombre total d\'opérations
+     * 
      * @type {number}
      * @memberof AuditStatistics
      */
     'total_operations': number;
     /**
-     * Nombre d\'opérations par type
+     * 
      * @type {{ [key: string]: number; }}
      * @memberof AuditStatistics
      */
@@ -108,38 +109,222 @@ export interface AuditStatistics {
      */
     'most_active_user'?: string | null;
     /**
-     * Nombre d\'opérations ce mois-ci
+     * 
      * @type {number}
      * @memberof AuditStatistics
      */
     'operations_this_month': number;
 }
 /**
- * Un établissement unique ou une liste d\'établissements à créer
+ * 
+ * @export
+ * @interface BuildingCreate
+ */
+export interface BuildingCreate {
+    /**
+     * Code unique du bâtiment (unique par établissement)
+     * @type {string}
+     * @memberof BuildingCreate
+     */
+    'code_batiment': string;
+    /**
+     * Nom du bâtiment
+     * @type {string}
+     * @memberof BuildingCreate
+     */
+    'nom': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BuildingCreate
+     */
+    'description'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof BuildingCreate
+     */
+    'nombre_etages'?: number | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BuildingCreate
+     */
+    'active'?: boolean;
+}
+/**
+ * 
+ * @export
+ * @interface BuildingListResponse
+ */
+export interface BuildingListResponse {
+    /**
+     * 
+     * @type {Array<BuildingOut>}
+     * @memberof BuildingListResponse
+     */
+    'items': Array<BuildingOut>;
+    /**
+     * 
+     * @type {number}
+     * @memberof BuildingListResponse
+     */
+    'total': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BuildingListResponse
+     */
+    'page': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BuildingListResponse
+     */
+    'size': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BuildingListResponse
+     */
+    'pages': number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BuildingListResponse
+     */
+    'has_next': boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BuildingListResponse
+     */
+    'has_prev': boolean;
+}
+/**
+ * 
+ * @export
+ * @interface BuildingOut
+ */
+export interface BuildingOut {
+    /**
+     * 
+     * @type {string}
+     * @memberof BuildingOut
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BuildingOut
+     */
+    'establishment_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BuildingOut
+     */
+    'code_batiment': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BuildingOut
+     */
+    'nom': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BuildingOut
+     */
+    'description': string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof BuildingOut
+     */
+    'nombre_etages': number | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BuildingOut
+     */
+    'active': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof BuildingOut
+     */
+    'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BuildingOut
+     */
+    'updated_at': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BuildingOut
+     */
+    'deleted_at': string | null;
+}
+/**
+ * 
+ * @export
+ * @interface BuildingUpdate
+ */
+export interface BuildingUpdate {
+    /**
+     * 
+     * @type {string}
+     * @memberof BuildingUpdate
+     */
+    'nom'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BuildingUpdate
+     */
+    'description'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof BuildingUpdate
+     */
+    'nombre_etages'?: number | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BuildingUpdate
+     */
+    'active'?: boolean | null;
+}
+/**
+ * 
  * @export
  * @interface Data
  */
 export interface Data {
     /**
-     * Nom de l\'établissement
+     * 
      * @type {string}
      * @memberof Data
      */
     'nom': string;
     /**
-     * Adresse de l\'établissement
+     * 
      * @type {string}
      * @memberof Data
      */
     'adresse': string;
     /**
-     * Email de contact
+     * 
      * @type {string}
      * @memberof Data
      */
     'email': string;
     /**
-     * Numéro de téléphone
+     * 
      * @type {string}
      * @memberof Data
      */
@@ -158,6 +343,12 @@ export interface Data {
     'pays'?: string;
     /**
      * 
+     * @type {string}
+     * @memberof Data
+     */
+    'code_etablissement': string;
+    /**
+     * 
      * @type {PlanEnum}
      * @memberof Data
      */
@@ -168,6 +359,12 @@ export interface Data {
      * @memberof Data
      */
     'status'?: StatusEnum;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof Data
+     */
+    'active'?: boolean;
 }
 
 
@@ -221,17 +418,11 @@ export interface EtablissementAuditResponse {
     'date_operation': string;
 }
 /**
- * Schéma pour la mise à jour des coordonnées uniquement
+ * 
  * @export
  * @interface EtablissementCoordinatesUpdate
  */
 export interface EtablissementCoordinatesUpdate {
-    /**
-     * 
-     * @type {string}
-     * @memberof EtablissementCoordinatesUpdate
-     */
-    'nom'?: string | null;
     /**
      * 
      * @type {string}
@@ -270,25 +461,25 @@ export interface EtablissementCoordinatesUpdate {
  */
 export interface EtablissementCreate {
     /**
-     * Nom de l\'établissement
+     * 
      * @type {string}
      * @memberof EtablissementCreate
      */
     'nom': string;
     /**
-     * Adresse de l\'établissement
+     * 
      * @type {string}
      * @memberof EtablissementCreate
      */
     'adresse': string;
     /**
-     * Email de contact
+     * 
      * @type {string}
      * @memberof EtablissementCreate
      */
     'email': string;
     /**
-     * Numéro de téléphone
+     * 
      * @type {string}
      * @memberof EtablissementCreate
      */
@@ -307,21 +498,33 @@ export interface EtablissementCreate {
     'pays'?: string | null;
     /**
      * 
+     * @type {string}
+     * @memberof EtablissementCreate
+     */
+    'code_etablissement': string;
+    /**
+     * 
      * @type {PlanEnum}
      * @memberof EtablissementCreate
      */
-    'plan'?: PlanEnum;
+    'plan'?: PlanEnum | null;
     /**
      * 
      * @type {StatusEnum}
      * @memberof EtablissementCreate
      */
-    'status'?: StatusEnum;
+    'status'?: StatusEnum | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof EtablissementCreate
+     */
+    'active'?: boolean;
 }
 
 
 /**
- * Schéma flexible pour accepter soit un établissement unique, soit une liste d\'établissements. Permet de créer un ou plusieurs établissements avec le même endpoint.
+ * Accepte soit un établissement, soit une liste d\'établissements, ou un payload non wrappé. Le router peut poster directement un objet ou {\"data\": objet}.
  * @export
  * @interface EtablissementCreateFlexible
  */
@@ -340,42 +543,6 @@ export interface EtablissementCreateFlexible {
  */
 export interface EtablissementOut {
     /**
-     * Nom de l\'établissement
-     * @type {string}
-     * @memberof EtablissementOut
-     */
-    'nom': string;
-    /**
-     * Adresse de l\'établissement
-     * @type {string}
-     * @memberof EtablissementOut
-     */
-    'adresse': string;
-    /**
-     * Email de contact
-     * @type {string}
-     * @memberof EtablissementOut
-     */
-    'email': string;
-    /**
-     * Numéro de téléphone
-     * @type {string}
-     * @memberof EtablissementOut
-     */
-    'telephone': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EtablissementOut
-     */
-    'ville'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof EtablissementOut
-     */
-    'pays'?: string | null;
-    /**
      * 
      * @type {string}
      * @memberof EtablissementOut
@@ -383,28 +550,70 @@ export interface EtablissementOut {
     'id': string;
     /**
      * 
+     * @type {string}
+     * @memberof EtablissementOut
+     */
+    'nom': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementOut
+     */
+    'adresse': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementOut
+     */
+    'code_etablissement': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementOut
+     */
+    'email': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementOut
+     */
+    'telephone': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementOut
+     */
+    'ville': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof EtablissementOut
+     */
+    'pays': string | null;
+    /**
+     * 
      * @type {PlanEnum}
      * @memberof EtablissementOut
      */
-    'plan': PlanEnum;
+    'plan': PlanEnum | null;
     /**
      * 
      * @type {StatusEnum}
      * @memberof EtablissementOut
      */
-    'status': StatusEnum;
+    'status': StatusEnum | null;
     /**
      * 
      * @type {string}
      * @memberof EtablissementOut
      */
-    'subscription_start'?: string | null;
+    'subscription_start': string | null;
     /**
      * 
      * @type {string}
      * @memberof EtablissementOut
      */
-    'subscription_end'?: string | null;
+    'subscription_end': string | null;
     /**
      * 
      * @type {string}
@@ -422,7 +631,7 @@ export interface EtablissementOut {
      * @type {string}
      * @memberof EtablissementOut
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * 
      * @type {string}
@@ -434,7 +643,7 @@ export interface EtablissementOut {
      * @type {string}
      * @memberof EtablissementOut
      */
-    'deleted_at'?: string | null;
+    'deleted_at': string | null;
 }
 
 
@@ -492,6 +701,12 @@ export interface EtablissementUpdate {
      * @memberof EtablissementUpdate
      */
     'status'?: StatusEnum | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof EtablissementUpdate
+     */
+    'active'?: boolean | null;
 }
 
 
@@ -509,13 +724,26 @@ export interface HTTPValidationError {
     'detail'?: Array<ValidationError>;
 }
 /**
- * Schéma pour la création manuelle d\'une entrée d\'audit (sans etablissement_id)
+ * Schéma simplifié pour la réponse du dernier code établissement
+ * @export
+ * @interface LastCodeEtablissementResponse
+ */
+export interface LastCodeEtablissementResponse {
+    /**
+     * 
+     * @type {string}
+     * @memberof LastCodeEtablissementResponse
+     */
+    'last_code'?: string | null;
+}
+/**
+ * 
  * @export
  * @interface ManualAuditCreate
  */
 export interface ManualAuditCreate {
     /**
-     * Type d\'opération effectuée
+     * 
      * @type {string}
      * @memberof ManualAuditCreate
      */
@@ -561,25 +789,37 @@ export type PlanEnum = typeof PlanEnum[keyof typeof PlanEnum];
  */
 export interface ResponseCreateEstablishmentApiEtablissementsPost {
     /**
-     * Nom de l\'établissement
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'id': string;
+    /**
+     * 
      * @type {string}
      * @memberof ResponseCreateEstablishmentApiEtablissementsPost
      */
     'nom': string;
     /**
-     * Adresse de l\'établissement
+     * 
      * @type {string}
      * @memberof ResponseCreateEstablishmentApiEtablissementsPost
      */
     'adresse': string;
     /**
-     * Email de contact
+     * 
+     * @type {string}
+     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
+     */
+    'code_etablissement': string;
+    /**
+     * 
      * @type {string}
      * @memberof ResponseCreateEstablishmentApiEtablissementsPost
      */
     'email': string;
     /**
-     * Numéro de téléphone
+     * 
      * @type {string}
      * @memberof ResponseCreateEstablishmentApiEtablissementsPost
      */
@@ -589,19 +829,13 @@ export interface ResponseCreateEstablishmentApiEtablissementsPost {
      * @type {string}
      * @memberof ResponseCreateEstablishmentApiEtablissementsPost
      */
-    'ville'?: string;
+    'ville': string;
     /**
      * 
      * @type {string}
      * @memberof ResponseCreateEstablishmentApiEtablissementsPost
      */
-    'pays'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ResponseCreateEstablishmentApiEtablissementsPost
-     */
-    'id': string;
+    'pays': string;
     /**
      * 
      * @type {PlanEnum}
@@ -619,13 +853,13 @@ export interface ResponseCreateEstablishmentApiEtablissementsPost {
      * @type {string}
      * @memberof ResponseCreateEstablishmentApiEtablissementsPost
      */
-    'subscription_start'?: string;
+    'subscription_start': string;
     /**
      * 
      * @type {string}
      * @memberof ResponseCreateEstablishmentApiEtablissementsPost
      */
-    'subscription_end'?: string;
+    'subscription_end': string;
     /**
      * 
      * @type {string}
@@ -655,7 +889,237 @@ export interface ResponseCreateEstablishmentApiEtablissementsPost {
      * @type {string}
      * @memberof ResponseCreateEstablishmentApiEtablissementsPost
      */
-    'deleted_at'?: string;
+    'deleted_at': string;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface RoomCreate
+ */
+export interface RoomCreate {
+    /**
+     * Code unique de la salle (unique par bâtiment)
+     * @type {string}
+     * @memberof RoomCreate
+     */
+    'code_salle': string;
+    /**
+     * Nom de la salle
+     * @type {string}
+     * @memberof RoomCreate
+     */
+    'nom': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof RoomCreate
+     */
+    'capacite'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof RoomCreate
+     */
+    'etage'?: number | null;
+    /**
+     * 
+     * @type {RoomType}
+     * @memberof RoomCreate
+     */
+    'type_salle'?: RoomType | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof RoomCreate
+     */
+    'active'?: boolean;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface RoomListResponse
+ */
+export interface RoomListResponse {
+    /**
+     * 
+     * @type {Array<RoomOut>}
+     * @memberof RoomListResponse
+     */
+    'items': Array<RoomOut>;
+    /**
+     * 
+     * @type {number}
+     * @memberof RoomListResponse
+     */
+    'total': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof RoomListResponse
+     */
+    'page': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof RoomListResponse
+     */
+    'size': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof RoomListResponse
+     */
+    'pages': number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof RoomListResponse
+     */
+    'has_next': boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof RoomListResponse
+     */
+    'has_prev': boolean;
+}
+/**
+ * 
+ * @export
+ * @interface RoomOut
+ */
+export interface RoomOut {
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomOut
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomOut
+     */
+    'establishment_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomOut
+     */
+    'building_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomOut
+     */
+    'code_salle': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomOut
+     */
+    'nom': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof RoomOut
+     */
+    'capacite': number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof RoomOut
+     */
+    'etage': number | null;
+    /**
+     * 
+     * @type {RoomType}
+     * @memberof RoomOut
+     */
+    'type_salle': RoomType | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof RoomOut
+     */
+    'active': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomOut
+     */
+    'created_at': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomOut
+     */
+    'updated_at': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomOut
+     */
+    'deleted_at': string | null;
+}
+
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const RoomType = {
+    Classroom: 'CLASSROOM',
+    Lab: 'LAB',
+    Office: 'OFFICE',
+    Other: 'OTHER'
+} as const;
+
+export type RoomType = typeof RoomType[keyof typeof RoomType];
+
+
+/**
+ * 
+ * @export
+ * @interface RoomUpdate
+ */
+export interface RoomUpdate {
+    /**
+     * 
+     * @type {string}
+     * @memberof RoomUpdate
+     */
+    'nom'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof RoomUpdate
+     */
+    'capacite'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof RoomUpdate
+     */
+    'etage'?: number | null;
+    /**
+     * 
+     * @type {RoomType}
+     * @memberof RoomUpdate
+     */
+    'type_salle'?: RoomType | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof RoomUpdate
+     */
+    'active'?: boolean | null;
 }
 
 
@@ -816,6 +1280,46 @@ export class DefaultApi extends BaseAPI {
 export const EstablishmentsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
+         * 
+         * @summary Create Building
+         * @param {string} establishmentId 
+         * @param {BuildingCreate} buildingCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createBuildingApiEtablissementsEstablishmentIdBatimentsPost: async (establishmentId: string, buildingCreate: BuildingCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('createBuildingApiEtablissementsEstablishmentIdBatimentsPost', 'establishmentId', establishmentId)
+            // verify required parameter 'buildingCreate' is not null or undefined
+            assertParamExists('createBuildingApiEtablissementsEstablishmentIdBatimentsPost', 'buildingCreate', buildingCreate)
+            const localVarPath = `/api/etablissements/{establishment_id}/batiments`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(buildingCreate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Crée un ou plusieurs établissements  Accepte soit un établissement unique, soit une liste d\'établissements. En cas d\'erreur sur un seul établissement, tous sont annulés (rollback complet).  Requiert le rôle ROLE_ADMIN.
          * @summary Create Establishment
          * @param {EtablissementCreateFlexible} etablissementCreateFlexible 
@@ -892,7 +1396,131 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
+         * 
+         * @summary Create Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {RoomCreate} roomCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesPost: async (establishmentId: string, buildingId: string, roomCreate: RoomCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('createRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesPost', 'establishmentId', establishmentId)
+            // verify required parameter 'buildingId' is not null or undefined
+            assertParamExists('createRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesPost', 'buildingId', buildingId)
+            // verify required parameter 'roomCreate' is not null or undefined
+            assertParamExists('createRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesPost', 'roomCreate', roomCreate)
+            const localVarPath = `/api/etablissements/{establishment_id}/batiments/{building_id}/salles`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)))
+                .replace(`{${"building_id"}}`, encodeURIComponent(String(buildingId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(roomCreate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete Building
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdDelete: async (establishmentId: string, buildingId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('deleteBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdDelete', 'establishmentId', establishmentId)
+            // verify required parameter 'buildingId' is not null or undefined
+            assertParamExists('deleteBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdDelete', 'buildingId', buildingId)
+            const localVarPath = `/api/etablissements/{establishment_id}/batiments/{building_id}`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)))
+                .replace(`{${"building_id"}}`, encodeURIComponent(String(buildingId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {string} roomId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdDelete: async (establishmentId: string, buildingId: string, roomId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('deleteRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdDelete', 'establishmentId', establishmentId)
+            // verify required parameter 'buildingId' is not null or undefined
+            assertParamExists('deleteRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdDelete', 'buildingId', buildingId)
+            // verify required parameter 'roomId' is not null or undefined
+            assertParamExists('deleteRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdDelete', 'roomId', roomId)
+            const localVarPath = `/api/etablissements/{establishment_id}/batiments/{building_id}/salles/{room_id}`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)))
+                .replace(`{${"building_id"}}`, encodeURIComponent(String(buildingId)))
+                .replace(`{${"room_id"}}`, encodeURIComponent(String(roomId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
          * @summary Export Establishment Audit
          * @param {string} establishmentId 
          * @param {string | null} [dateFrom] Date de début pour l\&#39;export
@@ -945,7 +1573,45 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Récupère un établissement par son ID  - ROLE_ADMIN : Peut accéder à tous les établissements - ROLE_DIRECTION : Peut accéder à tous les établissements
+         * 
+         * @summary Get Building
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdGet: async (establishmentId: string, buildingId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('getBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdGet', 'establishmentId', establishmentId)
+            // verify required parameter 'buildingId' is not null or undefined
+            assertParamExists('getBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdGet', 'buildingId', buildingId)
+            const localVarPath = `/api/etablissements/{establishment_id}/batiments/{building_id}`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)))
+                .replace(`{${"building_id"}}`, encodeURIComponent(String(buildingId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'à son propre établissement.
          * @summary Get Establishment
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
@@ -979,7 +1645,7 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  - ROLE_ADMIN : Peut accéder à l\'audit de tous les établissements - ROLE_DIRECTION : Ne peut accéder qu\'à l\'audit de son établissement  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
          * @summary Get Establishment Audit
          * @param {string} establishmentId 
          * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
@@ -1062,7 +1728,7 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
+         * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
          * @summary Get Establishment Audit Statistics
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
@@ -1096,7 +1762,7 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
+         * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
          * @summary Get Establishment Audit Summary
          * @param {string} establishmentId 
          * @param {number} [days] Nombre de jours pour le résumé
@@ -1135,7 +1801,138 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Liste les établissements  - ROLE_ADMIN : Peut voir tous les établissements
+         * Récupère le dernier code établissement utilisé  Cette route permet aux administrateurs de connaître le dernier code utilisé. La logique de calcul du code suivant appartient au client.  Requiert le rôle ROLE_ADMIN.
+         * @summary Get Last Code Etablissement
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLastCodeEtablissementApiEtablissementsLastCodeGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/etablissements/last-code`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {string} roomId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdGet: async (establishmentId: string, buildingId: string, roomId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('getRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdGet', 'establishmentId', establishmentId)
+            // verify required parameter 'buildingId' is not null or undefined
+            assertParamExists('getRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdGet', 'buildingId', buildingId)
+            // verify required parameter 'roomId' is not null or undefined
+            assertParamExists('getRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdGet', 'roomId', roomId)
+            const localVarPath = `/api/etablissements/{establishment_id}/batiments/{building_id}/salles/{room_id}`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)))
+                .replace(`{${"building_id"}}`, encodeURIComponent(String(buildingId)))
+                .replace(`{${"room_id"}}`, encodeURIComponent(String(roomId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List Buildings
+         * @param {string} establishmentId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {string | null} [q] Recherche par nom
+         * @param {string} [orderBy] 
+         * @param {string} [orderDir] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listBuildingsApiEtablissementsEstablishmentIdBatimentsGet: async (establishmentId: string, page?: number, size?: number, q?: string | null, orderBy?: string, orderDir?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('listBuildingsApiEtablissementsEstablishmentIdBatimentsGet', 'establishmentId', establishmentId)
+            const localVarPath = `/api/etablissements/{establishment_id}/batiments`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (q !== undefined) {
+                localVarQueryParameter['q'] = q;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['order_by'] = orderBy;
+            }
+
+            if (orderDir !== undefined) {
+                localVarQueryParameter['order_dir'] = orderDir;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
          * @summary List Establishments
          * @param {StatusEnum} [status] Filtrer par statut
          * @param {number} [limit] Nombre maximum d\&#39;éléments
@@ -1220,7 +2017,114 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Met à jour les informations d\'un établissement  - ROLE_ADMIN : Peut modifier tous les établissements - ROLE_DIRECTION : Peut modifier tous les établissements
+         * 
+         * @summary List Rooms
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {string | null} [q] 
+         * @param {string} [orderBy] 
+         * @param {string} [orderDir] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRoomsApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesGet: async (establishmentId: string, buildingId: string, page?: number, size?: number, q?: string | null, orderBy?: string, orderDir?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('listRoomsApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesGet', 'establishmentId', establishmentId)
+            // verify required parameter 'buildingId' is not null or undefined
+            assertParamExists('listRoomsApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesGet', 'buildingId', buildingId)
+            const localVarPath = `/api/etablissements/{establishment_id}/batiments/{building_id}/salles`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)))
+                .replace(`{${"building_id"}}`, encodeURIComponent(String(buildingId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (q !== undefined) {
+                localVarQueryParameter['q'] = q;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['order_by'] = orderBy;
+            }
+
+            if (orderDir !== undefined) {
+                localVarQueryParameter['order_dir'] = orderDir;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update Building
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {BuildingUpdate} buildingUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdPatch: async (establishmentId: string, buildingId: string, buildingUpdate: BuildingUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('updateBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdPatch', 'establishmentId', establishmentId)
+            // verify required parameter 'buildingId' is not null or undefined
+            assertParamExists('updateBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdPatch', 'buildingId', buildingId)
+            // verify required parameter 'buildingUpdate' is not null or undefined
+            assertParamExists('updateBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdPatch', 'buildingUpdate', buildingUpdate)
+            const localVarPath = `/api/etablissements/{establishment_id}/batiments/{building_id}`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)))
+                .replace(`{${"building_id"}}`, encodeURIComponent(String(buildingId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(buildingUpdate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Met à jour les informations d\'un établissement
          * @summary Update Establishment
          * @param {string} establishmentId 
          * @param {EtablissementUpdate} etablissementUpdate 
@@ -1260,7 +2164,7 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut modifier que son propre établissement.
+         * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut modifier que son propre établissement.
          * @summary Update Establishment Coordinates
          * @param {string} establishmentId 
          * @param {EtablissementCoordinatesUpdate} etablissementCoordinatesUpdate 
@@ -1345,6 +2249,54 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Update Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {string} roomId 
+         * @param {RoomUpdate} roomUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch: async (establishmentId: string, buildingId: string, roomId: string, roomUpdate: RoomUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'establishmentId' is not null or undefined
+            assertParamExists('updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch', 'establishmentId', establishmentId)
+            // verify required parameter 'buildingId' is not null or undefined
+            assertParamExists('updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch', 'buildingId', buildingId)
+            // verify required parameter 'roomId' is not null or undefined
+            assertParamExists('updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch', 'roomId', roomId)
+            // verify required parameter 'roomUpdate' is not null or undefined
+            assertParamExists('updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch', 'roomUpdate', roomUpdate)
+            const localVarPath = `/api/etablissements/{establishment_id}/batiments/{building_id}/salles/{room_id}`
+                .replace(`{${"establishment_id"}}`, encodeURIComponent(String(establishmentId)))
+                .replace(`{${"building_id"}}`, encodeURIComponent(String(buildingId)))
+                .replace(`{${"room_id"}}`, encodeURIComponent(String(roomId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(roomUpdate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -1355,6 +2307,20 @@ export const EstablishmentsApiAxiosParamCreator = function (configuration?: Conf
 export const EstablishmentsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = EstablishmentsApiAxiosParamCreator(configuration)
     return {
+        /**
+         * 
+         * @summary Create Building
+         * @param {string} establishmentId 
+         * @param {BuildingCreate} buildingCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createBuildingApiEtablissementsEstablishmentIdBatimentsPost(establishmentId: string, buildingCreate: BuildingCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BuildingOut>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createBuildingApiEtablissementsEstablishmentIdBatimentsPost(establishmentId, buildingCreate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.createBuildingApiEtablissementsEstablishmentIdBatimentsPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
         /**
          * Crée un ou plusieurs établissements  Accepte soit un établissement unique, soit une liste d\'établissements. En cas d\'erreur sur un seul établissement, tous sont annulés (rollback complet).  Requiert le rôle ROLE_ADMIN.
          * @summary Create Establishment
@@ -1383,7 +2349,51 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
+         * 
+         * @summary Create Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {RoomCreate} roomCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesPost(establishmentId: string, buildingId: string, roomCreate: RoomCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RoomOut>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesPost(establishmentId, buildingId, roomCreate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.createRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete Building
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdDelete(establishmentId: string, buildingId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdDelete(establishmentId, buildingId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.deleteBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {string} roomId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdDelete(establishmentId: string, buildingId: string, roomId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdDelete(establishmentId, buildingId, roomId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.deleteRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
          * @summary Export Establishment Audit
          * @param {string} establishmentId 
          * @param {string | null} [dateFrom] Date de début pour l\&#39;export
@@ -1399,7 +2409,21 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère un établissement par son ID  - ROLE_ADMIN : Peut accéder à tous les établissements - ROLE_DIRECTION : Peut accéder à tous les établissements
+         * 
+         * @summary Get Building
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdGet(establishmentId: string, buildingId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BuildingOut>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdGet(establishmentId, buildingId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.getBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'à son propre établissement.
          * @summary Get Establishment
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
@@ -1412,7 +2436,7 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  - ROLE_ADMIN : Peut accéder à l\'audit de tous les établissements - ROLE_DIRECTION : Ne peut accéder qu\'à l\'audit de son établissement  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
          * @summary Get Establishment Audit
          * @param {string} establishmentId 
          * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
@@ -1434,7 +2458,7 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
+         * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
          * @summary Get Establishment Audit Statistics
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
@@ -1447,7 +2471,7 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
+         * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
          * @summary Get Establishment Audit Summary
          * @param {string} establishmentId 
          * @param {number} [days] Nombre de jours pour le résumé
@@ -1461,7 +2485,52 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Liste les établissements  - ROLE_ADMIN : Peut voir tous les établissements
+         * Récupère le dernier code établissement utilisé  Cette route permet aux administrateurs de connaître le dernier code utilisé. La logique de calcul du code suivant appartient au client.  Requiert le rôle ROLE_ADMIN.
+         * @summary Get Last Code Etablissement
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getLastCodeEtablissementApiEtablissementsLastCodeGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LastCodeEtablissementResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getLastCodeEtablissementApiEtablissementsLastCodeGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.getLastCodeEtablissementApiEtablissementsLastCodeGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {string} roomId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdGet(establishmentId: string, buildingId: string, roomId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RoomOut>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdGet(establishmentId, buildingId, roomId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.getRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List Buildings
+         * @param {string} establishmentId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {string | null} [q] Recherche par nom
+         * @param {string} [orderBy] 
+         * @param {string} [orderDir] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listBuildingsApiEtablissementsEstablishmentIdBatimentsGet(establishmentId: string, page?: number, size?: number, q?: string | null, orderBy?: string, orderDir?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BuildingListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listBuildingsApiEtablissementsEstablishmentIdBatimentsGet(establishmentId, page, size, q, orderBy, orderDir, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.listBuildingsApiEtablissementsEstablishmentIdBatimentsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
          * @summary List Establishments
          * @param {StatusEnum} [status] Filtrer par statut
          * @param {number} [limit] Nombre maximum d\&#39;éléments
@@ -1490,7 +2559,41 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Met à jour les informations d\'un établissement  - ROLE_ADMIN : Peut modifier tous les établissements - ROLE_DIRECTION : Peut modifier tous les établissements
+         * 
+         * @summary List Rooms
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {string | null} [q] 
+         * @param {string} [orderBy] 
+         * @param {string} [orderDir] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listRoomsApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesGet(establishmentId: string, buildingId: string, page?: number, size?: number, q?: string | null, orderBy?: string, orderDir?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RoomListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listRoomsApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesGet(establishmentId, buildingId, page, size, q, orderBy, orderDir, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.listRoomsApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update Building
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {BuildingUpdate} buildingUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdPatch(establishmentId: string, buildingId: string, buildingUpdate: BuildingUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BuildingOut>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdPatch(establishmentId, buildingId, buildingUpdate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.updateBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Met à jour les informations d\'un établissement
          * @summary Update Establishment
          * @param {string} establishmentId 
          * @param {EtablissementUpdate} etablissementUpdate 
@@ -1504,7 +2607,7 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut modifier que son propre établissement.
+         * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut modifier que son propre établissement.
          * @summary Update Establishment Coordinates
          * @param {string} establishmentId 
          * @param {EtablissementCoordinatesUpdate} etablissementCoordinatesUpdate 
@@ -1532,6 +2635,22 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @summary Update Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {string} roomId 
+         * @param {RoomUpdate} roomUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch(establishmentId: string, buildingId: string, roomId: string, roomUpdate: RoomUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RoomOut>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch(establishmentId, buildingId, roomId, roomUpdate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EstablishmentsApi.updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -1542,6 +2661,17 @@ export const EstablishmentsApiFp = function(configuration?: Configuration) {
 export const EstablishmentsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = EstablishmentsApiFp(configuration)
     return {
+        /**
+         * 
+         * @summary Create Building
+         * @param {string} establishmentId 
+         * @param {BuildingCreate} buildingCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createBuildingApiEtablissementsEstablishmentIdBatimentsPost(establishmentId: string, buildingCreate: BuildingCreate, options?: RawAxiosRequestConfig): AxiosPromise<BuildingOut> {
+            return localVarFp.createBuildingApiEtablissementsEstablishmentIdBatimentsPost(establishmentId, buildingCreate, options).then((request) => request(axios, basePath));
+        },
         /**
          * Crée un ou plusieurs établissements  Accepte soit un établissement unique, soit une liste d\'établissements. En cas d\'erreur sur un seul établissement, tous sont annulés (rollback complet).  Requiert le rôle ROLE_ADMIN.
          * @summary Create Establishment
@@ -1564,7 +2694,42 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.createManualAuditEntryApiEtablissementsEstablishmentIdAuditManualPost(establishmentId, manualAuditCreate, options).then((request) => request(axios, basePath));
         },
         /**
-         * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
+         * 
+         * @summary Create Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {RoomCreate} roomCreate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesPost(establishmentId: string, buildingId: string, roomCreate: RoomCreate, options?: RawAxiosRequestConfig): AxiosPromise<RoomOut> {
+            return localVarFp.createRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesPost(establishmentId, buildingId, roomCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete Building
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdDelete(establishmentId: string, buildingId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdDelete(establishmentId, buildingId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {string} roomId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdDelete(establishmentId: string, buildingId: string, roomId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdDelete(establishmentId, buildingId, roomId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
          * @summary Export Establishment Audit
          * @param {string} establishmentId 
          * @param {string | null} [dateFrom] Date de début pour l\&#39;export
@@ -1577,7 +2742,18 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.exportEstablishmentAuditApiEtablissementsEstablishmentIdAuditExportGet(establishmentId, dateFrom, dateTo, format, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère un établissement par son ID  - ROLE_ADMIN : Peut accéder à tous les établissements - ROLE_DIRECTION : Peut accéder à tous les établissements
+         * 
+         * @summary Get Building
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdGet(establishmentId: string, buildingId: string, options?: RawAxiosRequestConfig): AxiosPromise<BuildingOut> {
+            return localVarFp.getBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdGet(establishmentId, buildingId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'à son propre établissement.
          * @summary Get Establishment
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
@@ -1587,7 +2763,7 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.getEstablishmentApiEtablissementsEstablishmentIdGet(establishmentId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  - ROLE_ADMIN : Peut accéder à l\'audit de tous les établissements - ROLE_DIRECTION : Ne peut accéder qu\'à l\'audit de son établissement  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+         * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
          * @summary Get Establishment Audit
          * @param {string} establishmentId 
          * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
@@ -1606,7 +2782,7 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.getEstablishmentAuditApiEtablissementsEstablishmentIdAuditGet(establishmentId, operation, auteurId, auteurNom, dateFrom, dateTo, limit, offset, sortBy, sortOrder, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
+         * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
          * @summary Get Establishment Audit Statistics
          * @param {string} establishmentId 
          * @param {*} [options] Override http request option.
@@ -1616,7 +2792,7 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.getEstablishmentAuditStatisticsApiEtablissementsEstablishmentIdAuditStatisticsGet(establishmentId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
+         * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
          * @summary Get Establishment Audit Summary
          * @param {string} establishmentId 
          * @param {number} [days] Nombre de jours pour le résumé
@@ -1627,7 +2803,43 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.getEstablishmentAuditSummaryApiEtablissementsEstablishmentIdAuditSummaryGet(establishmentId, days, options).then((request) => request(axios, basePath));
         },
         /**
-         * Liste les établissements  - ROLE_ADMIN : Peut voir tous les établissements
+         * Récupère le dernier code établissement utilisé  Cette route permet aux administrateurs de connaître le dernier code utilisé. La logique de calcul du code suivant appartient au client.  Requiert le rôle ROLE_ADMIN.
+         * @summary Get Last Code Etablissement
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLastCodeEtablissementApiEtablissementsLastCodeGet(options?: RawAxiosRequestConfig): AxiosPromise<LastCodeEtablissementResponse> {
+            return localVarFp.getLastCodeEtablissementApiEtablissementsLastCodeGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {string} roomId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdGet(establishmentId: string, buildingId: string, roomId: string, options?: RawAxiosRequestConfig): AxiosPromise<RoomOut> {
+            return localVarFp.getRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdGet(establishmentId, buildingId, roomId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List Buildings
+         * @param {string} establishmentId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {string | null} [q] Recherche par nom
+         * @param {string} [orderBy] 
+         * @param {string} [orderDir] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listBuildingsApiEtablissementsEstablishmentIdBatimentsGet(establishmentId: string, page?: number, size?: number, q?: string | null, orderBy?: string, orderDir?: string, options?: RawAxiosRequestConfig): AxiosPromise<BuildingListResponse> {
+            return localVarFp.listBuildingsApiEtablissementsEstablishmentIdBatimentsGet(establishmentId, page, size, q, orderBy, orderDir, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
          * @summary List Establishments
          * @param {StatusEnum} [status] Filtrer par statut
          * @param {number} [limit] Nombre maximum d\&#39;éléments
@@ -1650,7 +2862,35 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.listPublicEstablishmentsApiEtablissementsPublicGet(limit, offset, options).then((request) => request(axios, basePath));
         },
         /**
-         * Met à jour les informations d\'un établissement  - ROLE_ADMIN : Peut modifier tous les établissements - ROLE_DIRECTION : Peut modifier tous les établissements
+         * 
+         * @summary List Rooms
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {string | null} [q] 
+         * @param {string} [orderBy] 
+         * @param {string} [orderDir] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRoomsApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesGet(establishmentId: string, buildingId: string, page?: number, size?: number, q?: string | null, orderBy?: string, orderDir?: string, options?: RawAxiosRequestConfig): AxiosPromise<RoomListResponse> {
+            return localVarFp.listRoomsApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesGet(establishmentId, buildingId, page, size, q, orderBy, orderDir, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update Building
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {BuildingUpdate} buildingUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdPatch(establishmentId: string, buildingId: string, buildingUpdate: BuildingUpdate, options?: RawAxiosRequestConfig): AxiosPromise<BuildingOut> {
+            return localVarFp.updateBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdPatch(establishmentId, buildingId, buildingUpdate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Met à jour les informations d\'un établissement
          * @summary Update Establishment
          * @param {string} establishmentId 
          * @param {EtablissementUpdate} etablissementUpdate 
@@ -1661,7 +2901,7 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
             return localVarFp.updateEstablishmentApiEtablissementsEstablishmentIdPatch(establishmentId, etablissementUpdate, options).then((request) => request(axios, basePath));
         },
         /**
-         * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut modifier que son propre établissement.
+         * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut modifier que son propre établissement.
          * @summary Update Establishment Coordinates
          * @param {string} establishmentId 
          * @param {EtablissementCoordinatesUpdate} etablissementCoordinatesUpdate 
@@ -1683,6 +2923,19 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
         updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId: string, status: StatusEnum, motif?: string, options?: RawAxiosRequestConfig): AxiosPromise<EtablissementOut> {
             return localVarFp.updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId, status, motif, options).then((request) => request(axios, basePath));
         },
+        /**
+         * 
+         * @summary Update Room
+         * @param {string} establishmentId 
+         * @param {string} buildingId 
+         * @param {string} roomId 
+         * @param {RoomUpdate} roomUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch(establishmentId: string, buildingId: string, roomId: string, roomUpdate: RoomUpdate, options?: RawAxiosRequestConfig): AxiosPromise<RoomOut> {
+            return localVarFp.updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch(establishmentId, buildingId, roomId, roomUpdate, options).then((request) => request(axios, basePath));
+        },
     };
 };
 
@@ -1693,6 +2946,19 @@ export const EstablishmentsApiFactory = function (configuration?: Configuration,
  * @extends {BaseAPI}
  */
 export class EstablishmentsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Create Building
+     * @param {string} establishmentId 
+     * @param {BuildingCreate} buildingCreate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public createBuildingApiEtablissementsEstablishmentIdBatimentsPost(establishmentId: string, buildingCreate: BuildingCreate, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).createBuildingApiEtablissementsEstablishmentIdBatimentsPost(establishmentId, buildingCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * Crée un ou plusieurs établissements  Accepte soit un établissement unique, soit une liste d\'établissements. En cas d\'erreur sur un seul établissement, tous sont annulés (rollback complet).  Requiert le rôle ROLE_ADMIN.
      * @summary Create Establishment
@@ -1719,7 +2985,48 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
+     * 
+     * @summary Create Room
+     * @param {string} establishmentId 
+     * @param {string} buildingId 
+     * @param {RoomCreate} roomCreate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public createRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesPost(establishmentId: string, buildingId: string, roomCreate: RoomCreate, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).createRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesPost(establishmentId, buildingId, roomCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete Building
+     * @param {string} establishmentId 
+     * @param {string} buildingId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public deleteBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdDelete(establishmentId: string, buildingId: string, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).deleteBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdDelete(establishmentId, buildingId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete Room
+     * @param {string} establishmentId 
+     * @param {string} buildingId 
+     * @param {string} roomId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public deleteRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdDelete(establishmentId: string, buildingId: string, roomId: string, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).deleteRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdDelete(establishmentId, buildingId, roomId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Exporte les données d\'audit d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut exporter que les données de son propre établissement.  **Paramètres :** - `date_from` : Date de début pour l\'export (optionnel) - `date_to` : Date de fin pour l\'export (optionnel) - `format` : Format d\'export (\"json\" ou \"csv\")  **Retourne :** - Fichier JSON ou CSV avec les données d\'audit
      * @summary Export Establishment Audit
      * @param {string} establishmentId 
      * @param {string | null} [dateFrom] Date de début pour l\&#39;export
@@ -1734,7 +3041,20 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Récupère un établissement par son ID  - ROLE_ADMIN : Peut accéder à tous les établissements - ROLE_DIRECTION : Peut accéder à tous les établissements
+     * 
+     * @summary Get Building
+     * @param {string} establishmentId 
+     * @param {string} buildingId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public getBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdGet(establishmentId: string, buildingId: string, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).getBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdGet(establishmentId, buildingId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Récupère un établissement par son ID  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'à son propre établissement.
      * @summary Get Establishment
      * @param {string} establishmentId 
      * @param {*} [options] Override http request option.
@@ -1746,7 +3066,7 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  - ROLE_ADMIN : Peut accéder à l\'audit de tous les établissements - ROLE_DIRECTION : Ne peut accéder qu\'à l\'audit de son établissement  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
+     * Récupère l\'historique d\'audit d\'un établissement avec filtres et pagination  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'à l\'audit de son propre établissement.  **Paramètres de filtrage :** - `operation` : Type d\'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT) - `auteur_id` : ID de l\'auteur de l\'opération - `auteur_nom` : Nom de l\'auteur (recherche partielle) - `date_from` : Date de début pour le filtrage - `date_to` : Date de fin pour le filtrage  **Paramètres de pagination :** - `limit` : Nombre maximum d\'éléments (1-100) - `offset` : Offset pour la pagination  **Paramètres de tri :** - `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id) - `sort_order` : Ordre de tri (asc/desc)
      * @summary Get Establishment Audit
      * @param {string} establishmentId 
      * @param {AuditOperationEnum | null} [operation] Filtrer par type d\&#39;opération
@@ -1767,7 +3087,7 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
+     * Récupère les statistiques d\'audit pour un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'aux statistiques de son propre établissement.  **Retourne :** - Nombre total d\'opérations - Nombre d\'opérations par type - Date de la dernière opération - Utilisateur le plus actif - Nombre d\'opérations ce mois-ci
      * @summary Get Establishment Audit Statistics
      * @param {string} establishmentId 
      * @param {*} [options] Override http request option.
@@ -1779,7 +3099,7 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
+     * Récupère un résumé d\'audit pour un établissement sur une période donnée  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut accéder qu\'au résumé de son propre établissement.  **Paramètres :** - `days` : Nombre de jours pour le résumé (1-365, défaut: 30)  **Retourne :** - Résumé des opérations par type - Activité par utilisateur - Activité quotidienne - Utilisateur le plus actif - Opération la plus courante
      * @summary Get Establishment Audit Summary
      * @param {string} establishmentId 
      * @param {number} [days] Nombre de jours pour le résumé
@@ -1792,7 +3112,49 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Liste les établissements  - ROLE_ADMIN : Peut voir tous les établissements
+     * Récupère le dernier code établissement utilisé  Cette route permet aux administrateurs de connaître le dernier code utilisé. La logique de calcul du code suivant appartient au client.  Requiert le rôle ROLE_ADMIN.
+     * @summary Get Last Code Etablissement
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public getLastCodeEtablissementApiEtablissementsLastCodeGet(options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).getLastCodeEtablissementApiEtablissementsLastCodeGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get Room
+     * @param {string} establishmentId 
+     * @param {string} buildingId 
+     * @param {string} roomId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public getRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdGet(establishmentId: string, buildingId: string, roomId: string, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).getRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdGet(establishmentId, buildingId, roomId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List Buildings
+     * @param {string} establishmentId 
+     * @param {number} [page] 
+     * @param {number} [size] 
+     * @param {string | null} [q] Recherche par nom
+     * @param {string} [orderBy] 
+     * @param {string} [orderDir] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public listBuildingsApiEtablissementsEstablishmentIdBatimentsGet(establishmentId: string, page?: number, size?: number, q?: string | null, orderBy?: string, orderDir?: string, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).listBuildingsApiEtablissementsEstablishmentIdBatimentsGet(establishmentId, page, size, q, orderBy, orderDir, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Liste tous les établissements avec pagination et filtres  Requiert le rôle ROLE_ADMIN.
      * @summary List Establishments
      * @param {StatusEnum} [status] Filtrer par statut
      * @param {number} [limit] Nombre maximum d\&#39;éléments
@@ -1819,7 +3181,39 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Met à jour les informations d\'un établissement  - ROLE_ADMIN : Peut modifier tous les établissements - ROLE_DIRECTION : Peut modifier tous les établissements
+     * 
+     * @summary List Rooms
+     * @param {string} establishmentId 
+     * @param {string} buildingId 
+     * @param {number} [page] 
+     * @param {number} [size] 
+     * @param {string | null} [q] 
+     * @param {string} [orderBy] 
+     * @param {string} [orderDir] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public listRoomsApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesGet(establishmentId: string, buildingId: string, page?: number, size?: number, q?: string | null, orderBy?: string, orderDir?: string, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).listRoomsApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesGet(establishmentId, buildingId, page, size, q, orderBy, orderDir, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update Building
+     * @param {string} establishmentId 
+     * @param {string} buildingId 
+     * @param {BuildingUpdate} buildingUpdate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public updateBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdPatch(establishmentId: string, buildingId: string, buildingUpdate: BuildingUpdate, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).updateBuildingApiEtablissementsEstablishmentIdBatimentsBuildingIdPatch(establishmentId, buildingId, buildingUpdate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Met à jour les informations d\'un établissement
      * @summary Update Establishment
      * @param {string} establishmentId 
      * @param {EtablissementUpdate} etablissementUpdate 
@@ -1832,7 +3226,7 @@ export class EstablishmentsApi extends BaseAPI {
     }
 
     /**
-     * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_DIRECTION. ROLE_DIRECTION ne peut modifier que son propre établissement.
+     * Met à jour les coordonnées d\'un établissement  Requiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF. ROLE_ADMINSTAFF ne peut modifier que son propre établissement.
      * @summary Update Establishment Coordinates
      * @param {string} establishmentId 
      * @param {EtablissementCoordinatesUpdate} etablissementCoordinatesUpdate 
@@ -1856,6 +3250,21 @@ export class EstablishmentsApi extends BaseAPI {
      */
     public updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId: string, status: StatusEnum, motif?: string, options?: RawAxiosRequestConfig) {
         return EstablishmentsApiFp(this.configuration).updateEstablishmentStatusApiEtablissementsEstablishmentIdStatusPatch(establishmentId, status, motif, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update Room
+     * @param {string} establishmentId 
+     * @param {string} buildingId 
+     * @param {string} roomId 
+     * @param {RoomUpdate} roomUpdate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EstablishmentsApi
+     */
+    public updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch(establishmentId: string, buildingId: string, roomId: string, roomUpdate: RoomUpdate, options?: RawAxiosRequestConfig) {
+        return EstablishmentsApiFp(this.configuration).updateRoomApiEtablissementsEstablishmentIdBatimentsBuildingIdSallesRoomIdPatch(establishmentId, buildingId, roomId, roomUpdate, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

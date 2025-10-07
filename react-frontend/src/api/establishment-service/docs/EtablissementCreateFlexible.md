@@ -1,6 +1,6 @@
 # EtablissementCreateFlexible
 
-Schéma flexible pour accepter soit un établissement unique, soit une liste d\'établissements. Permet de créer un ou plusieurs établissements avec le même endpoint.
+Accepte soit un établissement, soit une liste d\'établissements, ou un payload non wrappé. Le router peut poster directement un objet ou {\"data\": objet}.
 
 ## Properties
 

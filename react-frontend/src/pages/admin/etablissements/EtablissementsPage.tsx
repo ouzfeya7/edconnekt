@@ -8,7 +8,7 @@ import { useEstablishments } from '../../../hooks/useEstablishments';
 import { useUpdateEstablishmentStatus } from '../../../hooks/useUpdateEstablishmentStatus';
 import type { EtablissementOut, PlanEnum, StatusEnum } from '../../../api/establishment-service/api';
 import toast from 'react-hot-toast';
-import StatusConfirmModal from './StatusConfirmModal';
+// Removed StatusConfirmModal in favor of an inline ChangeStatusModal in this page
 import { useNavigate } from 'react-router-dom';
 
 const EtablissementsPage: React.FC = () => {
@@ -27,7 +27,9 @@ const EtablissementsPage: React.FC = () => {
   const updateStatusMutation = useUpdateEstablishmentStatus();
 
   const [statusModalOpen, setStatusModalOpen] = useState(false);
-  const [statusTarget, setStatusTarget] = useState<{ id: string; name: string; current: StatusEnum } | null>(null);
+  const [statusTarget, setStatusTarget] = useState<{ id: string; name: string; current: StatusEnum | null } | null>(null);
+  const [nextStatus, setNextStatus] = useState<StatusEnum>('ACTIVE');
+  const [motifDetails, setMotifDetails] = useState<string>('');
 
   const filteredEtablissements = useMemo(() => {
     const list = establishments ?? [];
@@ -37,18 +39,19 @@ const EtablissementsPage: React.FC = () => {
       .filter(etab => statusFilter === 'all' || etab.status === (statusFilter as StatusEnum));
   }, [establishments, searchTerm, planFilter, statusFilter]);
 
-  const handleToggleStatus = (id: string, current: StatusEnum, name: string) => {
+  const handleOpenStatusModal = (id: string, current: StatusEnum | null, name: string) => {
     setStatusTarget({ id, name, current });
+    setNextStatus((current ?? 'TRIAL') as StatusEnum);
+    setMotifDetails('');
     setStatusModalOpen(true);
   };
 
-  const handleStatusConfirm = async ({ reasons, details }: { reasons: string[]; details: string }) => {
+  const handleStatusConfirm = async () => {
     if (!statusTarget) return;
-    const next: StatusEnum = statusTarget.current === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
-    const motif = [reasons.join(', '), details].filter(Boolean).join(' | ');
+    const motif = motifDetails.trim();
     try {
-      await updateStatusMutation.mutateAsync({ establishmentId: statusTarget.id, status: next, motif });
-      toast.success(next === 'ACTIVE' ? 'Établissement activé' : 'Établissement suspendu');
+      await updateStatusMutation.mutateAsync({ establishmentId: statusTarget.id, status: nextStatus, motif });
+      toast.success('Statut mis à jour');
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: unknown }; message?: string })?.response?.data || (err as { message?: string })?.message || 'Erreur inconnue';
       toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
@@ -197,9 +200,10 @@ const EtablissementsPage: React.FC = () => {
                         size="sm" 
                         onClick={(e) => { 
                           e.stopPropagation(); 
-                          handleToggleStatus(etab.id, etab.status, etab.nom); 
+                          handleOpenStatusModal(etab.id, etab.status, etab.nom); 
                         }} 
-                        className={etab.status === 'ACTIVE' ? 'text-green-600 hover:text-green-700' : 'text-gray-400 hover:text-gray-500'}
+                        className="text-gray-600 hover:text-gray-800"
+                        title="Changer le statut"
                       >
                         {etab.status === 'ACTIVE' ? <FaToggleOn size={22} /> : <FaToggleOff size={22} />}
                       </Button>
@@ -214,13 +218,54 @@ const EtablissementsPage: React.FC = () => {
 
       <EtablissementFormModal isOpen={isModalOpen} onClose={handleCloseModal} onSave={handleSaveEtablissement} etablissementToEdit={editingEtablissement} />
       <ImportEstablishmentsModal isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
-      <StatusConfirmModal
-        isOpen={statusModalOpen}
-        mode={statusTarget?.current === 'ACTIVE' ? 'suspend' : 'activate'}
-        etablissementName={statusTarget?.name}
-        onConfirm={handleStatusConfirm}
-        onCancel={() => { setStatusModalOpen(false); setStatusTarget(null); }}
-      />
+      {statusModalOpen && statusTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Changer le statut {statusTarget?.name ? `: ${statusTarget.name}` : ''}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Statut actuel</label>
+                <input disabled className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-gray-50" value={statusTarget.current ?? ''} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nouveau statut</label>
+                <select className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" value={nextStatus} onChange={(e) => setNextStatus(e.target.value as StatusEnum)}>
+                  <option value="TRIAL">TRIAL</option>
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="SUSPENDED">SUSPENDED</option>
+                  <option value="CLOSED">CLOSED</option>
+                </select>
+              </div>
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Motif (optionnel)</label>
+              <textarea
+                value={motifDetails}
+                onChange={(e) => setMotifDetails(e.target.value)}
+                rows={3}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ajoutez des précisions si nécessaire"
+              />
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => { setStatusModalOpen(false); setStatusTarget(null); }}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleStatusConfirm}
+                className="px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              >
+                Enregistrer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

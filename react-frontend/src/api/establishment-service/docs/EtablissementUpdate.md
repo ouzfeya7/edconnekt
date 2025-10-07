@@ -13,6 +13,7 @@ Name | Type | Description | Notes
 **pays** | **string** |  | [optional] [default to undefined]
 **plan** | [**PlanEnum**](PlanEnum.md) |  | [optional] [default to undefined]
 **status** | [**StatusEnum**](StatusEnum.md) |  | [optional] [default to undefined]
+**active** | **boolean** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -28,6 +29,7 @@ const instance: EtablissementUpdate = {
     pays,
     plan,
     status,
+    active,
 };
 ```
 

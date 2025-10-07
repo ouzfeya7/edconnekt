@@ -1,12 +1,10 @@
 # EtablissementCoordinatesUpdate
 
-Schéma pour la mise à jour des coordonnées uniquement
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**nom** | **string** |  | [optional] [default to undefined]
 **adresse** | **string** |  | [optional] [default to undefined]
 **email** | **string** |  | [optional] [default to undefined]
 **telephone** | **string** |  | [optional] [default to undefined]
@@ -19,7 +17,6 @@ Name | Type | Description | Notes
 import { EtablissementCoordinatesUpdate } from './api';
 
 const instance: EtablissementCoordinatesUpdate = {
-    nom,
     adresse,
     email,
     telephone,
