@@ -1,16 +1,15 @@
 # AuditStatistics
 
-Statistiques d\'audit pour un établissement
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**total_operations** | **number** | Nombre total d\&#39;opérations | [default to undefined]
-**operations_by_type** | **{ [key: string]: number; }** | Nombre d\&#39;opérations par type | [default to undefined]
+**total_operations** | **number** |  | [default to undefined]
+**operations_by_type** | **{ [key: string]: number; }** |  | [default to undefined]
 **last_operation_date** | **string** |  | [optional] [default to undefined]
 **most_active_user** | **string** |  | [optional] [default to undefined]
-**operations_this_month** | **number** | Nombre d\&#39;opérations ce mois-ci | [default to undefined]
+**operations_this_month** | **number** |  | [default to undefined]
 
 ## Example
 

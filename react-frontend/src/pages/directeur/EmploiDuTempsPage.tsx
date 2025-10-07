@@ -8,7 +8,8 @@ import { useCreateReplacement, useReplacements, useDeleteReplacement } from '../
 import { TIMETABLE_API_BASE_URL } from '../../api/timetable-service/http';
 import toast from 'react-hot-toast';
 import { useUpdateLesson, useDeleteLesson, useCreateLesson } from '../../hooks/useLessonMutations';
-import { useRooms } from '../../hooks/useRooms';
+import { roomsFromEstablishment } from '../../config/featureFlags';
+import { useAllRoomsForEstablishment } from '../../hooks/useAllEstablishmentRooms';
 import { useEstablishments } from '../../hooks/useEstablishments';
 import { useClasses } from '../../hooks/useClasses';
 import { useClasseEnseignants } from '../../hooks/useClasseEnseignants';
@@ -87,7 +88,7 @@ const EmploiDuTempsPage = () => {
     limit: 500,
   });
   const { data: timeslots, isLoading: tsLoading, isError: tsError } = useTimeslots({ establishmentId: selectedEtabId });
-  const { data: rooms } = useRooms({ establishmentId: selectedEtabId });
+  const { data: estRooms } = useAllRoomsForEstablishment(selectedEtabId);
   const { data: establishments } = useEstablishments({ limit: 100 });
   const { data: classesResp } = useClasses({ etablissementId: selectedEtabId, limit: 100 });
   const classes = classesResp?.data ?? [];
@@ -135,6 +136,13 @@ const EmploiDuTempsPage = () => {
       };
     });
   }, [lessons, timeslots, dayNames, getColorBySubject]);
+
+  // Options de salles pour les selects selon la source (establishment-service)
+  const roomOptions = useMemo(() => {
+    if (!roomsFromEstablishment) return [] as { id: string; label: string }[];
+    const list = estRooms ?? [];
+    return list.map((r) => ({ id: r.id as string, label: `${r.nom}${typeof r.capacite === 'number' ? ` (${r.capacite})` : ''}` }));
+  }, [estRooms]);
 
   // Détection des conflits
   const detectConflicts = useCallback((newCourse: NormalizedCourse): Conflict[] => {
@@ -416,11 +424,11 @@ const EmploiDuTempsPage = () => {
                       
                       <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">{t('room', 'Salle')} *</label>
-                      <select name="room_id" className="w-full border border-gray-300 rounded-lg px-3 py-2" disabled={!rooms?.length}>
+                      <select name="room_id" className="w-full border border-gray-300 rounded-lg px-3 py-2" disabled={roomsFromEstablishment ? !(roomOptions?.length) : true}>
                         <option value="">{t('select_room', 'Sélectionnez une salle')}</option>
-                        {rooms?.map((r) => (
-                          <option key={r.id} value={r.id}>{r.name} ({r.capacity})</option>
-                          ))}
+                        {roomsFromEstablishment && roomOptions.map((r) => (
+                          <option key={r.id} value={r.id}>{r.label}</option>
+                        ))}
                         </select>
                     </div>
                   </div>
@@ -462,10 +470,10 @@ const EmploiDuTempsPage = () => {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">{t('room', 'Salle')}</label>
-                      <select name="room_id" defaultValue={editingCourse.salle} className="w-full border border-gray-300 rounded-lg px-3 py-2" disabled={!rooms?.length}>
+                      <select name="room_id" defaultValue={editingCourse.salle} className="w-full border border-gray-300 rounded-lg px-3 py-2" disabled={roomsFromEstablishment ? !(roomOptions?.length) : true}>
                         <option value="">{t('select_room', 'Sélectionnez une salle')}</option>
-                        {rooms?.map((r) => (
-                          <option key={r.id} value={r.id}>{r.name} ({r.capacity})</option>
+                        {roomsFromEstablishment && roomOptions.map((r) => (
+                          <option key={r.id} value={r.id}>{r.label}</option>
                         ))}
                       </select>
                     </div>

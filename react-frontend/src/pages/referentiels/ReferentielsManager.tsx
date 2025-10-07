@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useReferentials } from '../../hooks/competence/useReferentials';
-import { useSubjects } from '../../hooks/competence/useSubjects';
-import { useCompetencies, useLookupCompetencyByCode } from '../../hooks/competence/useCompetencies';
+import { useSubjects, usePublicSubjectsByScope } from '../../hooks/competence/useSubjects';
+import { useCompetencies, useLookupCompetencyByCode, usePublicCompetenciesForSubject } from '../../hooks/competence/useCompetencies';
 import { useDomains } from '../../hooks/competence/useDomains';
 import { usePublicReferentialTree } from '../../hooks/competence/usePublicReferentials';
 import { useCreateReferential, usePublishReferential, useDeleteReferential, useCreateDomain, useUpdateDomain, useDeleteDomain, useCreateSubject, useCreateCompetency, useUpdateSubject, useDeleteSubject, useUpdateCompetency, useDeleteCompetency } from '../../hooks/competence/useMutations';
+import { useAssignments, useCreateAssignment, useDeleteAssignment } from '../../hooks/competence/useAssignments';
 import toast from 'react-hot-toast';
-import { GraduationCap, BookOpen, Award } from 'lucide-react';
+import { GraduationCap, BookOpen, Award, Users } from 'lucide-react';
 import { CycleEnum, VisibilityEnum } from '../../api/competence-service/api';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import FilterBar from '../../components/competencies/FilterBar';
@@ -17,12 +18,13 @@ import ReferentialCard from '../../components/referentiels/ReferentialCard';
 import DomainCard from '../../components/referentiels/DomainCard';
 import SubjectCard from '../../components/referentiels/SubjectCard';
 import '../../styles/competencies.css';
+import type { AssignmentCreate } from '../../api/competence-service/api';
 
 const ReferentielsManager: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(20);
+  const size = 20;
   const [q, setQ] = useState<string>('');
   const [cycle, setCycle] = useState<string | null>(null);
   const [state, setRefState] = useState<string | null>(null);
@@ -30,10 +32,10 @@ const ReferentielsManager: React.FC = () => {
   const [selectedReferentialId, setSelectedReferentialId] = useState<string | null>(null);
   const [versionNumber, setVersionNumber] = useState<number | null>(null);
   const [subjectPage, setSubjectPage] = useState(1);
-  const [subjectSize, setSubjectSize] = useState(20);
+  const subjectSize = 20;
   const [subjectQ, setSubjectQ] = useState<string>('');
   const [competencyPage, setCompetencyPage] = useState(1);
-  const [competencySize, setCompetencySize] = useState(20);
+  const competencySize = 20;
   const [competencyQ, setCompetencyQ] = useState<string>('');
   // Recherche par code (intégrée)
   const [lookupCode, setLookupCode] = useState<string>('');
@@ -60,7 +62,6 @@ const ReferentielsManager: React.FC = () => {
   
   // Sélection multiple pour actions en lot
   const [selectedCompetencies, setSelectedCompetencies] = useState<Set<string>>(new Set());
-  const [selectedReferentials, setSelectedReferentials] = useState<Set<string>>(new Set());
   const [selectedDomains, setSelectedDomains] = useState<Set<string>>(new Set());
   const [selectedSubjects, setSelectedSubjects] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'cards' | 'compact'>('cards');
@@ -87,10 +88,9 @@ const ReferentielsManager: React.FC = () => {
   
   // Filtres pour chaque onglet
   const [domainFilter, setDomainFilter] = useState<string>('');
-  const [subjectFilter, setSubjectFilter] = useState<string>('');
   const [competencyFilter, setCompetencyFilter] = useState<string>('');
 
-  const [activeTab, setActiveTab] = useState<'referentials' | 'domains' | 'subjects' | 'competencies'>('referentials');
+  const [activeTab, setActiveTab] = useState<'referentials' | 'domains' | 'subjects' | 'competencies' | 'assignments'>('referentials');
 
   const { data: refs, isLoading: refsLoading } = useReferentials({ page, size, cycle, state: state, visibility, q: q || null });
 
@@ -134,7 +134,7 @@ const ReferentielsManager: React.FC = () => {
   });
 
   useEffect(() => {
-    const status = (lookupError as any)?.response?.status;
+    const status = (lookupError as { response?: { status?: number } } | undefined)?.response?.status;
     if (lookupError && status !== 404) {
       toast.error('Une erreur est survenue lors de la recherche.');
     }
@@ -148,7 +148,7 @@ const ReferentielsManager: React.FC = () => {
 
   // Handlers pour les nouvelles fonctionnalités
   const handleCompetencyEdit = (competencyId: string) => {
-    const competency = (competenciesPage?.items ?? []).find((c: any) => c.id === competencyId);
+    const competency = (competenciesPage?.items ?? []).find((c: CompetencyRow) => c.id === competencyId);
     if (competency) {
       openEditCompetency(competency);
     }
@@ -175,7 +175,7 @@ const ReferentielsManager: React.FC = () => {
   };
 
   const handleSelectAll = () => {
-    const allIds = (competenciesPage?.items ?? []).map((c: any) => c.id);
+    const allIds = (competenciesPage?.items ?? []).map((c: CompetencyRow) => c.id);
     setSelectedCompetencies(new Set(allIds));
   };
 
@@ -188,7 +188,7 @@ const ReferentielsManager: React.FC = () => {
       try {
         await deleteCompetency.mutateAsync({ competencyId: confirmDelete.id });
         toast.success('Compétence supprimée avec succès');
-      } catch (error) {
+      } catch {
         toast.error('Erreur lors de la suppression');
       }
     }
@@ -197,8 +197,8 @@ const ReferentielsManager: React.FC = () => {
 
   const handleExportCompetencies = () => {
     const filteredCompetencies = (competenciesPage?.items ?? [])
-      .filter((c: any) => !competencyFilters.subject || c.subject_id === competencyFilters.subject);
-    exportCsv('competences.csv', filteredCompetencies.map((c: any) => ({ 
+      .filter((c: CompetencyRow) => !competencyFilters.subject || c.subject_id === competencyFilters.subject);
+    exportCsv('competences.csv', filteredCompetencies.map((c: CompetencyRow) => ({ 
       id: c.id, 
       code: c.code, 
       label: c.label,
@@ -221,7 +221,7 @@ const ReferentielsManager: React.FC = () => {
   useEffect(() => {
     const initialRefId = searchParams.get('refId');
     const initialVersion = searchParams.get('version');
-    const tab = searchParams.get('tab') as 'referentials' | 'domains' | 'subjects' | 'competencies' | null;
+    const tab = searchParams.get('tab') as 'referentials' | 'domains' | 'subjects' | 'competencies' | 'assignments' | null;
     const initialSubjectFilter = searchParams.get('subjectId');
 
     if (initialRefId) setSelectedReferentialId(initialRefId);
@@ -308,8 +308,7 @@ const ReferentielsManager: React.FC = () => {
   const [domainFormSubmitted, setDomainFormSubmitted] = useState(false);
   
   // États pour le déploiement des lignes
-  const [expandedSubjects, setExpandedSubjects] = useState<Set<string>>(new Set());
-  const [expandedCompetencies, setExpandedCompetencies] = useState<Set<string>>(new Set());
+  // (toggles supprimés car non utilisés)
 
   const openCreateReferential = () => {
     setRefForm({ 
@@ -432,29 +431,8 @@ const ReferentielsManager: React.FC = () => {
   };
 
   // Fonctions pour gérer le déploiement des lignes
-  const toggleSubjectExpansion = (subjectId: string) => {
-    setExpandedSubjects(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(subjectId)) {
-        newSet.delete(subjectId);
-      } else {
-        newSet.add(subjectId);
-      }
-      return newSet;
-    });
-  };
+  // (toggles supprimés car non utilisés)
 
-  const toggleCompetencyExpansion = (competencyId: string) => {
-    setExpandedCompetencies(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(competencyId)) {
-        newSet.delete(competencyId);
-      } else {
-        newSet.add(competencyId);
-      }
-      return newSet;
-    });
-  };
   const openCreateSubject = () => {
     setSubjectModalMode('create');
     setSubjectForm({ 
@@ -491,23 +469,52 @@ const ReferentielsManager: React.FC = () => {
         toast.error('Code et Nom sont requis');
         return;
       }
+      const codeRegex = /^[A-Z0-9_-]+$/;
+      const normalizedCode = subjectForm.code.trim().toUpperCase();
+      if (!codeRegex.test(normalizedCode)) {
+        toast.error('Le code doit respecter le format A-Z, 0-9, _ ou -');
+        return;
+      }
       if (!subjectDomainId) {
         toast.error('Veuillez sélectionner un domaine');
         return;
       }
-             const payload: { code: string; name: string; domain_id: string; coefficient?: number; credit?: number; color?: string; order_index?: number } = { code: subjectForm.code, name: subjectForm.name, domain_id: subjectDomainId };
-      if (typeof coefficient === 'number') payload.coefficient = coefficient;
-      if (typeof credit === 'number') payload.credit = credit;
-       if (subjectForm.color?.trim()) payload.color = subjectForm.color.trim();
-       if (subjectForm.order_index !== undefined) payload.order_index = subjectForm.order_index;
+      const payload: { code: string; name: string; domain_id: string; coefficient?: number; credit?: number; color?: string; order_index?: number } = { code: normalizedCode, name: subjectForm.name.trim(), domain_id: subjectDomainId };
+      if (typeof coefficient === 'number') {
+        if (!(coefficient > 0)) {
+          toast.error('Coefficient doit être strictement > 0');
+          return;
+        }
+        payload.coefficient = coefficient;
+      }
+      if (typeof credit === 'number') {
+        if (!(credit >= 0)) {
+          toast.error('Crédit doit être >= 0');
+          return;
+        }
+        payload.credit = credit;
+      }
+      if (subjectForm.color?.trim()) payload.color = subjectForm.color.trim();
+      if (subjectForm.order_index !== undefined) payload.order_index = subjectForm.order_index;
       await toast.promise(
         createSubject.mutateAsync({ referentialId: effectiveReferentialId, versionNumber: effectiveVersion, payload }),
         { loading: 'Création…', success: 'Matière créée', error: 'Échec de la création' }
       );
     } else if (subjectForm.id) {
-      const updatePayload: { name?: string; code?: string; coefficient?: number; credit?: number } = { name: subjectForm.name, code: subjectForm.code };
+      const codeRegex = /^[A-Z0-9_-]+$/;
+      const updatePayload: { name?: string; code?: string; coefficient?: number; credit?: number; color?: string; order_index?: number } = { name: subjectForm.name.trim() };
+      if (subjectForm.code?.trim()) {
+        const normalizedCode = subjectForm.code.trim().toUpperCase();
+        if (!codeRegex.test(normalizedCode)) {
+          toast.error('Le code doit respecter le format A-Z, 0-9, _ ou -');
+          return;
+        }
+        updatePayload.code = normalizedCode;
+      }
       if (typeof coefficient === 'number') updatePayload.coefficient = coefficient;
       if (typeof credit === 'number') updatePayload.credit = credit;
+      if (subjectForm.color?.trim()) updatePayload.color = subjectForm.color.trim();
+      if (subjectForm.order_index !== undefined) updatePayload.order_index = subjectForm.order_index;
       await toast.promise(
         updateSubject.mutateAsync({ subjectId: subjectForm.id, update: updatePayload }),
         { loading: 'Mise à jour…', success: 'Matière mise à jour', error: 'Échec de la mise à jour' }
@@ -546,17 +553,25 @@ const ReferentielsManager: React.FC = () => {
         toast.error('Veuillez sélectionner une matière');
         return;
       }
-             const payload: { subject_id: string; code: string; label: string; description?: string; levels?: string[]; order_index?: number } = { subject_id: competencySubjectId, code: competencyForm.code, label: competencyForm.label };
+      const codeRegex = /^[A-Z0-9_-]+$/;
+      const normalizedCode = competencyForm.code.trim().toUpperCase();
+      if (!codeRegex.test(normalizedCode)) {
+        toast.error('Le code doit respecter le format A-Z, 0-9, _ ou -');
+        return;
+      }
+      const payload: { subject_id: string; code: string; label: string; description?: string; levels?: string[]; order_index?: number } = { subject_id: competencySubjectId, code: normalizedCode, label: competencyForm.label.trim() };
       if (competencyForm.description) payload.description = competencyForm.description;
-       if (competencyForm.levels && competencyForm.levels.length > 0) payload.levels = competencyForm.levels;
-       if (competencyForm.order_index !== undefined) payload.order_index = competencyForm.order_index;
+      if (competencyForm.levels && competencyForm.levels.length > 0) payload.levels = competencyForm.levels;
+      if (competencyForm.order_index !== undefined) payload.order_index = competencyForm.order_index;
       await toast.promise(
         createCompetency.mutateAsync({ referentialId: effectiveReferentialId, versionNumber: effectiveVersion, payload }),
         { loading: 'Création…', success: 'Compétence créée', error: 'Échec de la création' }
       );
     } else if (competencyForm.id) {
-      const updatePayload: { label?: string; description?: string } = { label: competencyForm.label };
+      const updatePayload: { label?: string; description?: string; levels?: string[]; order_index?: number } = { label: competencyForm.label.trim() };
       if (competencyForm.description) updatePayload.description = competencyForm.description;
+      if (competencyForm.levels && competencyForm.levels.length > 0) updatePayload.levels = competencyForm.levels;
+      if (competencyForm.order_index !== undefined) updatePayload.order_index = competencyForm.order_index;
       await toast.promise(
         updateCompetency.mutateAsync({ competencyId: competencyForm.id, update: updatePayload }),
         { loading: 'Mise à jour…', success: 'Compétence mise à jour', error: 'Échec de la mise à jour' }
@@ -593,6 +608,7 @@ const ReferentielsManager: React.FC = () => {
             { id: 'domains' as const, title: 'Domaines', icon: GraduationCap },
             { id: 'subjects' as const, title: 'Matières', icon: BookOpen },
             { id: 'competencies' as const, title: 'Compétences', icon: Award },
+            { id: 'assignments' as const, title: 'Affectations', icon: Users },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -632,10 +648,10 @@ const ReferentielsManager: React.FC = () => {
                 setVisibility(newFilters.visibility || null);
                 setPage(1);
               }}
-              onExport={() => exportCsv('referentiels.csv', (refsPage?.items ?? []).map((r: any) => ({ 
+              onExport={() => exportCsv('referentiels.csv', (refsPage?.items ?? []).map((r: ReferentialListItem) => ({ 
                 id: r.id, 
-                name: r.name, 
-                cycle: r.cycle, 
+                name: r.name || '', 
+                cycle: r.cycle || '', 
                 version_number: r.version_number, 
                 state: r.state, 
                 visibility: r.visibility ?? '' 
@@ -706,11 +722,11 @@ const ReferentielsManager: React.FC = () => {
                   <div className="bg-gray-50 border rounded p-3 max-h-[360px] overflow-auto text-sm">
                     <div className="font-medium mb-2">{publicTree.name} • v{publicTree.version_number}</div>
                     <ul className="space-y-2">
-                      {(publicTree.domains ?? []).map((d: any) => (
+                      {(publicTree.domains ?? []).map((d: { id: string; name: string; subjects?: Array<{ id: string; name?: string; code?: string; competencies?: unknown[] }> }) => (
                         <li key={d.id} className="">
                           <div className="font-semibold">Domaine: {d.name}</div>
                           <ul className="ml-4 list-disc">
-                            {(d.subjects ?? []).map((s: any) => (
+                            {(d.subjects ?? []).map((s) => (
                               <li key={s.id}>
                                 <div>Matière: {s.name ?? s.code}</div>
                                 {Array.isArray(s.competencies) && s.competencies.length > 0 && (
@@ -736,7 +752,7 @@ const ReferentielsManager: React.FC = () => {
               <div className="p-6">
                 <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
                   {(refsPage?.items ?? [])
-                    .filter((r: any) => {
+                    .filter((r: ReferentialListItem) => {
                       // Filtrage par recherche textuelle
                       if (referentialFilters.search) {
                         const searchLower = referentialFilters.search.toLowerCase();
@@ -744,10 +760,17 @@ const ReferentielsManager: React.FC = () => {
                       }
                       return true;
                     })
-                    .map((r: any) => (
+                    .map((r: ReferentialListItem) => (
                       <ReferentialCard
                         key={r.id}
-                        referential={r}
+                        referential={{
+                          id: r.id,
+                          name: r.name || '',
+                          cycle: r.cycle || '',
+                          version_number: r.version_number,
+                          state: (r.state === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT'),
+                          visibility: (r.visibility === 'GLOBAL' ? 'GLOBAL' : r.visibility === 'TENANT' ? 'TENANT' : undefined),
+                        }}
                         isSelected={effectiveReferentialId === r.id}
                         onSelect={(id, version) => {
                           setSelectedReferentialId(id);
@@ -847,24 +870,24 @@ const ReferentielsManager: React.FC = () => {
             <div className="p-6">
               <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
                 {(domains ?? [])
-                  .filter(d => {
+                  .filter((d: { id: string; name: string; referential_id?: string }) => {
                     // Filtre par nom de domaine
                     const nameMatch = !domainFilters.search || d.name.toLowerCase().includes(domainFilters.search.toLowerCase());
                     // Filtre par référentiel (si un référentiel est sélectionné)
                     const referentialMatch = !effectiveReferentialId || d.referential_id === effectiveReferentialId;
                     return nameMatch && referentialMatch;
                   })
-                  .map((d: any) => {
+                  .map((d: { id: string; name: string }) => {
                     // Calculer les statistiques du domaine
-                    const domainSubjects = (subjectsPage?.items ?? []).filter((s: any) => s.domain_id === d.id);
-                    const domainCompetencies = domainSubjects.reduce((total: number, subject: any) => {
-                      return total + ((competenciesPage?.items ?? []).filter((c: any) => c.subject_id === subject.id).length);
+                    const domainSubjects = (subjectsPage?.items ?? []).filter((s: SubjectRow) => s.domain_id === d.id);
+                    const domainCompetencies = domainSubjects.reduce((total: number, subject: SubjectRow) => {
+                      return total + ((competenciesPage?.items ?? []).filter((c: CompetencyRow) => c.subject_id === subject.id).length);
                     }, 0);
                     
                     return (
                       <DomainCard
                         key={d.id}
-                        domain={d}
+                        domain={{ id: d.id, name: d.name, referential_id: effectiveReferentialId || '' }}
                         isSelected={selectedDomains.has(d.id)}
                         onEdit={openEditDomain}
                         onDelete={handleDeleteDomain}
@@ -927,12 +950,11 @@ const ReferentielsManager: React.FC = () => {
                 showAdvanced: subjectFilters.showAdvanced
               }}
               onFiltersChange={(newFilters) => {
-                setSubjectFilters(newFilters);
+                setSubjectFilters((prev) => ({ ...prev, domain: newFilters.domain }));
                 setSubjectQ(newFilters.search);
-                setSubjectFilter(newFilters.domain);
                 setSubjectPage(1);
               }}
-              onExport={() => exportCsv('matieres.csv', (subjectsPage?.items ?? []).map((s: any) => ({ 
+              onExport={() => exportCsv('matieres.csv', (subjectsPage?.items ?? []).map((s: SubjectRow) => ({ 
                 id: s.id, 
                 code: s.code, 
                 name: s.name, 
@@ -947,7 +969,7 @@ const ReferentielsManager: React.FC = () => {
                   key: 'domain',
                   label: 'Tous les domaines',
                   type: 'select',
-                  options: (domains ?? []).map((d: any) => ({
+                  options: (domains ?? []).map((d: { id: string; name: string }) => ({
                     value: d.id,
                     label: d.name
                   }))
@@ -980,7 +1002,7 @@ const ReferentielsManager: React.FC = () => {
               <div className="p-6">
                 <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
                   {(subjectsPage?.items ?? [])
-                    .filter((s: any) => {
+                    .filter((s: SubjectRow) => {
                       // Filtrage par domaine
                       if (subjectFilters.domain && s.domain_id !== subjectFilters.domain) return false;
                       // Filtrage par recherche textuelle
@@ -993,16 +1015,16 @@ const ReferentielsManager: React.FC = () => {
                       }
                       return true;
                     })
-                    .map((s: any) => {
+                    .map((s: SubjectRow) => {
                       // Trouver le nom du domaine
-                      const domainName = (domains ?? []).find((d: any) => d.id === s.domain_id)?.name;
+                      const domainName = (domains ?? []).find((d: { id: string; name: string }) => d.id === s.domain_id)?.name;
                       // Calculer le nombre de compétences
-                      const subjectCompetencies = (competenciesPage?.items ?? []).filter((c: any) => c.subject_id === s.id).length;
+                      const subjectCompetencies = (competenciesPage?.items ?? []).filter((c: CompetencyRow) => c.subject_id === s.id).length;
                       
                       return (
                         <SubjectCard
                           key={s.id}
-                          subject={s}
+                          subject={{ id: s.id, name: s.name, code: s.code, domain_id: s.domain_id || '' }}
                           domainName={domainName}
                           isSelected={selectedSubjects.has(s.id)}
                           onEdit={openEditSubject}
@@ -1138,7 +1160,7 @@ const ReferentielsManager: React.FC = () => {
 
                   {/* Résultats de la recherche par code */}
                   {lookupError && (() => {
-                    const status = (lookupError as any)?.response?.status;
+                    const status = (lookupError as { response?: { status?: number } } | undefined)?.response?.status;
                     if (status === 404) {
                       return (
                         <div className="mt-3 rounded border border-amber-300 bg-amber-50 p-3">
@@ -1247,7 +1269,7 @@ const ReferentielsManager: React.FC = () => {
                 
                 <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
                   {(competenciesPage?.items ?? [])
-                    .filter((c: any) => {
+                    .filter((c: CompetencyRow) => {
                       // Filtrage par matière
                       if (competencyFilters.subject && c.subject_id !== competencyFilters.subject) return false;
                       // Filtrage par recherche textuelle
@@ -1261,18 +1283,20 @@ const ReferentielsManager: React.FC = () => {
                       }
                       return true;
                     })
-                    .map((c: any) => {
-                      const subjectName = (subjectsPage?.items ?? []).find((s: any) => s.id === c.subject_id)?.name;
-                      const domainName = (domains ?? []).find((d: any) => {
-                        const subject = (subjectsPage?.items ?? []).find((s: any) => s.id === c.subject_id);
+                    .map((c: CompetencyRow) => {
+                      const subjectName = (subjectsPage?.items ?? []).find((s: SubjectRow) => s.id === c.subject_id)?.name;
+                      const domainName = (domains ?? []).find((d: { id: string; name: string }) => {
+                        const subject = (subjectsPage?.items ?? []).find((s: SubjectRow) => s.id === c.subject_id);
                         return d.id === subject?.domain_id;
                       })?.name;
+                      
+                      const refIdForCard: string | undefined = effectiveReferentialId === null ? undefined : effectiveReferentialId;
+                      const verForCard: number | undefined = effectiveVersion === null ? undefined : effectiveVersion;
                       
                       return (
                         <CompetencyCard
                           key={c.id}
-                          competency={c}
-                          subjectName={subjectName}
+                          competency={{ id: c.id, code: c.code || '', label: c.label || '', description: c.description ?? undefined, subject_id: (c.subject_id ? c.subject_id : undefined), referential_id: refIdForCard, version_number: verForCard }}                          subjectName={subjectName}
                           domainName={domainName}
                           isSelected={selectedCompetencies.has(c.id)}
                           onEdit={handleCompetencyEdit}
@@ -1321,6 +1345,26 @@ const ReferentielsManager: React.FC = () => {
             )}
           </div>
         )}
+
+        {activeTab === 'assignments' && (
+          <div className="border rounded-lg">
+            {!effectiveReferentialId || effectiveVersion === null ? (
+              <div className="p-8 text-center">
+                <div className="text-lg font-medium mb-2">Aucun référentiel sélectionné</div>
+                <div className="text-sm text-gray-500 mb-4">Sélectionnez un référentiel pour gérer les affectations.</div>
+                <button 
+                  onClick={() => setActiveTab('referentials')}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  <GraduationCap className="w-4 h-4 text-white" />
+                  Sélectionner un référentiel
+                </button>
+              </div>
+            ) : (
+              <AssignmentsSection referentialId={effectiveReferentialId} versionNumber={effectiveVersion} />
+            )}
+          </div>
+        )}
       </div>
 
       {/* Create Referentiel Modal */}
@@ -1343,6 +1387,7 @@ const ReferentielsManager: React.FC = () => {
                   <option value={CycleEnum.Primaire}>Primaire</option>
                   <option value={CycleEnum.College}>Collège</option>
                   <option value={CycleEnum.Lycee}>Lycée</option>
+                  <option value={CycleEnum.Secondaire}>Secondaire</option>
                   <option value={CycleEnum.Universite}>Université</option>
                 </select>
               </div>
@@ -1582,5 +1627,139 @@ const ReferentielsManager: React.FC = () => {
 };
 
 export default ReferentielsManager;
+
+type AssignmentsSectionProps = { referentialId: string; versionNumber: number };
+const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({ referentialId, versionNumber }) => {
+  const { data: assignments, isLoading } = useAssignments({ referentialId, versionNumber });
+  const createAssignment = useCreateAssignment({ referentialId, versionNumber });
+  const deleteAssignment = useDeleteAssignment();
+
+  const [scopeType, setScopeType] = useState<string>('CLASS');
+  const [scopeValue, setScopeValue] = useState<string>('');
+
+  return (
+    <div className="p-6">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="text-sm text-gray-600">Référentiel: {referentialId.substring(0,8)}... • Version: {versionNumber}</div>
+        <button
+          className="px-3 py-2 text-sm rounded bg-blue-600 text-white"
+          onClick={async () => {
+            if (!scopeType || !scopeValue.trim()) {
+              toast.error('Type et valeur requis');
+              return;
+            }
+            await toast.promise(createAssignment.mutateAsync({ scope_type: scopeType, scope_value: scopeValue.trim() } as AssignmentCreate), {
+              loading: 'Création…', success: 'Affectation créée', error: 'Échec de la création'
+            });
+            setScopeValue('');
+          }}
+        >Créer une affectation</button>
+      </div>
+
+      <div className="mb-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label className="block text-sm text-gray-700 mb-1">Type</label>
+          <select className="w-full border rounded px-3 py-2" value={scopeType} onChange={(e) => setScopeType(e.target.value)}>
+            <option value="CLASS">Classe</option>
+            <option value="SCHOOL">Établissement</option>
+            <option value="LEVEL">Niveau</option>
+          </select>
+        </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm text-gray-700 mb-1">Valeur</label>
+          <input className="w-full border rounded px-3 py-2" placeholder="ex: 6A ou ETAB-123" value={scopeValue} onChange={(e) => setScopeValue(e.target.value)} />
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="py-12 text-center text-gray-600">Chargement…</div>
+      ) : (
+        <div className="overflow-x-auto border rounded">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-2 text-left">ID</th>
+                <th className="px-4 py-2 text-left">Type</th>
+                <th className="px-4 py-2 text-left">Valeur</th>
+                <th className="px-4 py-2 text-left">Créé le</th>
+                <th className="px-4 py-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {(assignments ?? []).map((a) => (
+                <tr key={a.id} className="border-t">
+                  <td className="px-4 py-2">{a.id}</td>
+                  <td className="px-4 py-2">{a.scope_type}</td>
+                  <td className="px-4 py-2">{a.scope_value}</td>
+                  <td className="px-4 py-2">{a.created_at ? new Date(a.created_at).toLocaleString('fr-FR') : '—'}</td>
+                  <td className="px-4 py-2 text-right">
+                    <button
+                      className="px-3 py-1 text-xs rounded bg-red-600 text-white"
+                      onClick={async () => {
+                        await toast.promise(deleteAssignment.mutateAsync({ assignmentId: a.id }), { loading: 'Suppression…', success: 'Supprimée', error: 'Échec suppression' });
+                      }}
+                    >Supprimer</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Panneau endpoints publics (compact) */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <PublicEndpointsPanel />
+      </div>
+    </div>
+  );
+};
+
+type PublicEndpointsPanelProps = Record<string, never>;
+const PublicEndpointsPanel: React.FC<PublicEndpointsPanelProps> = () => {
+  const [cycle, setCycle] = useState<string>('PRIMAIRE');
+  const [level, setLevel] = useState<string>('CM2');
+  const { data: subjectsByScope } = usePublicSubjectsByScope({ cycle, level });
+  const [subjectForPublic, setSubjectForPublic] = useState<string>('');
+  const { data: publicCompetencies } = usePublicCompetenciesForSubject(subjectForPublic || undefined);
+
+  return (
+    <div className="bg-white border rounded p-4">
+      <div className="font-medium mb-2">Endpoints publics (aperçu)</div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">Cycle</label>
+          <select className="w-full border rounded px-2 py-1 text-sm" value={cycle} onChange={(e) => setCycle(e.target.value)}>
+            <option value="PRESCOLAIRE">Préscolaire</option>
+            <option value="PRIMAIRE">Primaire</option>
+            <option value="COLLEGE">Collège</option>
+            <option value="LYCEE">Lycée</option>
+            <option value="SECONDAIRE">Secondaire</option>
+            <option value="UNIVERSITE">Université</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">Niveau</label>
+          <input className="w-full border rounded px-2 py-1 text-sm" placeholder="ex: CM2" value={level} onChange={(e) => setLevel(e.target.value)} />
+        </div>
+        <div className="flex items-end">
+          <span className="text-xs text-gray-500">{(subjectsByScope ?? []).length} matières</span>
+        </div>
+      </div>
+      <div className="mb-3">
+        <label className="block text-xs text-gray-600 mb-1">Matière (public)</label>
+        <select className="w-full border rounded px-2 py-1 text-sm" value={subjectForPublic} onChange={(e) => setSubjectForPublic(e.target.value)}>
+          <option value="">Sélectionner…</option>
+          {(subjectsByScope ?? []).map((s) => (
+            <option key={s.id} value={s.id}>{s.name ?? s.code}</option>
+          ))}
+        </select>
+      </div>
+      {subjectForPublic && (
+        <div className="text-xs text-gray-600">Compétences: {(publicCompetencies ?? []).length}</div>
+      )}
+    </div>
+  );
+};
 
 

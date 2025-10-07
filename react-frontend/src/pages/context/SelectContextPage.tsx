@@ -27,7 +27,9 @@ const SelectContextPage: React.FC = () => {
   const establishments = React.useMemo(() => (Array.isArray(estabsResp) ? (estabsResp as string[]) : []), [estabsResp]);
 
   // Charger la liste d'établissements (nommage) pour afficher les libellés au lieu des UUIDs
-  const { data: establishmentsList } = usePublicEstablishments({ limit: 100 });
+  const [publicOffset, setPublicOffset] = React.useState(0);
+  const [publicLimit, setPublicLimit] = React.useState(20);
+  const { data: establishmentsList } = usePublicEstablishments({ limit: publicLimit, offset: publicOffset });
   const etabIdToName = React.useMemo(() => {
     const map = new Map<string, string>();
     (establishmentsList ?? []).forEach((e: EtablissementOut) => {
@@ -181,6 +183,42 @@ const SelectContextPage: React.FC = () => {
                         </div>
                       </button>
                     ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Établissements publics */}
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl border border-gray-200/60 overflow-hidden shadow-sm">
+                <div className="flex items-center gap-3 px-6 py-4 bg-white/80 border-b border-gray-200/60">
+                  <Building2 className="h-5 w-5 text-green-600" />
+                  <h3 className="font-semibold text-gray-900">Liste publique</h3>
+                  <span className="ml-auto text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    {(establishmentsList ?? []).length}
+                  </span>
+                </div>
+                <div className="max-h-80 overflow-auto">
+                  <div className="p-2 space-y-1">
+                    {(establishmentsList ?? []).map((e) => (
+                      <div key={(e as EtablissementOut).id} className="w-full text-left p-4 rounded-lg bg-white border-2 border-transparent hover:border-gray-200 hover:shadow-sm transition-all duration-200">
+                        <div className="font-medium text-gray-900">{(e as EtablissementOut).nom}</div>
+                        <div className="text-xs text-gray-600">{(e as EtablissementOut).ville ?? '—'}{(e as EtablissementOut).pays ? `, ${(e as EtablissementOut).pays}` : ''}</div>
+                      </div>
+                    ))}
+                    {(establishmentsList ?? []).length === 0 && (
+                      <div className="text-center py-8 text-sm text-gray-500">Aucun établissement public</div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-3 border-t bg-white/80">
+                  <div className="text-xs text-gray-600">Offset: {publicOffset}</div>
+                  <div className="flex items-center gap-2">
+                    <select className="border rounded px-2 py-1 text-sm" value={publicLimit} onChange={(e) => { setPublicLimit(Number(e.target.value)); setPublicOffset(0); }}>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                    <button className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded disabled:opacity-50" onClick={() => setPublicOffset((o) => Math.max(0, o - publicLimit))} disabled={publicOffset <= 0}>Précédent</button>
+                    <button className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded" onClick={() => setPublicOffset((o) => o + publicLimit)}>Suivant</button>
                   </div>
                 </div>
               </div>

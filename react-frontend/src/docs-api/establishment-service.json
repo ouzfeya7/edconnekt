@@ -62,7 +62,7 @@
                     }
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
@@ -100,7 +100,7 @@
                     "establishments"
                 ],
                 "summary": "List Establishments",
-                "description": "Liste les établissements\n\n- ROLE_ADMIN : Peut voir tous les établissements",
+                "description": "Liste tous les établissements avec pagination et filtres\n\nRequiert le rôle ROLE_ADMIN.",
                 "operationId": "list_establishments_api_etablissements__get",
                 "parameters": [
                     {
@@ -169,13 +169,35 @@
                 }
             }
         },
+        "/api/etablissements/last-code": {
+            "get": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Get Last Code Etablissement",
+                "description": "Récupère le dernier code établissement utilisé\n\nCette route permet aux administrateurs de connaître le dernier code utilisé.\nLa logique de calcul du code suivant appartient au client.\n\nRequiert le rôle ROLE_ADMIN.",
+                "operationId": "get_last_code_etablissement_api_etablissements_last_code_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LastCodeEtablissementResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/etablissements/{establishment_id}": {
             "get": {
                 "tags": [
                     "establishments"
                 ],
                 "summary": "Get Establishment",
-                "description": "Récupère un établissement par son ID\n\n- ROLE_ADMIN : Peut accéder à tous les établissements\n- ROLE_DIRECTION : Peut accéder à tous les établissements",
+                "description": "Récupère un établissement par son ID\n\nRequiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF.\nROLE_ADMINSTAFF ne peut accéder qu'à son propre établissement.",
                 "operationId": "get_establishment_api_etablissements__establishment_id__get",
                 "parameters": [
                     {
@@ -217,7 +239,7 @@
                     "establishments"
                 ],
                 "summary": "Update Establishment",
-                "description": "Met à jour les informations d'un établissement\n\n- ROLE_ADMIN : Peut modifier tous les établissements\n- ROLE_DIRECTION : Peut modifier tous les établissements",
+                "description": "Met à jour les informations d'un établissement",
                 "operationId": "update_establishment_api_etablissements__establishment_id__patch",
                 "parameters": [
                     {
@@ -271,7 +293,7 @@
                     "establishments"
                 ],
                 "summary": "Update Establishment Coordinates",
-                "description": "Met à jour les coordonnées d'un établissement\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut modifier que son propre établissement.",
+                "description": "Met à jour les coordonnées d'un établissement\n\nRequiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF.\nROLE_ADMINSTAFF ne peut modifier que son propre établissement.",
                 "operationId": "update_establishment_coordinates_api_etablissements__establishment_id__coordinates_patch",
                 "parameters": [
                     {
@@ -451,7 +473,7 @@
                     "establishments"
                 ],
                 "summary": "Get Establishment Audit",
-                "description": "Récupère l'historique d'audit d'un établissement avec filtres et pagination\n\n- ROLE_ADMIN : Peut accéder à l'audit de tous les établissements\n- ROLE_DIRECTION : Ne peut accéder qu'à l'audit de son établissement\n\n**Paramètres de filtrage :**\n- `operation` : Type d'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT)\n- `auteur_id` : ID de l'auteur de l'opération\n- `auteur_nom` : Nom de l'auteur (recherche partielle)\n- `date_from` : Date de début pour le filtrage\n- `date_to` : Date de fin pour le filtrage\n\n**Paramètres de pagination :**\n- `limit` : Nombre maximum d'éléments (1-100)\n- `offset` : Offset pour la pagination\n\n**Paramètres de tri :**\n- `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id)\n- `sort_order` : Ordre de tri (asc/desc)",
+                "description": "Récupère l'historique d'audit d'un établissement avec filtres et pagination\n\nRequiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF.\nROLE_ADMINSTAFF ne peut accéder qu'à l'audit de son propre établissement.\n\n**Paramètres de filtrage :**\n- `operation` : Type d'opération (CREATE, UPDATE, DELETE, STATUS_CHANGE, INSERT)\n- `auteur_id` : ID de l'auteur de l'opération\n- `auteur_nom` : Nom de l'auteur (recherche partielle)\n- `date_from` : Date de début pour le filtrage\n- `date_to` : Date de fin pour le filtrage\n\n**Paramètres de pagination :**\n- `limit` : Nombre maximum d'éléments (1-100)\n- `offset` : Offset pour la pagination\n\n**Paramètres de tri :**\n- `sort_by` : Champ de tri (date_operation, operation, auteur_nom, id)\n- `sort_order` : Ordre de tri (asc/desc)",
                 "operationId": "get_establishment_audit_api_etablissements__establishment_id__audit_get",
                 "parameters": [
                     {
@@ -638,7 +660,7 @@
                     "establishments"
                 ],
                 "summary": "Get Establishment Audit Statistics",
-                "description": "Récupère les statistiques d'audit pour un établissement\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut accéder qu'aux statistiques de son propre établissement.\n\n**Retourne :**\n- Nombre total d'opérations\n- Nombre d'opérations par type\n- Date de la dernière opération\n- Utilisateur le plus actif\n- Nombre d'opérations ce mois-ci",
+                "description": "Récupère les statistiques d'audit pour un établissement\n\nRequiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF.\nROLE_ADMINSTAFF ne peut accéder qu'aux statistiques de son propre établissement.\n\n**Retourne :**\n- Nombre total d'opérations\n- Nombre d'opérations par type\n- Date de la dernière opération\n- Utilisateur le plus actif\n- Nombre d'opérations ce mois-ci",
                 "operationId": "get_establishment_audit_statistics_api_etablissements__establishment_id__audit_statistics_get",
                 "parameters": [
                     {
@@ -682,7 +704,7 @@
                     "establishments"
                 ],
                 "summary": "Get Establishment Audit Summary",
-                "description": "Récupère un résumé d'audit pour un établissement sur une période donnée\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut accéder qu'au résumé de son propre établissement.\n\n**Paramètres :**\n- `days` : Nombre de jours pour le résumé (1-365, défaut: 30)\n\n**Retourne :**\n- Résumé des opérations par type\n- Activité par utilisateur\n- Activité quotidienne\n- Utilisateur le plus actif\n- Opération la plus courante",
+                "description": "Récupère un résumé d'audit pour un établissement sur une période donnée\n\nRequiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF.\nROLE_ADMINSTAFF ne peut accéder qu'au résumé de son propre établissement.\n\n**Paramètres :**\n- `days` : Nombre de jours pour le résumé (1-365, défaut: 30)\n\n**Retourne :**\n- Résumé des opérations par type\n- Activité par utilisateur\n- Activité quotidienne\n- Utilisateur le plus actif\n- Opération la plus courante",
                 "operationId": "get_establishment_audit_summary_api_etablissements__establishment_id__audit_summary_get",
                 "parameters": [
                     {
@@ -742,7 +764,7 @@
                     "establishments"
                 ],
                 "summary": "Export Establishment Audit",
-                "description": "Exporte les données d'audit d'un établissement\n\nRequiert le rôle ROLE_ADMIN ou ROLE_DIRECTION.\nROLE_DIRECTION ne peut exporter que les données de son propre établissement.\n\n**Paramètres :**\n- `date_from` : Date de début pour l'export (optionnel)\n- `date_to` : Date de fin pour l'export (optionnel)\n- `format` : Format d'export (\"json\" ou \"csv\")\n\n**Retourne :**\n- Fichier JSON ou CSV avec les données d'audit",
+                "description": "Exporte les données d'audit d'un établissement\n\nRequiert le rôle ROLE_ADMIN ou ROLE_ADMINSTAFF.\nROLE_ADMINSTAFF ne peut exporter que les données de son propre établissement.\n\n**Paramètres :**\n- `date_from` : Date de début pour l'export (optionnel)\n- `date_to` : Date de fin pour l'export (optionnel)\n- `format` : Format d'export (\"json\" ou \"csv\")\n\n**Retourne :**\n- Fichier JSON ou CSV avec les données d'audit",
                 "operationId": "export_establishment_audit_api_etablissements__establishment_id__audit_export_get",
                 "parameters": [
                     {
@@ -881,6 +903,680 @@
                     }
                 }
             }
+        },
+        "/api/etablissements/{establishment_id}/batiments": {
+            "post": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Create Building",
+                "operationId": "create_building_api_etablissements__establishment_id__batiments_post",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BuildingCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BuildingOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "List Buildings",
+                "operationId": "list_buildings_api_etablissements__establishment_id__batiments_get",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1,
+                            "title": "Page"
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "default": 10,
+                            "title": "Size"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Recherche par nom",
+                            "title": "Q"
+                        },
+                        "description": "Recherche par nom"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "created_at",
+                            "title": "Order By"
+                        }
+                    },
+                    {
+                        "name": "order_dir",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "desc",
+                            "title": "Order Dir"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BuildingListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/{establishment_id}/batiments/{building_id}": {
+            "get": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Get Building",
+                "operationId": "get_building_api_etablissements__establishment_id__batiments__building_id__get",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "building_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Building Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BuildingOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Update Building",
+                "operationId": "update_building_api_etablissements__establishment_id__batiments__building_id__patch",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "building_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Building Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BuildingUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BuildingOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Delete Building",
+                "operationId": "delete_building_api_etablissements__establishment_id__batiments__building_id__delete",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "building_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Building Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/{establishment_id}/batiments/{building_id}/salles": {
+            "post": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Create Room",
+                "operationId": "create_room_api_etablissements__establishment_id__batiments__building_id__salles_post",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "building_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Building Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RoomCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoomOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "List Rooms",
+                "operationId": "list_rooms_api_etablissements__establishment_id__batiments__building_id__salles_get",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "building_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Building Id"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1,
+                            "title": "Page"
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "default": 10,
+                            "title": "Size"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Q"
+                        }
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "created_at",
+                            "title": "Order By"
+                        }
+                    },
+                    {
+                        "name": "order_dir",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "desc",
+                            "title": "Order Dir"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoomListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/etablissements/{establishment_id}/batiments/{building_id}/salles/{room_id}": {
+            "get": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Get Room",
+                "operationId": "get_room_api_etablissements__establishment_id__batiments__building_id__salles__room_id__get",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "building_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Building Id"
+                        }
+                    },
+                    {
+                        "name": "room_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Room Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoomOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Update Room",
+                "operationId": "update_room_api_etablissements__establishment_id__batiments__building_id__salles__room_id__patch",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "building_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Building Id"
+                        }
+                    },
+                    {
+                        "name": "room_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Room Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RoomUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoomOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "establishments"
+                ],
+                "summary": "Delete Room",
+                "operationId": "delete_room_api_etablissements__establishment_id__batiments__building_id__salles__room_id__delete",
+                "parameters": [
+                    {
+                        "name": "establishment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Establishment Id"
+                        }
+                    },
+                    {
+                        "name": "building_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Building Id"
+                        }
+                    },
+                    {
+                        "name": "room_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Room Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -892,28 +1588,23 @@
                             "$ref": "#/components/schemas/EtablissementAuditResponse"
                         },
                         "type": "array",
-                        "title": "Items",
-                        "description": "Liste des audits"
+                        "title": "Items"
                     },
                     "total": {
                         "type": "integer",
-                        "title": "Total",
-                        "description": "Nombre total d'audits"
+                        "title": "Total"
                     },
                     "limit": {
                         "type": "integer",
-                        "title": "Limit",
-                        "description": "Limite utilisée"
+                        "title": "Limit"
                     },
                     "offset": {
                         "type": "integer",
-                        "title": "Offset",
-                        "description": "Offset utilisé"
+                        "title": "Offset"
                     },
                     "has_more": {
                         "type": "boolean",
-                        "title": "Has More",
-                        "description": "Y a-t-il plus d'éléments ?"
+                        "title": "Has More"
                     }
                 },
                 "type": "object",
@@ -924,8 +1615,7 @@
                     "offset",
                     "has_more"
                 ],
-                "title": "AuditListResponse",
-                "description": "Réponse pour la liste des audits avec pagination"
+                "title": "AuditListResponse"
             },
             "AuditOperationEnum": {
                 "type": "string",
@@ -934,25 +1624,23 @@
                     "UPDATE",
                     "DELETE",
                     "STATUS_CHANGE",
-                    "INSERT"
+                    "INSERT",
+                    "ACCESS_DENIED"
                 ],
-                "title": "AuditOperationEnum",
-                "description": "Types d'opérations d'audit"
+                "title": "AuditOperationEnum"
             },
             "AuditStatistics": {
                 "properties": {
                     "total_operations": {
                         "type": "integer",
-                        "title": "Total Operations",
-                        "description": "Nombre total d'opérations"
+                        "title": "Total Operations"
                     },
                     "operations_by_type": {
                         "additionalProperties": {
                             "type": "integer"
                         },
                         "type": "object",
-                        "title": "Operations By Type",
-                        "description": "Nombre d'opérations par type"
+                        "title": "Operations By Type"
                     },
                     "last_operation_date": {
                         "anyOf": [
@@ -964,8 +1652,7 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Last Operation Date",
-                        "description": "Date de la dernière opération"
+                        "title": "Last Operation Date"
                     },
                     "most_active_user": {
                         "anyOf": [
@@ -976,13 +1663,11 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Most Active User",
-                        "description": "Utilisateur le plus actif"
+                        "title": "Most Active User"
                     },
                     "operations_this_month": {
                         "type": "integer",
-                        "title": "Operations This Month",
-                        "description": "Nombre d'opérations ce mois-ci"
+                        "title": "Operations This Month"
                     }
                 },
                 "type": "object",
@@ -991,8 +1676,245 @@
                     "operations_by_type",
                     "operations_this_month"
                 ],
-                "title": "AuditStatistics",
-                "description": "Statistiques d'audit pour un établissement"
+                "title": "AuditStatistics"
+            },
+            "BuildingCreate": {
+                "properties": {
+                    "code_batiment": {
+                        "type": "string",
+                        "title": "Code Batiment",
+                        "description": "Code unique du bâtiment (unique par établissement)"
+                    },
+                    "nom": {
+                        "type": "string",
+                        "title": "Nom",
+                        "description": "Nom du bâtiment"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description",
+                        "description": "Description du bâtiment"
+                    },
+                    "nombre_etages": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Nombre Etages",
+                        "description": "Nombre d'étages"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "title": "Active",
+                        "default": true
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "code_batiment",
+                    "nom"
+                ],
+                "title": "BuildingCreate"
+            },
+            "BuildingListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/BuildingOut"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "title": "Size"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    },
+                    "has_next": {
+                        "type": "boolean",
+                        "title": "Has Next"
+                    },
+                    "has_prev": {
+                        "type": "boolean",
+                        "title": "Has Prev"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "size",
+                    "pages",
+                    "has_next",
+                    "has_prev"
+                ],
+                "title": "BuildingListResponse"
+            },
+            "BuildingOut": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "establishment_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Establishment Id"
+                    },
+                    "code_batiment": {
+                        "type": "string",
+                        "title": "Code Batiment"
+                    },
+                    "nom": {
+                        "type": "string",
+                        "title": "Nom"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "nombre_etages": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Nombre Etages"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "title": "Active"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    },
+                    "deleted_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Deleted At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "establishment_id",
+                    "code_batiment",
+                    "nom",
+                    "description",
+                    "nombre_etages",
+                    "active",
+                    "created_at",
+                    "updated_at",
+                    "deleted_at"
+                ],
+                "title": "BuildingOut"
+            },
+            "BuildingUpdate": {
+                "properties": {
+                    "nom": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Nom"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "nombre_etages": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Nombre Etages"
+                    },
+                    "active": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Active"
+                    }
+                },
+                "type": "object",
+                "title": "BuildingUpdate"
             },
             "EtablissementAuditResponse": {
                 "properties": {
@@ -1059,18 +1981,6 @@
             },
             "EtablissementCoordinatesUpdate": {
                 "properties": {
-                    "nom": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Nom",
-                        "description": "Nom de l'établissement"
-                    },
                     "adresse": {
                         "anyOf": [
                             {
@@ -1080,8 +1990,7 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Adresse",
-                        "description": "Adresse de l'établissement"
+                        "title": "Adresse"
                     },
                     "email": {
                         "anyOf": [
@@ -1092,8 +2001,7 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Email",
-                        "description": "Email de contact"
+                        "title": "Email"
                     },
                     "telephone": {
                         "anyOf": [
@@ -1104,8 +2012,7 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Telephone",
-                        "description": "Numéro de téléphone"
+                        "title": "Telephone"
                     },
                     "ville": {
                         "anyOf": [
@@ -1116,8 +2023,7 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Ville",
-                        "description": "Ville de l'établissement"
+                        "title": "Ville"
                     },
                     "pays": {
                         "anyOf": [
@@ -1128,35 +2034,29 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Pays",
-                        "description": "Pays de l'établissement"
+                        "title": "Pays"
                     }
                 },
                 "type": "object",
-                "title": "EtablissementCoordinatesUpdate",
-                "description": "Schéma pour la mise à jour des coordonnées uniquement"
+                "title": "EtablissementCoordinatesUpdate"
             },
             "EtablissementCreate": {
                 "properties": {
                     "nom": {
                         "type": "string",
-                        "title": "Nom",
-                        "description": "Nom de l'établissement"
+                        "title": "Nom"
                     },
                     "adresse": {
                         "type": "string",
-                        "title": "Adresse",
-                        "description": "Adresse de l'établissement"
+                        "title": "Adresse"
                     },
                     "email": {
                         "type": "string",
-                        "title": "Email",
-                        "description": "Email de contact"
+                        "title": "Email"
                     },
                     "telephone": {
                         "type": "string",
-                        "title": "Telephone",
-                        "description": "Numéro de téléphone"
+                        "title": "Telephone"
                     },
                     "ville": {
                         "anyOf": [
@@ -1167,8 +2067,7 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Ville",
-                        "description": "Ville de l'établissement"
+                        "title": "Ville"
                     },
                     "pays": {
                         "anyOf": [
@@ -1179,16 +2078,38 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Pays",
-                        "description": "Pays de l'établissement"
+                        "title": "Pays"
+                    },
+                    "code_etablissement": {
+                        "type": "string",
+                        "title": "Code Etablissement"
                     },
                     "plan": {
-                        "$ref": "#/components/schemas/PlanEnum",
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PlanEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "default": "BASIC"
                     },
                     "status": {
-                        "$ref": "#/components/schemas/StatusEnum",
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/StatusEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "default": "TRIAL"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "title": "Active",
+                        "default": true
                     }
                 },
                 "type": "object",
@@ -1196,7 +2117,8 @@
                     "nom",
                     "adresse",
                     "email",
-                    "telephone"
+                    "telephone",
+                    "code_etablissement"
                 ],
                 "title": "EtablissementCreate"
             },
@@ -1214,8 +2136,7 @@
                                 "type": "array"
                             }
                         ],
-                        "title": "Data",
-                        "description": "Un établissement unique ou une liste d'établissements à créer"
+                        "title": "Data"
                     }
                 },
                 "type": "object",
@@ -1223,29 +2144,62 @@
                     "data"
                 ],
                 "title": "EtablissementCreateFlexible",
-                "description": "Schéma flexible pour accepter soit un établissement unique, soit une liste d'établissements.\nPermet de créer un ou plusieurs établissements avec le même endpoint."
+                "description": "Accepte soit un établissement, soit une liste d'établissements, ou un payload non wrappé.\nLe router peut poster directement un objet ou {\"data\": objet}."
             },
             "EtablissementOut": {
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
                     "nom": {
                         "type": "string",
-                        "title": "Nom",
-                        "description": "Nom de l'établissement"
+                        "title": "Nom"
                     },
                     "adresse": {
-                        "type": "string",
-                        "title": "Adresse",
-                        "description": "Adresse de l'établissement"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Adresse"
+                    },
+                    "code_etablissement": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Code Etablissement"
                     },
                     "email": {
-                        "type": "string",
-                        "title": "Email",
-                        "description": "Email de contact"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Email"
                     },
                     "telephone": {
-                        "type": "string",
-                        "title": "Telephone",
-                        "description": "Numéro de téléphone"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Telephone"
                     },
                     "ville": {
                         "anyOf": [
@@ -1256,8 +2210,7 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Ville",
-                        "description": "Ville de l'établissement"
+                        "title": "Ville"
                     },
                     "pays": {
                         "anyOf": [
@@ -1268,19 +2221,27 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Pays",
-                        "description": "Pays de l'établissement"
-                    },
-                    "id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "title": "Id"
+                        "title": "Pays"
                     },
                     "plan": {
-                        "$ref": "#/components/schemas/PlanEnum"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PlanEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "status": {
-                        "$ref": "#/components/schemas/StatusEnum"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/StatusEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "subscription_start": {
                         "anyOf": [
@@ -1329,6 +2290,420 @@
                         "title": "Etablissement Id"
                     },
                     "created_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    },
+                    "deleted_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Deleted At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "nom",
+                    "adresse",
+                    "code_etablissement",
+                    "email",
+                    "telephone",
+                    "ville",
+                    "pays",
+                    "plan",
+                    "status",
+                    "subscription_start",
+                    "subscription_end",
+                    "etablissement_group",
+                    "etablissement_id",
+                    "created_at",
+                    "updated_at",
+                    "deleted_at"
+                ],
+                "title": "EtablissementOut"
+            },
+            "EtablissementUpdate": {
+                "properties": {
+                    "nom": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Nom"
+                    },
+                    "adresse": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Adresse"
+                    },
+                    "email": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Email"
+                    },
+                    "telephone": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Telephone"
+                    },
+                    "ville": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Ville"
+                    },
+                    "pays": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pays"
+                    },
+                    "plan": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PlanEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/StatusEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "active": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Active"
+                    }
+                },
+                "type": "object",
+                "title": "EtablissementUpdate"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "LastCodeEtablissementResponse": {
+                "properties": {
+                    "last_code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Code",
+                        "description": "Le dernier code établissement utilisé"
+                    }
+                },
+                "type": "object",
+                "title": "LastCodeEtablissementResponse",
+                "description": "Schéma simplifié pour la réponse du dernier code établissement"
+            },
+            "ManualAuditCreate": {
+                "properties": {
+                    "operation": {
+                        "type": "string",
+                        "title": "Operation"
+                    },
+                    "motif": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Motif"
+                    },
+                    "auteur_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Auteur Id"
+                    },
+                    "auteur_nom": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Auteur Nom"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "operation"
+                ],
+                "title": "ManualAuditCreate"
+            },
+            "PlanEnum": {
+                "type": "string",
+                "enum": [
+                    "BASIC",
+                    "PRO",
+                    "ENTREPRISE"
+                ],
+                "title": "PlanEnum"
+            },
+            "RoomCreate": {
+                "properties": {
+                    "code_salle": {
+                        "type": "string",
+                        "title": "Code Salle",
+                        "description": "Code unique de la salle (unique par bâtiment)"
+                    },
+                    "nom": {
+                        "type": "string",
+                        "title": "Nom",
+                        "description": "Nom de la salle"
+                    },
+                    "capacite": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Capacite"
+                    },
+                    "etage": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Etage"
+                    },
+                    "type_salle": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/RoomType"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "title": "Active",
+                        "default": true
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "code_salle",
+                    "nom"
+                ],
+                "title": "RoomCreate"
+            },
+            "RoomListResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/RoomOut"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "title": "Size"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    },
+                    "has_next": {
+                        "type": "boolean",
+                        "title": "Has Next"
+                    },
+                    "has_prev": {
+                        "type": "boolean",
+                        "title": "Has Prev"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "size",
+                    "pages",
+                    "has_next",
+                    "has_prev"
+                ],
+                "title": "RoomListResponse"
+            },
+            "RoomOut": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "establishment_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Establishment Id"
+                    },
+                    "building_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Building Id"
+                    },
+                    "code_salle": {
+                        "type": "string",
+                        "title": "Code Salle"
+                    },
+                    "nom": {
+                        "type": "string",
+                        "title": "Nom"
+                    },
+                    "capacite": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Capacite"
+                    },
+                    "etage": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Etage"
+                    },
+                    "type_salle": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/RoomType"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "title": "Active"
+                    },
+                    "created_at": {
                         "type": "string",
                         "format": "date-time",
                         "title": "Created At"
@@ -1360,21 +2735,32 @@
                 },
                 "type": "object",
                 "required": [
-                    "nom",
-                    "adresse",
-                    "email",
-                    "telephone",
                     "id",
-                    "plan",
-                    "status",
-                    "etablissement_group",
-                    "etablissement_id",
+                    "establishment_id",
+                    "building_id",
+                    "code_salle",
+                    "nom",
+                    "capacite",
+                    "etage",
+                    "type_salle",
+                    "active",
                     "created_at",
-                    "updated_at"
+                    "updated_at",
+                    "deleted_at"
                 ],
-                "title": "EtablissementOut"
+                "title": "RoomOut"
             },
-            "EtablissementUpdate": {
+            "RoomType": {
+                "type": "string",
+                "enum": [
+                    "CLASSROOM",
+                    "LAB",
+                    "OFFICE",
+                    "OTHER"
+                ],
+                "title": "RoomType"
+            },
+            "RoomUpdate": {
                 "properties": {
                     "nom": {
                         "anyOf": [
@@ -1385,169 +2771,55 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Nom",
-                        "description": "Nom de l'établissement"
+                        "title": "Nom"
                     },
-                    "adresse": {
+                    "capacite": {
                         "anyOf": [
                             {
-                                "type": "string"
+                                "type": "integer",
+                                "minimum": 0.0
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Adresse",
-                        "description": "Adresse de l'établissement"
+                        "title": "Capacite"
                     },
-                    "email": {
+                    "etage": {
                         "anyOf": [
                             {
-                                "type": "string"
+                                "type": "integer"
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Email",
-                        "description": "Email de contact"
+                        "title": "Etage"
                     },
-                    "telephone": {
+                    "type_salle": {
                         "anyOf": [
                             {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Telephone",
-                        "description": "Numéro de téléphone"
-                    },
-                    "ville": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Ville",
-                        "description": "Ville de l'établissement"
-                    },
-                    "pays": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Pays",
-                        "description": "Pays de l'établissement"
-                    },
-                    "plan": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/PlanEnum"
+                                "$ref": "#/components/schemas/RoomType"
                             },
                             {
                                 "type": "null"
                             }
                         ]
                     },
-                    "status": {
+                    "active": {
                         "anyOf": [
                             {
-                                "$ref": "#/components/schemas/StatusEnum"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    }
-                },
-                "type": "object",
-                "title": "EtablissementUpdate"
-            },
-            "HTTPValidationError": {
-                "properties": {
-                    "detail": {
-                        "items": {
-                            "$ref": "#/components/schemas/ValidationError"
-                        },
-                        "type": "array",
-                        "title": "Detail"
-                    }
-                },
-                "type": "object",
-                "title": "HTTPValidationError"
-            },
-            "ManualAuditCreate": {
-                "properties": {
-                    "operation": {
-                        "type": "string",
-                        "maxLength": 100,
-                        "title": "Operation",
-                        "description": "Type d'opération effectuée"
-                    },
-                    "motif": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "maxLength": 500
+                                "type": "boolean"
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Motif",
-                        "description": "Motif de l'opération"
-                    },
-                    "auteur_id": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "maxLength": 100
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Auteur Id",
-                        "description": "ID de l'auteur de l'opération"
-                    },
-                    "auteur_nom": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "maxLength": 200
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Auteur Nom",
-                        "description": "Nom de l'auteur de l'opération"
+                        "title": "Active"
                     }
                 },
                 "type": "object",
-                "required": [
-                    "operation"
-                ],
-                "title": "ManualAuditCreate",
-                "description": "Schéma pour la création manuelle d'une entrée d'audit (sans etablissement_id)"
-            },
-            "PlanEnum": {
-                "type": "string",
-                "enum": [
-                    "BASIC",
-                    "PRO",
-                    "ENTREPRISE"
-                ],
-                "title": "PlanEnum"
+                "title": "RoomUpdate"
             },
             "StatusEnum": {
                 "type": "string",

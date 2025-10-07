@@ -12,6 +12,7 @@ interface ReferentialCardProps {
     visibility?: 'TENANT' | 'GLOBAL';
     created_at?: string;
     updated_at?: string;
+    published_at?: string | null;
   };
   isSelected?: boolean;
   onEdit?: (id: string) => void;
@@ -79,6 +80,7 @@ const ReferentialCard: React.FC<ReferentialCardProps> = ({
       case 'PRIMAIRE': return 'Primaire';
       case 'COLLEGE': return 'Collège';
       case 'LYCEE': return 'Lycée';
+      case 'SECONDAIRE': return 'Secondaire';
       case 'UNIVERSITE': return 'Université';
       default: return cycle;
     }
@@ -258,6 +260,13 @@ const ReferentialCard: React.FC<ReferentialCardProps> = ({
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <Calendar className="w-3 h-3" />
             <span>Créé le {formatDate(referential.created_at)}</span>
+          </div>
+        )}
+        {/* Date de publication */}
+        {referential.state === 'PUBLISHED' && referential.published_at && (
+          <div className="flex items-center gap-2 text-xs text-green-700">
+            <Calendar className="w-3 h-3" />
+            <span>Publié le {formatDate(referential.published_at)}</span>
           </div>
         )}
       </div>

@@ -8,6 +8,8 @@ import { useUpdateEstablishment } from '../../../hooks/useUpdateEstablishment';
 import { useUpdateEstablishmentCoordinates } from '../../../hooks/useUpdateEstablishmentCoordinates';
 import { useUpdateEstablishmentStatus } from '../../../hooks/useUpdateEstablishmentStatus';
 import { useEstablishment } from '../../../hooks/useEstablishment';
+import { useEstablishmentLastCode } from '../../../hooks/useEstablishmentLastCode';
+import toast from 'react-hot-toast';
 
 interface EtablissementFormModalProps {
   isOpen: boolean;
@@ -22,10 +24,9 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
     adresse: string;
     email: string;
     telephone: string;
+    code_etablissement: string;
     ville?: string;
     pays?: string;
-    date_debut?: string;
-    date_fin?: string;
     plan: PlanEnum;
     status: StatusEnum;
   }>({
@@ -33,19 +34,30 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
     adresse: '',
     email: '',
     telephone: '',
+    code_etablissement: '',
     ville: '',
     pays: '',
-    date_debut: '',
-    date_fin: '',
     plan: 'BASIC',
     status: 'TRIAL',
   });
+  const [manualCode, setManualCode] = useState<boolean>(false);
 
   const createMutation = useCreateEstablishment();
   const updateMutation = useUpdateEstablishment();
   const updateCoordsMutation = useUpdateEstablishmentCoordinates();
   const updateStatusMutation = useUpdateEstablishmentStatus();
   const { data: current, isLoading: isLoadingCurrent } = useEstablishment(etablissementToEdit?.id);
+  const { data: lastCode } = useEstablishmentLastCode();
+
+  const computeNextCode = (code?: string) => {
+    if (!code || typeof code !== 'string') return '';
+    const match = code.match(/^(.*?)(\d+)$/);
+    if (!match) return code;
+    const prefix = match[1];
+    const num = match[2];
+    const next = String(Number(num) + 1).padStart(num.length, '0');
+    return `${prefix}${next}`;
+  };
 
   useEffect(() => {
     if (current) {
@@ -54,10 +66,11 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
         adresse: current.adresse ?? '',
         email: current.email ?? '',
         telephone: current.telephone ?? '',
+        code_etablissement: current.code_etablissement ?? '',
         ville: current.ville ?? '',
         pays: current.pays ?? '',
-        plan: current.plan,
-        status: current.status,
+        plan: (current.plan ?? 'BASIC') as PlanEnum,
+        status: (current.status ?? 'TRIAL') as StatusEnum,
       });
     } else if (etablissementToEdit) {
       setFormData({
@@ -65,15 +78,17 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
         adresse: etablissementToEdit.adresse ?? '',
         email: etablissementToEdit.email ?? '',
         telephone: etablissementToEdit.telephone ?? '',
+        code_etablissement: etablissementToEdit.code_etablissement ?? '',
         ville: etablissementToEdit.ville ?? '',
         pays: etablissementToEdit.pays ?? '',
-        plan: etablissementToEdit.plan,
-        status: etablissementToEdit.status,
+        plan: (etablissementToEdit.plan ?? 'BASIC') as PlanEnum,
+        status: (etablissementToEdit.status ?? 'TRIAL') as StatusEnum,
       });
     } else {
-      setFormData({ nom: '', adresse: '', email: '', telephone: '', ville: '', pays: '', date_debut: '', date_fin: '', plan: 'BASIC', status: 'TRIAL' });
+      setFormData({ nom: '', adresse: '', email: '', telephone: '', code_etablissement: computeNextCode(lastCode) || 'ETB0001', ville: '', pays: '', plan: 'BASIC', status: 'TRIAL' });
+      setManualCode(false);
     }
-  }, [current, etablissementToEdit, isOpen]);
+  }, [current, etablissementToEdit, isOpen, lastCode]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -87,22 +102,26 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
         const id = etablissementToEdit.id;
         const ops: Promise<unknown>[] = [];
 
-        // Comparer et mettre à jour coordonnées (nom, adresse, email, telephone)
+        // Comparer et mettre à jour coordonnées (adresse, email, telephone, ville, pays)
         const coordsPayload: Record<string, unknown> = {};
-        if (formData.nom !== (etablissementToEdit.nom ?? '')) coordsPayload.nom = formData.nom;
         if (formData.adresse !== (etablissementToEdit.adresse ?? '')) coordsPayload.adresse = formData.adresse;
         if (formData.email !== (etablissementToEdit.email ?? '')) coordsPayload.email = formData.email;
         if (formData.telephone !== (etablissementToEdit.telephone ?? '')) coordsPayload.telephone = formData.telephone;
+        if ((formData.ville || '') !== (etablissementToEdit.ville ?? '')) coordsPayload.ville = formData.ville || null;
+        if ((formData.pays || '') !== (etablissementToEdit.pays ?? '')) coordsPayload.pays = formData.pays || null;
         if (Object.keys(coordsPayload).length > 0) {
           ops.push(updateCoordsMutation.mutateAsync({ establishmentId: id, update: coordsPayload }));
         }
 
-        // Mettre à jour le plan si changé
-        if (formData.plan !== etablissementToEdit.plan) {
-          ops.push(updateMutation.mutateAsync({ establishmentId: id, update: { plan: formData.plan } }));
+        // Mettre à jour les champs généraux via PATCH et statut via endpoint dédié
+        const generalUpdate: Record<string, unknown> = {};
+        if (formData.nom !== (etablissementToEdit.nom ?? '')) generalUpdate.nom = formData.nom;
+        if ((formData.plan) !== etablissementToEdit.plan) generalUpdate.plan = formData.plan;
+        // Ne pas envoyer code_etablissement sur Update (non supporté par EtablissementUpdate)
+        // Ne pas envoyer subscription_start/subscription_end sur Update (non présents dans EtablissementUpdate)
+        if (Object.keys(generalUpdate).length > 0) {
+          ops.push(updateMutation.mutateAsync({ establishmentId: id, update: generalUpdate }));
         }
-
-        // Mettre à jour le statut si changé
         if (formData.status !== etablissementToEdit.status) {
           ops.push(updateStatusMutation.mutateAsync({ establishmentId: id, status: formData.status }));
         }
@@ -116,16 +135,20 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
           adresse: formData.adresse,
           email: formData.email,
           telephone: formData.telephone,
+          code_etablissement: (formData.code_etablissement || '').toUpperCase(),
           ville: formData.ville || undefined,
           pays: formData.pays || undefined,
           plan: formData.plan,
           status: formData.status,
+          // Ne pas envoyer subscription_start/end: non présents dans EtablissementCreate
         });
         onSave(null);
-    onClose();
+        onClose();
       }
     } catch (err) {
-      console.error('Erreur soumission établissement:', err);
+      const anyErr = err as { response?: { status?: number; data?: unknown } };
+      const msg = (anyErr?.response?.data as { detail?: string } | undefined)?.detail || (anyErr?.response?.data as string | undefined) || (anyErr as { message?: string }).message || 'Erreur inconnue';
+      toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
     }
   };
 
@@ -146,6 +169,39 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
           <div>
             <label htmlFor="nom" className="block text-sm font-medium text-gray-700">Nom de l'établissement</label>
             <input type="text" name="nom" id="nom" value={formData.nom} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
+          </div>
+          <div>
+            <label htmlFor="code_etablissement" className="block text-sm font-medium text-gray-700">Code établissement</label>
+            <input
+              type="text"
+              name="code_etablissement"
+              id="code_etablissement"
+              value={formData.code_etablissement}
+              onChange={handleChange}
+              required
+              disabled={!!etablissementToEdit?.id || !manualCode}
+              className={`mt-1 block w-full border ${(!manualCode || etablissementToEdit?.id) ? 'bg-gray-100 border-gray-200' : 'border-gray-300'} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+            />
+            {(!etablissementToEdit || !etablissementToEdit.id) && (
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-gray-500 mt-1">Dernier code: {lastCode ?? '—'}{!manualCode ? ' • sera auto-généré' : ''}</div>
+                <label className="text-xs text-gray-700 mt-1 inline-flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={manualCode}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setManualCode(checked);
+                      if (!checked) {
+                        // repasser en auto: recalculer
+                        setFormData(prev => ({ ...prev, code_etablissement: computeNextCode(lastCode) || 'ETB0001' }));
+                      }
+                    }}
+                  />
+                  Saisir manuellement
+                </label>
+              </div>
+            )}
           </div>
           <div>
             <label htmlFor="adresse" className="block text-sm font-medium text-gray-700">Adresse</label>
@@ -171,16 +227,7 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
               <input type="text" name="telephone" id="telephone" value={formData.telephone} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="date_debut" className="block text-sm font-medium text-gray-700">Date début</label>
-              <input type="date" name="date_debut" id="date_debut" value={formData.date_debut || ''} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
-            </div>
-            <div>
-              <label htmlFor="date_fin" className="block text-sm font-medium text-gray-700">Date fin</label>
-              <input type="date" name="date_fin" id="date_fin" value={formData.date_fin || ''} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"/>
-            </div>
-          </div>
+          {/* Champs date_debut/date_fin retirés car non supportés par EtablissementCreate */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="plan" className="block text-sm font-medium text-gray-700">Plan</label>
