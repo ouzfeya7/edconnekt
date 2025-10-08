@@ -98,15 +98,27 @@ export default function IdentitiesManagement(): JSX.Element {
     e.preventDefault();
     const form = e.currentTarget;
     const fd = new FormData(form);
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+    const establishmentIdRaw = normalizeOptional(fd.get('establishment_id'));
+    if (establishmentIdRaw && !uuidRegex.test(establishmentIdRaw)) {
+      toast.error("L'ID d'établissement doit être un UUID valide.");
+      return;
+    }
     const payload: IdentityCreate = {
       firstname: String(fd.get('firstname') || '').trim(),
       lastname: String(fd.get('lastname') || '').trim(),
       email: normalizeOptional(fd.get('email')),
       phone: normalizeOptional(fd.get('phone')),
       status: undefined,
-      external_id: normalizeOptional(fd.get('external_id')),
+      account_required: fd.get('account_required') ? 'true' : 'false',
       code_identite: String(fd.get('code_identite') || '').trim(),
+      establishment_id: establishmentIdRaw,
+      role_principal_code: normalizeOptional(fd.get('role_principal_code')),
+      role_effectif_code: normalizeOptional(fd.get('role_effectif_code')),
+      function_display: normalizeOptional(fd.get('function_display')),
     };
+    const cycles = (fd.getAll('cycle_codes') as FormDataEntryValue[]).map((v) => String(v)).filter(Boolean);
+    if (cycles.length > 0) (payload as IdentityCreate & { cycle_codes?: string[] }).cycle_codes = cycles;
     if (!payload.firstname || !payload.lastname) return;
     if (!payload.code_identite) return;
     try {
@@ -130,13 +142,26 @@ export default function IdentitiesManagement(): JSX.Element {
     if (!editingId) return;
     const form = e.currentTarget;
     const fd = new FormData(form);
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+    const establishmentIdRaw = normalizeOptional(fd.get('establishment_id')) as NullableString;
+    if (establishmentIdRaw && !uuidRegex.test(establishmentIdRaw)) {
+      toast.error("L'ID d'établissement doit être un UUID valide.");
+      return;
+    }
     const payload: IdentityUpdate = {
       firstname: normalizeOptional(fd.get('firstname')) as NullableString,
       lastname: normalizeOptional(fd.get('lastname')) as NullableString,
       email: normalizeOptional(fd.get('email')) as NullableString,
       phone: normalizeOptional(fd.get('phone')) as NullableString,
       status: normalizeOptional(fd.get('status')) as IdentityStatus | null | undefined,
+      account_required: (fd.get('account_required') ? 'true' : 'false') as unknown as NullableString,
+      establishment_id: establishmentIdRaw,
+      role_principal_code: normalizeOptional(fd.get('role_principal_code')) as NullableString,
+      role_effectif_code: normalizeOptional(fd.get('role_effectif_code')) as NullableString,
+      function_display: normalizeOptional(fd.get('function_display')) as NullableString,
     };
+    const cycles = (fd.getAll('cycle_codes') as FormDataEntryValue[]).map((v) => String(v)).filter(Boolean);
+    if (cycles.length > 0) (payload as IdentityUpdate & { cycle_codes?: string[] }).cycle_codes = cycles;
     try {
       await toast.promise(
         updateMutation.mutateAsync(payload),
@@ -341,7 +366,7 @@ export default function IdentitiesManagement(): JSX.Element {
       {/* Roles Management Modal */}
       {rolesOpen && rolesIdentityId && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-3xl p-6 relative shadow-xl">
+          <div className="bg-white rounded-lg w-full max-w-3xl p-6 relative shadow-xl max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Rôles de l'identité</h3>
               <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => { setRolesOpen(false); setRolesIdentityId(null); setEditRoleId(null); }}>
@@ -529,21 +554,67 @@ export default function IdentitiesManagement(): JSX.Element {
 
       {createOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl">
+          <div className="bg-white rounded-lg w-full max-w-4xl p-6 relative shadow-xl max-h-[85vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4">Créer une identité</h3>
             <form onSubmit={handleSubmitCreate} className="space-y-3">
-              <div><label className="block text-sm mb-1">Prénom *</label><input name="firstname" className="w-full border rounded px-3 py-2" required /></div>
-              <div><label className="block text-sm mb-1">Nom *</label><input name="lastname" className="w-full border rounded px-3 py-2" required /></div>
               <div>
                 <label className="block text-sm mb-1">Code identité *</label>
                 <input name="code_identite" className="w-full border rounded px-3 py-2" required placeholder="Ex: IDT000151" />
                 <div className="text-xs text-gray-500 mt-1">Dernier code utilisé: {lastCode ?? '—'}</div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div><label className="block text-sm mb-1">Prénom *</label><input name="firstname" className="w-full border rounded px-3 py-2" required /></div>
+                <div><label className="block text-sm mb-1">Nom *</label><input name="lastname" className="w-full border rounded px-3 py-2" required /></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div><label className="block text-sm mb-1">Email</label><input name="email" className="w-full border rounded px-3 py-2" /></div>
                 <div><label className="block text-sm mb-1">Téléphone</label><input name="phone" className="w-full border rounded px-3 py-2" /></div>
               </div>
-              <div><label className="block text-sm mb-1">External ID</label><input name="external_id" className="w-full border rounded px-3 py-2" /></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm mb-1">Établissement ID</label>
+                  <input name="establishment_id" className="w-full border rounded px-3 py-2" placeholder="ex: 123e4567-e89b-12d3-a456-426614174000" pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" title="UUID valide requis" />
+                </div>
+                <div className="flex items-center gap-2 pt-6">
+                  <input id="create_account_required" type="checkbox" name="account_required" className="h-4 w-4" />
+                  <label htmlFor="create_account_required" className="text-sm">Compte requis</label>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm mb-1">Rôle principal</label>
+                  <select name="role_principal_code" className="w-full border rounded px-3 py-2 text-sm" defaultValue="">
+                    <option value="">(aucun)</option>
+                    {rolesPrinList.map((r) => (
+                      <option key={(r.id || r.code)} value={r.code}>{r.label_key ?? r.code}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm mb-1">Rôle effectif</label>
+                  <select name="role_effectif_code" className="w-full border rounded px-3 py-2 text-sm" defaultValue="">
+                    <option value="">(aucun)</option>
+                    {rolesEffList.map((r) => (
+                      <option key={(r.id || r.code)} value={r.code}>{r.label_key ?? r.code}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Fonction affichée</label>
+                <input name="function_display" className="w-full border rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Cycles</label>
+                <div className="flex flex-wrap gap-3 border rounded p-2">
+                  {['primaire','secondaire','lycee','universite'].map((code) => (
+                    <label key={code} className="inline-flex items-center gap-2 text-sm">
+                      <input type="checkbox" name="cycle_codes" value={code} />
+                      <span className="capitalize">{code}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" className="px-4 py-2 border rounded" onClick={() => setCreateOpen(false)}>Annuler</button>
                 <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded" disabled={createMutation.isPending}>{createMutation.isPending ? 'Création…' : 'Créer'}</button>
@@ -556,7 +627,7 @@ export default function IdentitiesManagement(): JSX.Element {
       {/* Details Modal */}
       {detailsOpen && detailsId && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative shadow-xl">
+          <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative shadow-xl max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Détails de l'identité</h3>
               <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => { setDetailsOpen(false); setDetailsId(null); }}>
@@ -629,7 +700,7 @@ export default function IdentitiesManagement(): JSX.Element {
       {/* Edit Modal */}
       {editOpen && editingId && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative shadow-xl">
+          <div className="bg-white rounded-lg w-full max-w-4xl p-6 relative shadow-xl max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Éditer l'identité</h3>
               <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => { setEditOpen(false); setEditing(null); setEditingId(null); }}>
@@ -667,6 +738,51 @@ export default function IdentitiesManagement(): JSX.Element {
                   <option value="TRANSFERRED">Transférée</option>
                 </select>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm mb-1">Établissement ID</label>
+                  <input name="establishment_id" className="w-full border rounded px-3 py-2 text-sm" placeholder="ex: 123e4567-e89b-12d3-a456-426614174000" pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" title="UUID valide requis" />
+                </div>
+                <div className="flex items-center gap-2 pt-6">
+                  <input id="edit_account_required" type="checkbox" name="account_required" className="h-4 w-4" />
+                  <label htmlFor="edit_account_required" className="text-sm">Compte requis</label>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm mb-1">Rôle principal</label>
+                  <select name="role_principal_code" className="w-full border rounded px-3 py-2 text-sm" defaultValue="">
+                    <option value="">(inchangé)</option>
+                    {rolesPrinList.map((r) => (
+                      <option key={(r.id || r.code)} value={r.code}>{r.label_key ?? r.code}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm mb-1">Rôle effectif</label>
+                  <select name="role_effectif_code" className="w-full border rounded px-3 py-2 text-sm" defaultValue="">
+                    <option value="">(inchangé)</option>
+                    {rolesEffList.map((r) => (
+                      <option key={(r.id || r.code)} value={r.code}>{r.label_key ?? r.code}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Fonction affichée</label>
+                <input name="function_display" className="w-full border rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Cycles</label>
+                <div className="flex flex-wrap gap-3 border rounded p-2">
+                  {['primaire','secondaire','lycee','universite'].map((code) => (
+                    <label key={code} className="inline-flex items-center gap-2 text-sm">
+                      <input type="checkbox" name="cycle_codes" value={code} />
+                      <span className="capitalize">{code}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               <div className="flex justify-end gap-2">
                 <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded text-sm" disabled={updateMutation.isPending}>
                   {updateMutation.isPending ? 'Enregistrement…' : 'Enregistrer'}
@@ -680,7 +796,7 @@ export default function IdentitiesManagement(): JSX.Element {
       {/* Link Modal */}
       {linkOpen && linkId && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl">
+          <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Lier à un établissement</h3>
               <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => { setLinkOpen(false); setLinkId(null); }}>
@@ -764,7 +880,7 @@ export default function IdentitiesManagement(): JSX.Element {
       {/* Unlink Modal */}
       {unlinkOpen && unlinkId && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl">
+          <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Délier de l'établissement</h3>
               <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => { setUnlinkOpen(false); setUnlinkId(null); }}>
