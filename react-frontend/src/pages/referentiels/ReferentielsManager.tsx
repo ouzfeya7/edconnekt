@@ -4,25 +4,33 @@ import { useSubjects, usePublicSubjectsByScope } from '../../hooks/competence/us
 import { useCompetencies, useLookupCompetencyByCode, usePublicCompetenciesForSubject } from '../../hooks/competence/useCompetencies';
 import { useDomains } from '../../hooks/competence/useDomains';
 import { usePublicReferentialTree } from '../../hooks/competence/usePublicReferentials';
-import { useCreateReferential, usePublishReferential, useDeleteReferential, useCreateDomain, useUpdateDomain, useDeleteDomain, useCreateSubject, useCreateCompetency, useUpdateSubject, useDeleteSubject, useUpdateCompetency, useDeleteCompetency } from '../../hooks/competence/useMutations';
-import { useAssignments, useCreateAssignment, useDeleteAssignment } from '../../hooks/competence/useAssignments';
+import { useGlobalReferentials } from '../../hooks/competence/useGlobalReferentials';
+import { useCreateReferential, usePublishReferential, useDeleteReferential, useCreateDomain, useUpdateDomain, useDeleteDomain, useCreateSubject, useCreateCompetency, useUpdateSubject, useDeleteSubject, useUpdateCompetency, useDeleteCompetency, useCloneReferential, useCloneFromGlobalReferential } from '../../hooks/competence/useMutations';
+import { useOutboxEvents, useReplayOutboxEvents, useDebugHeaders } from '../../hooks/competence/useEvents';
 import toast from 'react-hot-toast';
 import { GraduationCap, BookOpen, Award, Users } from 'lucide-react';
 import { CycleEnum, VisibilityEnum } from '../../api/competence-service/api';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import FilterBar from '../../components/competencies/FilterBar';
 import CompetencyCard from '../../components/competencies/CompetencyCard';
-import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import FilterBarGeneric from '../../components/ui/FilterBarGeneric';
 import ReferentialCard from '../../components/referentiels/ReferentialCard';
 import DomainCard from '../../components/referentiels/DomainCard';
+import GlobalReferentialCard from '../../components/referentiels/GlobalReferentialCard';
+import EventCard from '../../components/referentiels/EventCard';
 import SubjectCard from '../../components/referentiels/SubjectCard';
 import '../../styles/competencies.css';
-import type { AssignmentCreate } from '../../api/competence-service/api';
+import { useAuth } from '../authentification/useAuth';
+import { usePublicEstablishments } from '../../hooks/usePublicEstablishments';
+import CloneModal from '../../components/referentiels/CloneModal';
+import DeleteConfirmModal from '../../components/referentiels/DeleteConfirmModal';
+import EleveAssignmentsSection from '../../components/eleve/AssignmentsSection';
 
 const ReferentielsManager: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { roles } = useAuth();
+  const isAdmin = Array.isArray(roles) && roles.includes('administrateur');
   const [page, setPage] = useState(1);
   const size = 20;
   const [q, setQ] = useState<string>('');
@@ -37,6 +45,15 @@ const ReferentielsManager: React.FC = () => {
   const [competencyPage, setCompetencyPage] = useState(1);
   const competencySize = 20;
   const [competencyQ, setCompetencyQ] = useState<string>('');
+  // Admin: sélection d'établissement pour la création (override X-Etab)
+  const [createRefEtabId, setCreateRefEtabId] = useState<string>('');
+  const { data: publicEstabs } = usePublicEstablishments({ limit: 100 });
+  // Global catalogue pagination
+  const [globalPage, setGlobalPage] = useState(1);
+  const globalSize = 20;
+  // Events pagination (if backend paginates)
+  const [eventsPage, setEventsPage] = useState(1);
+  const eventsSize = 20;
   // Recherche par code (intégrée)
   const [lookupCode, setLookupCode] = useState<string>('');
   const [lookupReferentialId, setLookupReferentialId] = useState<string>('');
@@ -53,12 +70,6 @@ const ReferentielsManager: React.FC = () => {
     showAdvanced: false
   });
   
-  // Dialog de confirmation pour suppression
-  const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; id: string; type: string }>({ 
-    isOpen: false, 
-    id: '', 
-    type: '' 
-  });
   
   // Sélection multiple pour actions en lot
   const [selectedCompetencies, setSelectedCompetencies] = useState<Set<string>>(new Set());
@@ -89,10 +100,73 @@ const ReferentielsManager: React.FC = () => {
   // Filtres pour chaque onglet
   const [domainFilter, setDomainFilter] = useState<string>('');
   const [competencyFilter, setCompetencyFilter] = useState<string>('');
+  // Filtres pour Catalogue Global
+  const [globalFilters, setGlobalFilters] = useState({
+    search: '',
+    cycle: '',
+    showAdvanced: false
+  });
+  // Filtres pour Événements
+  const [eventsFilters, setEventsFilters] = useState({
+    search: '', // utilisé pour eventType
+    aggregateType: '',
+    aggregateId: '',
+    status: '',
+    startDate: '',
+    endDate: '',
+    showAdvanced: false
+  });
+  
 
-  const [activeTab, setActiveTab] = useState<'referentials' | 'domains' | 'subjects' | 'competencies' | 'assignments'>('referentials');
+  // États de sélection pour les nouveaux onglets
+  const [selectedGlobalRefs, setSelectedGlobalRefs] = useState<Set<string>>(new Set());
+  const [selectedEvents, setSelectedEvents] = useState<Set<string>>(new Set());
+  // Confirmation pour "Rejouer les événements"
+  const [replayConfirmOpen, setReplayConfirmOpen] = useState(false);
+
+  // États pour la modale de clonage
+  const [cloneModalOpen, setCloneModalOpen] = useState(false);
+  const [cloneData, setCloneData] = useState<{
+    id: string;
+    name: string;
+    cycle?: string;
+    isGlobal: boolean;
+  } | null>(null);
+
+  // États pour la modale de suppression
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteData, setDeleteData] = useState<{
+    id: string;
+    name: string;
+    type: 'référentiel' | 'domaine' | 'matière' | 'compétence' | 'affectation';
+    version?: number;
+    action: () => Promise<void>;
+  } | null>(null);
+
+  // États pour la gestion du double-clic
+  const [lastClickTime, setLastClickTime] = useState<number>(0);
+  const [lastClickedId, setLastClickedId] = useState<string | null>(null);
+  const DOUBLE_CLICK_DELAY = 300; // 300ms pour détecter un double-clic
+
+  const [activeTab, setActiveTab] = useState<'referentials' | 'domains' | 'subjects' | 'competencies' | 'assignments' | 'global' | 'events'>('referentials');
 
   const { data: refs, isLoading: refsLoading } = useReferentials({ page, size, cycle, state: state, visibility, q: q || null });
+  const { data: globalRefs } = useGlobalReferentials({
+    page: globalPage,
+    size: globalSize,
+    cycle: globalFilters.cycle || null,
+    q: globalFilters.search || null,
+  });
+  const { data: outboxEvents, isLoading: eventsLoading, refetch: refetchEvents } = useOutboxEvents({
+    page: eventsPage,
+    size: eventsSize,
+    eventType: eventsFilters.search || null,
+    aggregateType: eventsFilters.aggregateType || null,
+    aggregateId: eventsFilters.aggregateId || null,
+    status: eventsFilters.status || null,
+    startDate: eventsFilters.startDate || null,
+    endDate: eventsFilters.endDate || null,
+  });
 
   type Paginated<TItem> = { items: TItem[]; total: number };
   type ReferentialListItem = { id: string; name: string; cycle?: string; version_number: number; state?: string; visibility?: string };
@@ -101,6 +175,7 @@ const ReferentielsManager: React.FC = () => {
 
   // Narrow unknown query results to expected shapes locally
   const refsPage = refs as unknown as Paginated<ReferentialListItem> | undefined;
+  const globalRefsPage = globalRefs as unknown as Paginated<{ id: string; name: string; cycle?: string }> | undefined;
   // L'utilisateur doit sélectionner un référentiel pour accéder aux autres onglets
   const effectiveReferentialId = selectedReferentialId ?? null;
   const effectiveVersion = versionNumber ?? null;
@@ -159,19 +234,20 @@ const ReferentielsManager: React.FC = () => {
   };
 
   const handleCompetencyDelete = (competencyId: string) => {
-    setConfirmDelete({ isOpen: true, id: competencyId, type: 'competency' });
+    const competencyToDelete = (competenciesPage?.items ?? []).find((c: any) => c.id === competencyId);
+    const competencyName = competencyToDelete?.label || competencyToDelete?.code || `Compétence ${competencyId.substring(0, 8)}...`;
+    
+    setDeleteData({
+      id: competencyId,
+      name: competencyName,
+      type: 'compétence',
+      action: () => deleteCompetency.mutateAsync({ competencyId })
+    });
+    setDeleteModalOpen(true);
   };
 
   const handleCompetencySelect = (competencyId: string) => {
-    setSelectedCompetencies(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(competencyId)) {
-        newSet.delete(competencyId);
-      } else {
-        newSet.add(competencyId);
-      }
-      return newSet;
-    });
+    handleCompetencyClick(competencyId);
   };
 
   const handleSelectAll = () => {
@@ -183,17 +259,6 @@ const ReferentielsManager: React.FC = () => {
     setSelectedCompetencies(new Set());
   };
 
-  const handleDeleteConfirm = async () => {
-    if (confirmDelete.type === 'competency') {
-      try {
-        await deleteCompetency.mutateAsync({ competencyId: confirmDelete.id });
-        toast.success('Compétence supprimée avec succès');
-      } catch {
-        toast.error('Erreur lors de la suppression');
-      }
-    }
-    setConfirmDelete({ isOpen: false, id: '', type: '' });
-  };
 
   const handleExportCompetencies = () => {
     const filteredCompetencies = (competenciesPage?.items ?? [])
@@ -233,6 +298,8 @@ const ReferentielsManager: React.FC = () => {
   const createRef = useCreateReferential();
   const publishRef = usePublishReferential();
   const deleteRef = useDeleteReferential();
+  const cloneRef = useCloneReferential();
+  const cloneFromGlobal = useCloneFromGlobalReferential();
   const createDomain = useCreateDomain();
   const updateDomain = useUpdateDomain();
   const deleteDomain = useDeleteDomain();
@@ -242,6 +309,8 @@ const ReferentielsManager: React.FC = () => {
   const deleteSubject = useDeleteSubject();
   const updateCompetency = useUpdateCompetency();
   const deleteCompetency = useDeleteCompetency();
+  const replayEvents = useReplayOutboxEvents();
+  const debugHeaders = useDebugHeaders();
 
   // Local modal state
   const [refModalOpen, setRefModalOpen] = useState(false);
@@ -317,6 +386,7 @@ const ReferentielsManager: React.FC = () => {
       description: '', 
       visibility: undefined 
     });
+    setCreateRefEtabId('');
     setRefModalOpen(true);
     // Réinitialiser l'état de la mutation
     createRef.reset();
@@ -337,8 +407,11 @@ const ReferentielsManager: React.FC = () => {
     };
     if (refForm.description?.trim()) payload.description = refForm.description.trim();
     if (refForm.visibility) payload.visibility = refForm.visibility;
-    
-    await toast.promise(createRef.mutateAsync(payload), { loading: 'Création…', success: 'Référentiel créé', error: 'Échec de la création' });
+    // Si admin et un établissement est sélectionné, utiliser l'override X-Etab
+    const mutationVars = isAdmin && createRefEtabId
+      ? { payload, etabIdOverride: createRefEtabId }
+      : payload;
+    await toast.promise(createRef.mutateAsync(mutationVars as any), { loading: 'Création…', success: 'Référentiel créé', error: 'Échec de la création' });
     setRefModalOpen(false);
   };
   const handlePublishRef = async () => {
@@ -364,9 +437,18 @@ const ReferentielsManager: React.FC = () => {
     );
   };
 
-  const handleDeleteRef = async (referentialId: string, versionNumber: number) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce référentiel ? Cette action est irréversible.')) return;
-    await toast.promise(deleteRef.mutateAsync({ referentialId, versionNumber }), { loading: 'Suppression…', success: 'Référentiel supprimé', error: 'Échec de la suppression' });
+  const handleDeleteRef = (referentialId: string, versionNumber: number) => {
+    const refToDelete = (refsPage?.items ?? []).find((r: any) => r.id === referentialId);
+    const refName = refToDelete?.name || `Référentiel ${referentialId.substring(0, 8)}...`;
+    
+    setDeleteData({
+      id: referentialId,
+      name: refName,
+      type: 'référentiel',
+      version: versionNumber,
+      action: () => deleteRef.mutateAsync({ referentialId, versionNumber })
+    });
+    setDeleteModalOpen(true);
   };
   const openCreateDomain = () => {
     setDomainModalMode('create');
@@ -422,12 +504,17 @@ const ReferentielsManager: React.FC = () => {
     setDomainModalOpen(false);
   };
 
-  const handleDeleteDomain = async (domainId: string) => {
-    if (!confirm('Supprimer ce domaine ?')) return;
-    await toast.promise(
-      deleteDomain.mutateAsync({ domainId }), 
-      { loading: 'Suppression…', success: 'Domaine supprimé', error: 'Échec de la suppression' }
-    );
+  const handleDeleteDomain = (domainId: string) => {
+    const domainToDelete = (domains ?? []).find((d: any) => d.id === domainId);
+    const domainName = domainToDelete?.name || `Domaine ${domainId.substring(0, 8)}...`;
+    
+    setDeleteData({
+      id: domainId,
+      name: domainName,
+      type: 'domaine',
+      action: () => deleteDomain.mutateAsync({ domainId })
+    });
+    setDeleteModalOpen(true);
   };
 
   // Fonctions pour gérer le déploiement des lignes
@@ -594,21 +681,254 @@ const ReferentielsManager: React.FC = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  const exportJson = (filename: string, data: unknown) => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleReplayConfirm = async () => {
+    try {
+      await toast.promise(
+        replayEvents.mutateAsync(),
+        { loading: 'Rejeu en cours…', success: 'Rejeu lancé', error: 'Échec du rejeu' }
+      );
+      setReplayConfirmOpen(false);
+      await refetchEvents();
+    } catch (e) {
+      // toast déjà géré ci-dessus
+    }
+  };
+
+  const handleCloneConfirm = async (newName: string) => {
+    if (!cloneData) return;
+
+    try {
+      if (cloneData.isGlobal) {
+        // Clonage depuis le catalogue global
+        await toast.promise(
+          cloneFromGlobal.mutateAsync({
+            globalReferentialId: cloneData.id,
+            payload: {
+              global_referential_id: cloneData.id,
+              new_name: newName,
+              cycle: (cloneData.cycle as unknown as CycleEnum),
+            },
+          }),
+          { 
+            loading: 'Clonage en cours…', 
+            success: 'Référentiel cloné avec succès', 
+            error: 'Échec du clonage' 
+          }
+        );
+      } else {
+        // Clonage d'une version locale
+        await toast.promise(
+          cloneRef.mutateAsync({ 
+            referentialId: cloneData.id, 
+            payload: { new_name: newName } 
+          }),
+          { 
+            loading: 'Clonage en cours…', 
+            success: 'Version clonée avec succès', 
+            error: 'Échec du clonage' 
+          }
+        );
+      }
+      setCloneModalOpen(false);
+      setCloneData(null);
+    } catch (error) {
+      console.error('Erreur lors du clonage:', error);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteData) return;
+
+    try {
+      await toast.promise(
+        deleteData.action(),
+        { 
+          loading: 'Suppression en cours…', 
+          success: `${deleteData.type.charAt(0).toUpperCase() + deleteData.type.slice(1)} supprimé${deleteData.type.endsWith('e') ? 'e' : ''} avec succès`, 
+          error: 'Échec de la suppression' 
+        }
+      );
+      setDeleteModalOpen(false);
+      setDeleteData(null);
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    }
+  };
+
+  // Fonction de gestion du clic avec navigation automatique
+  const handleCardClick = (id: string, version: number, currentTab: string) => {
+    const currentTime = Date.now();
+    const isDoubleClick = 
+      lastClickedId === id && 
+      currentTime - lastClickTime < DOUBLE_CLICK_DELAY;
+
+    if (isDoubleClick) {
+      // Double-clic : navigation vers l'onglet suivant
+      navigateToNextTab(currentTab, id, version);
+      // Reset pour éviter les triple-clics
+      setLastClickTime(0);
+      setLastClickedId(null);
+    } else {
+      // Premier clic : sélection
+      setSelectedReferentialId(id);
+      setVersionNumber(version);
+      setLastClickTime(currentTime);
+      setLastClickedId(id);
+    }
+  };
+
+  // Navigation vers l'onglet suivant selon la logique définie
+  const navigateToNextTab = (currentTab: string, id: string, version: number) => {
+    // S'assurer que l'élément est sélectionné
+    setSelectedReferentialId(id);
+    setVersionNumber(version);
+
+    switch (currentTab) {
+      case 'referentials':
+        setActiveTab('domains');
+        toast.success('Navigation vers les Domaines');
+        break;
+      case 'domains':
+        setActiveTab('subjects');
+        toast.success('Navigation vers les Matières');
+        break;
+      case 'subjects':
+        setActiveTab('competencies');
+        toast.success('Navigation vers les Compétences');
+        break;
+      case 'competencies':
+        // Déjà au dernier onglet, on peut rester ou faire une action spéciale
+        toast('Vous êtes déjà dans l\'onglet Compétences', { icon: 'ℹ️' });
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Fonction spéciale pour les domaines (gestion sélection multiple + navigation)
+  const handleDomainClick = (domainId: string) => {
+    const currentTime = Date.now();
+    const isDoubleClick = 
+      lastClickedId === domainId && 
+      currentTime - lastClickTime < DOUBLE_CLICK_DELAY;
+
+    if (isDoubleClick) {
+      // Double-clic : navigation vers l'onglet suivant
+      setActiveTab('subjects');
+      toast.success('Navigation vers les Matières');
+      // Reset pour éviter les triple-clics
+      setLastClickTime(0);
+      setLastClickedId(null);
+    } else {
+      // Premier clic : sélection multiple
+      setSelectedDomains(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(domainId)) {
+          newSet.delete(domainId);
+        } else {
+          newSet.add(domainId);
+        }
+        return newSet;
+      });
+      setLastClickTime(currentTime);
+      setLastClickedId(domainId);
+    }
+  };
+
+  // Fonction spéciale pour les matières (gestion sélection multiple + navigation)
+  const handleSubjectClick = (subjectId: string) => {
+    const currentTime = Date.now();
+    const isDoubleClick = 
+      lastClickedId === subjectId && 
+      currentTime - lastClickTime < DOUBLE_CLICK_DELAY;
+
+    if (isDoubleClick) {
+      // Double-clic : navigation vers l'onglet suivant
+      setActiveTab('competencies');
+      toast.success('Navigation vers les Compétences');
+      // Reset pour éviter les triple-clics
+      setLastClickTime(0);
+      setLastClickedId(null);
+    } else {
+      // Premier clic : sélection multiple
+      setSelectedSubjects(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(subjectId)) {
+          newSet.delete(subjectId);
+        } else {
+          newSet.add(subjectId);
+        }
+        return newSet;
+      });
+      setLastClickTime(currentTime);
+      setLastClickedId(subjectId);
+    }
+  };
+
+  // Fonction spéciale pour les compétences (gestion sélection multiple)
+  const handleCompetencyClick = (competencyId: string) => {
+    const currentTime = Date.now();
+    const isDoubleClick = 
+      lastClickedId === competencyId && 
+      currentTime - lastClickTime < DOUBLE_CLICK_DELAY;
+
+    if (isDoubleClick) {
+      // Double-clic : déjà au dernier onglet
+      toast('Vous êtes déjà dans l\'onglet Compétences', { icon: 'ℹ️' });
+      // Reset pour éviter les triple-clics
+      setLastClickTime(0);
+      setLastClickedId(null);
+    } else {
+      // Premier clic : sélection multiple
+      setSelectedCompetencies(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(competencyId)) {
+          newSet.delete(competencyId);
+        } else {
+          newSet.add(competencyId);
+        }
+        return newSet;
+      });
+      setLastClickTime(currentTime);
+      setLastClickedId(competencyId);
+    }
+  };
+
   return (
     <div className="bg-white min-h-screen p-4 md:p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestion des Référentiels</h1>
         <p className="text-gray-600">Administrez les référentiels, matières et compétences.</p>
+        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            💡 <strong>Astuce :</strong> Cliquez une fois pour sélectionner, double-cliquez pour naviguer automatiquement vers l'onglet suivant 
+            (Référentiels → Domaines → Matières → Compétences)
+          </p>
+        </div>
       </div>
 
       <div className="border-b border-gray-200 mb-8">
         <nav className="-mb-px flex space-x-8 overflow-x-auto">
           {[
             { id: 'referentials' as const, title: 'Référentiels', icon: GraduationCap },
+            { id: 'global' as const, title: 'Catalogue Global', icon: BookOpen },
             { id: 'domains' as const, title: 'Domaines', icon: GraduationCap },
             { id: 'subjects' as const, title: 'Matières', icon: BookOpen },
             { id: 'competencies' as const, title: 'Compétences', icon: Award },
             { id: 'assignments' as const, title: 'Affectations', icon: Users },
+            { id: 'events' as const, title: 'Événements', icon: Users },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -700,6 +1020,24 @@ const ReferentielsManager: React.FC = () => {
                   disabled: !effectiveReferentialId || effectiveVersion === null || publishRef.isPending
                 },
                 {
+                  label: 'Cloner version',
+                  onClick: () => {
+                    if (!effectiveReferentialId) return;
+                    const selectedRef = (refsPage?.items ?? []).find((r: any) => r.id === effectiveReferentialId);
+                    if (selectedRef) {
+                      setCloneData({
+                        id: effectiveReferentialId,
+                        name: selectedRef.name || 'Référentiel',
+                        cycle: selectedRef.cycle,
+                        isGlobal: false
+                      });
+                      setCloneModalOpen(true);
+                    }
+                  },
+                  variant: 'secondary',
+                  disabled: !effectiveReferentialId || cloneRef.isPending
+                },
+                {
                   label: showPublicTree ? 'Masquer arborescence' : 'Voir arborescence',
                   onClick: () => setShowPublicTree(!showPublicTree),
                   variant: 'secondary',
@@ -773,9 +1111,7 @@ const ReferentielsManager: React.FC = () => {
                         }}
                         isSelected={effectiveReferentialId === r.id}
                         onSelect={(id, version) => {
-                          setSelectedReferentialId(id);
-                          setVersionNumber(version);
-                          setActiveTab('domains');
+                          handleCardClick(id, version, 'referentials');
                         }}
                         onDelete={handleDeleteRef}
                       />
@@ -809,6 +1145,268 @@ const ReferentielsManager: React.FC = () => {
                     className="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed" 
                     disabled={(refsPage?.items?.length ?? 0) < size} 
                     onClick={() => setPage((p) => p + 1)}
+                  >
+                    Suivant
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'global' && (
+          <div className="border rounded-lg">
+            <FilterBarGeneric
+              title="Catalogue Global"
+              searchPlaceholder="Rechercher un référentiel global..."
+              filters={globalFilters}
+              onFiltersChange={(f) => {
+                setGlobalFilters(f);
+                setGlobalPage(1);
+              }}
+              onExport={() => exportCsv('catalogue-global.csv', (globalRefsPage?.items ?? []).map((gr: any) => ({ 
+                id: gr.id, 
+                name: gr.name || '', 
+                cycle: gr.cycle || ''
+              })))}
+              isLoading={false}
+              totalCount={globalRefsPage?.total ?? 0}
+              advancedFilters={[
+                {
+                  key: 'cycle',
+                  label: 'Tous les cycles',
+                  type: 'select',
+                  options: [
+                    { value: 'PRESCOLAIRE', label: 'Préscolaire' },
+                    { value: 'PRIMAIRE', label: 'Primaire' },
+                    { value: 'COLLEGE', label: 'Collège' },
+                    { value: 'LYCEE', label: 'Lycée' },
+                    { value: 'SECONDAIRE', label: 'Secondaire' },
+                    { value: 'UNIVERSITE', label: 'Université' }
+                  ]
+                }
+              ]}
+            />
+            <div className="p-6">
+              <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
+                {(globalRefsPage?.items ?? [])
+                  .filter((gr: any) => {
+                    if (globalFilters.search) {
+                      const searchLower = globalFilters.search.toLowerCase();
+                      return gr.name?.toLowerCase().includes(searchLower);
+                    }
+                    return true;
+                  })
+                  .map((gr: any) => (
+                    <GlobalReferentialCard
+                      key={gr.id}
+                      globalReferential={{
+                        id: gr.id,
+                        name: gr.name || '',
+                        cycle: gr.cycle,
+                        description: gr.description,
+                        created_at: gr.created_at,
+                        updated_at: gr.updated_at
+                      }}
+                      isSelected={selectedGlobalRefs.has(gr.id)}
+                      onSelect={(id) => {
+                        setSelectedGlobalRefs(prev => {
+                          const newSet = new Set(prev);
+                          if (newSet.has(id)) {
+                            newSet.delete(id);
+                          } else {
+                            newSet.add(id);
+                          }
+                          return newSet;
+                        });
+                      }}
+                      onClone={(id, name, cycle) => {
+                        setCloneData({
+                          id,
+                          name,
+                          cycle,
+                          isGlobal: true
+                        });
+                        setCloneModalOpen(true);
+                      }}
+                      onView={(id) => {
+                        // Optionnel: action pour voir les détails d'un référentiel global
+                        console.log('Voir détails du référentiel global:', id);
+                      }}
+                    />
+                  ))}
+              </div>
+              
+              {/* Message si aucun résultat */}
+              {(!globalRefsPage || (globalRefsPage.items ?? []).length === 0) && (
+                <div className="text-center py-12">
+                  <div className="text-gray-500 mb-2">Aucun référentiel global trouvé</div>
+                  <div className="text-sm text-gray-400">Essayez de modifier vos filtres</div>
+                </div>
+              )}
+            </div>
+            {/* Pagination */}
+            {(globalRefsPage?.items?.length ?? 0) > 0 && (
+              <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between text-sm">
+                <div className="text-gray-600">
+                  Page {globalPage} • {(globalRefsPage?.items?.length ?? 0)} éléments affichés
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    className="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed" 
+                    disabled={globalPage <= 1} 
+                    onClick={() => setGlobalPage((p) => Math.max(1, p - 1))}
+                  >
+                    Précédent
+                  </button>
+                  <button 
+                    className="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed" 
+                    disabled={(globalRefsPage?.items?.length ?? 0) < globalSize} 
+                    onClick={() => setGlobalPage((p) => p + 1)}
+                  >
+                    Suivant
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'events' && (
+          <div className="border rounded-lg">
+            <FilterBarGeneric
+              title="Événements (Outbox)"
+              searchPlaceholder="Rechercher par type d'événement..."
+              filters={eventsFilters}
+              onFiltersChange={(f) => {
+                setEventsFilters(f);
+                setEventsPage(1);
+              }}
+              onExport={() => exportCsv('evenements.csv', (outboxEvents ?? []).map((e: any) => ({ 
+                id: e.id, 
+                event_type: e.event_type, 
+                aggregate_type: e.aggregate_type,
+                aggregate_id: e.aggregate_id,
+                status: e.status || '',
+                created_at: e.created_at || ''
+              })))}
+              isLoading={eventsLoading}
+              totalCount={(outboxEvents ?? []).length}
+              advancedFilters={[
+                { key: 'aggregateType', label: 'Aggregate Type', type: 'input', placeholder: 'ex: Referential' },
+                { key: 'aggregateId', label: 'Aggregate ID', type: 'input', placeholder: 'UUID...' },
+                { key: 'status', label: 'Tous les statuts', type: 'select', options: [
+                  { value: 'PENDING', label: 'En attente' },
+                  { value: 'PROCESSED', label: 'Traité' },
+                  { value: 'FAILED', label: 'Échec' },
+                ]},
+                { key: 'startDate', label: 'Date début (YYYY-MM-DD)', type: 'input', placeholder: 'YYYY-MM-DD' },
+                { key: 'endDate', label: 'Date fin (YYYY-MM-DD)', type: 'input', placeholder: 'YYYY-MM-DD' },
+              ]}
+              actions={[
+                { label: 'Rejouer', onClick: () => setReplayConfirmOpen(true), variant: 'primary', disabled: replayEvents.isPending },
+                { label: 'Exporter JSON', onClick: () => exportJson('evenements.json', outboxEvents ?? []), variant: 'secondary' },
+                { label: 'Debug headers', onClick: async () => {
+                  try {
+                    const res = await debugHeaders.mutateAsync();
+                    toast.success('Headers OK (voir console)');
+                    console.log('[debug/headers]', res);
+                  } catch {
+                    toast.error('Échec debug headers');
+                  }
+                }, variant: 'secondary' },
+              ]}
+            />
+            <div className="p-6">
+              {eventsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-2 text-gray-600">Chargement des événements…</span>
+                </div>
+              ) : (
+                <>
+                  <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
+                    {(outboxEvents ?? [])
+                      .filter((e: any) => {
+                        if (eventsFilters.search) {
+                          const searchLower = eventsFilters.search.toLowerCase();
+                          return e.event_type?.toLowerCase().includes(searchLower);
+                        }
+                        if (eventsFilters.aggregateType) {
+                          return e.aggregate_type?.toLowerCase().includes(eventsFilters.aggregateType.toLowerCase());
+                        }
+                        if (eventsFilters.status) {
+                          return e.status === eventsFilters.status;
+                        }
+                        // startDate / endDate filtrage côté client (optionnel si back filtre déjà)
+                        if (eventsFilters.startDate) {
+                          const d = new Date(e.created_at);
+                          if (isFinite(d.getTime()) && d < new Date(eventsFilters.startDate)) return false;
+                        }
+                        if (eventsFilters.endDate) {
+                          const d = new Date(e.created_at);
+                          if (isFinite(d.getTime()) && d > new Date(eventsFilters.endDate)) return false;
+                        }
+                        return true;
+                      })
+                      .map((e: any) => (
+                        <EventCard
+                          key={e.id}
+                          event={{
+                            id: e.id,
+                            event_type: e.event_type,
+                            aggregate_type: e.aggregate_type,
+                            aggregate_id: e.aggregate_id,
+                            status: e.status,
+                            created_at: e.created_at,
+                            processed_at: e.processed_at,
+                            tenant_id: e.tenant_id,
+                            payload: e.payload,
+                          }}
+                          isSelected={selectedEvents.has(e.id)}
+                          onSelect={(id) => {
+                            setSelectedEvents(prev => {
+                              const newSet = new Set(prev);
+                              if (newSet.has(id)) {
+                                newSet.delete(id);
+                              } else {
+                                newSet.add(id);
+                              }
+                              return newSet;
+                            });
+                          }}
+                        />
+                      ))}
+                  </div>
+                  
+                  {/* Message si aucun résultat */}
+                  {(!outboxEvents || outboxEvents.length === 0) && (
+                    <div className="text-center py-12">
+                      <div className="text-gray-500 mb-2">Aucun événement trouvé</div>
+                      <div className="text-sm text-gray-400">Les événements apparaîtront ici lors des opérations</div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            {/* Pagination */}
+            {(outboxEvents?.length ?? 0) > 0 && (
+              <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between text-sm">
+                <div className="text-gray-600">
+                  Page {eventsPage} • {(outboxEvents?.length ?? 0)} éléments affichés
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    className="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed" 
+                    disabled={eventsPage <= 1} 
+                    onClick={() => setEventsPage((p) => Math.max(1, p - 1))}
+                  >
+                    Précédent
+                  </button>
+                  <button 
+                    className="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed" 
+                    disabled={(outboxEvents?.length ?? 0) < eventsSize} 
+                    onClick={() => setEventsPage((p) => p + 1)}
                   >
                     Suivant
                   </button>
@@ -892,15 +1490,7 @@ const ReferentielsManager: React.FC = () => {
                         onEdit={openEditDomain}
                         onDelete={handleDeleteDomain}
                         onSelect={(id) => {
-                          setSelectedDomains(prev => {
-                            const newSet = new Set(prev);
-                            if (newSet.has(id)) {
-                              newSet.delete(id);
-                            } else {
-                              newSet.add(id);
-                            }
-                            return newSet;
-                          });
+                          handleDomainClick(id);
                         }}
                         stats={{
                           subjects: domainSubjects.length,
@@ -1029,27 +1619,19 @@ const ReferentielsManager: React.FC = () => {
                           isSelected={selectedSubjects.has(s.id)}
                           onEdit={openEditSubject}
                           onDelete={(id) => {
-                            if (confirm('Supprimer cette matière ?')) {
-                              toast.promise(
-                                deleteSubject.mutateAsync({ subjectId: id }),
-                                { 
-                                  loading: 'Suppression…', 
-                                  success: 'Matière supprimée', 
-                                  error: 'Échec suppression' 
-                                }
-                              );
-                            }
+                            const subjectToDelete = (subjectsPage?.items ?? []).find((s: any) => s.id === id);
+                            const subjectName = subjectToDelete?.name || subjectToDelete?.code || `Matière ${id.substring(0, 8)}...`;
+                            
+                            setDeleteData({
+                              id,
+                              name: subjectName,
+                              type: 'matière',
+                              action: () => deleteSubject.mutateAsync({ subjectId: id })
+                            });
+                            setDeleteModalOpen(true);
                           }}
                           onSelect={(id) => {
-                            setSelectedSubjects(prev => {
-                              const newSet = new Set(prev);
-                              if (newSet.has(id)) {
-                                newSet.delete(id);
-                              } else {
-                                newSet.add(id);
-                              }
-                              return newSet;
-                            });
+                            handleSubjectClick(id);
                           }}
                           stats={{
                             competencies: subjectCompetencies
@@ -1361,7 +1943,22 @@ const ReferentielsManager: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <AssignmentsSection referentialId={effectiveReferentialId} versionNumber={effectiveVersion} />
+              <>
+                {/* Indicateur du référentiel sélectionné */}
+                <div className="px-4 pt-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-2 bg-indigo-50 border border-indigo-200 rounded-lg">
+                    <GraduationCap className="w-4 h-4 text-indigo-600" />
+                    <span className="text-sm font-medium text-indigo-900">
+                      Référentiel sélectionné: {effectiveReferentialId?.substring(0, 8)}... (v{effectiveVersion})
+                    </span>
+                  </div>
+                </div>
+                <EleveAssignmentsSection
+                  referentialId={effectiveReferentialId as string}
+                  versionNumber={effectiveVersion as number}
+                  viewMode={viewMode}
+                />
+              </>
             )}
           </div>
         )}
@@ -1391,6 +1988,22 @@ const ReferentielsManager: React.FC = () => {
                   <option value={CycleEnum.Universite}>Université</option>
                 </select>
               </div>
+              {isAdmin && (
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Établissement (administrateur)</label>
+                  <select
+                    className="w-full border rounded px-3 py-2"
+                    value={createRefEtabId}
+                    onChange={(e) => setCreateRefEtabId(e.target.value)}
+                  >
+                    <option value="">— Utiliser le contexte actif —</option>
+                    {(publicEstabs ?? []).map((etab: any) => (
+                      <option key={etab?.id} value={etab?.id}>{etab?.nom || etab?.id}</option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs text-gray-500">Si défini, la création s'effectuera pour cet établissement (en-tête X-Etab).</p>
+                </div>
+              )}
                <div>
                  <label className="block text-sm text-gray-700 mb-1">Description (optionnel)</label>
                  <textarea className="w-full border rounded px-3 py-2" rows={3} value={refForm.description ?? ''} onChange={(e) => setRefForm((f) => ({ ...f, description: e.target.value }))} placeholder="Description du référentiel..." />
@@ -1612,154 +2225,77 @@ const ReferentielsManager: React.FC = () => {
         </div>
       )}
 
-      {/* Dialog de confirmation pour suppression */}
-      <ConfirmDialog
-        isOpen={confirmDelete.isOpen}
-        title="Supprimer la compétence"
-        description="Êtes-vous sûr de vouloir supprimer cette compétence ? Cette action est irréversible."
-        confirmText="Supprimer"
-        cancelText="Annuler"
+      {/* Clone Modal */}
+      <CloneModal
+        isOpen={cloneModalOpen}
+        onClose={() => {
+          setCloneModalOpen(false);
+          setCloneData(null);
+        }}
+        onConfirm={handleCloneConfirm}
+        originalName={cloneData?.name || ''}
+        cycle={cloneData?.cycle}
+        isGlobal={cloneData?.isGlobal || false}
+        isLoading={cloneData?.isGlobal ? cloneFromGlobal.isPending : cloneRef.isPending}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setDeleteData(null);
+        }}
         onConfirm={handleDeleteConfirm}
-        onCancel={() => setConfirmDelete({ isOpen: false, id: '', type: '' })}
+        title={`Supprimer ${deleteData?.type || 'l\'élément'}`}
+        itemName={deleteData?.name || ''}
+        itemType={deleteData?.type || 'référentiel'}
+        isLoading={deleteRef.isPending || deleteDomain.isPending || deleteSubject.isPending || deleteCompetency.isPending}
+      />
+      {/* Replay Events Confirmation Modal */}
+      <ReplayConfirmModal
+        isOpen={replayConfirmOpen}
+        onClose={() => setReplayConfirmOpen(false)}
+        onConfirm={handleReplayConfirm}
+        isLoading={replayEvents.isPending}
       />
     </div>
   );
 };
 
 export default ReferentielsManager;
-
-type AssignmentsSectionProps = { referentialId: string; versionNumber: number };
-const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({ referentialId, versionNumber }) => {
-  const { data: assignments, isLoading } = useAssignments({ referentialId, versionNumber });
-  const createAssignment = useCreateAssignment({ referentialId, versionNumber });
-  const deleteAssignment = useDeleteAssignment();
-
-  const [scopeType, setScopeType] = useState<string>('CLASS');
-  const [scopeValue, setScopeValue] = useState<string>('');
-
+// Modal de confirmation pour Rejouer les événements
+// Implémentée localement pour éviter d’alourdir avec un nouveau fichier de composant.
+// Aligne le style avec les autres modales (couleurs neutres/bleues).
+const ReplayConfirmModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  isLoading?: boolean;
+}> = ({ isOpen, onClose, onConfirm, isLoading = false }) => {
+  if (!isOpen) return null;
   return (
-    <div className="p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="text-sm text-gray-600">Référentiel: {referentialId.substring(0,8)}... • Version: {versionNumber}</div>
-        <button
-          className="px-3 py-2 text-sm rounded bg-blue-600 text-white"
-          onClick={async () => {
-            if (!scopeType || !scopeValue.trim()) {
-              toast.error('Type et valeur requis');
-              return;
-            }
-            await toast.promise(createAssignment.mutateAsync({ scope_type: scopeType, scope_value: scopeValue.trim() } as AssignmentCreate), {
-              loading: 'Création…', success: 'Affectation créée', error: 'Échec de la création'
-            });
-            setScopeValue('');
-          }}
-        >Créer une affectation</button>
-      </div>
-
-      <div className="mb-3 grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div>
-          <label className="block text-sm text-gray-700 mb-1">Type</label>
-          <select className="w-full border rounded px-3 py-2" value={scopeType} onChange={(e) => setScopeType(e.target.value)}>
-            <option value="CLASS">Classe</option>
-            <option value="SCHOOL">Établissement</option>
-            <option value="LEVEL">Niveau</option>
-          </select>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Rejouer les événements en attente</h3>
+            <p className="text-sm text-gray-600">Cette action relancera le traitement des événements outbox au statut en attente.</p>
+          </div>
+          <button onClick={onClose} disabled={isLoading} className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50" aria-label="Fermer">✖</button>
         </div>
-        <div className="md:col-span-2">
-          <label className="block text-sm text-gray-700 mb-1">Valeur</label>
-          <input className="w-full border rounded px-3 py-2" placeholder="ex: 6A ou ETAB-123" value={scopeValue} onChange={(e) => setScopeValue(e.target.value)} />
+        <div className="p-6 space-y-3">
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+            Assurez-vous d'avoir appliqué les filtres souhaités si vous ciblez une période/type précis. L'opération est idempotente.
+          </div>
         </div>
-      </div>
-
-      {isLoading ? (
-        <div className="py-12 text-center text-gray-600">Chargement…</div>
-      ) : (
-        <div className="overflow-x-auto border rounded">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-2 text-left">ID</th>
-                <th className="px-4 py-2 text-left">Type</th>
-                <th className="px-4 py-2 text-left">Valeur</th>
-                <th className="px-4 py-2 text-left">Créé le</th>
-                <th className="px-4 py-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {(assignments ?? []).map((a) => (
-                <tr key={a.id} className="border-t">
-                  <td className="px-4 py-2">{a.id}</td>
-                  <td className="px-4 py-2">{a.scope_type}</td>
-                  <td className="px-4 py-2">{a.scope_value}</td>
-                  <td className="px-4 py-2">{a.created_at ? new Date(a.created_at).toLocaleString('fr-FR') : '—'}</td>
-                  <td className="px-4 py-2 text-right">
-                    <button
-                      className="px-3 py-1 text-xs rounded bg-red-600 text-white"
-                      onClick={async () => {
-                        await toast.promise(deleteAssignment.mutateAsync({ assignmentId: a.id }), { loading: 'Suppression…', success: 'Supprimée', error: 'Échec suppression' });
-                      }}
-                    >Supprimer</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="px-6 py-4 border-t flex justify-end gap-3">
+          <button className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50" onClick={onClose} disabled={isLoading}>Annuler</button>
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed" onClick={onConfirm} disabled={isLoading}>
+            {isLoading ? 'Rejeu…' : 'Confirmer le rejeu'}
+          </button>
         </div>
-      )}
-
-      {/* Panneau endpoints publics (compact) */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <PublicEndpointsPanel />
       </div>
     </div>
   );
 };
-
-type PublicEndpointsPanelProps = Record<string, never>;
-const PublicEndpointsPanel: React.FC<PublicEndpointsPanelProps> = () => {
-  const [cycle, setCycle] = useState<string>('PRIMAIRE');
-  const [level, setLevel] = useState<string>('CM2');
-  const { data: subjectsByScope } = usePublicSubjectsByScope({ cycle, level });
-  const [subjectForPublic, setSubjectForPublic] = useState<string>('');
-  const { data: publicCompetencies } = usePublicCompetenciesForSubject(subjectForPublic || undefined);
-
-  return (
-    <div className="bg-white border rounded p-4">
-      <div className="font-medium mb-2">Endpoints publics (aperçu)</div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
-        <div>
-          <label className="block text-xs text-gray-600 mb-1">Cycle</label>
-          <select className="w-full border rounded px-2 py-1 text-sm" value={cycle} onChange={(e) => setCycle(e.target.value)}>
-            <option value="PRESCOLAIRE">Préscolaire</option>
-            <option value="PRIMAIRE">Primaire</option>
-            <option value="COLLEGE">Collège</option>
-            <option value="LYCEE">Lycée</option>
-            <option value="SECONDAIRE">Secondaire</option>
-            <option value="UNIVERSITE">Université</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-gray-600 mb-1">Niveau</label>
-          <input className="w-full border rounded px-2 py-1 text-sm" placeholder="ex: CM2" value={level} onChange={(e) => setLevel(e.target.value)} />
-        </div>
-        <div className="flex items-end">
-          <span className="text-xs text-gray-500">{(subjectsByScope ?? []).length} matières</span>
-        </div>
-      </div>
-      <div className="mb-3">
-        <label className="block text-xs text-gray-600 mb-1">Matière (public)</label>
-        <select className="w-full border rounded px-2 py-1 text-sm" value={subjectForPublic} onChange={(e) => setSubjectForPublic(e.target.value)}>
-          <option value="">Sélectionner…</option>
-          {(subjectsByScope ?? []).map((s) => (
-            <option key={s.id} value={s.id}>{s.name ?? s.code}</option>
-          ))}
-        </select>
-      </div>
-      {subjectForPublic && (
-        <div className="text-xs text-gray-600">Compétences: {(publicCompetencies ?? []).length}</div>
-      )}
-    </div>
-  );
-};
-
-

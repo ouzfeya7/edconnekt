@@ -26,11 +26,11 @@ provisioningAxios.interceptors.request.use((config) => {
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
   if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+    (config.headers as Record<string, string>)['X-Etab'] = activeEtabId;
   }
   if (activeRole) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Roles-Select'] = activeRole;
+    (config.headers as Record<string, string>)['X-Roles'] = activeRole;
   }
   if (import.meta.env.DEV) {
     const headers = { ...(config.headers as Record<string, unknown>) };

@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { competenceReferentialsApi } from '../../api/competence-service/client';
+import { VisibilityEnum } from '../../api/competence-service/api';
 import type {
   ReferentialCreate,
   ReferentialUpdate,
@@ -18,12 +19,31 @@ export function useCreateReferential() {
   const qc = useQueryClient();
   return useMutation({
     mutationKey: ['competence:referential:create'],
-    mutationFn: async (payload: ReferentialCreate) => {
-      const { data } = await competenceReferentialsApi.createReferentialApiCompetenceReferentialsPost(payload);
+    mutationFn: async (
+      vars:
+        | ReferentialCreate
+        | {
+            payload: ReferentialCreate;
+            etabIdOverride?: string;
+          }
+    ) => {
+      const hasWrapper = (vars as any)?.payload !== undefined;
+      const payload: ReferentialCreate = hasWrapper ? (vars as any).payload : (vars as ReferentialCreate);
+      const etabIdOverride: string | undefined = hasWrapper ? (vars as any).etabIdOverride : undefined;
+      const options = etabIdOverride
+        ? ({ headers: { 'X-Etab': etabIdOverride } } as any)
+        : undefined;
+      const { data } = await competenceReferentialsApi.createReferentialApiCompetenceReferentialsPost(payload, options);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_res, vars) => {
+      const hasWrapper = (vars as any)?.payload !== undefined;
+      const payload: ReferentialCreate = hasWrapper ? (vars as any).payload : (vars as ReferentialCreate);
       qc.invalidateQueries({ queryKey: ['competence:referentials'] });
+      // Si le référentiel est créé en visibilité GLOBAL, rafraîchir aussi le catalogue global
+      if (payload?.visibility === VisibilityEnum.Global) {
+        qc.invalidateQueries({ queryKey: ['competence:global-referentials'] });
+      }
     },
   });
 }

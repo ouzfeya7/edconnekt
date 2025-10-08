@@ -31,17 +31,16 @@ axiosInstance.interceptors.request.use((config) => {
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
   if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+    (config.headers as Record<string, string>)['X-Etab'] = activeEtabId;
   }
   if (activeRole) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Roles-Select'] = activeRole;
+    (config.headers as Record<string, string>)['X-Roles'] = activeRole;
   }
   return config;
 });
 
 // Log de contrôle
-// Attendu étape 5: "[service-api] baseURL = https://api.uat1-engy-partners.com/pdi/"
 console.log(`[pdi-api] baseURL = ${PDI_API_BASE_URL}`);
 
 export default axiosInstance;

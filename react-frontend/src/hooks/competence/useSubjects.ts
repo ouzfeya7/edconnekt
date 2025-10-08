@@ -47,13 +47,13 @@ export function useSubject(subjectId?: string) {
   });
 }
 
-export function usePublicSubjectsByScope(params: { cycle: string; level: string }) {
+export function usePublicSubjectsByScope(params: { cycle: CycleEnum; level: string }) {
   const { cycle, level } = params;
   return useQuery<SubjectResponse[], Error>({
     queryKey: ['competence:public-subjects', { cycle, level }],
     enabled: Boolean(cycle) && Boolean(level),
     queryFn: async () => {
-      const { data } = await competencePublicApi.listSubjectsByScopeApiCompetencePublicSubjectsGet(cycle as unknown as CycleEnum, level);
+      const { data } = await competencePublicApi.listSubjectsByScopeApiCompetencePublicSubjectsGet(cycle, level);
       return data;
     },
     staleTime: 60_000,

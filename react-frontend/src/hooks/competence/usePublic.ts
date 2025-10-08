@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { competenceReferentialsApi, competenceEventsApi } from '../../api/competence-service/client';
-import type { GlobalReferentialListResponse, OutboxEventResponse } from '../../api/competence-service/api';
+import { competenceReferentialsApi } from '../../api/competence-service/client';
+import type { GlobalReferentialListResponse } from '../../api/competence-service/api';
 
 export function useGlobalReferentials(page: number = 1, size: number = 20, cycle?: string, q?: string) {
   return useQuery<GlobalReferentialListResponse, Error>({
@@ -18,24 +18,6 @@ export function useGlobalReferentials(page: number = 1, size: number = 20, cycle
   });
 }
 
-export function useOutboxEvents(page: number = 1, size: number = 20) {
-  return useQuery<OutboxEventResponse[], Error>({
-    queryKey: ['competence:outbox-events', { page, size }],
-    queryFn: async () => {
-      const { data } = await competenceEventsApi.listOutboxEventsApiCompetenceEventsEventsGet(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        page,
-        size
-      );
-      return data;
-    },
-    staleTime: 30_000, // Plus court car les événements changent fréquemment
-  });
-}
+// Outbox events hook déplacé vers useEvents.ts pour éviter les duplications.
 
 
