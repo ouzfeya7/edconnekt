@@ -28,16 +28,16 @@ classeAxios.interceptors.request.use((config) => {
 		config.headers = config.headers ?? {};
 		(config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
 	}
-  // Multi-tenant: en-têtes de sélection
-  const { etabId: activeEtabId, role: activeRole } = getActiveContext();
-  if (activeEtabId) {
-    config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
-  }
-  if (activeRole) {
-    config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Roles-Select'] = activeRole;
-  }
+	// Multi-tenant: en-têtes de sélection
+	const { etabId: activeEtabId, role: activeRole } = getActiveContext();
+	if (activeEtabId) {
+		config.headers = config.headers ?? {};
+		(config.headers as Record<string, string>)['X-Etab'] = activeEtabId;
+	}
+	if (activeRole) {
+		config.headers = config.headers ?? {};
+		(config.headers as Record<string, string>)['X-Roles'] = activeRole;
+	}
 	return config;
 });
 

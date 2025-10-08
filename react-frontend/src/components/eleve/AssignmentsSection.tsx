@@ -1,73 +1,247 @@
-import AssignmentCard from "./AssignmentCard";
+import React, { useMemo, useState } from 'react';
+import AssignmentCard from '../referentiels/AssignmentCard';
+import FilterBarGeneric from '../ui/FilterBarGeneric';
+import DeleteConfirmModal from '../referentiels/DeleteConfirmModal';
+import { useAssignments, useCreateAssignment, useDeleteAssignment } from '../../hooks/competence/useAssignments';
+import type { AssignmentCreate } from '../../api/competence-service/api';
+import toast from 'react-hot-toast';
 
-const AssignmentsSection = () => {
-  // Données factices pour les cartes de devoirs/tâches
-  const assignments = [
-    {
-      title: "Résoudre une équation du second degrés",
-      subject: "Mathématique",
-      time: "8H30 - 10H30",
-      teacher: "Mouhamed Sall",
-      teacherImage: "/avatar.png", // Assurez-vous que ce chemin est correct ou utilisez une URL
-      presentCount: 20,
-      absentCount: 0,
-      onViewDetails: () => console.log("Voir détails pour équation 1"),
-    },
-    {
-      title: "Résoudre une équation du second degrés",
-      subject: "Mathématique",
-      time: "11H00 - 12H00",
-      teacher: "Mouhamed Sall",
-      teacherImage: "/avatar.png",
-      presentCount: 20,
-      absentCount: 0,
-      onViewDetails: () => console.log("Voir détails pour équation 2"),
-    },
-    {
-      title: "Résoudre une équation du second degrés",
-      subject: "Mathématique",
-      time: "12H00 - 13H00", // Note: Le design montre 12H00-13H00 pour la 3ème carte, mais l'image crop montre une 3ème carte similaire aux autres.
-                                  // J'utilise un horaire distinct pour la différencier.
-      teacher: "Mouhamed Sall",
-      teacherImage: "/avatar.png",
-      presentCount: 20,
-      absentCount: 0,
-      onViewDetails: () => console.log("Voir détails pour équation 3"),
-    },
-  ];
+interface AssignmentsSectionProps {
+  referentialId: string;
+  versionNumber: number;
+  viewMode?: 'cards' | 'compact';
+}
+
+interface CreateAssignmentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (payload: AssignmentCreate) => void;
+  isLoading?: boolean;
+}
+
+const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ isOpen, onClose, onConfirm, isLoading }) => {
+  const [scopeType, setScopeType] = useState<string>('CLASS');
+  const [scopeValue, setScopeValue] = useState<string>('');
+  const [submitted, setSubmitted] = useState<boolean>(false);
+
+  if (!isOpen) return null;
+
+  const hasError = submitted && (!scopeType || !scopeValue.trim());
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+    if (!scopeType || !scopeValue.trim()) return;
+    onConfirm({ scope_type: scopeType, scope_value: scopeValue.trim() } as AssignmentCreate);
+  };
 
   return (
-    // La section globale a un padding et un fond blanc comme dans le design des cartes.
-    // Le titre "Devoirs à faire" a été retiré pour correspondre au design.
-    <section className="mt-3.5 w-full">
-      {/* Le design n'a pas de titre de section ici, les cartes sont directement listées */}
-      {/* <div className="flex flex-col justify-center p-2.5 w-full">
-        <div className="flex flex-col w-full max-md:max-w-full">
-          <div className="flex gap-8 items-center self-start text-base font-medium text-center text-sky-950">
-            <h2 className="py-2.5 my-auto">Devoirs à faire</h2>
-          </div>
-          <div className="w-full max-md:max-w-full">
-            <div className="flex shrink-0 h-0.5 bg-gray-200 max-md:max-w-full" />
-          </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
+        <div className="px-5 py-4 border-b">
+          <div className="text-lg font-semibold">Créer une affectation</div>
         </div>
-      </div> */}
-
-      {/* Utilisation d'une grille pour disposer les cartes, ou flex-wrap si la largeur des cartes est gérée par elles-mêmes */}
-      <div className="flex flex-wrap gap-4 justify-between">
-        {assignments.map((assignment, index) => (
-          <AssignmentCard
-            key={index}
-            title={assignment.title}
-            subject={assignment.subject}
-            time={assignment.time}
-            teacher={assignment.teacher}
-            teacherImage={assignment.teacherImage}
-            presentCount={assignment.presentCount}
-            absentCount={assignment.absentCount}
-            onViewDetails={assignment.onViewDetails}
-          />
-        ))}
+        <form className="px-5 py-4 space-y-4" onSubmit={submit}>
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Type d'affectation <span className="text-red-500">*</span></label>
+            <select
+              className={`w-full border rounded px-3 py-2 ${submitted && !scopeType ? 'border-red-300 bg-red-50' : ''}`}
+              value={scopeType}
+              onChange={(e) => setScopeType(e.target.value)}
+              disabled={isLoading}
+            >
+              <option value="CLASS">Classe</option>
+              <option value="SCHOOL">Établissement</option>
+              <option value="LEVEL">Niveau</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Valeur <span className="text-red-500">*</span></label>
+            <input
+              className={`w-full border rounded px-3 py-2 ${submitted && !scopeValue.trim() ? 'border-red-300 bg-red-50' : ''}`}
+              value={scopeValue}
+              onChange={(e) => setScopeValue(e.target.value)}
+              placeholder="Ex: 6A, CM2, Lycée A, ..."
+              disabled={isLoading}
+            />
+            {hasError && (
+              <p className="text-xs text-red-500 mt-1">Le type et la valeur sont requis</p>
+            )}
+          </div>
+          <div className="px-0 py-2 border-t flex justify-end gap-2">
+            <button type="button" className="px-3 py-2 text-sm border rounded" onClick={onClose} disabled={isLoading}>Annuler</button>
+            <button type="submit" className="px-3 py-2 text-sm rounded bg-blue-600 text-white disabled:bg-blue-300" disabled={isLoading}>
+              {isLoading ? 'Création…' : 'Créer'}
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
+  );
+};
+
+const exportCsv = (filename: string, rows: Array<Record<string, unknown>>) => {
+  const headers = rows.length ? Object.keys(rows[0]) : [];
+  const csv = [headers.join(','), ...rows.map((r) => headers.map((h) => JSON.stringify((r as any)[h] ?? '')).join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({ referentialId, versionNumber, viewMode = 'cards' }) => {
+  const { data: assignments, isLoading } = useAssignments({ referentialId, versionNumber });
+  const createAssignment = useCreateAssignment({ referentialId, versionNumber });
+  const deleteAssignment = useDeleteAssignment();
+
+  const [filters, setFilters] = useState({ search: '', scopeType: '', showAdvanced: false });
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [createOpen, setCreateOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; label: string } | null>(null);
+
+  const filtered = useMemo(() => {
+    return (assignments ?? []).filter((a: any) => {
+      if (filters.search) {
+        const s = filters.search.toLowerCase();
+        if (!String(a.scope_value || '').toLowerCase().includes(s)) return false;
+      }
+      if (filters.scopeType) {
+        if (a.scope_type !== filters.scopeType) return false;
+      }
+      return true;
+    });
+  }, [assignments, filters]);
+
+  return (
+    <section className="w-full">
+      <FilterBarGeneric
+        title="Affectations"
+        searchPlaceholder="Rechercher une affectation…"
+        filters={filters}
+        onFiltersChange={setFilters as any}
+        onExport={() => exportCsv('affectations.csv', filtered.map((a: any) => ({
+          id: a.id,
+          scope_type: a.scope_type,
+          scope_value: a.scope_value,
+          created_at: a.created_at || ''
+        })))}
+        isLoading={isLoading}
+        totalCount={filtered.length}
+        advancedFilters={[
+          {
+            key: 'scopeType',
+            label: 'Tous les types',
+            type: 'select',
+            options: [
+              { value: 'CLASS', label: 'Classe' },
+              { value: 'SCHOOL', label: 'Établissement' },
+              { value: 'LEVEL', label: 'Niveau' },
+            ],
+          },
+        ]}
+        actions={[
+          {
+            label: 'Nouvelle affectation',
+            onClick: () => setCreateOpen(true),
+          },
+        ]}
+      />
+
+      {/* Liste des affectations */}
+      <div className="p-6">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+            <span className="ml-2 text-gray-600">Chargement des affectations...</span>
+          </div>
+        ) : (
+          <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
+            {filtered.map((a: any) => (
+              <AssignmentCard
+                key={a.id}
+                assignment={{
+                  id: a.id,
+                  scope_type: a.scope_type,
+                  scope_value: a.scope_value,
+                  created_at: a.created_at,
+                  referential_id: referentialId,
+                  version_number: versionNumber,
+                }}
+                isSelected={selected.has(a.id)}
+                onSelect={(id) => {
+                  setSelected((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(id)) next.delete(id);
+                    else next.add(id);
+                    return next;
+                  });
+                }}
+                onDelete={(id) => {
+                  const label = `${a.scope_type} • ${a.scope_value}`;
+                  setDeleteTarget({ id, label });
+                  setDeleteOpen(true);
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Vide */}
+        {!isLoading && filtered.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-gray-500 mb-2">Aucune affectation trouvée</div>
+            <div className="text-sm text-gray-400">Créez une nouvelle affectation pour commencer</div>
+          </div>
+        )}
+      </div>
+
+      {/* Modale de création */}
+      <CreateAssignmentModal
+        isOpen={createOpen}
+        onClose={() => setCreateOpen(false)}
+        isLoading={createAssignment.isPending}
+        onConfirm={async (payload) => {
+          try {
+            await toast.promise(
+              createAssignment.mutateAsync(payload),
+              { loading: 'Création…', success: 'Affectation créée', error: 'Échec de la création' }
+            );
+            setCreateOpen(false);
+          } catch (e) {
+            // handled by toast
+          }
+        }}
+      />
+
+      {/* Modale de suppression */}
+      <DeleteConfirmModal
+        isOpen={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={async () => {
+          if (!deleteTarget) return;
+          try {
+            await toast.promise(
+              deleteAssignment.mutateAsync({ assignmentId: deleteTarget.id }),
+              { loading: 'Suppression…', success: 'Affectation supprimée', error: 'Échec suppression' }
+            );
+            setDeleteOpen(false);
+            setDeleteTarget(null);
+          } catch (e) {
+            // handled by toast
+          }
+        }}
+        title="Supprimer l'affectation"
+        itemName={deleteTarget?.label || ''}
+        itemType="affectation"
+        isLoading={deleteAssignment.isPending}
+      />
     </section>
   );
 };

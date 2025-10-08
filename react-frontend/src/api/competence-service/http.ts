@@ -24,13 +24,15 @@ competenceAxios.interceptors.request.use((config) => {
   }
   // Multi-tenant: en-têtes de sélection
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
-  if (activeEtabId) {
-    config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Etab'] = activeEtabId;
+  const hdrs = (config.headers = config.headers ?? {});
+  // Respect an explicit override header if already present
+  const hasXEtabOverride = 'X-Etab' in (hdrs as Record<string, unknown>) || 'x-etab' in (hdrs as Record<string, unknown>);
+  if (activeEtabId && !hasXEtabOverride) {
+    (hdrs as Record<string, string>)['X-Etab'] = activeEtabId;
   }
-  if (activeRole) {
-    config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Roles'] = activeRole;
+  const hasXRolesOverride = 'X-Roles' in (hdrs as Record<string, unknown>) || 'x-roles' in (hdrs as Record<string, unknown>);
+  if (activeRole && !hasXRolesOverride) {
+    (hdrs as Record<string, string>)['X-Roles'] = activeRole;
   }
   if (import.meta.env.DEV) {
     const headers = { ...(config.headers as Record<string, unknown>) };

@@ -34,17 +34,16 @@ studentAxios.interceptors.request.use((config) => {
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
   if (activeEtabId) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Etab-Select'] = activeEtabId;
+    (config.headers as Record<string, string>)['X-Etab'] = activeEtabId;
   }
   if (activeRole) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Roles-Select'] = activeRole;
+    (config.headers as Record<string, string>)['X-Roles'] = activeRole;
   }
   if ((import.meta as any)?.env?.DEV) {
     const headers = { ...(config.headers as Record<string, unknown>) };
     if (headers && 'Authorization' in headers) headers.Authorization = '[REDACTED]';
     console.debug('[student-api][request]', {
-      method: (config.method || 'GET').toUpperCase(),
       url: `${config.baseURL || ''}${config.url || ''}`,
       params: config.params,
       headers,
