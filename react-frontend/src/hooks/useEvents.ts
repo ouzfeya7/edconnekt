@@ -43,7 +43,7 @@ export function useEvents(params?: {
     queryKey: ['event-service', 'events', { page, size, category, startDate, endDate, etablissementId }],
     queryFn: async () => {
       try {
-        const res = await eventsApi.listEventsApiV1EventsGet(page, size, category, startDate, endDate, etablissementId);
+        const res = await eventsApi.listEventsApiV1EventsGet(page, size, category, startDate, endDate);
         return res.data;
       } catch (err: unknown) {
         throw new Error(getErrorMessage(err));
