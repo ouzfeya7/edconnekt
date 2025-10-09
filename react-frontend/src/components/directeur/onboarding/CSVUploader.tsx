@@ -4,8 +4,8 @@ import { Upload, XCircle, FileDown, User, Users, UserCog, Shield, CheckCircle, F
 import { useOnboarding } from '../../../contexts/OnboardingContext';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
-import { useAllEstablishments } from '../../../hooks/useAllEstablishments';
 import { downloadIdentityTemplate } from '../../../utils/downloadTemplate';
+import EstablishmentSelector from './EstablishmentSelector';
 
 type Domain = 'student' | 'parent' | 'teacher' | 'admin_staff';
 
@@ -24,6 +24,7 @@ const allowedHeadersMap: Record<Domain, string[]> = {
   admin_staff: [...requiredHeadersMap.admin_staff, ...allowedExtraHeaders],
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function readCsvFirstHeaderLine(file: File): Promise<string[] | null> {
   try {
     const text = await file.text();
@@ -43,6 +44,7 @@ async function readCsvFirstHeaderLine(file: File): Promise<string[] | null> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function validateHeaders(actual: string[] | null, required: string[], allowed: string[]): { ok: boolean; missing: string[]; unknown: string[] } {
   if (!actual) return { ok: false, missing: required, unknown: [] };
   const norm = (arr: string[]) => arr.map((s) => s.trim().toLowerCase());
@@ -54,6 +56,7 @@ function validateHeaders(actual: string[] | null, required: string[], allowed: s
   return { ok: missing.length === 0 && unknown.length === 0, missing, unknown };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function parseCsv(fileText: string): { headers: string[]; rows: string[][]; delimiter: string } | null {
   const lines = fileText.split(/\r?\n/).filter((l) => l.trim().length > 0);
   if (lines.length === 0) return null;
@@ -66,6 +69,7 @@ function parseCsv(fileText: string): { headers: string[]; rows: string[][]; deli
   return { headers, rows, delimiter };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function validateRows(fileText: string, domain: Domain): string[] {
   const parsed = parseCsv(fileText);
   if (!parsed) return ['Fichier vide ou illisible.'];
@@ -129,14 +133,14 @@ function validateRows(fileText: string, domain: Domain): string[] {
 }
 
 const Section: React.FC<{ title: string; domain: Domain; }> = ({ title, domain }) => {
-  const { handleUpload, isUploading, uploadProgress, currentUploadDomain, canUpload, isAdmin, selectedEstablishmentId } = useOnboarding();
+  const { handleUpload, isUploading, uploadProgress, currentUploadDomain, canUpload, isAdmin } = useOnboarding();
   const [file, setFile] = useState<File | null>(null);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
 
   const handleDownloadServerTemplate = async (format: 'csv' | 'xlsx') => {
     try {
       await downloadIdentityTemplate(domain, format);
-    } catch (e) {
+    } catch {
       toast.error('Impossible de télécharger le template');
     }
   };
@@ -161,6 +165,7 @@ const Section: React.FC<{ title: string; domain: Domain; }> = ({ title, domain }
     },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleDownloadTemplate = async () => {
     try {
       const delimiter = ';';
@@ -407,8 +412,7 @@ const Section: React.FC<{ title: string; domain: Domain; }> = ({ title, domain }
 };
 
 const CSVUploader: React.FC = () => {
-  const { getUploadStats, isAdmin, selectedEstablishmentId, setSelectedEstablishmentId } = useOnboarding();
-  const { data: establishments, isLoading, isError } = useAllEstablishments({ enabled: isAdmin, limit: 100 });
+  const { getUploadStats } = useOnboarding();
   
   const stats = getUploadStats();
 
@@ -424,44 +428,20 @@ const CSVUploader: React.FC = () => {
             Importez des lots d'identités pour automatiser l'onboarding des utilisateurs
           </p>
         </div>
-        
-        {/* Sélection d'établissement (ADMIN uniquement) */}
-        {isAdmin && (
-          <div className="flex items-center gap-3">
-            <label className="text-sm text-gray-600">Établissement</label>
-            <select
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm min-w-[240px]"
-              value={selectedEstablishmentId ?? ''}
-              onChange={(e) => setSelectedEstablishmentId(e.target.value || null)}
-              disabled={isLoading}
-            >
-              <option value="">-- Sélectionnez --</option>
-              {(establishments || []).map((e) => (
-                <option key={e.id} value={e.id}>{e.label} ({e.id})</option>
-              ))}
-            </select>
-            {isError && (
-              <span className="text-xs text-red-600">Impossible de charger les établissements</span>
+
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+          {/* Sélecteur d'établissement à droite du titre (élargi) */}
+          <div className="min-w-[20rem] lg:min-w-[28rem] w-full">
+            <EstablishmentSelector />
+          </div>
+          <div className="flex gap-4 text-sm">
+            {stats.totalUploads > 0 && (
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">{stats.successfulUploads}</div>
+                <div className="text-gray-500">Imports réussis</div>
+              </div>
             )}
           </div>
-        )}
-
-        {/* Statistiques rapides */}
-        <div className="flex gap-4 text-sm">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">4</div>
-            <div className="text-gray-500">Types d'utilisateurs</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">✓</div>
-            <div className="text-gray-500">Validation automatique</div>
-          </div>
-          {stats.totalUploads > 0 && (
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{stats.successfulUploads}</div>
-              <div className="text-gray-500">Imports réussis</div>
-            </div>
-          )}
         </div>
       </div>
 

@@ -19,15 +19,17 @@ export function useUpdateResource() {
   return useMutation({
     mutationFn: async (variables: UpdateResourceVariables) => {
       const { resourceId, title, description, visibility, subjectId, competenceId, status, file } = variables;
+      // Ne jamais envoyer "null" dans le FormData: convertir null -> undefined
+      const toUndef = <T,>(v: T | null | undefined): T | undefined => (v == null ? undefined : v);
       const { data } = await resourcesApi.updateResourceResourcesResourceIdPatch(
         resourceId,
-        title ?? null,
-        description ?? null,
-        visibility ?? null,
-        subjectId ?? null,
-        competenceId ?? null,
-        status ?? null,
-        file ?? null,
+        toUndef(title),
+        toUndef(description),
+        toUndef(visibility),
+        toUndef(subjectId),
+        toUndef(competenceId),
+        toUndef(status),
+        toUndef(file),
       );
       return data;
     },
