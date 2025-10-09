@@ -97,7 +97,7 @@ const TeacherSuppliesPage: React.FC = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">{t('Campaign ID', 'ID Campagne')}</label>
               <input
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder={t('Saisir l\'ID de la campagne', 'Saisir l\'ID de la campagne')}
                 value={campaignId}
                 onChange={(e) => setCampaignId(e.target.value)}
@@ -106,7 +106,7 @@ const TeacherSuppliesPage: React.FC = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">{t('Class ID', 'ID Classe')}</label>
               <input
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder={t('Saisir l\'ID de la classe', 'Saisir l\'ID de la classe')}
                 value={classId}
                 onChange={(e) => setClassId(e.target.value)}
@@ -115,7 +115,7 @@ const TeacherSuppliesPage: React.FC = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">&nbsp;</label>
               <button
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 disabled={!canQuery}
                 onClick={() => undefined}
               >
@@ -164,7 +164,7 @@ const TeacherSuppliesPage: React.FC = () => {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">{t('Libellé', 'Libellé')} *</label>
                   <input
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder={t('Ex: Cahier de texte', 'Ex: Cahier de texte')}
                     value={draft.label}
                     onChange={(e) => setDraft((d) => ({ ...d, label: e.target.value }))}
@@ -175,7 +175,7 @@ const TeacherSuppliesPage: React.FC = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">{t('Quantité', 'Quantité')}</label>
                     <input
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       type="number"
                       min={1}
                       placeholder="1"
@@ -187,7 +187,7 @@ const TeacherSuppliesPage: React.FC = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">{t('Unité', 'Unité')}</label>
                     <input
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       placeholder={t('Ex: pièce, paquet', 'Ex: pièce, paquet')}
                       value={draft.unit ?? ''}
                       onChange={(e) => setDraft((d) => ({ ...d, unit: e.target.value || undefined }))}
@@ -198,7 +198,7 @@ const TeacherSuppliesPage: React.FC = () => {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">{t('Notes', 'Notes')}</label>
                   <textarea
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 resize-none"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
                     rows={2}
                     placeholder={t('Informations complémentaires...', 'Informations complémentaires...')}
                     value={draft.notes ?? ''}
@@ -207,7 +207,7 @@ const TeacherSuppliesPage: React.FC = () => {
                 </div>
 
                 <button
-                  className="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   disabled={upsert.isPending || !draft.label.trim()}
                   onClick={handleAdd}
                 >
@@ -229,7 +229,7 @@ const TeacherSuppliesPage: React.FC = () => {
                 </div>
                 
                 <button
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2"
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   disabled={submit.isPending || items.length === 0}
                   onClick={handleSubmit}
                 >
@@ -247,7 +247,7 @@ const TeacherSuppliesPage: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {items.map((it) => (
-                    <div key={it.id} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-150">
+                    <div key={it.id} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="font-medium text-gray-900">{it.label}</div>
@@ -265,7 +265,7 @@ const TeacherSuppliesPage: React.FC = () => {
                         </div>
                         
                         <button
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all duration-150"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg"
                           onClick={() => handleRemove(it.id)}
                           title={t('Supprimer', 'Supprimer')}
                         >
