@@ -22,6 +22,10 @@ import {
   Radio,
   Wand2,
 } from 'lucide-react';
+import BatchTable from './BatchTable';
+import ProgressStats from './ProgressStats';
+import ErrorsTable from './ErrorsTable';
+import LoadingState, { LoadingSpinner, EmptyState, ErrorState } from './LoadingState';
 
 const OnboardingTracking: React.FC = () => {
   const { t } = useTranslation();
@@ -97,6 +101,10 @@ const OnboardingTracking: React.FC = () => {
   const [liveSSE, setLiveSSE] = useState<boolean>(false);
   const [sseProgress, setSseProgress] = useState<any | null>(null);
   const sseRef = useRef<EventSource | null>(null);
+  
+  // Refs pour le scroll automatique
+  const identityDetailsRef = useRef<HTMLDivElement>(null);
+  const provisioningDetailsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!liveSSE || !selectedIdentityBatchId) {
@@ -140,6 +148,17 @@ const OnboardingTracking: React.FC = () => {
   }, [liveSSE, selectedIdentityBatchId]);
 
   const effectiveProgress = sseProgress ?? idProgress;
+  
+  // Fonction pour scroller vers les détails
+  const scrollToDetails = (ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start',
+        inline: 'nearest'
+      });
+    }
+  };
 
   type IdentityBatchRow = { id: string; establishment_id?: string; source_file_url?: string; created_at?: string };
   const identityBatchList: IdentityBatchRow[] = useMemo(() => {
@@ -171,12 +190,20 @@ const OnboardingTracking: React.FC = () => {
 
   const handleCreateAndRunProvisioning = async (identityBatchId: string) => {
     try {
+      const loadingToast = toast.loading(t('creating_provisioning', 'Création du batch de provisioning...'));
       const created = await provCreate.mutateAsync({ sourceIdentityBatchId: identityBatchId });
+      
+      toast.loading(t('running_provisioning', 'Lancement du provisioning...'), { id: loadingToast });
       await provRun.mutateAsync({ batchId: created.id });
-      toast.success('Provisioning lancé');
+      
+      toast.success(t('provisioning_started', 'Provisioning lancé avec succès'), { id: loadingToast });
       setSelectedProvBatchId(created.id);
-    } catch {
-      toast.error('Échec de création/lancement du provisioning');
+      
+      // Scroll vers les détails du provisioning créé
+      setTimeout(() => scrollToDetails(provisioningDetailsRef), 100);
+    } catch (error) {
+      console.error('Erreur lors de la création/lancement du provisioning:', error);
+      toast.error(t('provisioning_error', 'Échec de création/lancement du provisioning'));
     }
   };
 
@@ -214,6 +241,16 @@ const OnboardingTracking: React.FC = () => {
     message?: string;
     created_at?: string;
     updated_at?: string;
+  };
+  
+  type IdentityErrorItem = {
+    id?: string;
+    type?: string;
+    error_type?: string;
+    message?: string;
+    msg?: string;
+    context?: any;
+    [key: string]: any; // Pour les propriétés additionnelles
   };
   const identityItemsArray: IdentityItemRow[] = useMemo(() => {
     return Array.isArray(idItems?.items) ? (idItems?.items as IdentityItemRow[]) : [];
@@ -318,10 +355,12 @@ const OnboardingTracking: React.FC = () => {
 
   const handleRun = async (batchId: string) => {
     try {
+      const loadingToast = toast.loading(t('starting_provisioning', 'Démarrage du provisioning...'));
       await provRun.mutateAsync({ batchId });
-      toast.success('Provisioning en cours');
-    } catch {
-      toast.error('Échec du lancement du provisioning');
+      toast.success(t('provisioning_running', 'Provisioning en cours d\'exécution'), { id: loadingToast });
+    } catch (error) {
+      console.error('Erreur lors du lancement du provisioning:', error);
+      toast.error(t('provisioning_run_error', 'Échec du lancement du provisioning'));
     }
   };
 
@@ -384,7 +423,12 @@ const OnboardingTracking: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {/* Sélecteur de type */}
             <div className="relative">
+              <label htmlFor="type-filter" className="sr-only">
+                {t('filter_by_type', 'Filtrer par type de batch')}
+              </label>
               <select 
+                id="type-filter"
+                aria-label={t('filter_by_type', 'Filtrer par type de batch')}
                 className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
                 value={typeFilter} 
                 onChange={(e) => { setTypeFilter(e.target.value as 'identity' | 'provisioning'); setPage(1); }}
@@ -392,138 +436,111 @@ const OnboardingTracking: React.FC = () => {
                 <option value="identity">📊 Identités</option>
                 <option value="provisioning">🚀 Provisioning</option>
             </select>
-              <Filter className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+              <Filter className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none" aria-hidden="true" />
             </div>
             
             {/* Barre de recherche */}
             <div className="relative">
+              <label htmlFor="batch-search" className="sr-only">
+                {t('search_batches', 'Rechercher dans les batches')}
+              </label>
               <input 
+                id="batch-search"
+                type="search"
                 value={batchSearch} 
                 onChange={(e) => setBatchSearch(e.target.value)} 
-                placeholder="Rechercher un batch..." 
+                placeholder={t('search_batches_placeholder', 'Rechercher un batch...')}
+                aria-label={t('search_batches', 'Rechercher dans les batches')}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-64"
               />
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none" aria-hidden="true" />
             </div>
             
 
           </div>
         </div>
-        {/* Table des batches améliorée */}
-        <div className="overflow-x-auto border border-gray-200 rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch ID</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Établissement</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créé le</th>
-
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {(typeFilter === 'identity' ? filteredIdentityBatchList : ((provBatches as unknown[] | undefined) ?? [])).map((rowUnknown) => {
-                if (typeFilter === 'identity') {
-                  const b = rowUnknown as { id: string; establishment_id?: string; created_at?: string; source_file_url?: string };
-                  const linkedProv = provBySourceId.get(b.id);
-                  return (
-                    <tr key={`i-${b.id}`} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 text-sm">
-                        <button 
-                          className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors" 
-                          onClick={() => { setSelectedIdentityBatchId(b.id); setDomainFilter(undefined); setStatusFilter(undefined); }}
-                        >
-                          {b.id}
-                        </button>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          📊 Identités
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 break-all">{b.establishment_id ?? '—'}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500">
-                        {b.created_at ? (
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {new Date(b.created_at).toLocaleString()}
-                          </span>
-                        ) : '—'}
-                      </td>
-
-                      <td className="px-4 py-3 text-sm">
-                        <div className="flex flex-wrap gap-2">
-
-                          {/* Annulation non supportée par l'API actuelle */}
-
-                          <button 
-                            className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                              linkedProv 
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                                : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
-                            }`} 
-                            disabled={!!linkedProv || provCreate.isPending || provRun.isPending} 
-                            onClick={() => handleCreateAndRunProvisioning(b.id)}
-                          >
-                            <Play className="w-3 h-3 mr-1" />
-                            {provCreate.isPending || provRun.isPending ? 'En cours…' : 'Créer + Lancer'}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                } else {
-                  const b = rowUnknown as { id: string; source_identity_batch_id?: string; created_at?: string };
-                  const createdAt = b.created_at ? new Date(b.created_at).toLocaleString() : '—';
-                  return (
-                    <tr key={`p-${b.id}`} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 text-sm">
-                        <button 
-                          className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors" 
-                          onClick={() => { setSelectedProvBatchId(b.id); setProvDomainFilter(undefined); setProvStatusFilter(undefined); }}
-                        >
-                          {b.id}
-                        </button>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          🚀 Provisioning
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 break-all">
-                        Source: {b.source_identity_batch_id ?? '—'}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-500">
-                        {b.created_at ? (
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {createdAt}
-                          </span>
-                        ) : '—'}
-                      </td>
-
-                      <td className="px-4 py-3 text-sm">
-                        <button 
-                          className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                            provRun.isPending 
-                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                              : 'bg-green-100 text-green-700 hover:bg-green-200'
-                          }`} 
-                          disabled={provRun.isPending} 
-                          onClick={() => handleRun(b.id)}
-                        >
-                          <Play className="w-3 h-3 mr-1" />
-                          {provRun.isPending ? 'Run…' : 'Lancer'}
-                        </button>
-                      </td>
-                    </tr>
-                  );
+        {/* Table des batches améliorée - Composant modulaire */}
+        {(() => {
+          const isLoading = typeFilter === 'identity' ? !idBatches : !provBatches;
+          const hasError = false; // TODO: Ajouter la gestion d'erreur depuis les hooks
+          const isEmpty = typeFilter === 'identity' 
+            ? filteredIdentityBatchList.length === 0 
+            : ((provBatches as unknown[] | undefined) ?? []).length === 0;
+          
+          if (isLoading) {
+            return (
+              <LoadingSpinner 
+                message={t('loading_batches', 'Chargement des batches...')} 
+                size="md"
+              />
+            );
+          }
+          
+          if (hasError) {
+            return (
+              <ErrorState 
+                title={t('error_loading_batches', 'Erreur de chargement')}
+                message={t('error_loading_batches_message', 'Impossible de charger les batches.')}
+                onRetry={() => window.location.reload()}
+              />
+            );
+          }
+          
+          if (isEmpty && !batchSearch) {
+            return (
+              <EmptyState 
+                title={typeFilter === 'identity' 
+                  ? t('no_identity_batches', 'Aucun batch d\'identités') 
+                  : t('no_provisioning_batches', 'Aucun batch de provisioning')
                 }
-              })}
-            </tbody>
-          </table>
-        </div>
+                message={typeFilter === 'identity'
+                  ? t('no_identity_batches_message', 'Aucun batch d\'identités n\'a été créé pour le moment.')
+                  : t('no_provisioning_batches_message', 'Aucun batch de provisioning n\'a été créé pour le moment.')
+                }
+              />
+            );
+          }
+          
+          if (isEmpty && batchSearch) {
+            return (
+              <EmptyState 
+                title={t('no_search_results', 'Aucun résultat')}
+                message={t('no_search_results_message', 'Aucun batch ne correspond à votre recherche "{{search}}".', { search: batchSearch })}
+                action={{
+                  label: t('clear_search', 'Effacer la recherche'),
+                  onClick: () => setBatchSearch(''),
+                  variant: 'secondary'
+                }}
+              />
+            );
+          }
+          
+          return (
+            <BatchTable
+              typeFilter={typeFilter}
+              identityBatches={filteredIdentityBatchList}
+              provisioningBatches={(provBatches as unknown[] | undefined) ?? []}
+              provBySourceId={provBySourceId}
+              onSelectIdentityBatch={(id: string) => {
+                setSelectedIdentityBatchId(id);
+                setDomainFilter(undefined);
+                setStatusFilter(undefined);
+              }}
+              onSelectProvisioningBatch={(id: string) => {
+                setSelectedProvBatchId(id);
+                setProvDomainFilter(undefined);
+                setProvStatusFilter(undefined);
+              }}
+              onCreateAndRunProvisioning={handleCreateAndRunProvisioning}
+              onRunProvisioning={handleRun}
+              scrollToDetails={scrollToDetails}
+              identityDetailsRef={identityDetailsRef}
+              provisioningDetailsRef={provisioningDetailsRef}
+              provCreate={provCreate}
+              provRun={provRun}
+            />
+          );
+        })()}
         {/* Pagination et contrôles améliorés */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 p-4 bg-gray-50 rounded-lg">
           <div className="flex items-center gap-3">
@@ -587,77 +604,20 @@ const OnboardingTracking: React.FC = () => {
 
         {/* Section des items d'identité améliorée */}
         {selectedIdentityBatchId && (
-          <div className="mt-6 space-y-4">
-            {/* Progrès du batch identité */}
-            <div className="p-4 border border-gray-200 rounded-lg bg-white">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-sm font-medium text-gray-700">Progression de l'import</div>
-                <button
-                  className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-md border transition-colors ${
-                    liveSSE ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100' : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                  }`}
-                  onClick={() => setLiveSSE((v) => !v)}
-                  disabled={!selectedIdentityBatchId}
-                  title={liveSSE ? 'Désactiver le suivi en temps réel (SSE)' : 'Activer le suivi en temps réel (SSE)'}
-                >
-                  <Radio className={`w-3.5 h-3.5 ${liveSSE ? 'text-green-600' : 'text-gray-500'}`} />
-                  {liveSSE ? 'Temps réel ON' : 'Temps réel OFF'}
-                </button>
-              </div>
-              {(() => {
-                const p = (effectiveProgress as unknown as { status?: string; total_items?: number; new_count?: number; updated_count?: number; skipped_count?: number; invalid_count?: number } | undefined);
-                return (
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-700">
-                    <span><span className="text-gray-500">Statut:</span> {p?.status ?? '—'}</span>
-                    <span><span className="text-gray-500">Total:</span> {idItems?.total ?? p?.total_items ?? '—'}</span>
-                    <span><span className="text-gray-500">NEW:</span> {p?.new_count ?? 0}</span>
-                    <span><span className="text-gray-500">UPDATED:</span> {p?.updated_count ?? 0}</span>
-                    <span><span className="text-gray-500">SKIPPED:</span> {p?.skipped_count ?? 0}</span>
-                    <span><span className="text-gray-500">INVALID:</span> {p?.invalid_count ?? 0}</span>
-                    <span><span className="text-gray-500">PENDING:</span> {idTotalPending?.total ?? 0}</span>
-                    <span><span className="text-gray-500">PROCESSING:</span> {idTotalProcessing?.total ?? 0}</span>
-                    <span><span className="text-gray-500">SUCCESS:</span> {idTotalSuccess?.total ?? 0}</span>
-                    <span><span className="text-gray-500">ERROR:</span> {idTotalError?.total ?? 0}</span>
-                    <span><span className="text-gray-500">SKIPPED (total):</span> {idTotalSkipped?.total ?? 0}</span>
-                  </div>
-                );
-              })()}
-            </div>
-            {/* Statistiques avec design amélioré */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">NEW</div>
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                </div>
-                <div className="text-2xl font-bold text-green-600 mt-1">{(effectiveProgress as any)?.new_count ?? 0}</div>
-                <div className="text-xs text-gray-400 mt-1">Nouveaux utilisateurs</div>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">UPDATED</div>
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                </div>
-                <div className="text-2xl font-bold text-blue-600 mt-1">{(effectiveProgress as any)?.updated_count ?? 0}</div>
-                <div className="text-xs text-gray-400 mt-1">Mises à jour</div>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">SKIPPED</div>
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                </div>
-                <div className="text-2xl font-bold text-yellow-600 mt-1">{(effectiveProgress as any)?.skipped_count ?? 0}</div>
-                <div className="text-xs text-gray-400 mt-1">Ignorés</div>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">INVALID</div>
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                </div>
-                <div className="text-2xl font-bold text-red-600 mt-1">{(effectiveProgress as any)?.invalid_count ?? 0}</div>
-                <div className="text-xs text-gray-400 mt-1">Erreurs</div>
-              </div>
-            </div>
+          <div ref={identityDetailsRef} className="mt-6 space-y-4" id="identity-batch-details">
+            {/* Composant de progression modulaire */}
+            <ProgressStats
+              selectedBatchId={selectedIdentityBatchId}
+              effectiveProgress={effectiveProgress as any}
+              idItems={idItems as any}
+              idTotalPending={idTotalPending as any}
+              idTotalProcessing={idTotalProcessing as any}
+              idTotalSuccess={idTotalSuccess as any}
+              idTotalError={idTotalError as any}
+              idTotalSkipped={idTotalSkipped as any}
+              liveSSE={liveSSE}
+              onToggleSSE={() => setLiveSSE((v) => !v)}
+            />
 
             {/* Filtres améliorés */}
             <div className="flex flex-wrap items-center gap-3 p-4 bg-gray-50 rounded-lg">
@@ -676,11 +636,53 @@ const OnboardingTracking: React.FC = () => {
               </select>
             </div>
 
-            <h4 className="font-medium">Items du batch {selectedIdentityBatchId}</h4>
-            <div className="overflow-x-auto">
-              {identityItemsArray.length === 0 && (
-                <div className="p-4 text-sm text-gray-600">Aucun item d'identité pour ce batch pour le moment.</div>
-              )}
+            <h4 className="font-medium flex items-center gap-2">
+              <Database className="w-4 h-4 text-blue-600" />
+              {t('batch_items', 'Items du batch {{id}}', { id: selectedIdentityBatchId })}
+            </h4>
+            
+            {(() => {
+              const isLoadingItems = !idItems;
+              const hasItemsError = false; // TODO: Gérer les erreurs depuis les hooks
+              const isEmpty = identityItemsArray.length === 0;
+              
+              if (isLoadingItems) {
+                return (
+                  <LoadingSpinner 
+                    message={t('loading_items', 'Chargement des items...')} 
+                    size="sm"
+                  />
+                );
+              }
+              
+              if (hasItemsError) {
+                return (
+                  <ErrorState 
+                    title={t('error_loading_items', 'Erreur de chargement des items')}
+                    message={t('error_loading_items_message', 'Impossible de charger les items du batch.')}
+                  />
+                );
+              }
+              
+              if (isEmpty) {
+                return (
+                  <EmptyState 
+                    title={t('no_items', 'Aucun item')}
+                    message={statusFilter 
+                      ? t('no_items_filtered', 'Aucun item ne correspond au filtre "{{filter}}".', { filter: statusFilter })
+                      : t('no_items_message', 'Aucun item d\'identité pour ce batch pour le moment.')
+                    }
+                    action={statusFilter ? {
+                      label: t('clear_filter', 'Effacer le filtre'),
+                      onClick: () => setStatusFilter(undefined),
+                      variant: 'secondary'
+                    } : undefined}
+                  />
+                );
+              }
+              
+              return (
+                <div className="overflow-x-auto">
               <table className="min-w-full border">
                 <thead className="bg-gray-50">
                   <tr>
@@ -725,8 +727,10 @@ const OnboardingTracking: React.FC = () => {
                   })}
                 </tbody>
               </table>
-            </div>
-
+                </div>
+              );
+            })()}
+            
             {/* Pagination items identité */}
             <div className="flex items-center justify-between mt-3">
               <div className="flex items-center gap-2">
@@ -758,72 +762,17 @@ const OnboardingTracking: React.FC = () => {
               </div>
             </div>
 
-            {/* Erreurs du batch (collapsible) */}
-            <div className="overflow-x-auto border border-gray-200 rounded-lg mt-4">
-              <details className="p-4 bg-gray-50" open={false}>
-                <summary className="cursor-pointer text-sm text-gray-700">Voir les erreurs du batch</summary>
-                <div className="flex items-center gap-3 my-3">
-                  <select 
-                    className="px-2 py-1 border rounded text-xs"
-                    value={identityErrorType ?? ''}
-                    onChange={(e) => { setIdentityErrorsPage(1); setIdentityErrorType(e.target.value || undefined); }}
-                  >
-                    <option value="">Tous types</option>
-                    <option value="VALIDATION">VALIDATION</option>
-                    <option value="DUPLICATE">DUPLICATE</option>
-                    <option value="DATABASE">DATABASE</option>
-                  </select>
-                  <div className="ml-auto flex items-center gap-2 text-xs">
-                    <button 
-                      disabled={identityErrorsPage <= 1}
-                      onClick={() => setIdentityErrorsPage(p => Math.max(1, p - 1))}
-                      className="inline-flex items-center px-2 py-1 rounded border border-gray-300 text-gray-700 bg-white disabled:opacity-50"
-                    >
-                      <ChevronLeft className="w-3 h-3 mr-1" /> Précédent
-                    </button>
-                    <span>Page {identityErrorsPage}{idErrors?.pages ? ` / ${idErrors.pages}` : ''}</span>
-                    <button 
-                      disabled={!!idErrors?.pages && identityErrorsPage >= (idErrors?.pages || 1)}
-                      onClick={() => setIdentityErrorsPage(p => p + 1)}
-                      className="inline-flex items-center px-2 py-1 rounded border border-gray-300 text-gray-700 bg-white disabled:opacity-50"
-                    >
-                      Suivant <ChevronRight className="w-3 h-3 ml-1" />
-                    </button>
-                    <select 
-                      className="px-2 py-1 border rounded"
-                      value={identityErrorsSize}
-                      onChange={(e) => { setIdentityErrorsPage(1); setIdentityErrorsSize(Number(e.target.value)); }}
-                    >
-                      {[25,50,100,200].map(n => <option key={n} value={n}>{n}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div className="overflow-x-auto">
-                  {Array.isArray(idErrors?.errors) && idErrors?.errors.length > 0 ? (
-                    <table className="min-w-full border">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-3 py-2 text-left text-xs text-gray-600">Type</th>
-                          <th className="px-3 py-2 text-left text-xs text-gray-600">Message</th>
-                          <th className="px-3 py-2 text-left text-xs text-gray-600">Contexte</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {idErrors.errors.map((e, i) => (
-                          <tr key={i} className="border-t">
-                            <td className="px-3 py-2 text-xs">{(e?.type ?? e?.error_type ?? '—').toString()}</td>
-                            <td className="px-3 py-2 text-xs break-all">{(e?.message ?? e?.msg ?? '—').toString()}</td>
-                            <td className="px-3 py-2 text-xs"><pre className="whitespace-pre-wrap break-all">{JSON.stringify(e, null, 2)}</pre></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <div className="p-4 text-sm text-gray-600">Aucune erreur trouvée.</div>
-                  )}
-                </div>
-              </details>
-            </div>
+            {/* Composant des erreurs modulaire */}
+            <ErrorsTable
+              selectedBatchId={selectedIdentityBatchId}
+              errorsData={idErrors as any}
+              errorType={identityErrorType}
+              onErrorTypeChange={setIdentityErrorType}
+              page={identityErrorsPage}
+              size={identityErrorsSize}
+              onPageChange={setIdentityErrorsPage}
+              onSizeChange={setIdentityErrorsSize}
+            />
 
             {/* Audit non supporté par l'API actuelle */}
           </div>
@@ -832,7 +781,7 @@ const OnboardingTracking: React.FC = () => {
 
       {/* Panneau de détails provisioning (items) */}
       {selectedProvBatchId && (
-        <div className="mt-6 space-y-4">
+        <div ref={provisioningDetailsRef} className="mt-6 space-y-4" id="provisioning-batch-details">
           {/* Statistiques avec design amélioré */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {[

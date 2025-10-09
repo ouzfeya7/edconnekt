@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useResources as useRemoteResources } from '../hooks/useResources';
 import { useRestoreResource } from '../hooks/useRestoreResource';
 import { useAuth } from '../pages/authentification/useAuth';
@@ -7,15 +7,15 @@ import { useAppRolesFromIdentity } from '../hooks/useAppRolesFromIdentity';
 import { 
   ArrowLeft, Search, FileText, Archive, RefreshCw,
   Calendar, User, HardDrive, Eye, Lock, Users, Globe, 
-  Download, RotateCcw, MoreVertical,
+  RotateCcw,
   ChevronLeft, ChevronRight, FolderOpen, Clock
 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '../components/ui/dialog';
-import { ResourceStatus } from '../api/resource-service/api';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '../components/ui/dialog';
+import { ResourceStatus, type ResourceOut } from '../api/resource-service/api';
 import { useReferentials, useReferentialTree } from '../hooks/competence/useReferentials';
 import { useCompetencies } from '../hooks/competence/useCompetencies';
 import type { ReferentialTree, DomainTree, SubjectTree, CompetencyListResponse, CompetencyResponse, ReferentialListResponse, ReferentialResponse } from '../api/competence-service/api';
-import { resourceApiBaseUrl } from '../api/resource-service/client';
+ 
 
 // Filtres dynamiques via Competence Service
 
@@ -89,7 +89,7 @@ const ArchivedResourceListItem: React.FC<ArchivedResourceListItemProps> = ({
 }) => {
     const Icon = getIconForSubject(resource.subject);
     const badgeColor = subjectBadgeColors[resource.subject] || "bg-gray-50 text-gray-700";
-  const navigate = useNavigate();
+  
 
   const formatFileSize = (bytes?: number): string => {
     if (!bytes) return 'N/A';
@@ -203,50 +203,17 @@ const ArchivedResourceListItem: React.FC<ArchivedResourceListItemProps> = ({
                             </div>
                             
               {/* Actions */}
-                            {canModify && (
+              {canModify && (
                 <div className="flex items-center gap-2">
-                                    <Dialog>
-                                    <DialogTrigger asChild>
-                      <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition">
-                        <MoreVertical className="w-4 h-4" />
-                                        </button>
-                                    </DialogTrigger>
-                    <DialogContent className="max-w-sm">
-                                        <DialogHeader>
-                        <DialogTitle className="text-lg font-semibold">Actions</DialogTitle>
-                                        </DialogHeader>
-                      <div className="space-y-2">
-                        <button 
-                          onClick={() => navigate(`/ressources/${resource.id}`)}
-                          className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition"
-                        >
-                          <Eye className="w-4 h-4 text-blue-500" />
-                          <span>Voir les détails</span>
-                        </button>
-                        <button 
-                          onClick={() => {
-                            // Utiliser la baseURL configurée pour le microservice
-                            const url = `${resourceApiBaseUrl.replace(/\/$/, '')}/resources/${resource.id}/download`;
-                            window.open(url, '_blank');
-                          }}
-                          className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition"
-                        >
-                          <Download className="w-4 h-4 text-green-500" />
-                          <span>Télécharger</span>
-                                                </button>
-                                                <button 
-                           onClick={onRestore}
-                           className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition"
-                                                >
-                           <RotateCcw className="w-4 h-4 text-orange-500" />
-                           <span>Restaurer</span>
-                                                </button>
-                        
-                      </div>
-                                    </DialogContent>
-                                </Dialog>
-                            </div>
-                            )}
+                  <button
+                    onClick={onRestore}
+                    className="px-3 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition flex items-center gap-2"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Restaurer
+                  </button>
+                </div>
+              )}
                         </div>
                     </div>
                 </div>
@@ -256,7 +223,7 @@ const ArchivedResourceListItem: React.FC<ArchivedResourceListItemProps> = ({
 };
 
 function ArchivesPage() {
-    const navigate = useNavigate();
+  // navigate non utilisé dans l'item, on supprime l'import local
   const restoreMutation = useRestoreResource();
   const { roles } = useAuth();
   const { capabilities } = useAppRolesFromIdentity();
@@ -307,7 +274,7 @@ function ArchivesPage() {
   });
 
   const {
-    data: archivedResources,
+  data: archivedResources,
   } = useRemoteResources({
     status: ResourceStatus.Archived,
     subjectId: selectedSubjectId ?? undefined,
@@ -316,8 +283,14 @@ function ArchivesPage() {
     offset: (currentPage - 1) * itemsPerPage,
   });
 
+  // Normaliser les données en tableau
+  const archivedItems = useMemo(() => {
+    const d = archivedResources as { items?: unknown[] } | undefined;
+    return Array.isArray(d?.items) ? (d.items as ResourceOut[]) : [];
+  }, [archivedResources]);
+
   // Tri des ressources (côté client pour l'instant)
-  const sortedResources = [...(archivedResources || [])].sort((a, b) => {
+  const sortedResources = [...archivedItems].sort((a, b) => {
     let aValue: number | string, bValue: number | string;
     
     switch (sortBy) {
@@ -359,11 +332,6 @@ function ArchivesPage() {
       }
     });
   };
-
-
-
-  // plus de mapping statique
-
     return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -371,16 +339,13 @@ function ArchivesPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-                <button 
-                    onClick={() => navigate('/ressources')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition"
-                >
+                <Link to="/ressources" className="p-2 hover:bg-gray-100 rounded-lg transition">
                 <ArrowLeft className="w-5 h-5 text-gray-500" />
-                </button>
+                </Link>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Ressources Archivées</h1>
                 <p className="text-gray-600 mt-1">
-                  {archivedResources?.length || 0} ressource{archivedResources?.length !== 1 ? 's' : ''} archivée{archivedResources?.length !== 1 ? 's' : ''}
+                  {archivedItems.length || 0} ressource{archivedItems.length !== 1 ? 's' : ''} archivée{archivedItems.length !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
@@ -486,7 +451,7 @@ function ArchivesPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total archivées</p>
-                <p className="text-2xl font-bold text-gray-900">{archivedResources?.length || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">{archivedItems.length || 0}</p>
               </div>
             </div>
           </div>
@@ -499,7 +464,7 @@ function ArchivesPage() {
               <div>
                 <p className="text-sm text-gray-600">PDF</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {archivedResources?.filter(r => (r.mime_type || '').toLowerCase() === 'application/pdf').length || 0}
+                  {archivedItems.filter(r => (r.mime_type || '').toLowerCase() === 'application/pdf').length || 0}
                 </p>
               </div>
             </div>
@@ -514,7 +479,7 @@ function ArchivesPage() {
                 <p className="text-sm text-gray-600">Enseignants</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {(() => {
-                    const names = (archivedResources || []).map(r => r.author_user_id || '');
+                    const names = archivedItems.map(r => r.author_user_id || '');
                     return new Set(names).size;
                   })()}
                 </p>
@@ -530,10 +495,11 @@ function ArchivesPage() {
               <div>
                 <p className="text-sm text-gray-600">Espace utilisé</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {archivedResources && archivedResources.reduce((sum, r) => sum + (r.size_bytes || 0), 0) > 0 
-                    ? Math.round((archivedResources?.reduce((sum, r) => sum + (r.size_bytes || 0), 0) || 0) / (1024 * 1024)) + ' MB'
-                    : 'N/A'
-                  }
+                  {(() => {
+                    const totalBytes = archivedItems.reduce((sum, r) => sum + (r.size_bytes || 0), 0);
+                    const mb = Math.round(totalBytes / (1024 * 1024));
+                    return `${mb} MB`;
+                  })()}
                 </p>
               </div>
             </div>

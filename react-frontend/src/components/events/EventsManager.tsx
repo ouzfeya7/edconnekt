@@ -6,9 +6,12 @@ import { Link } from 'react-router-dom';
 import { useDirector } from '../../contexts/DirectorContext';
 import { useEvents, useEvent } from '../../hooks/useEvents';
 import { useCreateEvent, usePublishEventById, useUpdateEvent, useRegisterToEvent } from '../../hooks/useEventMutations';
-import type { EventCreateCategoryEnum } from '../../api/event-service/api';
-import { FaPlus, FaFilter, FaCalendarAlt, FaEye, FaEdit, FaCheck, FaSearch, FaTimes, FaUserPlus, FaUsers } from 'react-icons/fa';
+import type { EventCreateCategoryEnum, EventUpdateCategoryEnum, EventUpdateStatusEnum } from '../../api/event-service/api';
+import { FaPlus, FaFilter, FaCalendarAlt, FaEye, FaEdit, FaCheck, FaTimes, FaUserPlus, FaUsers } from 'react-icons/fa';
 import { useModal } from '../../hooks/useModal';
+import { getActiveContext } from '../../utils/contextStorage';
+import { useAuth } from '../../pages/authentification/useAuth';
+import { useAllEstablishments } from '../../hooks/useAllEstablishments';
 
 export interface EventsManagerProps {
   etablissementId?: string | null;
@@ -18,6 +21,8 @@ export interface EventsManagerProps {
 const EventsManager: React.FC<EventsManagerProps> = ({ etablissementId: propEtabId, showHeaderTitle = true }) => {
   const { t } = useTranslation();
   const { currentEtablissementId } = useDirector();
+  const { roles } = useAuth();
+  const isAdmin = Array.isArray(roles) && roles.includes('administrateur');
 
   const resolvedEtabId = propEtabId ?? currentEtablissementId ?? null;
 
@@ -33,6 +38,8 @@ const EventsManager: React.FC<EventsManagerProps> = ({ etablissementId: propEtab
 
   // create modal
   const [isCreateEventOpen, setIsCreateEventOpen] = React.useState(false);
+  const [adminCreateEtabId, setAdminCreateEtabId] = React.useState<string>('');
+  const { data: allEstabs } = useAllEstablishments({ enabled: isAdmin && isCreateEventOpen });
   
   // Utiliser le hook personnalisé pour gérer le modal de création
   useModal(isCreateEventOpen, () => setIsCreateEventOpen(false));
@@ -375,7 +382,10 @@ const EventsManager: React.FC<EventsManagerProps> = ({ etablissementId: propEtab
                 }
 
                 try {
-                  const etablissement_id = resolvedEtabId || '';
+                  const activeCtx = getActiveContext();
+                  const etablissement_id = isAdmin
+                    ? (adminCreateEtabId?.trim() || '')
+                    : ((resolvedEtabId ?? activeCtx.etabId ?? '') || '');
                   if (!etablissement_id) {
                     toast.error(t('missing_establishment', "Établissement manquant"));
                     return;
@@ -383,6 +393,7 @@ const EventsManager: React.FC<EventsManagerProps> = ({ etablissementId: propEtab
                   await createEvent.mutateAsync({ title, category: category as EventCreateCategoryEnum, start_time, end_time, description, location, capacity, etablissement_id });
                   toast.success(t('event_created', 'Événement créé'));
                   setIsCreateEventOpen(false);
+                  setAdminCreateEtabId('');
                   form.reset();
                 } catch (errUnknown) {
                   const err = errUnknown as { message?: string };
@@ -390,6 +401,21 @@ const EventsManager: React.FC<EventsManagerProps> = ({ etablissementId: propEtab
                 }
               }}>
                 <div className="space-y-4">
+                  {isAdmin && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{t('establishment', 'Établissement')} *</label>
+                      <select
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        value={adminCreateEtabId}
+                        onChange={(e) => setAdminCreateEtabId(e.target.value)}
+                      >
+                        <option value="">{t('select_establishment', 'Sélectionner un établissement')}</option>
+                        {Array.isArray(allEstabs) && allEstabs.map((etab) => (
+                          <option key={etab.id} value={etab.id}>{etab.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">{t('title', 'Titre')} *</label>
                     <input name="title" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
@@ -493,7 +519,16 @@ const EventsManager: React.FC<EventsManagerProps> = ({ etablissementId: propEtab
                   const capacity = capacityStr !== '' && !Number.isNaN(Number(capacityStr)) ? Number(capacityStr) : null;
                   const status = String(fd.get('status') || '').trim() || null;
                   try {
-                    await updateEvent.mutateAsync({ title, description, category: category as any, start_time, end_time, location, capacity, status: status as any });
+                    await updateEvent.mutateAsync({
+                      title,
+                      description,
+                      category: (category as EventUpdateCategoryEnum | null),
+                      start_time,
+                      end_time,
+                      location,
+                      capacity,
+                      status: (status as EventUpdateStatusEnum | null),
+                    });
                     toast.success(t('event_updated', 'Événement mis à jour'));
                     setIsEditEventOpen(false);
                   } catch (errUnknown) {

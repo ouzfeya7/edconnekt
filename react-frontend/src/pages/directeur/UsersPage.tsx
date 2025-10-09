@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Upload, Users, User, UserCheck, UserCog, Shield, PlusCircle, IdCard } from 'lucide-react';
+import { Upload, Users, User, UserCheck, UserCog, Shield, IdCard } from 'lucide-react';
 import IdentitiesManagement from '../../components/directeur/users/IdentitiesManagement';
 import CSVUploader from '../../components/directeur/onboarding/CSVUploader';
 import OnboardingTracking from '../../components/directeur/onboarding/OnboardingTracking';
@@ -8,15 +8,16 @@ import StudentsManagement from '../../components/directeur/users/StudentsManagem
 import TeachersManagement from '../../components/directeur/users/TeachersManagement';
 import ParentsManagement from '../../components/directeur/users/ParentsManagement';
 import StaffManagement from '../../components/directeur/users/StaffManagement';
-import AddUserModal from '../../components/directeur/users/AddUserModal';
 import { useOnboarding } from '../../contexts/OnboardingContext';
 // Onglets lot Identity/Provisioning retirés (fusion dans Suivi Onboarding)
 
 const UsersPage = () => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('import');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { shouldFocusTracking, setShouldFocusTracking } = useOnboarding();
+  const { 
+    shouldFocusTracking, 
+    setShouldFocusTracking
+  } = useOnboarding();
 
   useEffect(() => {
     if (shouldFocusTracking) {
@@ -38,22 +39,19 @@ const UsersPage = () => {
   return (
     <div className="bg-white min-h-screen p-4 md:p-6">
       {/* Header */}
-      <div className="flex justify-between items-start mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {t('onboarding', 'Onboarding')}
-          </h1>
-          <p className="text-gray-600">
-            {t('onboarding_description', "Importez des lots d'identités, lancez le provisioning et suivez les statuts.")}
-          </p>
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {t('onboarding', 'Onboarding')}
+            </h1>
+            <p className="text-gray-600">
+              {t('onboarding_description', "Importez des lots d'identités, lancez le provisioning et suivez les statuts.")}
+            </p>
+          </div>
+          
+          {/* Sélecteur d'établissement déplacé dans l'onglet Onboarding (Upload & Validation) */}
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-sm transition-colors duration-200"
-        >
-          <PlusCircle className="w-5 h-5 mr-2" />
-          {t('add_user', 'Ajouter un utilisateur')}
-        </button>
       </div>
 
       {/* Onglets */}
@@ -80,7 +78,7 @@ const UsersPage = () => {
         </div>
       </div>
 
-      {/* Contenu selon l'onglet actif */}
+      {/* Contenu selon l'onglet actif (gating établissement uniquement pour l'onglet Onboarding) */}
       <div>
         {activeTab === 'import' && <CSVUploader />}
         {activeTab === 'suivi' && <OnboardingTracking />}
@@ -90,7 +88,6 @@ const UsersPage = () => {
         {activeTab === 'parents' && <ParentsManagement />}
         {activeTab === 'staff' && <StaffManagement />}
       </div>
-      <AddUserModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };
