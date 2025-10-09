@@ -48,7 +48,7 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden">
         {/* En-tête */}
         <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-red-50 to-orange-50 border-b">
           <div className="flex items-center gap-3">
@@ -72,59 +72,62 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
         {/* Contenu */}
         <div className="p-6">
-          {/* Élément à supprimer */}
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-xl">{getTypeIcon(itemType)}</span>
-              <div>
-                <div className="text-sm font-medium text-gray-700 capitalize">{itemType} à supprimer :</div>
-                <div className="font-semibold text-gray-900">{itemName}</div>
+          {/* Layout en deux colonnes pour optimiser l'espace */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Élément à supprimer */}
+            <div className="p-4 bg-gray-50 rounded-lg border">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-xl">{getTypeIcon(itemType)}</span>
+                <div>
+                  <div className="text-sm font-medium text-gray-700 capitalize">{itemType} à supprimer :</div>
+                  <div className="font-semibold text-gray-900">{itemName}</div>
+                </div>
+              </div>
+              <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(itemType)}`}>
+                {itemType.charAt(0).toUpperCase() + itemType.slice(1)}
               </div>
             </div>
-            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(itemType)}`}>
-              {itemType.charAt(0).toUpperCase() + itemType.slice(1)}
+
+            {/* Confirmation */}
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                Êtes-vous absolument certain de vouloir supprimer <strong>"{itemName}"</strong> ?
+              </p>
             </div>
           </div>
 
           {/* Avertissement */}
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <div className="font-medium text-red-800 mb-1">Attention !</div>
-                <div className="text-sm text-red-700">
+              <div className="w-full">
+                <div className="font-medium text-red-800 mb-2">Attention !</div>
+                <div className="text-sm text-red-700 mb-3">
                   {warningMessage || `Cette ${itemType} sera définitivement supprimée et ne pourra pas être récupérée.`}
                 </div>
                 {itemType === 'référentiel' && (
-                  <div className="text-sm text-red-700 mt-2">
+                  <div className="text-sm text-red-700">
                     <strong>Toutes les données associées seront également supprimées :</strong>
-                    <ul className="list-disc list-inside mt-1 space-y-1">
-                      <li>Domaines</li>
-                      <li>Matières</li>
-                      <li>Compétences</li>
-                      <li>Affectations</li>
-                    </ul>
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      <span>• Domaines</span>
+                      <span>• Matières</span>
+                      <span>• Compétences</span>
+                      <span>• Affectations</span>
+                    </div>
                   </div>
                 )}
                 {itemType === 'domaine' && (
-                  <div className="text-sm text-red-700 mt-2">
+                  <div className="text-sm text-red-700">
                     <strong>Toutes les matières et compétences de ce domaine seront également supprimées.</strong>
                   </div>
                 )}
                 {itemType === 'matière' && (
-                  <div className="text-sm text-red-700 mt-2">
+                  <div className="text-sm text-red-700">
                     <strong>Toutes les compétences de cette matière seront également supprimées.</strong>
                   </div>
                 )}
               </div>
             </div>
-          </div>
-
-          {/* Confirmation */}
-          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800">
-              Êtes-vous absolument certain de vouloir supprimer <strong>"{itemName}"</strong> ?
-            </p>
           </div>
 
           {/* Actions */}

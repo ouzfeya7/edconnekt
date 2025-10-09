@@ -6,7 +6,7 @@ import { useDomains } from '../../hooks/competence/useDomains';
 import { usePublicReferentialTree } from '../../hooks/competence/usePublicReferentials';
 import { useGlobalReferentials } from '../../hooks/competence/useGlobalReferentials';
 import { useCreateReferential, usePublishReferential, useDeleteReferential, useCreateDomain, useUpdateDomain, useDeleteDomain, useCreateSubject, useCreateCompetency, useUpdateSubject, useDeleteSubject, useUpdateCompetency, useDeleteCompetency, useCloneReferential, useCloneFromGlobalReferential } from '../../hooks/competence/useMutations';
-import { useOutboxEvents, useReplayOutboxEvents, useDebugHeaders } from '../../hooks/competence/useEvents';
+import { useOutboxEvents, useReplayOutboxEvents } from '../../hooks/competence/useEvents';
 import toast from 'react-hot-toast';
 import { GraduationCap, BookOpen, Award, Users } from 'lucide-react';
 import { CycleEnum, VisibilityEnum } from '../../api/competence-service/api';
@@ -310,7 +310,6 @@ const ReferentielsManager: React.FC = () => {
   const updateCompetency = useUpdateCompetency();
   const deleteCompetency = useDeleteCompetency();
   const replayEvents = useReplayOutboxEvents();
-  const debugHeaders = useDebugHeaders();
 
   // Local modal state
   const [refModalOpen, setRefModalOpen] = useState(false);
@@ -1016,7 +1015,7 @@ const ReferentielsManager: React.FC = () => {
                 {
                   label: 'Publier',
                   onClick: handlePublishRef,
-                  variant: 'secondary',
+                  variant: 'publish',
                   disabled: !effectiveReferentialId || effectiveVersion === null || publishRef.isPending
                 },
                 {
@@ -1034,13 +1033,13 @@ const ReferentielsManager: React.FC = () => {
                       setCloneModalOpen(true);
                     }
                   },
-                  variant: 'secondary',
+                  variant: 'clone',
                   disabled: !effectiveReferentialId || cloneRef.isPending
                 },
                 {
                   label: showPublicTree ? 'Masquer arborescence' : 'Voir arborescence',
                   onClick: () => setShowPublicTree(!showPublicTree),
-                  variant: 'secondary',
+                  variant: 'tree',
                   disabled: !effectiveReferentialId || effectiveVersion === null
                 }
               ]}
@@ -1229,10 +1228,7 @@ const ReferentielsManager: React.FC = () => {
                         });
                         setCloneModalOpen(true);
                       }}
-                      onView={(id) => {
-                        // Optionnel: action pour voir les détails d'un référentiel global
-                        console.log('Voir détails du référentiel global:', id);
-                      }}
+                      onView={undefined}
                     />
                   ))}
               </div>
@@ -1306,15 +1302,6 @@ const ReferentielsManager: React.FC = () => {
               actions={[
                 { label: 'Rejouer', onClick: () => setReplayConfirmOpen(true), variant: 'primary', disabled: replayEvents.isPending },
                 { label: 'Exporter JSON', onClick: () => exportJson('evenements.json', outboxEvents ?? []), variant: 'secondary' },
-                { label: 'Debug headers', onClick: async () => {
-                  try {
-                    const res = await debugHeaders.mutateAsync();
-                    toast.success('Headers OK (voir console)');
-                    console.log('[debug/headers]', res);
-                  } catch {
-                    toast.error('Échec debug headers');
-                  }
-                }, variant: 'secondary' },
               ]}
             />
             <div className="p-6">
@@ -1805,49 +1792,9 @@ const ReferentielsManager: React.FC = () => {
                         Désélectionner tout
                       </button>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button className="px-3 py-1 text-sm bg-white border border-blue-300 text-blue-700 rounded hover:bg-blue-50">
-                        Exporter sélection
-                      </button>
-                      <button className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">
-                        Supprimer sélection
-                      </button>
-                    </div>
                   </div>
                 )}
                 
-                {/* Toggle vue cartes/compacte */}
-                <div className="mb-4 flex items-center justify-between">
-                  <button
-                    onClick={handleSelectAll}
-                    className="text-sm text-gray-600 hover:text-gray-800 underline"
-                  >
-                    Sélectionner tout
-                  </button>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">Affichage:</span>
-                    <button
-                      onClick={() => setViewMode('cards')}
-                      className={`px-2 py-1 text-xs rounded ${
-                        viewMode === 'cards' 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      Cartes
-                    </button>
-                    <button
-                      onClick={() => setViewMode('compact')}
-                      className={`px-2 py-1 text-xs rounded ${
-                        viewMode === 'compact' 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      Compact
-                    </button>
-                  </div>
-                </div>
                 
                 <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
                   {(competenciesPage?.items ?? [])
