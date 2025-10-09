@@ -1,7 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '../../../components/ui/button';
 import { FaTimes } from 'react-icons/fa';
+import { useModal } from '../../../hooks/useModal';
 import type { EtablissementOut, PlanEnum, StatusEnum } from '../../../api/establishment-service/api';
 import { useCreateEstablishment } from '../../../hooks/useCreateEstablishment';
 import { useUpdateEstablishment } from '../../../hooks/useUpdateEstablishment';
@@ -41,6 +43,9 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
     status: 'TRIAL',
   });
   const [manualCode, setManualCode] = useState<boolean>(false);
+  
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(isOpen, onClose);
 
   const createMutation = useCreateEstablishment();
   const updateMutation = useUpdateEstablishment();
@@ -154,9 +159,17 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
-      <div className="bg-white rounded-lg w-full max-w-2xl p-6 md:p-8 relative shadow-xl max-h-[85vh] overflow-y-auto">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-lg w-full max-w-2xl p-6 md:p-8 shadow-xl max-h-[85vh] overflow-y-auto z-10">
         <h2 className="text-2xl font-bold mb-2 text-gray-800">{etablissementToEdit ? 'Modifier' : 'Ajouter'} un établissement</h2>
         {etablissementToEdit && (
           <p className="text-sm text-gray-500 mb-4">{isLoadingCurrent ? 'Chargement des données…' : ''}</p>
@@ -255,6 +268,9 @@ const EtablissementFormModal: React.FC<EtablissementFormModalProps> = ({ isOpen,
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
 };
 
 export default EtablissementFormModal;

@@ -1,6 +1,8 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useModal } from '../../../hooks/useModal';
 import { useIdentities, useIdentityCreate, useIdentityUpdate, useIdentityDelete, useIdentityGet, useIdentityGetFull, useIdentityLinkToEstablishment, useIdentityUnlinkFromEstablishment, useIdentityLastCode, useIdentityCatalogRolesEffectifs, useIdentityCatalogCycles, useIdentityCatalogRolesPrincipaux, useIdentityRoles, useIdentityRoleCreate, useIdentityRoleUpdate, useIdentityRoleDelete, useIdentityCatalogRolesEffectifsMapping } from '../../../hooks/useIdentity';
 import type { IdentityCreate, IdentityUpdate, IdentityStatus, IdentityWithRoles, EstablishmentLinkCreate, RoleAssignmentCreate, RoleAssignmentUpdate, RoleAssignmentResponse, RoleEffectifInfo, CycleInfo, RolePrincipalInfo, StandardListResponse, SubjectInfo } from '../../../api/identity-service/api';
 import type { EstablishmentRole } from '../../../utils/contextStorage';
@@ -17,13 +19,22 @@ export default function IdentitiesManagement(): JSX.Element {
   const [sortBy, setSortBy] = React.useState<string>('');
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
   const [createOpen, setCreateOpen] = React.useState<boolean>(false);
+  
+  // Utiliser le hook personnalisé pour gérer le modal de création
+  useModal(createOpen, () => setCreateOpen(false));
   // Separate modals and states
   const [detailsOpen, setDetailsOpen] = React.useState<boolean>(false);
   const [detailsId, setDetailsId] = React.useState<string | null>(null);
+  
+  // Utiliser le hook personnalisé pour gérer le modal de détails
+  useModal(detailsOpen, () => setDetailsOpen(false));
 
   const [editOpen, setEditOpen] = React.useState<boolean>(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editing, setEditing] = React.useState<IdentityWithRoles | null>(null);
+  
+  // Utiliser le hook personnalisé pour gérer le modal d'édition
+  useModal(editOpen, () => setEditOpen(false));
 
   const [linkOpen, setLinkOpen] = React.useState<boolean>(false);
   const [linkId, setLinkId] = React.useState<string | null>(null);
@@ -552,10 +563,23 @@ export default function IdentitiesManagement(): JSX.Element {
         </div>
       )}
 
-      {createOpen && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl p-6 relative shadow-xl max-h-[85vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Créer une identité</h3>
+      {createOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          {/* Overlay séparé */}
+          <div 
+            className="absolute inset-0 bg-black/40 transition-opacity"
+            onClick={() => setCreateOpen(false)}
+            aria-hidden="true"
+          />
+          
+          {/* Modal content */}
+          <div className="relative bg-white rounded-lg w-full max-w-4xl p-6 shadow-xl max-h-[85vh] overflow-y-auto z-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Créer une identité</h3>
+              <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => setCreateOpen(false)}>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
             <form onSubmit={handleSubmitCreate} className="space-y-3">
               <div>
                 <label className="block text-sm mb-1">Code identité *</label>
@@ -621,13 +645,22 @@ export default function IdentitiesManagement(): JSX.Element {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Details Modal */}
-      {detailsOpen && detailsId && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative shadow-xl max-h-[85vh] overflow-y-auto">
+      {detailsOpen && detailsId && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          {/* Overlay séparé */}
+          <div 
+            className="absolute inset-0 bg-black/40 transition-opacity"
+            onClick={() => setDetailsOpen(false)}
+            aria-hidden="true"
+          />
+          
+          {/* Modal content */}
+          <div className="relative bg-white rounded-lg w-full max-w-2xl p-6 shadow-xl max-h-[85vh] overflow-y-auto z-10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Détails de l'identité</h3>
               <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => { setDetailsOpen(false); setDetailsId(null); }}>
@@ -694,13 +727,22 @@ export default function IdentitiesManagement(): JSX.Element {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Edit Modal */}
-      {editOpen && editingId && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl p-6 relative shadow-xl max-h-[85vh] overflow-y-auto">
+      {editOpen && editingId && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          {/* Overlay séparé */}
+          <div 
+            className="absolute inset-0 bg-black/40 transition-opacity"
+            onClick={() => setEditOpen(false)}
+            aria-hidden="true"
+          />
+          
+          {/* Modal content */}
+          <div className="relative bg-white rounded-lg w-full max-w-4xl p-6 shadow-xl max-h-[85vh] overflow-y-auto z-10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Éditer l'identité</h3>
               <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => { setEditOpen(false); setEditing(null); setEditingId(null); }}>
@@ -790,7 +832,8 @@ export default function IdentitiesManagement(): JSX.Element {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Link Modal */}

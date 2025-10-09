@@ -1,4 +1,6 @@
 import React from "react";
+import { createPortal } from 'react-dom';
+import { useModal } from '../../hooks/useModal';
 
 type ModalProps = {
   open: boolean;
@@ -10,14 +12,28 @@ const ModalWrapper: React.FC<ModalProps & { title: string; children: React.React
   onClose,
   title,
   children,
-}) =>
-  !open ? null : (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-md p-6 relative">
+}) => {
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(open, onClose);
+
+  if (!open) return null;
+
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-lg w-full max-w-md p-6 shadow-xl z-10">
         <h2 className="text-lg font-semibold mb-4">{title}</h2>
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 p-1 hover:bg-gray-100 rounded-full transition-colors"
+          aria-label="Fermer"
         >
           ✕
         </button>
@@ -25,6 +41,10 @@ const ModalWrapper: React.FC<ModalProps & { title: string; children: React.React
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
+};
 
 export const ModalDevoir: React.FC<ModalProps> = props => (
   <ModalWrapper {...props} title="Ajouter un devoir">

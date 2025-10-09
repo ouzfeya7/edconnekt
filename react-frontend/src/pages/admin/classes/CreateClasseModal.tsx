@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '../../../components/ui/button';
 import { FaTimes } from 'react-icons/fa';
 import type { ClasseCreate } from '../../../api/classe-service/api';
 import { useCreateClasse } from '../../../hooks/useCreateClasse';
+import { useModal } from '../../../hooks/useModal';
 import toast from 'react-hot-toast';
 
 interface CreateClasseModalProps {
@@ -23,6 +25,9 @@ const CreateClasseModal: React.FC<CreateClasseModalProps> = ({ isOpen, onClose, 
   });
 
   const createMutation = useCreateClasse();
+  
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(isOpen, onClose);
 
   useEffect(() => {
     if (isOpen) {
@@ -74,9 +79,17 @@ const CreateClasseModal: React.FC<CreateClasseModalProps> = ({ isOpen, onClose, 
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
-      <div className="bg-white rounded-lg w-full max-w-3xl p-6 md:p-8 relative shadow-xl max-h-[85vh] overflow-y-auto">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé pour meilleure gestion */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-lg w-full max-w-3xl p-6 md:p-8 shadow-xl max-h-[85vh] overflow-y-auto z-10">
         <h2 className="text-2xl font-bold mb-4 text-gray-800">Créer une classe</h2>
         <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
           <FaTimes size={20} />
@@ -127,6 +140,9 @@ const CreateClasseModal: React.FC<CreateClasseModalProps> = ({ isOpen, onClose, 
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre le modal au niveau racine du DOM
+  return createPortal(modalContent, document.body);
 };
 
 export default CreateClasseModal;

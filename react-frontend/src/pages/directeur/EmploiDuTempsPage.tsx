@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Plus, ChevronLeft, ChevronRight, Download, AlertTriangle, CheckCircle, History, AlertCircle, Link as LinkIcon, Repeat } from 'lucide-react';
+import { Calendar, Plus, ChevronLeft, ChevronRight, Download, AlertTriangle, CheckCircle, History, AlertCircle, Link as LinkIcon, Repeat, X } from 'lucide-react';
 import AbsenceValidationPanel from '../../components/directeur/emploi-du-temps/AbsenceValidationPanel';
 import { useLessons } from '../../hooks/useLessons';
 import { useTimeslots } from '../../hooks/useTimeslots';
@@ -331,7 +331,16 @@ const EmploiDuTempsPage = () => {
           {isModalOpen && canCreateLesson && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white rounded-lg p-6 w-full max-w-xl">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('add_course', 'Ajouter un cours')}</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">{t('add_course', 'Ajouter un cours')}</h3>
+                  <button 
+                    aria-label="Fermer" 
+                    className="p-2 rounded hover:bg-gray-100" 
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
                 <form onSubmit={async (e) => {
                   e.preventDefault();
                   if (!canCreateLesson) {
@@ -448,7 +457,16 @@ const EmploiDuTempsPage = () => {
           {editModalOpen && editingCourse && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('edit_course', 'Modifier le cours')}</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">{t('edit_course', 'Modifier le cours')}</h3>
+                  <button 
+                    aria-label="Fermer" 
+                    className="p-2 rounded hover:bg-gray-100" 
+                    onClick={() => { setEditModalOpen(false); setEditingCourse(null); }}
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
                 <form onSubmit={async (e) => {
                   e.preventDefault();
                   const formData = new FormData(e.currentTarget);

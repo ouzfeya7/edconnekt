@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Plan } from './mock-plans';
 import { Button } from '../../../components/ui/button';
 import { FaPlus, FaTrash, FaTimes } from 'react-icons/fa';
+import { useModal } from '../../../hooks/useModal';
 
 interface PlanFormModalProps {
   isOpen: boolean;
@@ -20,6 +22,9 @@ const PlanFormModal: React.FC<PlanFormModalProps> = ({ isOpen, onClose, onSave, 
     limitations: { utilisateursMax: 0, fonctionnalites: [''] },
     status: 'actif',
   });
+  
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(isOpen, onClose);
 
   useEffect(() => {
     if (planToEdit) {
@@ -66,9 +71,17 @@ const PlanFormModal: React.FC<PlanFormModalProps> = ({ isOpen, onClose, onSave, 
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-2xl p-8 relative max-h-[90vh] overflow-y-auto shadow-xl">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-lg w-full max-w-2xl p-8 max-h-[90vh] overflow-y-auto shadow-xl z-10">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">{planToEdit ? 'Modifier' : 'Créer'} un plan d'abonnement</h2>
         <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
           <FaTimes size={20} />
@@ -124,6 +137,9 @@ const PlanFormModal: React.FC<PlanFormModalProps> = ({ isOpen, onClose, onSave, 
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
 };
 
 export default PlanFormModal;

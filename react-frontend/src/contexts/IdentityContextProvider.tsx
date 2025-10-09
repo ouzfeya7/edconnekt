@@ -135,6 +135,8 @@ const IdentityContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             estabsError ? 'Impossible de récupérer vos établissements' : undefined,
             selectionError,
           ].filter(Boolean).join('\n') || undefined}
+          activeEtabId={activeEtabId}
+          activeRole={activeRole}
         />
       )}
     </IdentityContext.Provider>

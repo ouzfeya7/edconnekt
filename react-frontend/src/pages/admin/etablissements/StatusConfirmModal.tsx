@@ -1,4 +1,6 @@
 import React, { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useModal } from '../../../hooks/useModal';
 
 interface StatusConfirmModalProps {
   isOpen: boolean;
@@ -11,6 +13,9 @@ interface StatusConfirmModalProps {
 const StatusConfirmModal: React.FC<StatusConfirmModalProps> = ({ isOpen, mode, etablissementName, onConfirm, onCancel }) => {
   const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
   const [details, setDetails] = useState<string>('');
+  
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(isOpen, onCancel);
 
   const reasons = useMemo(() => {
     if (mode === 'suspend') {
@@ -42,9 +47,17 @@ const StatusConfirmModal: React.FC<StatusConfirmModalProps> = ({ isOpen, mode, e
     setDetails('');
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onCancel}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-lg p-6 z-10">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           {mode === 'suspend' ? 'Suspendre l’établissement' : 'Activer l’établissement'}{etablissementName ? ` : ${etablissementName}` : ''}
         </h3>
@@ -97,6 +110,9 @@ const StatusConfirmModal: React.FC<StatusConfirmModalProps> = ({ isOpen, mode, e
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
 };
 
 export default StatusConfirmModal;

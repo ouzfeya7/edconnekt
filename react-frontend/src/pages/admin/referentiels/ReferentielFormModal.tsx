@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ReferentielItem, Referentiel } from './mock-referentiels';
 import { Button } from '../../../components/ui/button';
 import { FaTimes } from 'react-icons/fa';
+import { useModal } from '../../../hooks/useModal';
 
 interface ReferentielFormModalProps {
   isOpen: boolean;
@@ -15,6 +17,9 @@ interface ReferentielFormModalProps {
 
 const ReferentielFormModal: React.FC<ReferentielFormModalProps> = ({ isOpen, onClose, onSave, itemToEdit, activeReferentielId, referentiels }) => {
   const [formData, setFormData] = useState({ code: '', libelle: '', domaineId: '', matiereId: '' });
+  
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(isOpen, onClose);
 
   useEffect(() => {
     if (itemToEdit) {
@@ -46,9 +51,17 @@ const ReferentielFormModal: React.FC<ReferentielFormModalProps> = ({ isOpen, onC
   const domaines = referentiels.find(r => r.id === 'domaines_competences')?.items || [];
   const matieres = referentiels.find(r => r.id === 'matieres')?.items || [];
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-md p-8 relative shadow-xl">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-lg w-full max-w-md p-8 shadow-xl z-10">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">{itemToEdit ? 'Modifier' : 'Ajouter'} une entrée</h2>
         <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
           <FaTimes size={20} />
@@ -93,6 +106,9 @@ const ReferentielFormModal: React.FC<ReferentielFormModalProps> = ({ isOpen, onC
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
 };
 
 export default ReferentielFormModal;

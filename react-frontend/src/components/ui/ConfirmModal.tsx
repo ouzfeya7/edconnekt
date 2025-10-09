@@ -1,5 +1,7 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, X } from 'lucide-react';
+import { useModal } from '../../hooks/useModal';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -22,6 +24,9 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onConfirm,
   onCancel
 }) => {
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(isOpen, onCancel);
+
   if (!isOpen) return null;
 
   const getConfirmButtonClasses = () => {
@@ -34,16 +39,17 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Overlay */}
       <div 
         className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onCancel}
+        aria-hidden="true"
       />
       
       {/* Modal */}
-      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full z-10 transform transition-all">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
@@ -83,6 +89,9 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
 };
 
 export default ConfirmModal; 

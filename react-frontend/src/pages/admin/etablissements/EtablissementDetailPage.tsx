@@ -1,6 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useEstablishment } from '../../../hooks/useEstablishment';
+import { useModal } from '../../../hooks/useModal';
 // Retire l'ancien flux rooms (timetable-service) au profit d'establishment-service
 import { useTimeslots, useCreateTimeslot, useUpdateTimeslot, useDeleteTimeslot } from '../../../hooks/useTimeslots';
 import { useUpdateEstablishmentStatus } from '../../../hooks/useUpdateEstablishmentStatus';
@@ -11,6 +13,7 @@ import EtablissementFormModal from './EtablissementFormModal';
 import CreateClasseModal from '../classes/CreateClasseModal';
 import ImportClassesModal from '../classes/ImportClassesModal';
 import { FaPlus, FaFileImport, FaArrowLeft } from 'react-icons/fa';
+import { X } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { useEstablishmentAudit, useEstablishmentAuditStatistics, useExportEstablishmentAudit, useCreateManualAuditEntry, useEstablishmentAuditSummary } from '../../../hooks/useEstablishmentAudit';
 import { useClasses } from '../../../hooks/useClasses';
@@ -74,6 +77,10 @@ const EtablissementDetailPage: React.FC = () => {
   const deleteTimeslot = useDeleteTimeslot();
   const [editTimeslotOpen, setEditTimeslotOpen] = useState(false);
   const [timeslotToEdit, setTimeslotToEdit] = useState<{ id: string; start_time: string; end_time: string } | null>(null);
+  
+  // Utiliser les hooks personnalisés pour gérer les modals de créneaux
+  useModal(createTimeslotOpen, () => setCreateTimeslotOpen(false));
+  useModal(editTimeslotOpen, () => setEditTimeslotOpen(false));
   
 
   const location = useLocation();
@@ -379,10 +386,23 @@ const EtablissementDetailPage: React.FC = () => {
               </Button>
             </div>
           </div>
-          {createTimeslotOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
-              <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl">
-                <h3 className="text-lg font-semibold mb-4">Créer un créneau</h3>
+          {createTimeslotOpen && createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              {/* Overlay séparé */}
+              <div 
+                className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+                onClick={() => setCreateTimeslotOpen(false)}
+                aria-hidden="true"
+              />
+              
+              {/* Modal content */}
+              <div className="relative bg-white rounded-lg w-full max-w-md p-6 shadow-xl z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Créer un créneau</h3>
+                  <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => setCreateTimeslotOpen(false)}>
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
                 <form
                   onSubmit={async (e) => {
                     e.preventDefault();
@@ -425,12 +445,26 @@ const EtablissementDetailPage: React.FC = () => {
                   </div>
                 </form>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
-          {editTimeslotOpen && timeslotToEdit && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
-              <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl">
-                <h3 className="text-lg font-semibold mb-4">Modifier le créneau</h3>
+          {editTimeslotOpen && timeslotToEdit && createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              {/* Overlay séparé */}
+              <div 
+                className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+                onClick={() => setEditTimeslotOpen(false)}
+                aria-hidden="true"
+              />
+              
+              {/* Modal content */}
+              <div className="relative bg-white rounded-lg w-full max-w-md p-6 shadow-xl z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Modifier le créneau</h3>
+                  <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => { setEditTimeslotOpen(false); setTimeslotToEdit(null); }}>
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
                 <form
                   onSubmit={async (e) => {
                     e.preventDefault();
@@ -474,7 +508,8 @@ const EtablissementDetailPage: React.FC = () => {
                   </div>
                 </form>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       )}
@@ -779,6 +814,10 @@ function EstablishmentBuildingsSection({ etabId }: { etabId: string }) {
   const deleteB = useDeleteBuilding();
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState<{ id: string; nom: string; code_batiment: string; description?: string; nombre_etages?: number | ''; active?: boolean } | null>(null);
+  
+  // Utiliser les hooks personnalisés pour gérer les modals de bâtiments
+  useModal(open, () => setOpen(false));
+  useModal(!!edit, () => setEdit(null));
 
   return (
     <div className="border rounded p-4 space-y-4">
@@ -837,21 +876,49 @@ function EstablishmentBuildingsSection({ etabId }: { etabId: string }) {
         </div>
       </div>
 
-      {open && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl">
-            <h3 className="text-lg font-semibold mb-4">Créer un bâtiment</h3>
+      {open && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          {/* Overlay séparé */}
+          <div 
+            className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
+          />
+          
+          {/* Modal content */}
+          <div className="relative bg-white rounded-lg w-full max-w-md p-6 shadow-xl z-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Créer un bâtiment</h3>
+              <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => setOpen(false)}>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
             <BuildingForm onClose={() => setOpen(false)} onSubmit={async (v) => { await createB.mutateAsync({ establishmentId: etabId, payload: v as { code_batiment: string; nom: string; description?: string | null; nombre_etages?: number | null } }); setOpen(false); }} />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-      {edit && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl">
-            <h3 className="text-lg font-semibold mb-4">Modifier le bâtiment</h3>
+      {edit && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          {/* Overlay séparé */}
+          <div 
+            className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+            onClick={() => setEdit(null)}
+            aria-hidden="true"
+          />
+          
+          {/* Modal content */}
+          <div className="relative bg-white rounded-lg w-full max-w-md p-6 shadow-xl z-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Modifier le bâtiment</h3>
+              <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => setEdit(null)}>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
             <BuildingForm initial={edit} onClose={() => setEdit(null)} onSubmit={async (v) => { await updateB.mutateAsync({ establishmentId: etabId, buildingId: edit.id, update: v }); setEdit(null); }} />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
@@ -906,6 +973,10 @@ function EstablishmentRoomsSection({ etabId }: { etabId: string }) {
   const deleteR = useDeleteRoomEstablishment();
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState<{ id: string; nom: string; code_salle: string; capacite?: number | ''; etage?: number | ''; type_salle?: RoomTypeEnum | ''; active?: boolean } | null>(null);
+  
+  // Utiliser les hooks personnalisés pour gérer les modals
+  useModal(open, () => setOpen(false));
+  useModal(!!edit, () => setEdit(null));
 
   useEffect(() => {
     if (!selectedBuildingId && (buildings?.items?.[0]?.id)) {
@@ -978,21 +1049,49 @@ function EstablishmentRoomsSection({ etabId }: { etabId: string }) {
         </div>
       </div>
 
-      {open && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl">
-            <h3 className="text-lg font-semibold mb-4">Créer une salle</h3>
+      {open && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          {/* Overlay séparé */}
+          <div 
+            className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
+          />
+          
+          {/* Modal content */}
+          <div className="relative bg-white rounded-lg w-full max-w-md p-6 shadow-xl z-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Créer une salle</h3>
+              <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => setOpen(false)}>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
             <RoomForm onClose={() => setOpen(false)} onSubmit={async (v) => { await createR.mutateAsync({ establishmentId: etabId, buildingId: selectedBuildingId, payload: v as { code_salle: string; nom: string; capacite?: number | null; etage?: number | null; type_salle?: RoomTypeEnum | null } }); setOpen(false); }} />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-      {edit && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-xl">
-            <h3 className="text-lg font-semibold mb-4">Modifier la salle</h3>
+      {edit && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          {/* Overlay séparé */}
+          <div 
+            className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+            onClick={() => setEdit(null)}
+            aria-hidden="true"
+          />
+          
+          {/* Modal content */}
+          <div className="relative bg-white rounded-lg w-full max-w-md p-6 shadow-xl z-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Modifier la salle</h3>
+              <button aria-label="Fermer" className="p-2 rounded hover:bg-gray-100" onClick={() => setEdit(null)}>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
             <RoomForm initial={edit} onClose={() => setEdit(null)} onSubmit={async (v) => { await updateR.mutateAsync({ establishmentId: etabId, buildingId: selectedBuildingId, roomId: edit.id, update: v }); setEdit(null); }} />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

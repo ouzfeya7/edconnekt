@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
@@ -7,6 +8,7 @@ import { useEvents, useEvent } from '../../hooks/useEvents';
 import { useCreateEvent, usePublishEventById, useUpdateEvent, useRegisterToEvent } from '../../hooks/useEventMutations';
 import type { EventCreateCategoryEnum } from '../../api/event-service/api';
 import { FaPlus, FaFilter, FaCalendarAlt, FaEye, FaEdit, FaCheck, FaSearch, FaTimes, FaUserPlus, FaUsers } from 'react-icons/fa';
+import { useModal } from '../../hooks/useModal';
 
 export interface EventsManagerProps {
   etablissementId?: string | null;
@@ -31,8 +33,14 @@ const EventsManager: React.FC<EventsManagerProps> = ({ etablissementId: propEtab
 
   // create modal
   const [isCreateEventOpen, setIsCreateEventOpen] = React.useState(false);
+  
+  // Utiliser le hook personnalisé pour gérer le modal de création
+  useModal(isCreateEventOpen, () => setIsCreateEventOpen(false));
   // edit modal
   const [isEditEventOpen, setIsEditEventOpen] = React.useState(false);
+  
+  // Utiliser le hook personnalisé pour gérer le modal d'édition
+  useModal(isEditEventOpen, () => setIsEditEventOpen(false));
   const [editingEventId, setEditingEventId] = React.useState<string>('');
   const { data: editingEvent, isLoading: editingLoading } = useEvent(isEditEventOpen ? editingEventId : undefined);
   const updateEvent = useUpdateEvent(isEditEventOpen ? editingEventId : undefined);
@@ -326,9 +334,17 @@ const EventsManager: React.FC<EventsManagerProps> = ({ etablissementId: propEtab
         </div>
 
         {/* Modal création */}
-        {isCreateEventOpen && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-xl">
+        {isCreateEventOpen && createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            {/* Overlay séparé */}
+            <div 
+              className="absolute inset-0 bg-black/40 transition-opacity"
+              onClick={() => setIsCreateEventOpen(false)}
+              aria-hidden="true"
+            />
+            
+            {/* Modal content */}
+            <div className="relative bg-white rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-xl z-10">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                   <FaPlus className="text-blue-600" />
@@ -430,13 +446,22 @@ const EventsManager: React.FC<EventsManagerProps> = ({ etablissementId: propEtab
                 </div>
               </form>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* Modal d'édition */}
-        {isEditEventOpen && !!editingEventId && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-xl">
+        {isEditEventOpen && !!editingEventId && createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            {/* Overlay séparé */}
+            <div 
+              className="absolute inset-0 bg-black/40 transition-opacity"
+              onClick={() => setIsEditEventOpen(false)}
+              aria-hidden="true"
+            />
+            
+            {/* Modal content */}
+            <div className="relative bg-white rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-xl z-10">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                   <FaEdit className="text-yellow-600" />
@@ -542,7 +567,8 @@ const EventsManager: React.FC<EventsManagerProps> = ({ etablissementId: propEtab
                 </form>
               )}
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     </div>
