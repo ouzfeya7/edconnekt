@@ -39,9 +39,7 @@ messageAxios.interceptors.request.use((config) => {
 
   return config;
 });
-
-if ((import.meta as unknown as { env?: Record<string, string | undefined> }).env?.DEV) {
-   
+   if ((import.meta as unknown as { env?: Record<string, string | undefined> }).env?.DEV) {
   console.info('[message-api] baseURL =', messageAxios.defaults.baseURL);
 }
 

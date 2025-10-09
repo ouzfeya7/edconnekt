@@ -41,7 +41,6 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 // Log de contrôle
-// Attendu étape 5: "[service-api] baseURL = https://api.uat1-engy-partners.com/pdi/"
 console.log(`[pdi-api] baseURL = ${PDI_API_BASE_URL}`);
 
 export default axiosInstance;

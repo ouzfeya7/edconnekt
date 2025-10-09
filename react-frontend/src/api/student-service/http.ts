@@ -44,7 +44,6 @@ studentAxios.interceptors.request.use((config) => {
     const headers = { ...(config.headers as Record<string, unknown>) };
     if (headers && 'Authorization' in headers) headers.Authorization = '[REDACTED]';
     console.debug('[student-api][request]', {
-      method: (config.method || 'GET').toUpperCase(),
       url: `${config.baseURL || ''}${config.url || ''}`,
       params: config.params,
       headers,
