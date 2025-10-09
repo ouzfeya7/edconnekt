@@ -66,7 +66,7 @@ const EmploiDuTempsPage = () => {
     }
   }, [currentEtablissementId]);
 
-  // Plus besoin de persister un header legacy: l'intercepteur multi-tenant envoie X-Etab-Select/X-Role-Select
+  // Plus besoin de persister un header legacy: l'intercepteur multi-tenant envoie X-Etab/X-Roles
 
   // Calcul des dates de la semaine affichée (avant les appels API)
   const weekDates = useMemo(() => {
