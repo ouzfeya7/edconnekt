@@ -22,7 +22,7 @@ provisioningAxios.interceptors.request.use((config) => {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
-  // Multi-tenant: en-têtes de sélection (Gateway confirmera via X-Etab/X-Role)
+  // Multi-tenant: en-têtes de contexte (Gateway confirmera via X-Etab/X-Roles)
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
   if (activeEtabId) {
     config.headers = config.headers ?? {};

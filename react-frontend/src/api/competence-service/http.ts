@@ -22,7 +22,7 @@ competenceAxios.interceptors.request.use((config) => {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
-  // Multi-tenant: en-têtes de sélection
+  // Multi-tenant: en-têtes de contexte
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
   const hdrs = (config.headers = config.headers ?? {});
   // Respect an explicit override header if already present

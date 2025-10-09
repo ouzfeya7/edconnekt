@@ -30,7 +30,7 @@ studentAxios.interceptors.request.use((config) => {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
-  // Multi-tenant: en-têtes de sélection (le contexte global prévaut)
+  // Multi-tenant: en-têtes de contexte (le contexte global prévaut)
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
   if (activeEtabId) {
     config.headers = config.headers ?? {};

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { FaTimes } from 'react-icons/fa';
 import { Button } from '../../../components/ui/button';
+import { useModal } from '../../../hooks/useModal';
 import toast from 'react-hot-toast';
 import type { ClasseOut, ClasseUpdate } from '../../../api/classe-service/api';
 import { useUpdateClasse } from '../../../hooks/useUpdateClasse';
@@ -14,6 +16,9 @@ interface EditClasseModalProps {
 const EditClasseModal: React.FC<EditClasseModalProps> = ({ isOpen, onClose, classe }) => {
   const [form, setForm] = useState<ClasseUpdate>({ nom: '', niveau: '', annee_scolaire: '', capacity: undefined, status: undefined });
   const updateMutation = useUpdateClasse();
+  
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(isOpen, onClose);
 
   useEffect(() => {
     if (classe) {
@@ -48,9 +53,17 @@ const EditClasseModal: React.FC<EditClasseModalProps> = ({ isOpen, onClose, clas
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
-      <div className="bg-white rounded-lg w-full max-w-lg p-6 relative shadow-xl">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-lg w-full max-w-lg p-6 shadow-xl z-10">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-gray-800">Modifier la classe</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><FaTimes size={20} /></button>
@@ -95,6 +108,9 @@ const EditClasseModal: React.FC<EditClasseModalProps> = ({ isOpen, onClose, clas
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
 };
 
 export default EditClasseModal;

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
+import { useModal } from '../../../hooks/useModal';
 
 interface Circular {
   id: string;
@@ -20,6 +22,9 @@ const CircularModal: React.FC<CircularModalProps> = ({ isOpen, onClose, onSave, 
   const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(isOpen, onClose);
 
   useEffect(() => {
     if (circular) {
@@ -43,9 +48,17 @@ const CircularModal: React.FC<CircularModalProps> = ({ isOpen, onClose, onSave, 
     onSave(newCircular);
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 relative">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 z-10">
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
           <X className="w-6 h-6" />
         </button>
@@ -71,6 +84,9 @@ const CircularModal: React.FC<CircularModalProps> = ({ isOpen, onClose, onSave, 
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
 };
 
 export default CircularModal;

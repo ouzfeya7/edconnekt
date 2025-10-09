@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Utilisateur, UserRole } from './mock-utilisateurs';
 import { etablissementsData } from '../etablissements/mock-etablissements';
 import { Button } from '../../../components/ui/button';
 import { FaTimes } from 'react-icons/fa';
+import { useModal } from '../../../hooks/useModal';
 
 interface UtilisateurFormModalProps {
   isOpen: boolean;
@@ -17,6 +19,9 @@ const UtilisateurFormModal: React.FC<UtilisateurFormModalProps> = ({ isOpen, onC
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<UserRole>('enseignant');
   const [etablissementId, setEtablissementId] = useState('');
+
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(isOpen, onClose);
 
   const isInvitation = !utilisateurToEdit;
 
@@ -53,9 +58,17 @@ const UtilisateurFormModal: React.FC<UtilisateurFormModalProps> = ({ isOpen, onC
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-lg p-8 relative shadow-xl">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-lg w-full max-w-lg p-8 shadow-xl z-10">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">{isInvitation ? 'Inviter un nouvel utilisateur' : 'Modifier l\'utilisateur'}</h2>
         <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
           <FaTimes size={20} />
@@ -101,6 +114,9 @@ const UtilisateurFormModal: React.FC<UtilisateurFormModalProps> = ({ isOpen, onC
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
 };
 
 export default UtilisateurFormModal;

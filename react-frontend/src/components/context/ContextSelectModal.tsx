@@ -1,9 +1,10 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import type { EstablishmentRole } from '../../utils/contextStorage';
 import { usePublicEstablishments } from '../../hooks/usePublicEstablishments';
 import type { EtablissementOut } from '../../api/establishment-service/api';
-import { useIdentityContext } from '../../contexts/IdentityContextProvider';
+import { useModal } from '../../hooks/useModal';
 
 interface Props {
   open: boolean;
@@ -18,6 +19,8 @@ interface Props {
   zeroEstabs?: boolean;
   loading?: boolean;
   error?: string;
+  activeEtabId?: string | null;
+  activeRole?: EstablishmentRole | null;
 }
 
 const ContextSelectModal: React.FC<Props> = ({
@@ -33,9 +36,13 @@ const ContextSelectModal: React.FC<Props> = ({
   zeroEstabs,
   loading,
   error,
+  activeEtabId,
+  activeRole,
 }) => {
   const [selectedRole, setSelectedRole] = React.useState<EstablishmentRole | ''>('');
-  const { activeEtabId, activeRole } = useIdentityContext();
+  
+  // Utiliser le hook personnalisé pour gérer le modal (sauf si blockClose est activé)
+  useModal(open, blockClose ? () => {} : onClose);
 
   // Charger les établissements publics pour afficher le nom au lieu de l'UUID
   const { data: publicEstabs } = usePublicEstablishments({ limit: 100 });
@@ -65,9 +72,17 @@ const ContextSelectModal: React.FC<Props> = ({
 
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-xl w-full max-w-3xl p-0 shadow-2xl overflow-hidden border border-gray-200">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé */}
+      <div 
+        className="absolute inset-0 bg-black/40 transition-opacity"
+        onClick={blockClose ? undefined : onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-xl w-full max-w-3xl p-0 shadow-2xl overflow-hidden border border-gray-200 z-10">
         <div className="flex items-center justify-between px-5 py-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Sélection du contexte</h3>
@@ -186,6 +201,9 @@ const ContextSelectModal: React.FC<Props> = ({
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
 };
 
 function labelForRole(r: EstablishmentRole): string {

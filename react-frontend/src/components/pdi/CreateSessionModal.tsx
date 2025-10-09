@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Plus, Calendar, Users } from 'lucide-react';
 import { PdiSession } from '../../types/pdi';
+import { useModal } from '../../hooks/useModal';
 
 interface CreateSessionModalProps {
   isOpen: boolean;
@@ -18,6 +20,9 @@ const CreateSessionModal: React.FC<CreateSessionModalProps> = ({
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [observations, setObservations] = useState('');
+  
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -62,9 +67,17 @@ const CreateSessionModal: React.FC<CreateSessionModalProps> = ({
     return tomorrow.toISOString().split('T')[0];
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-40 transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-xl shadow-xl p-6 w-full max-w-md z-10">
         {/* En-tête */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -160,6 +173,9 @@ const CreateSessionModal: React.FC<CreateSessionModalProps> = ({
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
 };
 
 export default CreateSessionModal;

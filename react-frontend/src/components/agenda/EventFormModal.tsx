@@ -3,6 +3,7 @@ import { Dialog } from '@headlessui/react';
 import { X, Calendar, MapPin, Clock, Users, FileText, Tag } from 'lucide-react';
 import { SchoolEvent, getEventCategories, getTargetAudiences } from './agenda_data';
 import { useTranslation } from 'react-i18next';
+import { useModal } from '../../hooks/useModal';
 
 interface EventFormModalProps {
   isOpen: boolean;
@@ -34,9 +35,12 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
   isEditMode
 }) => {
   const { t } = useTranslation();
+  
+  // Utiliser le hook personnalisé pour gérer le modal (scroll du body)
+  useModal(isOpen, onClose);
 
   return (
-    <Dialog open={isOpen} onClose={onClose} className="fixed z-50 inset-0 overflow-y-auto">
+    <Dialog open={isOpen} onClose={onClose} className="fixed z-[9999] inset-0 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
         <Dialog.Panel className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto z-10 max-h-[90vh] overflow-y-auto">

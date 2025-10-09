@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
+import { useModal } from '../../../hooks/useModal';
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -10,6 +12,9 @@ interface AddUserModalProps {
 const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const [role, setRole] = useState('STUDENT');
+  
+  // Utiliser le hook personnalisé pour gérer le modal
+  useModal(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -20,9 +25,17 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose }) => {
     onClose(); // Close modal after submission
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md relative">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay séparé */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md z-10">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
@@ -76,6 +89,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose }) => {
       </div>
     </div>
   );
+
+  // Utiliser createPortal pour rendre au niveau racine
+  return createPortal(modalContent, document.body);
 };
 
 export default AddUserModal;
