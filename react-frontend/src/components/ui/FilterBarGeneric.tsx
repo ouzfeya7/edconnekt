@@ -30,7 +30,7 @@ interface FilterBarGenericProps {
   actions?: Array<{
     label: string;
     onClick: () => void;
-    variant?: 'primary' | 'secondary' | 'danger';
+    variant?: 'primary' | 'secondary' | 'danger' | 'publish' | 'clone' | 'tree';
     disabled?: boolean;
   }>;
 }
@@ -65,6 +65,12 @@ const FilterBarGeneric: React.FC<FilterBarGenericProps> = ({
         return 'bg-blue-600 text-white hover:bg-blue-700';
       case 'danger':
         return 'bg-red-600 text-white hover:bg-red-700';
+      case 'publish':
+        return 'bg-emerald-500 text-white hover:bg-emerald-600 border-emerald-500';
+      case 'clone':
+        return 'bg-violet-500 text-white hover:bg-violet-600 border-violet-500';
+      case 'tree':
+        return 'bg-amber-500 text-white hover:bg-amber-600 border-amber-500';
       default:
         return 'border border-gray-300 text-gray-700 hover:bg-gray-50';
     }
@@ -118,7 +124,7 @@ const FilterBarGeneric: React.FC<FilterBarGenericProps> = ({
             <button
               onClick={onExport}
               disabled={isLoading}
-              className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 bg-slate-500 text-white border border-slate-500 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? 'Export...' : 'Exporter CSV'}
             </button>
