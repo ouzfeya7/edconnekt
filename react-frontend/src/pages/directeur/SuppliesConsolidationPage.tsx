@@ -103,17 +103,7 @@ const SuppliesConsolidationPage: React.FC = () => {
     <div>
       <Toaster position="top-right" />
       
-      {/* Header de section */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-teal-100 rounded-lg">
-          <GitMerge className="h-6 w-6 text-teal-600" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">{t('Consolidation', 'Consolidation')}</h2>
-          <p className="text-gray-600 text-sm">{t('Analysez et appliquez les décisions de consolidation', 'Analysez et appliquez les décisions de consolidation')}</p>
-        </div>
-      </div>
-        {/* Section de configuration */}
+      {/* Section de configuration */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Search className="h-5 w-5 text-gray-400" />
