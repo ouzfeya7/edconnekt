@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { publicationApi } from '../../api/supplies-service/client';
+import { usePublicList, usePublicListPdf } from '../../hooks/useSuppliesTeacherListMutations';
 import { Toaster, toast } from 'react-hot-toast';
 import { 
   List, 
@@ -20,6 +21,9 @@ const PublicSuppliesListPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
+  const publicList = usePublicList(campaignId || undefined, classId || undefined);
+  const publicPdf = usePublicListPdf(campaignId || undefined, classId || undefined);
+
   const handleLoad = async () => {
     if (!campaignId || !classId) {
       toast.error(t('Veuillez saisir la campagne et la classe', 'Veuillez saisir la campagne et la classe'));
@@ -29,8 +33,8 @@ const PublicSuppliesListPage: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await publicationApi.publicListApiCampaignsCampaignIdPublicListGet(campaignId, classId);
-      setItems(res.data.items ?? []);
+      const res = await publicList.mutateAsync();
+      setItems((res as { items?: typeof items } | undefined)?.items ?? []);
       toast.success(t('Liste chargée avec succès', 'Liste chargée avec succès'));
     } catch {
       const errorMsg = t('Erreur de chargement', 'Erreur de chargement');
@@ -48,7 +52,7 @@ const PublicSuppliesListPage: React.FC = () => {
     }
 
     try {
-      await publicationApi.publicListPdfApiCampaignsCampaignIdPublicListPdfGet(campaignId, classId);
+      await publicPdf.mutateAsync();
       toast.success(t('PDF généré avec succès', 'PDF généré avec succès'));
     } catch {
       toast.error(t('Erreur lors de la génération du PDF', 'Erreur lors de la génération du PDF'));
@@ -117,11 +121,11 @@ const PublicSuppliesListPage: React.FC = () => {
               <label className="text-sm font-medium text-gray-700">&nbsp;</label>
               <button 
                 className="w-full bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2"
-                disabled={!canQuery}
+                disabled={!canQuery || publicPdf.isPending}
                 onClick={handlePdf}
               >
                 <Download className="h-4 w-4" />
-                {t('PDF', 'Télécharger PDF')}
+                {publicPdf.isPending ? t('Génération...', 'Génération...') : t('PDF', 'Télécharger PDF')}
               </button>
             </div>
           </div>

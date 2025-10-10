@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { campaignsApi } from '../api/supplies-service/client';
-// List endpoint typing changed in regenerated client; keep flexible locally
 
 export function useSuppliesCampaignDashboard(campaignId: string | undefined) {
   return useQuery({
@@ -16,7 +15,6 @@ export function useSuppliesCampaignDashboard(campaignId: string | undefined) {
 export function useSuppliesCampaignList(params: {
   q?: string | null;
   status?: string | null;
-  order?: string | null; // no longer supported server-side; ignored
   establishmentId?: string | null;
   schoolYear?: string | null;
   classId?: string | null;
@@ -26,7 +24,6 @@ export function useSuppliesCampaignList(params: {
   const {
     q = null,
     status = null,
-    order = null,
     establishmentId = null,
     schoolYear = null,
     classId = null,
@@ -34,12 +31,11 @@ export function useSuppliesCampaignList(params: {
     offset = 0,
   } = params ?? {};
   return useQuery({
-    queryKey: ['supplies', 'campaign', 'list', { q, status, order, establishmentId, schoolYear, classId, limit, offset }],
+    queryKey: ['supplies', 'campaign', 'list', { q, status, establishmentId, schoolYear, classId, limit, offset }],
     queryFn: async () => {
-      // New API: listCampaigns(name?, status?, establishmentId?, schoolYear?, classId?, limit?, offset?)
-      const name = q;
+      // API: listCampaigns(name?, status?, establishmentId?, schoolYear?, classId?, limit?, offset?)
       const res = await campaignsApi.listCampaignsApiCampaignsGet(
-        name,
+        q,
         status,
         establishmentId,
         schoolYear,
@@ -47,15 +43,12 @@ export function useSuppliesCampaignList(params: {
         limit,
         offset
       );
-      const data = res.data as unknown;
-      // Schéma officiel: { campaigns, total_count, limit, offset }
-      if (data && typeof data === 'object') {
-        const obj = data as { campaigns?: unknown; items?: unknown } & Record<string, unknown>;
-        if (Array.isArray(obj.campaigns)) return obj.campaigns as Array<{ id: string; name?: string; status?: string; created_at?: string; updated_at?: string }>;
-        if (Array.isArray(obj.items)) return obj.items as Array<{ id: string; name?: string; status?: string; created_at?: string; updated_at?: string }>;
-      }
-      if (Array.isArray(data)) return data as Array<{ id: string; name?: string; status?: string; created_at?: string; updated_at?: string }>;
-      return [] as Array<{ id: string; name?: string; status?: string; created_at?: string; updated_at?: string }>;
+      return res.data as {
+        campaigns: Array<{ id: string; name: string; status: string; created_at: string; updated_at: string }>;
+        total_count: number;
+        limit: number;
+        offset: number;
+      };
     },
   });
 }

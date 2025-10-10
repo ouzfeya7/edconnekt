@@ -25,10 +25,11 @@ const SuppliesCampaignsPage: React.FC = () => {
   
   const [newName, setNewName] = useState<string>('');
   const [newSchoolYear, setNewSchoolYear] = useState<string>('');
+  const [newClasses, setNewClasses] = useState<string>('');
   const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
   const [selectedCampaignId, setSelectedCampaignId] = useState<string>('');
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
-  const [order] = useState<string>('');
+  // 'order' supprimé (non supporté côté API)
   const [limit, setLimit] = useState<number>(20);
   const [offset, setOffset] = useState<number>(0);
   const [viewMode, setViewMode] = useState<'cards' | 'compact'>('cards');
@@ -45,16 +46,16 @@ const SuppliesCampaignsPage: React.FC = () => {
 
   const qc = useQueryClient();
   const { data: dashboard, isLoading: isDashLoading, refetch: refetchDashboard } = useSuppliesCampaignDashboard(selectedCampaignId || undefined);
-  const { data: listData } = useSuppliesCampaignList({
+  const { data: listResp } = useSuppliesCampaignList({
     q: filters.search || null,
     status: filters.status || null,
-    order: order || null,
     establishmentId: filters.establishmentId || null,
     schoolYear: filters.schoolYear || null,
     classId: filters.classId || null,
     limit,
     offset,
   });
+  const listData = listResp?.campaigns ?? [];
 
   const create = useCreateCampaign();
   const open = useOpenCampaign();
@@ -115,7 +116,7 @@ const SuppliesCampaignsPage: React.FC = () => {
           }}
           onCreate={() => setIsCreateOpen(true)}
           isLoading={false}
-          totalCount={(listData ?? []).length}
+          totalCount={listResp?.total_count ?? 0}
           advancedFilters={[
             {
               key: 'status',
@@ -155,7 +156,7 @@ const SuppliesCampaignsPage: React.FC = () => {
           {/* Sélecteur de vue simple */}
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm text-gray-600">
-              {(listData ?? []).length} campagne{(listData ?? []).length > 1 ? 's' : ''}
+              {(listResp?.total_count ?? 0)} campagne{(listResp?.total_count ?? 0) > 1 ? 's' : ''}
             </div>
             <div className="inline-flex rounded-md shadow-sm">
               <button
@@ -331,7 +332,7 @@ const SuppliesCampaignsPage: React.FC = () => {
         </div>
 
         {/* Pagination modernisée */}
-        {(listData ?? []).length > 0 && (
+        {(listResp?.total_count ?? 0) > 0 && (
           <div className="flex items-center justify-between px-6 pb-6 pt-6 border-t bg-gradient-to-b from-white to-gray-50">
             <button
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-gray-300 text-gray-700 font-medium hover:bg-white hover:border-sky-300 hover:text-sky-600 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-gray-300 disabled:hover:text-gray-700 transition-all shadow-sm hover:shadow"
@@ -347,6 +348,7 @@ const SuppliesCampaignsPage: React.FC = () => {
             <button
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-gray-300 text-gray-700 font-medium hover:bg-white hover:border-sky-300 hover:text-sky-600 transition-all shadow-sm hover:shadow"
               onClick={() => setOffset(offset + limit)}
+              disabled={offset + limit >= (listResp?.total_count ?? 0)}
             >
               {t('Suivant', 'Suivant')} →
             </button>
@@ -392,6 +394,17 @@ const SuppliesCampaignsPage: React.FC = () => {
                     onChange={(e) => setNewSchoolYear(e.target.value)}
                   />
                 </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t('Classes (IDs, séparés par des virgules)', 'Classes (IDs, séparés par des virgules)')}
+                </label>
+                <input
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:border-gray-300"
+                  placeholder={t('Ex: 6A,6B,CM2', 'Ex: 6A,6B,CM2')}
+                  value={newClasses}
+                  onChange={(e) => setNewClasses(e.target.value)}
+                />
+              </div>
                 <div className="flex justify-end gap-3 pt-2">
                   <button
                     className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
@@ -410,9 +423,19 @@ const SuppliesCampaignsPage: React.FC = () => {
                           toast.error(t("Aucun établissement sélectionné", 'Aucun établissement sélectionné'));
                           return;
                         }
-                        const created = await create.mutateAsync({ name: newName.trim(), establishmentId: etabId, schoolYear: newSchoolYear.trim() });
+                        const classesArray = newClasses
+                          .split(',')
+                          .map((s) => s.trim())
+                          .filter((s) => s.length > 0);
+                        const created = await create.mutateAsync({
+                          name: newName.trim(),
+                          establishmentId: etabId,
+                          schoolYear: newSchoolYear.trim(),
+                          ...(classesArray.length > 0 ? { classes: classesArray } : {}),
+                        });
                         setNewName('');
                         setNewSchoolYear('');
+                        setNewClasses('');
                         setIsCreateOpen(false);
                         const createdId = (created as { id?: string } | undefined)?.id;
                         if (createdId) {

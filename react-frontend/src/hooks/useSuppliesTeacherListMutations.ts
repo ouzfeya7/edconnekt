@@ -87,13 +87,13 @@ export function usePublicList(campaignId: string | undefined, classId: string | 
 export function usePublicListPdf(campaignId: string | undefined, classId: string | undefined) {
   return useMutation({
     mutationFn: async () => {
-      // Récupérer le PDF en blob
+      // Récupérer le PDF en blob (forcer responseType: 'blob')
       const res = await publicationApi.publicListPdfApiCampaignsCampaignIdPublicListPdfGet(
         campaignId as string,
         classId as string,
+        { responseType: 'blob' }
       );
-      // Selon le generator, la réponse peut déjà être un blob; sinon on la reconstruit
-      const blob = (res as unknown as { data: Blob }).data ?? new Blob([JSON.stringify(res.data)], { type: 'application/pdf' });
+      const blob = (res as unknown as { data: Blob }).data;
       // Déclenche un téléchargement
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
