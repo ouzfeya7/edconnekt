@@ -162,18 +162,110 @@ Deux intercepteurs Axios sont cruciaux pour le fonctionnement de l'application :
     -   Le fichier `src/api/httpAuth.ts` contient une fonction `attachAuthRefresh`.
     -   Cette fonction attache un intercepteur qui gère le renouvellement de token. Si une API retourne une erreur `401 Unauthorized`, il tente de rafraîchir le token via Keycloak et de rejouer la requête automatiquement.
 
-### Tableau récapitulatif des services API
+### Intégration des Services API
 
-| Service                       | Chemin du client                            | Contexte                               |
-| ----------------------------- | ------------------------------------------- | -------------------------------------- |
-| **Admission Service**         | `src/api/admission-service/`                | `X-Etab`, `X-Roles`                    |
-| **Classe Service**            | `src/api/classe-service/`                   | `X-Etab`, `X-Roles`                    |
-| **Competence Service**        | `src/api/competence-service/`               | `X-Etab`, `X-Roles`                    |
-| **Establishment Service**     | `src/api/establishment-service/`            | `X-Etab`, `X-Roles`                    |
-| **Identity Service**          | `src/api/identity-service/`                 | `X-Etab`, `X-Roles` (pour l'onboarding) |
-| **Resource Service**          | `src/api/resource-service/`                 | `X-Etab`, `X-Roles`                    |
-| **Supplies Service**          | `src/api/supplies-service/`                 | `X-Etab`, `X-Roles`                    |
-| ... (autres services)         | ...                                         | ...                                    |
+Voici une description détaillée de chaque microservice API et de son intégration dans le front-end via les hooks personnalisés.
+
+#### `admission-service`
+-   **Rôle**: Gère le processus d'admission des élèves.
+-   **Client API**: `src/api/admission-service/`
+-   **Hooks associés**:
+    -   `useAdmissions`: Récupère la liste des admissions.
+    -   `useAdmissionStats`: Récupère les statistiques sur les admissions.
+    -   `useAdmissionMutations`: Contient les hooks pour créer, mettre à jour ou supprimer des admissions.
+
+#### `classe-service`
+-   **Rôle**: Gère les informations sur les classes, y compris les élèves et les enseignants qui y sont rattachés.
+-   **Client API**: `src/api/classe-service/`
+-   **Hooks associés**:
+    -   `useClasses`, `useClasse`: Récupèrent la liste des classes ou une classe spécifique.
+    -   `useClasseEleves`, `useClasseEnseignants`: Listent les élèves et enseignants d'une classe.
+    -   `useCreateClasse`, `useUpdateClasse`, `useArchiveClasse`: Gèrent le cycle de vie d'une classe.
+    -   `useAssignEleve`, `useAssignEnseignant`: Gèrent l'affectation des utilisateurs à une classe.
+
+#### `competence-service`
+-   **Rôle**: Service très complet pour la gestion des référentiels pédagogiques (domaines, matières, compétences).
+-   **Client API**: `src/api/competence-service/`
+-   **Hooks associés (dans `src/hooks/competence/`)**:
+    -   `useReferentials`, `useDomains`, `useSubjects`, `useCompetencies`: Hooks de lecture pour l'ensemble des entités du référentiel.
+    -   `usePublicReferentialTree`: Récupère l'arborescence complète d'un référentiel public.
+    -   `useLookupCompetencyByCode`: Recherche une compétence par son code unique.
+    -   `useMutations`: Un hook central qui expose toutes les mutations (création, mise à jour, suppression, publication, clonage) pour les référentiels et leurs composants.
+    -   `useEvents`: Permet de suivre les événements du domaine (pattern Outbox).
+
+#### `establishment-service`
+-   **Rôle**: Gère les informations sur les établissements, leurs bâtiments et leurs salles.
+-   **Client API**: `src/api/establishment-service/`
+-   **Hooks associés**:
+    -   `useEstablishments`, `useEstablishment`: Récupèrent la liste des établissements ou un établissement spécifique.
+    -   `usePublicEstablishments`: Récupère la liste des établissements publics (utilisé par les administrateurs).
+    -   `useBuildings`, `useRooms`: Gèrent les bâtiments et les salles.
+    -   `useCreateEstablishment`, `useUpdateEstablishment`: Gèrent le cycle de vie d'un établissement.
+
+#### `event-service`
+-   **Rôle**: Gère les événements de l'agenda (calendrier).
+-   **Client API**: `src/api/event-service/`
+-   **Hooks associés**:
+    -   `useEvents`: Récupère la liste des événements pour une période donnée.
+    -   `useEventMutations`: Contient les hooks pour créer, mettre à jour et supprimer des événements.
+    -   `useEventParticipants`: Gère les participants à un événement.
+
+#### `identity-service`
+-   **Rôle**: Gère l'identité des utilisateurs, les lots d'import et l'authentification (via Keycloak). C'est un service central pour l'onboarding.
+-   **Client API**: `src/api/identity-service/`
+-   **Hooks associés**:
+    -   `useIdentity`: Récupère les informations d'un lot d'import d'identités (`IdentityBatch`).
+    -   `useIdentityContext`: Bien que ce soit un hook de contexte, il est étroitement lié à ce service pour gérer le contexte de l'utilisateur authentifié.
+
+#### `message-service`
+-   **Rôle**: Gère la messagerie interne de l'application.
+-   **Client API**: `src/api/message-service/`
+-   **Hooks associés**:
+    -   `useMessageConversations`: Récupère la liste des conversations.
+    -   `useMessageMessages`: Récupère les messages d'une conversation spécifique.
+    -   `useMessageUploads`: Gère les pièces jointes dans les messages.
+
+#### `pdi-service`
+-   **Rôle**: Gère les PDI (Plans de Développement Individualisés).
+-   **Client API**: `src/api/pdi-service/`
+-   **Hooks associés**: Le nom des hooks n'est pas explicite dans la liste, mais ils sont probablement liés à `usePdi...` ou intégrés dans d'autres hooks plus généraux.
+
+#### `provisioning-service`
+-   **Rôle**: Gère la deuxième étape de l'onboarding : la création effective des comptes utilisateurs dans Keycloak après la validation des identités.
+-   **Client API**: `src/api/provisioning-service/`
+-   **Hooks associés**:
+    -   `useProvisioning`: Contient les hooks pour créer et exécuter un lot de provisioning (`useProvisioningCreateBatch`, `useProvisioningRunBatch`).
+
+#### `resource-service`
+-   **Rôle**: Gère les ressources pédagogiques (fichiers, liens, etc.).
+-   **Client API**: `src/api/resource-service/`
+-   **Hooks associés**:
+    -   `useResources`, `useResourceDetail`: Récupèrent la liste des ressources ou une ressource spécifique.
+    -   `useCreateResource`, `useUpdateResource`, `useArchiveResource`, `useRestoreResource`: Gèrent le cycle de vie d'une ressource.
+    -   `useDownloadResourceFile`: Gère le téléchargement des fichiers de ressources.
+
+#### `student-service`
+-   **Rôle**: Gère les informations spécifiques aux élèves, comme les absences et les notes.
+-   **Client API**: `src/api/student-service/`
+-   **Hooks associés (dans `src/hooks/students/`)**:
+    -   `useAbsences`: Gère les absences des élèves.
+    -   (Les hooks de notes sont probablement dans ce service également).
+
+#### `supplies-service`
+-   **Rôle**: Gère les campagnes de fournitures scolaires et les listes associées.
+-   **Client API**: `src/api/supplies-service/`
+-   **Hooks associés**:
+    -   `useSuppliesCampaigns`, `useSuppliesCampaignDashboard`: Récupèrent les informations sur les campagnes de fournitures.
+    -   `useSuppliesTeacherList`, `useSuppliesParentChecklist`: Récupèrent les listes de fournitures pour les enseignants et les parents.
+    -   `useSuppliesCampaignMutations`, `useSuppliesTeacherListMutations`: Contiennent les hooks pour créer/modifier les campagnes et les listes.
+
+#### `timetable-service`
+-   **Rôle**: Gère tout ce qui concerne l'emploi du temps.
+-   **Client API**: `src/api/timetable-service/`
+-   **Hooks associés**:
+    -   `useTimeslots`: Récupère les créneaux horaires.
+    -   `useReplacements`: Gère les remplacements d'enseignants.
+    -   `useAuditTrail`: Récupère l'historique des modifications de l'emploi du temps.
 
 ## E. Domaines fonctionnels clés
 
