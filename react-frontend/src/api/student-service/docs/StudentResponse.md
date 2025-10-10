@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **photo_url** | **string** |  | [optional] [default to undefined]
 **status** | [**StudentStatusEnum**](StudentStatusEnum.md) | Statut de l\&#39;élève | [optional] [default to undefined]
 **id** | **string** |  | [default to undefined]
+**code_identite** | **string** |  | [optional] [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 
 ## Example
@@ -27,6 +28,7 @@ const instance: StudentResponse = {
     photo_url,
     status,
     id,
+    code_identite,
     created_at,
 };
 ```

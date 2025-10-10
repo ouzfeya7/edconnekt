@@ -30,7 +30,7 @@ const UsersPage = () => {
     { id: 'import', label: t('onboarding', 'Onboarding'), icon: Upload },
     { id: 'suivi', label: t('onboarding_tracking', 'Suivi Onboarding'), icon: UserCheck },
     { id: 'identities', label: t('identities', 'Identités'), icon: IdCard },
-    { id: 'students', label: t('students', 'Élèves'), icon: User },
+    { id: 'students', label: t('students_label', 'Élèves'), icon: User },
     { id: 'teachers', label: t('teachers', 'Enseignants'), icon: UserCog },
     { id: 'parents', label: t('parents', 'Parents'), icon: Users },
     { id: 'staff', label: t('administrative_staff', 'Personnel administratif'), icon: Shield },

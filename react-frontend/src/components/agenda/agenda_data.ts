@@ -9,7 +9,7 @@ export const getEventCategories = (t: TFunction) => ({
   autre: { label: t('other', 'Autre'), className: 'event-autre', tailwindColors: 'bg-gray-100 text-gray-800' },
 });
 
-export const getTargetAudiences = (t: TFunction) => [t('students', 'Élèves'), t('parents', 'Parents'), t('teachers', 'Professeurs'), t('staff', 'Personnel'), t('all', 'Tous')];
+export const getTargetAudiences = (t: TFunction) => [t('students_label', 'Élèves'), t('parents', 'Parents'), t('teachers', 'Professeurs'), t('staff', 'Personnel'), t('all', 'Tous')];
 
 export interface SchoolEvent extends EventInput {
   start?: string;

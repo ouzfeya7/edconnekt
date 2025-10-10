@@ -245,7 +245,7 @@
     "level_statistics": "Statistiques par niveau",
     "average": "Moyenne",
     "general_average": "Moyenne générale",
-    "students": "Élèves",
+    "students_label": "Élèves",
     "attendance_rate": "Taux de présence",
     "last_update": "Dernière mise à jour",
     "refresh_data": "Actualiser les données",
@@ -586,5 +586,20 @@
       "open_detail": "Ouvrir la fiche",
       "open_ref": "Ouvrir le référentiel"
     }
-  }     
+  },
+  "student_toast": {
+      "create_success": "Élève créé",
+      "create_failed": "Échec de la création",
+      "update_success": "Mise à jour effectuée",
+      "update_failed": "Échec de la mise à jour",
+      "link_success": "Parent lié",
+      "link_failed": "Échec du lien parent",
+      "unlink_success": "Parent délié",
+      "unlink_failed": "Échec du déliage parent",
+      "transfer_success": "Transfert effectué",
+      "transfer_failed": "Échec du transfert",
+      "import_success": "Import terminé",
+      "import_failed": "Échec de l'import",
+      "download_template_failed": "Échec du téléchargement du modèle"
+    }
 }

@@ -145,7 +145,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } catch (error) {
         console.error("Erreur lors de la déconnexion", error);
       }
-      keycloak.logout({ redirectUri: 'http://localhost:8000/' });
+      keycloak.logout({ redirectUri: 'https://app.uat1-engy-partners.com/' });
     } else {
       setIsAuthenticated(false);
       setUser(null);

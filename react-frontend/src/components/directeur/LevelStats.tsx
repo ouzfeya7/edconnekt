@@ -77,7 +77,7 @@ const LevelStats: React.FC<LevelStatsProps> = ({ className = '' }) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center text-sm text-gray-600">
                   <Users className="w-4 h-4 mr-2" />
-                  {t('students', 'Élèves')}
+                  {t('students_label', 'Élèves')}
                 </div>
                 <span className="font-semibold">{level.eleves}</span>
               </div>
