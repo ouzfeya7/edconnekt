@@ -178,7 +178,7 @@
                     "Students"
                 ],
                 "summary": "Get Students",
-                "description": "Récupérer tous les élèves avec pagination et filtres.\nRÈGLE MÉTIER : Les enseignants ne voient pas les élèves ARCHIVED.",
+                "description": "Récupérer tous les élèves avec pagination et filtres selon le contexte tenant.",
                 "operationId": "get_students_api_students__get",
                 "parameters": [
                     {
@@ -621,6 +621,68 @@
                     }
                 }
             }
+        },
+        "/api/students/parent-relations/import": {
+            "post": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Import Parent Relations",
+                "description": "Importer en masse des relations Parent-Élève via CSV.\n\nColonnes attendues (FR/EN):\n- code_identite_enfant | child_code_identite | child_code\n- code_identite_parent | parent_code_identite | parent_code\n- relation (mother|father|tutor)",
+                "operationId": "import_parent_relations_api_students_parent_relations_import_post",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_import_parent_relations_api_students_parent_relations_import_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ParentImportResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/students/parent-relations/template": {
+            "get": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Get Parent Relations Template",
+                "description": "Télécharger un template CSV pour l'import des relations Parent-Élève.",
+                "operationId": "get_parent_relations_template_api_students_parent_relations_template_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -634,6 +696,21 @@
                     "STATUS"
                 ],
                 "title": "AuditActionEnum"
+            },
+            "Body_import_parent_relations_api_students_parent_relations_import_post": {
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "title": "File",
+                        "description": "Fichier CSV des relations parent-élève"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "file"
+                ],
+                "title": "Body_import_parent_relations_api_students_parent_relations_import_post"
             },
             "ClassMembershipResponse": {
                 "properties": {
@@ -734,6 +811,109 @@
                 },
                 "type": "object",
                 "title": "HTTPValidationError"
+            },
+            "ParentImportItemResult": {
+                "properties": {
+                    "row_number": {
+                        "type": "integer",
+                        "title": "Row Number"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "child_code_identite": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Child Code Identite"
+                    },
+                    "parent_code_identite": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Parent Code Identite"
+                    },
+                    "relation": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Relation"
+                    },
+                    "error": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Error"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "row_number",
+                    "status"
+                ],
+                "title": "ParentImportItemResult"
+            },
+            "ParentImportResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success"
+                    },
+                    "total_rows": {
+                        "type": "integer",
+                        "title": "Total Rows"
+                    },
+                    "processed": {
+                        "type": "integer",
+                        "title": "Processed"
+                    },
+                    "success_count": {
+                        "type": "integer",
+                        "title": "Success Count"
+                    },
+                    "error_count": {
+                        "type": "integer",
+                        "title": "Error Count"
+                    },
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/ParentImportItemResult"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "success",
+                    "total_rows",
+                    "processed",
+                    "success_count",
+                    "error_count",
+                    "items"
+                ],
+                "title": "ParentImportResponse"
             },
             "ParentRelationEnum": {
                 "type": "string",
@@ -1070,6 +1250,18 @@
                         "type": "string",
                         "format": "uuid",
                         "title": "Id"
+                    },
+                    "code_identite": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Code Identite",
+                        "description": "Code identité (IDTXXXXX)"
                     },
                     "created_at": {
                         "type": "string",

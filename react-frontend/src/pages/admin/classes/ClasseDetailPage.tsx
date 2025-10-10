@@ -77,7 +77,7 @@ const ClasseDetailPage: React.FC = () => {
             <thead className="bg-gray-50"><tr><th className="px-3 py-2 text-left text-sm text-gray-600">Élève</th><th className="px-3 py-2 text-left text-sm text-gray-600">ID</th></tr></thead>
             <tbody>
               {(eleves ?? []).map((e) => (
-                <tr key={e.id} className="border-t"><td className="px-3 py-2">{e.nom ?? '—'}</td><td className="px-3 py-2">{e.id}</td></tr>
+                <tr key={e.id} className="border-t"><td className="px-3 py-2">{e.eleve_id ?? '—'}</td><td className="px-3 py-2">{e.id}</td></tr>
               ))}
               {(!eleves || eleves.length === 0) && (<tr className="border-t"><td className="px-3 py-6 text-center text-gray-500" colSpan={2}>Aucun élève.</td></tr>)}
             </tbody>
@@ -91,7 +91,7 @@ const ClasseDetailPage: React.FC = () => {
             <thead className="bg-gray-50"><tr><th className="px-3 py-2 text-left text-sm text-gray-600">Enseignant</th><th className="px-3 py-2 text-left text-sm text-gray-600">ID</th></tr></thead>
             <tbody>
               {(enseignants ?? []).map((p) => (
-                <tr key={p.id} className="border-t"><td className="px-3 py-2">{p.nom ?? '—'}</td><td className="px-3 py-2">{p.id}</td></tr>
+                <tr key={p.id} className="border-t"><td className="px-3 py-2">{p.enseignant_kc_id ?? '—'}</td><td className="px-3 py-2">{p.id}</td></tr>
               ))}
               {(!enseignants || enseignants.length === 0) && (<tr className="border-t"><td className="px-3 py-6 text-center text-gray-500" colSpan={2}>Aucun enseignant.</td></tr>)}
             </tbody>

@@ -194,7 +194,7 @@
     "level_statistics": "Level Statistics",
     "average": "Average",
     "general_average": "General Average",
-    "students": "Students",
+    "students_label": "Students",
     "attendance_rate": "Attendance Rate",
     "last_update": "Last update",
     "refresh_data": "Refresh data",
@@ -326,5 +326,20 @@
       "open_ref": "Open referential",
       "load_error_toast": "An error occurred during lookup."
     }
-  }
+  },
+  "student_toast": {
+      "create_success": "Student created",
+      "create_failed": "Failed to create student",
+      "update_success": "Update successful",
+      "update_failed": "Update failed",
+      "link_success": "Parent linked",
+      "link_failed": "Failed to link parent",
+      "unlink_success": "Parent unlinked",
+      "unlink_failed": "Failed to unlink parent",
+      "transfer_success": "Transfer completed",
+      "transfer_failed": "Transfer failed",
+      "import_success": "Import completed",
+      "import_failed": "Import failed",
+      "download_template_failed": "Template download failed"
+    }
 }

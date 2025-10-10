@@ -129,6 +129,92 @@ export interface HTTPValidationError {
 /**
  * 
  * @export
+ * @interface ParentImportItemResult
+ */
+export interface ParentImportItemResult {
+    /**
+     * 
+     * @type {number}
+     * @memberof ParentImportItemResult
+     */
+    'row_number': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ParentImportItemResult
+     */
+    'status': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ParentImportItemResult
+     */
+    'child_code_identite'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ParentImportItemResult
+     */
+    'parent_code_identite'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ParentImportItemResult
+     */
+    'relation'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ParentImportItemResult
+     */
+    'error'?: string | null;
+}
+/**
+ * 
+ * @export
+ * @interface ParentImportResponse
+ */
+export interface ParentImportResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ParentImportResponse
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof ParentImportResponse
+     */
+    'total_rows': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ParentImportResponse
+     */
+    'processed': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ParentImportResponse
+     */
+    'success_count': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ParentImportResponse
+     */
+    'error_count': number;
+    /**
+     * 
+     * @type {Array<ParentImportItemResult>}
+     * @memberof ParentImportResponse
+     */
+    'items': Array<ParentImportItemResult>;
+}
+/**
+ * 
+ * @export
  * @enum {string}
  */
 
@@ -400,6 +486,12 @@ export interface StudentResponse {
      * @memberof StudentResponse
      */
     'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StudentResponse
+     */
+    'code_identite'?: string | null;
     /**
      * 
      * @type {string}
@@ -1005,6 +1097,36 @@ export const StudentsApiAxiosParamCreator = function (configuration?: Configurat
             };
         },
         /**
+         * Télécharger un template CSV pour l\'import des relations Parent-Élève.
+         * @summary Get Parent Relations Template
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getParentRelationsTemplateApiStudentsParentRelationsTemplateGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/students/parent-relations/template`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Récupérer un élève par son ID.
          * @summary Get Student
          * @param {string} studentId 
@@ -1073,7 +1195,7 @@ export const StudentsApiAxiosParamCreator = function (configuration?: Configurat
             };
         },
         /**
-         * Récupérer tous les élèves avec pagination et filtres. RÈGLE MÉTIER : Les enseignants ne voient pas les élèves ARCHIVED.
+         * Récupérer tous les élèves avec pagination et filtres selon le contexte tenant.
          * @summary Get Students
          * @param {number} [page] Numéro de page
          * @param {number} [size] Taille de la page
@@ -1121,6 +1243,47 @@ export const StudentsApiAxiosParamCreator = function (configuration?: Configurat
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Importer en masse des relations Parent-Élève via CSV.  Colonnes attendues (FR/EN): - code_identite_enfant | child_code_identite | child_code - code_identite_parent | parent_code_identite | parent_code - relation (mother|father|tutor)
+         * @summary Import Parent Relations
+         * @param {File} file Fichier CSV des relations parent-élève
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        importParentRelationsApiStudentsParentRelationsImportPost: async (file: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'file' is not null or undefined
+            assertParamExists('importParentRelationsApiStudentsParentRelationsImportPost', 'file', file)
+            const localVarPath = `/api/students/parent-relations/import`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+            const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
+
+
+            if (file !== undefined) { 
+                localVarFormParams.append('file', file as any);
+            }
+    
+    
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = localVarFormParams;
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1322,6 +1485,18 @@ export const StudentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Télécharger un template CSV pour l\'import des relations Parent-Élève.
+         * @summary Get Parent Relations Template
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getParentRelationsTemplateApiStudentsParentRelationsTemplateGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getParentRelationsTemplateApiStudentsParentRelationsTemplateGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StudentsApi.getParentRelationsTemplateApiStudentsParentRelationsTemplateGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Récupérer un élève par son ID.
          * @summary Get Student
          * @param {string} studentId 
@@ -1348,7 +1523,7 @@ export const StudentsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Récupérer tous les élèves avec pagination et filtres. RÈGLE MÉTIER : Les enseignants ne voient pas les élèves ARCHIVED.
+         * Récupérer tous les élèves avec pagination et filtres selon le contexte tenant.
          * @summary Get Students
          * @param {number} [page] Numéro de page
          * @param {number} [size] Taille de la page
@@ -1362,6 +1537,19 @@ export const StudentsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getStudentsApiStudentsGet(page, size, classId, status, search, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['StudentsApi.getStudentsApiStudentsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Importer en masse des relations Parent-Élève via CSV.  Colonnes attendues (FR/EN): - code_identite_enfant | child_code_identite | child_code - code_identite_parent | parent_code_identite | parent_code - relation (mother|father|tutor)
+         * @summary Import Parent Relations
+         * @param {File} file Fichier CSV des relations parent-élève
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async importParentRelationsApiStudentsParentRelationsImportPost(file: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ParentImportResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.importParentRelationsApiStudentsParentRelationsImportPost(file, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StudentsApi.importParentRelationsApiStudentsParentRelationsImportPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1451,6 +1639,15 @@ export const StudentsApiFactory = function (configuration?: Configuration, baseP
             return localVarFp.deleteStudentApiStudentsStudentIdDelete(studentId, options).then((request) => request(axios, basePath));
         },
         /**
+         * Télécharger un template CSV pour l\'import des relations Parent-Élève.
+         * @summary Get Parent Relations Template
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getParentRelationsTemplateApiStudentsParentRelationsTemplateGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getParentRelationsTemplateApiStudentsParentRelationsTemplateGet(options).then((request) => request(axios, basePath));
+        },
+        /**
          * Récupérer un élève par son ID.
          * @summary Get Student
          * @param {string} studentId 
@@ -1471,7 +1668,7 @@ export const StudentsApiFactory = function (configuration?: Configuration, baseP
             return localVarFp.getStudentAuditApiStudentsStudentIdAuditGet(studentId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Récupérer tous les élèves avec pagination et filtres. RÈGLE MÉTIER : Les enseignants ne voient pas les élèves ARCHIVED.
+         * Récupérer tous les élèves avec pagination et filtres selon le contexte tenant.
          * @summary Get Students
          * @param {number} [page] Numéro de page
          * @param {number} [size] Taille de la page
@@ -1483,6 +1680,16 @@ export const StudentsApiFactory = function (configuration?: Configuration, baseP
          */
         getStudentsApiStudentsGet(page?: number, size?: number, classId?: string | null, status?: StudentStatusEnum | null, search?: string | null, options?: RawAxiosRequestConfig): AxiosPromise<StudentPaginatedResponse> {
             return localVarFp.getStudentsApiStudentsGet(page, size, classId, status, search, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Importer en masse des relations Parent-Élève via CSV.  Colonnes attendues (FR/EN): - code_identite_enfant | child_code_identite | child_code - code_identite_parent | parent_code_identite | parent_code - relation (mother|father|tutor)
+         * @summary Import Parent Relations
+         * @param {File} file Fichier CSV des relations parent-élève
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        importParentRelationsApiStudentsParentRelationsImportPost(file: File, options?: RawAxiosRequestConfig): AxiosPromise<ParentImportResponse> {
+            return localVarFp.importParentRelationsApiStudentsParentRelationsImportPost(file, options).then((request) => request(axios, basePath));
         },
         /**
          * Lier un parent à un élève.
@@ -1563,6 +1770,17 @@ export class StudentsApi extends BaseAPI {
     }
 
     /**
+     * Télécharger un template CSV pour l\'import des relations Parent-Élève.
+     * @summary Get Parent Relations Template
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StudentsApi
+     */
+    public getParentRelationsTemplateApiStudentsParentRelationsTemplateGet(options?: RawAxiosRequestConfig) {
+        return StudentsApiFp(this.configuration).getParentRelationsTemplateApiStudentsParentRelationsTemplateGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Récupérer un élève par son ID.
      * @summary Get Student
      * @param {string} studentId 
@@ -1587,7 +1805,7 @@ export class StudentsApi extends BaseAPI {
     }
 
     /**
-     * Récupérer tous les élèves avec pagination et filtres. RÈGLE MÉTIER : Les enseignants ne voient pas les élèves ARCHIVED.
+     * Récupérer tous les élèves avec pagination et filtres selon le contexte tenant.
      * @summary Get Students
      * @param {number} [page] Numéro de page
      * @param {number} [size] Taille de la page
@@ -1600,6 +1818,18 @@ export class StudentsApi extends BaseAPI {
      */
     public getStudentsApiStudentsGet(page?: number, size?: number, classId?: string | null, status?: StudentStatusEnum | null, search?: string | null, options?: RawAxiosRequestConfig) {
         return StudentsApiFp(this.configuration).getStudentsApiStudentsGet(page, size, classId, status, search, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Importer en masse des relations Parent-Élève via CSV.  Colonnes attendues (FR/EN): - code_identite_enfant | child_code_identite | child_code - code_identite_parent | parent_code_identite | parent_code - relation (mother|father|tutor)
+     * @summary Import Parent Relations
+     * @param {File} file Fichier CSV des relations parent-élève
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StudentsApi
+     */
+    public importParentRelationsApiStudentsParentRelationsImportPost(file: File, options?: RawAxiosRequestConfig) {
+        return StudentsApiFp(this.configuration).importParentRelationsApiStudentsParentRelationsImportPost(file, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

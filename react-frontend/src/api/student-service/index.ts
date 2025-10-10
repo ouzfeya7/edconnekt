@@ -1,5 +1,5 @@
 /* tslint:disable */
- 
+/* eslint-disable */
 /**
  * Student Service
  * API de gestion des élèves et parents pour le système éducatif

@@ -16,6 +16,7 @@ import { useArchiveClasse } from '../../../hooks/useArchiveClasse';
 import { useAuth } from '../../authentification/useAuth';
 import { useAppRolesFromIdentity } from '../../../hooks/useAppRolesFromIdentity';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
+import { getActiveContext } from '../../../utils/contextStorage';
 
 interface ClassesAdminPageProps {
   embedded?: boolean;
@@ -24,7 +25,8 @@ interface ClassesAdminPageProps {
 }
 
 const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, onSelectedEtablissementChange, forcedEtablissementId }) => {
-  const [selectedEtablissementId, setSelectedEtablissementId] = useState<string>(forcedEtablissementId || '');
+  const ctx = getActiveContext();
+  const [selectedEtablissementId, setSelectedEtablissementId] = useState<string>(forcedEtablissementId || ctx.etabId || '');
   const [nomFilter, setNomFilter] = useState<string>('');
   const [niveauFilter, setNiveauFilter] = useState<string>('');
   const [isArchived, setIsArchived] = useState<string>('false');
@@ -51,11 +53,10 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
   }, [forcedEtablissementId, selectedEtablissementId]);
 
   useEffect(() => {
-    if (isDirector && !forcedEtablissementId && !selectedEtablissementId) {
-      const stored = sessionStorage.getItem('etablissement_id') || '';
-      if (stored) setSelectedEtablissementId(stored);
+    if (isDirector && !forcedEtablissementId && !selectedEtablissementId && ctx.etabId) {
+      setSelectedEtablissementId(ctx.etabId);
     }
-  }, [isDirector, forcedEtablissementId, selectedEtablissementId]);
+  }, [isDirector, forcedEtablissementId, selectedEtablissementId, ctx.etabId]);
 
   useEffect(() => {
     if (onSelectedEtablissementChange) {
@@ -120,25 +121,24 @@ const ClassesAdminPage: React.FC<ClassesAdminPageProps> = ({ embedded = false, o
   const filtersAndList = (
     <>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 pb-6 border-b border-gray-200">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Établissement</label>
-          <select
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-            value={selectedEtablissementId}
-            onChange={(e) => setSelectedEtablissementId(e.target.value)}
-            disabled={isLoadingEtab || isDirector || Boolean(forcedEtablissementId)}
-          >
-            <option value="">Sélectionner…</option>
-            {(establishments ?? []).map((etab) => (
-              <option key={etab.id} value={etab.id}>
-                {etab.nom}
-              </option>
-            ))}
-          </select>
-          {isDirector && !selectedEtablissementId && !forcedEtablissementId && (
-            <p className="text-xs text-gray-500 mt-1">Sélection automatique en attente de l'ID établissement côté Keycloak.</p>
-          )}
-        </div>
+        {!isDirector && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Établissement</label>
+            <select
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+              value={selectedEtablissementId}
+              onChange={(e) => setSelectedEtablissementId(e.target.value)}
+              disabled={isLoadingEtab || Boolean(forcedEtablissementId)}
+            >
+              <option value="">Sélectionner…</option>
+              {(establishments ?? []).map((etab) => (
+                <option key={etab.id} value={etab.id}>
+                  {etab.nom}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
           <div className="relative">

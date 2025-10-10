@@ -1,6 +1,5 @@
 .gitignore
 .npmignore
-.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
@@ -11,6 +10,8 @@ docs/ClassMembershipUpdate.md
 docs/DefaultApi.md
 docs/HTTPValidationError.md
 docs/HealthApi.md
+docs/ParentImportItemResult.md
+docs/ParentImportResponse.md
 docs/ParentRelationEnum.md
 docs/StudentAuditResponse.md
 docs/StudentCreate.md

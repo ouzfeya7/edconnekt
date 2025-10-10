@@ -6,9 +6,11 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 |[**createStudentApiStudentsPost**](#createstudentapistudentspost) | **POST** /api/students/ | Create Student|
 |[**deleteStudentApiStudentsStudentIdDelete**](#deletestudentapistudentsstudentiddelete) | **DELETE** /api/students/{student_id} | Delete Student|
+|[**getParentRelationsTemplateApiStudentsParentRelationsTemplateGet**](#getparentrelationstemplateapistudentsparentrelationstemplateget) | **GET** /api/students/parent-relations/template | Get Parent Relations Template|
 |[**getStudentApiStudentsStudentIdGet**](#getstudentapistudentsstudentidget) | **GET** /api/students/{student_id} | Get Student|
 |[**getStudentAuditApiStudentsStudentIdAuditGet**](#getstudentauditapistudentsstudentidauditget) | **GET** /api/students/{student_id}/audit | Get Student Audit|
 |[**getStudentsApiStudentsGet**](#getstudentsapistudentsget) | **GET** /api/students/ | Get Students|
+|[**importParentRelationsApiStudentsParentRelationsImportPost**](#importparentrelationsapistudentsparentrelationsimportpost) | **POST** /api/students/parent-relations/import | Import Parent Relations|
 |[**linkParentToStudentApiStudentsStudentIdParentsPost**](#linkparenttostudentapistudentsstudentidparentspost) | **POST** /api/students/{student_id}/parents | Link Parent To Student|
 |[**transferStudentClassApiStudentsStudentIdClassPatch**](#transferstudentclassapistudentsstudentidclasspatch) | **PATCH** /api/students/{student_id}/class | Transfer Student Class|
 |[**unlinkParentFromStudentApiStudentsStudentIdParentsParentIdDelete**](#unlinkparentfromstudentapistudentsstudentidparentsparentiddelete) | **DELETE** /api/students/{student_id}/parents/{parent_id} | Unlink Parent From Student|
@@ -119,6 +121,50 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getParentRelationsTemplateApiStudentsParentRelationsTemplateGet**
+> any getParentRelationsTemplateApiStudentsParentRelationsTemplateGet()
+
+Télécharger un template CSV pour l\'import des relations Parent-Élève.
+
+### Example
+
+```typescript
+import {
+    StudentsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new StudentsApi(configuration);
+
+const { status, data } = await apiInstance.getParentRelationsTemplateApiStudentsParentRelationsTemplateGet();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**any**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **getStudentApiStudentsStudentIdGet**
 > StudentResponse getStudentApiStudentsStudentIdGet()
 
@@ -226,7 +272,7 @@ No authorization required
 # **getStudentsApiStudentsGet**
 > StudentPaginatedResponse getStudentsApiStudentsGet()
 
-Récupérer tous les élèves avec pagination et filtres. RÈGLE MÉTIER : Les enseignants ne voient pas les élèves ARCHIVED.
+Récupérer tous les élèves avec pagination et filtres selon le contexte tenant.
 
 ### Example
 
@@ -276,6 +322,58 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successful Response |  -  |
+|**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **importParentRelationsApiStudentsParentRelationsImportPost**
+> ParentImportResponse importParentRelationsApiStudentsParentRelationsImportPost()
+
+Importer en masse des relations Parent-Élève via CSV.  Colonnes attendues (FR/EN): - code_identite_enfant | child_code_identite | child_code - code_identite_parent | parent_code_identite | parent_code - relation (mother|father|tutor)
+
+### Example
+
+```typescript
+import {
+    StudentsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new StudentsApi(configuration);
+
+let file: File; //Fichier CSV des relations parent-élève (default to undefined)
+
+const { status, data } = await apiInstance.importParentRelationsApiStudentsParentRelationsImportPost(
+    file
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **file** | [**File**] | Fichier CSV des relations parent-élève | defaults to undefined|
+
+
+### Return type
+
+**ParentImportResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: multipart/form-data
  - **Accept**: application/json
 
 
