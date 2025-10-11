@@ -85,5 +85,5 @@ Les en-têtes de sélection (`X-Etab-Select`, `X-Role-Select`) restent envoyés 
 ## Notes
 
 - La voie `POST /api/v1/identity/me/context/select` est utilisée pour valider explicitement la sélection d’établissement/rôle côté backend.
-- Les en-têtes de **sélection** (`X-Etab-Select`, `X-Role-Select`) sont toujours envoyés; le Gateway renvoie `X-Etab`/`X-Role` confirmés lorsque applicable.
+- Les en-têtes de **sélection**  `X-Etab`/`X-Role` sont toujours envoyés, sauf pour un admin qui n’a pas besoin d’établissement/rôle (bypass effectué côté backend).
 - Le SSE de progression de batch peut rester en polling si non prioritaire (EventSource possible si nécessaire).
