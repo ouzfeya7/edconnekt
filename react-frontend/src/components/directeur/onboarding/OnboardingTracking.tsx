@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { useDirector } from '../../../contexts/DirectorContext';
+// import { useDirector } from '../../../contexts/DirectorContext';
 import { useIdentityBatches, useIdentityBatchItems, useIdentityBulkProgress, useIdentityBatchErrors } from '../../../hooks/useIdentity';
 import { useProvisioningBatches, useProvisioningCreateBatch, useProvisioningRunBatch, useProvisioningBatchItems, useProvisioningGenerateUsername } from '../../../hooks/useProvisioning';
 import type { ProvisioningItem } from '../../../api/provisioning-service/api';
@@ -15,21 +15,18 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
-  Play,
   BarChart3,
-  Clock,
   FileDown,
-  Radio,
   Wand2,
 } from 'lucide-react';
 import BatchTable from './BatchTable';
 import ProgressStats from './ProgressStats';
 import ErrorsTable from './ErrorsTable';
-import LoadingState, { LoadingSpinner, EmptyState, ErrorState } from './LoadingState';
+import { LoadingSpinner, EmptyState, ErrorState } from './LoadingState';
 
 const OnboardingTracking: React.FC = () => {
   const { t } = useTranslation();
-  const { currentEtablissementId } = useDirector();
+  // const { currentEtablissementId } = useDirector();
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
   const [typeFilter, setTypeFilter] = useState<'identity' | 'provisioning'>('identity');
@@ -51,7 +48,6 @@ const OnboardingTracking: React.FC = () => {
   const [identityErrorType, setIdentityErrorType] = useState<string | undefined>(undefined);
 
 
-  const effectiveEtabId = currentEtablissementId || undefined;
   const { data: idBatches } = useIdentityBatches({ page, size });
   const { data: idItems } = useIdentityBatchItems(
     { batchId: selectedIdentityBatchId, domain: domainFilter, itemStatus: statusFilter, page: identityItemsPage, size: identityItemsSize },
@@ -99,7 +95,7 @@ const OnboardingTracking: React.FC = () => {
 
   // SSE live progress (fallback to polling already above)
   const [liveSSE, setLiveSSE] = useState<boolean>(false);
-  const [sseProgress, setSseProgress] = useState<any | null>(null);
+  const [sseProgress, setSseProgress] = useState<unknown | null>(null);
   const sseRef = useRef<EventSource | null>(null);
   
   // Refs pour le scroll automatique
@@ -121,7 +117,9 @@ const OnboardingTracking: React.FC = () => {
           const payload = JSON.parse(atob(token.split('.')[1] ?? ''));
           userId = payload?.sub || payload?.user_id || payload?.uid || undefined;
         }
-      } catch {}
+      } catch {
+        // ignore jwt parse errors
+      }
       const params: string[] = [];
       if (userId) params.push(`user_id=${encodeURIComponent(userId)}`);
       params.push(`timeout=${encodeURIComponent('300')}`);
@@ -132,7 +130,9 @@ const OnboardingTracking: React.FC = () => {
         try {
           const data = JSON.parse(evt.data);
           setSseProgress(data);
-        } catch {}
+        } catch {
+          // ignore malformed SSE chunk
+        }
       };
       es.onerror = () => {
         // Fallback to polling
@@ -227,7 +227,7 @@ const OnboardingTracking: React.FC = () => {
     phone?: string;
     role_principal?: string | null;
     role_effectif?: string | null;
-    cycle_codes?: any;
+    cycle_codes?: unknown;
     status?: string;
     processed_at?: string;
     identity_id?: string;
@@ -243,15 +243,6 @@ const OnboardingTracking: React.FC = () => {
     updated_at?: string;
   };
   
-  type IdentityErrorItem = {
-    id?: string;
-    type?: string;
-    error_type?: string;
-    message?: string;
-    msg?: string;
-    context?: any;
-    [key: string]: any; // Pour les propriétés additionnelles
-  };
   const identityItemsArray: IdentityItemRow[] = useMemo(() => {
     return Array.isArray(idItems?.items) ? (idItems?.items as IdentityItemRow[]) : [];
   }, [idItems]);
@@ -266,15 +257,6 @@ const OnboardingTracking: React.FC = () => {
       });
     }
   }, [selectedIdentityBatchId, identityItemsArray.length, domainFilter, statusFilter]);
-
-  const identityCounters = useMemo(() => {
-    const counters: Record<string, number> = { PENDING: 0, PROCESSING: 0, SUCCESS: 0, ERROR: 0, SKIPPED: 0 };
-    identityItemsArray.forEach((it) => {
-      const key = ((it.status ?? it.item_status) ?? '').toUpperCase();
-      if (counters[key] !== undefined) counters[key] += 1;
-    });
-    return counters;
-  }, [identityItemsArray]);
 
   const provItemsArray: ProvisioningItem[] = useMemo(() => (provItems as ProvisioningItem[] | undefined) ?? [], [provItems]);
 
@@ -315,7 +297,7 @@ const OnboardingTracking: React.FC = () => {
         lastname: (it.lastname ?? '') as string,
         email: it.email ?? undefined,
       });
-      try { await navigator.clipboard.writeText(username); } catch {}
+      try { await navigator.clipboard.writeText(username); } catch { /* ignore clipboard errors */ }
       toast.success(`Username généré: ${username}${username ? ' (copié)' : ''}`);
     } catch {
       toast.error('Génération du username impossible');
@@ -385,7 +367,7 @@ const OnboardingTracking: React.FC = () => {
             <select
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
               value={templateDomain}
-              onChange={(e) => setTemplateDomain(e.target.value as any)}
+              onChange={(e) => setTemplateDomain(e.target.value as 'student' | 'parent' | 'teacher' | 'admin_staff')}
             >
               <option value="student">Élève</option>
               <option value="parent">Parent</option>
@@ -608,13 +590,13 @@ const OnboardingTracking: React.FC = () => {
             {/* Composant de progression modulaire */}
             <ProgressStats
               selectedBatchId={selectedIdentityBatchId}
-              effectiveProgress={effectiveProgress as any}
-              idItems={idItems as any}
-              idTotalPending={idTotalPending as any}
-              idTotalProcessing={idTotalProcessing as any}
-              idTotalSuccess={idTotalSuccess as any}
-              idTotalError={idTotalError as any}
-              idTotalSkipped={idTotalSkipped as any}
+              effectiveProgress={(effectiveProgress as unknown) as { status?: string; total_items?: number; new_count?: number; updated_count?: number; skipped_count?: number; invalid_count?: number } | null}
+              idItems={(idItems as unknown) as { total?: number; items?: unknown[]; pages?: number } | undefined}
+              idTotalPending={(idTotalPending as unknown) as { total?: number } | undefined}
+              idTotalProcessing={(idTotalProcessing as unknown) as { total?: number } | undefined}
+              idTotalSuccess={(idTotalSuccess as unknown) as { total?: number } | undefined}
+              idTotalError={(idTotalError as unknown) as { total?: number } | undefined}
+              idTotalSkipped={(idTotalSkipped as unknown) as { total?: number } | undefined}
               liveSSE={liveSSE}
               onToggleSSE={() => setLiveSSE((v) => !v)}
             />
@@ -765,7 +747,7 @@ const OnboardingTracking: React.FC = () => {
             {/* Composant des erreurs modulaire */}
             <ErrorsTable
               selectedBatchId={selectedIdentityBatchId}
-              errorsData={idErrors as any}
+              errorsData={(idErrors as unknown) as { errors?: unknown[]; pages?: number; total?: number } | undefined}
               errorType={identityErrorType}
               onErrorTypeChange={setIdentityErrorType}
               page={identityErrorsPage}

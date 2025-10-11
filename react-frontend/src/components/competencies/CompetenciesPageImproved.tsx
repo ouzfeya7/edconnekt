@@ -266,9 +266,9 @@ const CompetenciesPageImproved: React.FC = () => {
     showAdvanced: false
   });
 
-  const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; id: string }>({
+  const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; id?: string }>({
     isOpen: false,
-    id: ''
+    id: undefined
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -309,16 +309,15 @@ const CompetenciesPageImproved: React.FC = () => {
   }, []);
 
   const handleDeleteConfirm = useCallback(() => {
-    const id = confirmDelete.id;
     setIsLoading(true);
     
     // Simulation d'une suppression
     setTimeout(() => {
       toast.success('Compétence supprimée avec succès');
-      setConfirmDelete({ isOpen: false, id: '' });
+      setConfirmDelete({ isOpen: false, id: undefined });
       setIsLoading(false);
     }, 1000);
-  }, [confirmDelete.id]);
+  }, []);
 
   const handleExport = useCallback(() => {
     setIsLoading(true);

@@ -32,7 +32,7 @@ const SuppliesCampaignsPage: React.FC = () => {
   const [selectedCampaignId, setSelectedCampaignId] = useState<string>('');
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
   // 'order' supprimé (non supporté côté API)
-  const [limit, setLimit] = useState<number>(20);
+  const [limit] = useState<number>(20);
   const [offset, setOffset] = useState<number>(0);
   const [viewMode, setViewMode] = useState<'cards' | 'compact'>('cards');
 
@@ -118,7 +118,15 @@ const SuppliesCampaignsPage: React.FC = () => {
           searchPlaceholder={t('Rechercher une campagne...', 'Rechercher une campagne...')}
           filters={filters}
           onFiltersChange={(f) => {
-            setFilters(f);
+            const n = f as Record<string, unknown>;
+            setFilters({
+              search: String(n.search ?? ''),
+              status: String(n.status ?? ''),
+              establishmentId: String(n.establishmentId ?? ''),
+              schoolYear: String(n.schoolYear ?? ''),
+              classId: String(n.classId ?? ''),
+              showAdvanced: Boolean(n.showAdvanced ?? false),
+            });
             setOffset(0);
           }}
           onCreate={() => setIsCreateOpen(true)}
@@ -213,9 +221,9 @@ const SuppliesCampaignsPage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-indigo-600" />
                         <span className="font-medium text-gray-900 truncate">{campaign.name}</span>
-                        {(campaign as any).school_year && (
+                        {(campaign as { school_year?: string }).school_year && (
                           <span className="text-xs px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded">
-                            {(campaign as any).school_year}
+                            {(campaign as { school_year?: string }).school_year}
                           </span>
                         )}
                         <span className={`text-xs px-2 py-0.5 rounded ${getStatusColor(campaign.status || '')}`}>
@@ -290,7 +298,7 @@ const SuppliesCampaignsPage: React.FC = () => {
               return (
                 <CampaignCard
                   key={campaign.id}
-                  campaign={campaign as any}
+                  campaign={campaign}
                   isSelected={selectedCampaignId === campaign.id}
                   onView={(id) => {
                     setSelectedCampaignId(id);

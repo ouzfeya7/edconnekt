@@ -179,8 +179,8 @@ export const DirectorTimetableProvider: React.FC<DirectorTimetableProviderProps>
         replacementsApi.listReplacementsReplacementsGet(0, 100),
       ]);
       const abs = (absRes.data || [])
-        .filter((a: any) => a.status === 'REPORTED')
-        .map((a: any) => ({
+        .filter((a: { status?: string }) => a.status === 'REPORTED')
+        .map((a: { id: string; teacher_id: string; date: string; timeslot_id: string; reason: string; status: 'REPORTED' | 'VALIDATED'; created_at: string }) => ({
           id: a.id,
           teacher_id: a.teacher_id,
           date: a.date,
@@ -189,12 +189,12 @@ export const DirectorTimetableProvider: React.FC<DirectorTimetableProviderProps>
           status: a.status as 'REPORTED' | 'VALIDATED',
           created_at: a.created_at,
         })) as Absence[];
-      const repl = (replRes.data || []).map((r: any) => ({
+      const repl = (replRes.data || []).map((r: { id: string; lesson_id: string; old_teacher_id: string; new_teacher_id: string; validated_by?: string | null; validated_at?: string | null }) => ({
         id: r.id,
         lesson_id: r.lesson_id,
         old_teacher_id: r.old_teacher_id,
         new_teacher_id: r.new_teacher_id,
-        validated_by: r.validated_by ?? validatedBy,
+        validated_by: (r.validated_by ?? validatedBy) as string,
         validated_at: r.validated_at ?? undefined,
       })) as Replacement[];
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useIdentityContextOptional } from '../contexts/IdentityContextProvider';
+import { useIdentityContextOptional } from '../contexts/IdentityContext';
 import { useIdentityMyRoles } from './useIdentityContext';
 import { mapIdentityRoleToAppRole, computeCapabilitiesFromIdentityRole } from '../utils/roles';
 import type { EstablishmentRole } from '../utils/contextStorage';

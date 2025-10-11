@@ -15,7 +15,7 @@ interface IdentityBatchItemsResult {
   total?: number;
   items?: unknown[];
   pages?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface ProgressStatsProps {

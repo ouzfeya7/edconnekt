@@ -28,18 +28,22 @@ function scoreRoles(roles: EstablishmentRole[] | undefined): number {
 
 export function useResolvePrincipalEtab(options?: { enabled?: boolean; maxProbe?: number }): ResolvePrincipalResult {
   const { data: myEstabs, isLoading: estabsLoading, isError: estabsError } = useIdentityMyEstablishments({ enabled: options?.enabled ?? true });
-  const list = Array.isArray(myEstabs) ? myEstabs : [];
+  const list = useMemo(() => (Array.isArray(myEstabs) ? myEstabs : []), [myEstabs]);
   const maxProbe = options?.maxProbe ?? 5;
-  const probeIds = useMemo(() => list.slice(0, Math.min(maxProbe, list.length)), [list, maxProbe]);
+  const probeIds = useMemo(() => {
+    // Mémoïse le calcul pour stabiliser les deps du hook
+    const size = Math.min(maxProbe, list.length);
+    return list.slice(0, size);
+  }, [list, maxProbe]);
 
   const { data: bestId, isLoading: rolesLoading, isError: rolesError } = useQuery<string | null, Error>({
     queryKey: ['identity:me:principal', probeIds],
     enabled: (options?.enabled ?? true) && probeIds.length > 0,
     queryFn: async () => {
       let best: { id: string; score: number } | null = null;
-      for (const etabId of probeIds) {
+      for (const etabId of probeIds as string[]) {
         const { data } = await identityMeApi.getUserRolesApiV1IdentityMeRolesGet(etabId);
-        const roles = unwrapList<EstablishmentRole>(data as any);
+        const roles = unwrapList<EstablishmentRole>(data);
         const s = scoreRoles(roles);
         if (!best || s > best.score) best = { id: etabId, score: s };
       }

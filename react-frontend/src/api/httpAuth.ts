@@ -23,12 +23,16 @@ export async function refreshAccessToken(): Promise<string | null> {
           sessionStorage.removeItem('keycloak-token');
           sessionStorage.removeItem('keycloak-refresh-token');
           clearActiveContext();
-        } catch {}
+        } catch {
+          // ignore storage cleanup errors
+        }
         try {
-          const raw = ((import.meta as any)?.env?.VITE_POST_LOGOUT_REDIRECT_URI as string | undefined) || window.location.origin;
+          const raw = ((import.meta as { env?: { VITE_POST_LOGOUT_REDIRECT_URI?: string } }).env?.VITE_POST_LOGOUT_REDIRECT_URI) || window.location.origin;
           const redirectUri = raw.replace(/\/+$/, ''); // remove trailing slash for exact match
           keycloak.logout({ redirectUri });
-        } catch {}
+        } catch {
+          // ignore logout errors
+        }
         throw err;
       })
       .finally(() => {

@@ -1,5 +1,4 @@
 /* tslint:disable */
-/* eslint-disable */
 /**
  * Competence Service API
  * Service de gestion des référentiels pédagogiques

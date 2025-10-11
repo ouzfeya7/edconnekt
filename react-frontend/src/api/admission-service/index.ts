@@ -1,5 +1,4 @@
 /* tslint:disable */
-/* eslint-disable */
 /**
  * Admission Service API
  * API pour la gestion des demandes d\'admission

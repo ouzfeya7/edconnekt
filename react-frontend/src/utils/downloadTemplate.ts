@@ -16,9 +16,9 @@ function extractFilename(headers: Record<string, string | undefined>, role: Iden
 }
 
 export async function downloadIdentityTemplate(role: IdentityTemplateRole, format: TemplateFormat): Promise<void> {
-  const resp = await identityApi.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(role, format, { responseType: 'blob' as any });
+  const resp = await identityApi.getImportTemplateApiV1IdentityBulkimportTemplateRoleGet(role, format, { responseType: 'blob' as unknown as undefined });
   const blob = resp.data as Blob;
-  const filename = extractFilename((resp as any)?.headers ?? {}, role, format);
+  const filename = extractFilename((resp as unknown as { headers?: Record<string, string | undefined> })?.headers ?? {}, role, format);
 
   const url = window.URL.createObjectURL(blob);
   try {

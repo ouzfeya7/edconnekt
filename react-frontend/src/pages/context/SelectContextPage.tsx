@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Users, CheckCircle, LogOut, RefreshCw, ArrowRight } from 'lucide-react';
-import { useIdentityContext } from '../../contexts/IdentityContextProvider';
+import { useIdentityContext } from '../../contexts/IdentityContext';
 import { useIdentityMyEstablishments, useIdentityMyRoles } from '../../hooks/useIdentityContext';
 import type { EstablishmentRole } from '../../utils/contextStorage';
 import { useAuth } from '../../pages/authentification/useAuth';
@@ -27,8 +27,8 @@ const SelectContextPage: React.FC = () => {
   const establishments = React.useMemo(() => (Array.isArray(estabsResp) ? (estabsResp as string[]) : []), [estabsResp]);
 
   // Charger la liste d'établissements (nommage) pour afficher les libellés au lieu des UUIDs
-  const [publicOffset, setPublicOffset] = React.useState(0);
-  const [publicLimit, setPublicLimit] = React.useState(20);
+  const [publicOffset] = React.useState(0);
+  const [publicLimit] = React.useState(20);
   const { data: establishmentsList } = usePublicEstablishments({ limit: publicLimit, offset: publicOffset });
   const etabIdToName = React.useMemo(() => {
     const map = new Map<string, string>();

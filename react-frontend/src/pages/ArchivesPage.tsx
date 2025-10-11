@@ -15,7 +15,6 @@ import { ResourceStatus, type ResourceOut } from '../api/resource-service/api';
 import { useReferentials, useReferentialTree } from '../hooks/competence/useReferentials';
 import { useCompetencies } from '../hooks/competence/useCompetencies';
 import type { ReferentialTree, DomainTree, SubjectTree, CompetencyListResponse, CompetencyResponse, ReferentialListResponse, ReferentialResponse } from '../api/competence-service/api';
- 
 
 // Filtres dynamiques via Competence Service
 

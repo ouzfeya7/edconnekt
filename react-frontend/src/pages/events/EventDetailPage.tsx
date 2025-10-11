@@ -213,7 +213,7 @@ const EventDetailPage: React.FC = () => {
           ) : Array.isArray(participants) && participants.length > 0 ? (
             <div className="space-y-3 mb-6">
               {participants.map((p, idx) => {
-                const anyP = p as any;
+                const anyP = p as { registration_id?: string; id?: string; participant_id?: string; participant_role?: string; role?: string; status?: string };
                 const regId = anyP?.registration_id || anyP?.id || '';
                 return (
                   <div key={idx} className="flex items-center justify-between bg-gray-50 rounded-lg p-4">

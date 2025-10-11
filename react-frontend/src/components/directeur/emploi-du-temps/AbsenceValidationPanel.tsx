@@ -15,7 +15,7 @@ const AbsenceValidationPanel: React.FC = () => {
     try {
       await validateAbsence.mutateAsync(absenceId);
       toast.success(t('absence_validated', 'Absence validée'));
-    } catch (e) {
+    } catch {
       toast.error(t('error_validating_absence', 'Erreur lors de la validation'));
     }
   };

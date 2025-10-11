@@ -9,7 +9,7 @@ interface EventCardProps {
     aggregate_id: string;
     status?: string;
     created_at?: string;
-    processed_at?: string;
+    processed_at?: string | null;
     tenant_id?: string;
     payload?: object;
   };

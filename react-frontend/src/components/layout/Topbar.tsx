@@ -6,7 +6,7 @@ import { User } from "../../layouts/DashboardLayout";
 import Navbar from "./Navbar";
 import { Role } from "../../config/navigation";
 import { useAuth } from "../../pages/authentification/useAuth";
-import { useIdentityContext } from "../../contexts/IdentityContextProvider";
+import { useIdentityContext } from "../../contexts/IdentityContext";
 import { useMyRolesDetailed } from "../../hooks/useMyRolesDetailed";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";

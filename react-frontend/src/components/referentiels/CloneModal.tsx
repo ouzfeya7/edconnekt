@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Copy, Globe } from 'lucide-react';
-import { CycleEnum } from '../../api/competence-service/api';
+// removed unused CycleEnum import
 
 interface CloneModalProps {
   isOpen: boolean;

@@ -6,7 +6,7 @@ export function useTransferStudentClass() {
   const qc = useQueryClient();
   return useMutation<ClassMembershipResponse, Error, { studentId: string; update: ClassMembershipUpdate; etabId?: string }>({
     mutationKey: ['student:transfer-class'],
-    mutationFn: async ({ studentId, update, etabId }) => {
+    mutationFn: async ({ studentId, update }) => {
       const { data } = await studentsApi.transferStudentClassApiStudentsStudentIdClassPatch(
         studentId,
         update

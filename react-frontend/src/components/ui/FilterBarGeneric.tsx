@@ -13,9 +13,10 @@ interface FilterBarGenericProps {
   filters: {
     search: string;
     showAdvanced: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange: (filters: Record<string, unknown>) => void;
   onExport?: () => void;
   onCreate?: () => void;
   isLoading?: boolean;
@@ -52,7 +53,7 @@ const FilterBarGeneric: React.FC<FilterBarGenericProps> = ({
     .length;
 
   const clearFilters = () => {
-    const clearedFilters: any = { search: '', showAdvanced: false };
+    const clearedFilters: Record<string, unknown> = { search: '', showAdvanced: false };
     advancedFilters.forEach(filter => {
       clearedFilters[filter.key] = '';
     });
@@ -78,6 +79,7 @@ const FilterBarGeneric: React.FC<FilterBarGenericProps> = ({
 
   return (
     <div className="bg-white border-b border-gray-200 p-4 space-y-3">
+      <div className="text-sm font-semibold text-gray-800">{title}</div>
       {/* Barre principale */}
       <div className="flex items-center gap-3">
         {/* Recherche principale */}
