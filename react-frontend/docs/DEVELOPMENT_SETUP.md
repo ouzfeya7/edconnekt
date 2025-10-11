@@ -44,16 +44,25 @@ yarn install
 ### 3. Configuration de l'environnement
 
 Créer un fichier `.env.local` à la racine du projet :
-
 ```env
-# API Configuration
-VITE_API_URL=http://localhost:3000/api
-VITE_KEYCLOAK_URL=http://localhost:8080
-VITE_APP_NAME=EdConnekt
+# API Configuration - Services EdConnekt
+VITE_RESOURCE_API_BASE_URL=https://api.uat1-engy-partners.com/resource/
+VITE_TIMETABLE_API_BASE_URL=https://api.uat1-engy-partners.com/timetable/
+VITE_CLASSE_API_BASE_URL=https://api.uat1-engy-partners.com/classe/
+VITE_ESTABLISHMENT_API_BASE_URL=https://api.uat1-engy-partners.com/establishment/
+VITE_IDENTITY_API_BASE_URL=https://api.uat1-engy-partners.com/identity/
+VITE_PROVISIONING_API_BASE_URL=https://api.uat1-engy-partners.com/provisioning/
+VITE_COMPETENCE_API_BASE_URL=https://api.uat1-engy-partners.com/competence/
+VITE_EVENT_API_BASE_URL=https://api.uat1-engy-partners.com/event/
+VITE_STUDENT_API_BASE_URL=https://api.uat1-engy-partners.com/student/
+VITE_PDI_API_BASE_URL=https://api.uat1-engy-partners.com/pdi/
+VITE_ADMISSION_API_BASE_URL=https://api.uat1-engy-partners.com/admission/
+VITE_SUPPLIES_API_BASE_URL=https://api.uat1-engy-partners.com/supplies/
+VITE_MESSAGE_API_BASE_URL=https://api.uat1-engy-partners.com/message/
 
-# Development
-VITE_DEV_MODE=true
-VITE_MOCK_DATA=true
+# Configuration externe
+VITE_RECAPTCHA_SITE_KEY=6Lc1HLQrAAAAAAbERPkgsDjyfCqCvGRWAF1zG2v6
+VITE_ROOMS_FROM_ESTABLISHMENT=true
 ```
 
 ### 4. Démarrer le serveur de développement
@@ -64,7 +73,7 @@ npm run dev
 yarn dev
 ```
 
-L'application sera accessible sur `http://localhost:5173`
+L'application sera accessible sur `http://localhost:8000`
 
 ## 🛠️ Scripts disponibles
 
@@ -76,9 +85,6 @@ npm run dev
 
 # Build pour la production
 npm run build
-
-# Prévisualiser le build
-npm run preview
 ```
 
 ### Qualité du code
@@ -88,23 +94,17 @@ npm run preview
 npm run lint
 
 # Linter avec correction automatique
-npm run lint:fix
-
-# Vérification des types TypeScript
-npm run type-check
+npm run lint --fix
 ```
 
-### Tests
+### Docker
 
 ```bash
-# Exécuter les tests
-npm run test
+# Build de l'image Docker
+docker build -t edconnekt-frontend .
 
-# Tests en mode watch
-npm run test:watch
-
-# Couverture de tests
-npm run test:coverage
+# Lancer le conteneur
+docker run -p 80:80 edconnekt-frontend
 ```
 
 ## 📁 Structure du projet
@@ -113,18 +113,40 @@ npm run test:coverage
 
 ```
 src/
-├── components/          # Composants réutilisables
-│   ├── ui/            # Composants UI de base
-│   ├── course/        # Composants spécifiques aux cours
-│   ├── eleve/         # Composants spécifiques aux élèves
+├── api/               # Services API par domaine métier
+│   ├── admission-service/
+│   ├── classe-service/
+│   ├── competence-service/
+│   ├── establishment-service/
+│   ├── event-service/
+│   ├── identity-service/
+│   ├── message-service/
+│   ├── pdi-service/
+│   ├── provisioning-service/
+│   ├── resource-service/
+│   ├── student-service/
+│   ├── supplies-service/
+│   └── timetable-service/
+├── components/        # Composants réutilisables
+│   ├── ui/           # Composants UI de base
+│   ├── admin/        # Composants administration
+│   ├── GestionDesNotes/
+│   ├── Header/
 │   └── ...
-├── pages/             # Pages de l'application
-├── contexts/          # Contextes React
-├── hooks/             # Hooks personnalisés
-├── services/          # Services API
-├── lib/               # Utilitaires et données mock
-├── assets/            # Ressources statiques
-└── config/            # Configuration
+├── pages/            # Pages de l'application
+├── contexts/         # Contextes React (13 contextes)
+├── hooks/            # Hooks personnalisés (90+ hooks)
+├── lib/              # Utilitaires et helpers
+├── assets/           # Ressources statiques (images, icons)
+├── config/           # Configuration (navigation, feature flags)
+├── docs-api/         # Documentation API générée
+├── i18n.ts          # Configuration internationalisation
+├── layouts/          # Layouts de l'application
+├── services/         # Services métier
+├── styles/           # Styles globaux
+├── theme.tsx         # Configuration du thème
+├── types/            # Définitions TypeScript
+└── utils/            # Fonctions utilitaires
 ```
 
 ### Conventions de nommage
@@ -132,7 +154,7 @@ src/
 - **Composants** : PascalCase (`UserProfile.tsx`)
 - **Hooks** : camelCase avec préfixe `use` (`useAuth.ts`)
 - **Services** : camelCase avec suffixe `Service` (`userService.ts`)
-- **Types** : PascalCase avec préfixe `I` pour interfaces (`IUser.ts`)
+- **Types** : PascalCase (`User.ts`, `ApiResponse.ts`)
 
 ## 🔧 Configuration
 
@@ -142,16 +164,38 @@ Le projet utilise TypeScript avec une configuration stricte. Voir `tsconfig.json
 
 ### ESLint
 
-Configuration ESLint pour maintenir la qualité du code :
+Configuration ESLint moderne (ESLint 9+) pour maintenir la qualité du code :
 
-```json
-{
-  "extends": [
-    "eslint:recommended",
-    "@typescript-eslint/recommended",
-    "react/recommended"
-  ]
-}
+```javascript
+// eslint.config.js
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import tseslint from 'typescript-eslint'
+
+export default tseslint.config(
+  { ignores: ['dist'] },
+  {
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+    },
+  },
+)
 ```
 
 ### Prettier
@@ -168,33 +212,105 @@ Configuration Prettier pour le formatage automatique :
 }
 ```
 
-## 🧪 Tests
+## 🎨 Tailwind CSS
 
-### Configuration Jest
+### Configuration personnalisée
+
+Le projet utilise une configuration Tailwind personnalisée avec :
+
+- **Mode sombre** : Activé avec `darkMode: 'class'`
+- **Palette de couleurs personnalisée** :
+  - **Gamme G (bleu-gris)** : g50 à g500 pour les éléments principaux
+  - **Gamme O (orange)** : o50 à o500 pour les accents
+- **Variables CSS** : Utilisation de variables CSS pour la cohérence du thème
 
 ```javascript
-// jest.config.js
+// tailwind.config.js
 module.exports = {
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1'
-  }
+  darkMode: 'class',
+  content: ['./src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        // Variables CSS pour le thème
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        primary: {
+          DEFAULT: 'var(--primary)',
+          foreground: 'var(--primary-foreground)',
+        },
+        // Gamme G (bleu-gris)
+        g50: '#e8edf0',
+        g100: '#7995a7',
+        g300: '#184867',
+        // Gamme O (orange)
+        o100: '#fcb676',
+        o300: '#f98113',
+        // ...
+      }
+    },
+  },
 }
 ```
 
-### Exemple de test
+## 🌐 Internationalisation (i18n)
+
+### Configuration React i18next
+
+Le projet supporte le français et l'anglais :
 
 ```typescript
-// UserProfile.test.tsx
-import { render, screen } from '@testing-library/react';
-import UserProfile from './UserProfile';
+// i18n.ts
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
 
-describe('UserProfile', () => {
-  it('affiche le nom de l\'utilisateur', () => {
-    render(<UserProfile user={{ name: 'John Doe' }} />);
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
+i18n
+  .use(initReactI18next)
+  .init({
+    fallbackLng: 'fr',
+    lng: 'fr',
+    resources: {
+      fr: { translation: require('./public/locales/fr/translation.json') },
+      en: { translation: require('./public/locales/en/translation.json') }
+    }
   });
+```
+
+### Structure des traductions
+
+```
+public/locales/
+├── fr/
+│   └── translation.json
+└── en/
+    └── translation.json
+```
+
+## 🏗️ Architecture API
+
+### Services par domaine métier
+
+Chaque service API est organisé par domaine :
+
+- **admission-service** : Gestion des admissions
+- **classe-service** : Gestion des classes
+- **competence-service** : Gestion des compétences
+- **establishment-service** : Gestion des établissements
+- **student-service** : Gestion des élèves
+- **supplies-service** : Gestion des fournitures
+- **timetable-service** : Gestion des emplois du temps
+- Et autres...
+
+### Configuration des headers
+
+Tous les services utilisent les headers de contexte :
+
+```typescript
+// Exemple dans un service
+axios.interceptors.request.use((config) => {
+  config.headers['X-Etab'] = selectedEstablishment;
+  config.headers['X-Roles'] = userRoles;
+  return config;
 });
 ```
 
@@ -235,7 +351,7 @@ chore: tâches de maintenance
 
 1. Créer une Pull Request sur GitHub
 2. Décrire les changements
-3. Ajouter des tests si nécessaire
+3. S'assurer que le linter passe
 4. Demander une review
 
 ## 🐛 Débogage
@@ -243,7 +359,6 @@ chore: tâches de maintenance
 ### Outils de développement
 
 - **React DevTools** : Extension navigateur
-- **Redux DevTools** : Si Redux est utilisé
 - **Network tab** : Pour déboguer les requêtes API
 
 ### Logs de développement
@@ -310,14 +425,7 @@ rm -rf node_modules/.vite
 npm run build
 ```
 
-### Obtenir de l'aide
-
-1. **Documentation** : Consulter ce guide et la documentation officielle
-2. **Issues GitHub** : Rechercher dans les issues existantes
-3. **Stack Overflow** : Pour les questions générales
-4. **Équipe** : Contacter l'équipe de développement
-
 ---
 
-*Guide mis à jour le : [Date]*
-*Version : [Version du projet]* 
+*Guide mis à jour le : 10 octobre 2025*
+*Version : EdConnekt React Frontend v1.0* 

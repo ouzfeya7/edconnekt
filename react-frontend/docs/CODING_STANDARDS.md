@@ -42,24 +42,30 @@ const click = () => {};
 ```typescript
 // ✅ Bon - PascalCase
 const UserProfile = () => {};
-const CourseCard = () => {};
-const RemediationResourceModal = () => {};
+const SuppliesCampaignPage = () => {};
+const GestionDesNotesModal = () => {};
 
 // ❌ Mauvais
 const userProfile = () => {};
-const course_card = () => {};
+const supplies_campaign = () => {};
 ```
 
 ### Types et interfaces
 
 ```typescript
-// ✅ Bon - PascalCase avec préfixe I pour interfaces
-interface IUser {
+// ✅ Bon - PascalCase pour types et interfaces
+interface User {
   id: string;
   name: string;
+  email: string;
 }
 
-type UserRole = 'teacher' | 'student' | 'parent';
+type UserRole = 'teacher' | 'student' | 'parent' | 'admin';
+type ApiResponse<T> = {
+  data: T;
+  success: boolean;
+  message?: string;
+};
 
 // ❌ Mauvais
 interface user {
@@ -71,16 +77,24 @@ interface user {
 ### Fichiers et dossiers
 
 ```bash
-# ✅ Bon - kebab-case pour les fichiers
-user-profile.tsx
-course-detail.tsx
-remediation-resource-modal.tsx
+# ✅ Bon - PascalCase pour les fichiers et dossiers
+UserProfile.tsx
+CourseDetail.tsx
+SuppliesCampaignModal.tsx
 
-# ✅ Bon - PascalCase pour les dossiers
+# ✅ Structure réelle EdConnekt
 components/
-├── UserProfile/
-├── CourseDetail/
-└── RemediationResource/
+├── Header/
+├── GestionDesNotes/
+├── admin/
+├── ui/
+└── ...
+
+api/
+├── admission-service/
+├── classe-service/
+├── competence-service/
+└── ...
 ```
 
 ## 🏗️ Structure des composants
@@ -133,18 +147,24 @@ export default Component;
 // 1. Imports React
 import React, { useState, useEffect } from 'react';
 
-// 2. Imports externes (lucide-react, etc.)
-import { User, Settings } from 'lucide-react';
+// 2. Imports externes
+import { User, Settings, Calendar } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-// 3. Imports internes (composants, hooks, etc.)
-import { useAuth } from '../hooks/useAuth';
-import { Button } from '../components/ui/Button';
+// 3. Imports clients API générés OpenAPI
+import { StudentsApi, ClassesApi } from '@/api/student-service';
+import { CompetencesApi } from '@/api/competence-service';
 
-// 4. Imports de types
-import { UserProps } from './types';
+// 4. Imports hooks et contextes
+import { useAuth } from '@/hooks/useAuth';
+import { useEstablishment } from '@/contexts/EstablishmentContext';
 
-// 5. Imports de styles (si nécessaire)
-import './Component.css';
+// 5. Imports composants UI
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+
+// 6. Imports de types
+import { Student, Classe } from '@/types';
 ```
 
 ## 🎨 Styling avec Tailwind CSS
@@ -168,18 +188,22 @@ import './Component.css';
 </div>
 ```
 
-### Composants stylés
+### Composants stylés avec couleurs EdConnekt
 
 ```typescript
-// ✅ Bon - Utiliser des classes réutilisables
+// ✅ Bon - Utiliser les couleurs EdConnekt
 const buttonClasses = {
-  primary: 'bg-orange-500 hover:bg-orange-600 text-white',
-  secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800',
-  danger: 'bg-red-500 hover:bg-red-600 text-white'
+  primary: 'bg-o300 hover:bg-o400 text-white', // Orange EdConnekt
+  secondary: 'bg-g100 hover:bg-g200 text-g500', // Bleu-gris EdConnekt
+  danger: 'bg-red-500 hover:bg-red-600 text-white',
+  outline: 'border-2 border-g300 text-g300 hover:bg-g300 hover:text-white'
 };
 
-const Button = ({ variant = 'primary', children }) => (
-  <button className={`px-4 py-2 rounded-lg ${buttonClasses[variant]}`}>
+const Button = ({ variant = 'primary', children, ...props }) => (
+  <button 
+    className={`px-4 py-2 rounded-lg transition-colors ${buttonClasses[variant]}`}
+    {...props}
+  >
     {children}
   </button>
 );
@@ -187,21 +211,27 @@ const Button = ({ variant = 'primary', children }) => (
 
 ## 🔧 Gestion d'état
 
-### Hooks personnalisés
+### Hooks personnalisés avec OpenAPI
 
 ```typescript
-// ✅ Bon - Hook personnalisé
-const useUserData = (userId: string) => {
-  const [user, setUser] = useState(null);
+// ✅ Bon - Hook avec client OpenAPI généré
+import { StudentsApi, Configuration } from '@/api/student-service';
+
+const useStudentData = (studentId: string) => {
+  const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchStudent = async () => {
       try {
         setLoading(true);
-        const data = await userService.getUser(userId);
-        setUser(data);
+        const config = new Configuration({
+          basePath: process.env.VITE_STUDENT_API_BASE_URL,
+        });
+        const api = new StudentsApi(config);
+        const response = await api.getStudentById(studentId);
+        setStudent(response.data);
       } catch (err) {
         setError(err);
       } finally {
@@ -209,10 +239,10 @@ const useUserData = (userId: string) => {
       }
     };
 
-    fetchUser();
-  }, [userId]);
+    fetchStudent();
+  }, [studentId]);
 
-  return { user, loading, error };
+  return { student, loading, error };
 };
 ```
 
@@ -247,37 +277,50 @@ export const ResourceProvider: React.FC<{ children: ReactNode }> = ({ children }
 };
 ```
 
-## 🧪 Tests
+## 🌐 Internationalisation (i18n)
 
-### Structure des tests
+### Utilisation des traductions
 
 ```typescript
-// ✅ Bon - Test bien structuré
-import { render, screen, fireEvent } from '@testing-library/react';
-import { UserProfile } from './UserProfile';
+// ✅ Bon - Utilisation de useTranslation
+import { useTranslation } from 'react-i18next';
 
-describe('UserProfile', () => {
-  const mockUser = {
-    id: '1',
-    name: 'John Doe',
-    email: 'john@example.com'
-  };
+const UserProfile = ({ user }) => {
+  const { t } = useTranslation();
+  
+  return (
+    <div>
+      <h1>{t('user.profile.title')}</h1>
+      <p>{t('user.profile.welcome', { name: user.name })}</p>
+      <button>{t('common.edit')}</button>
+    </div>
+  );
+};
+```
 
-  it('affiche les informations de l\'utilisateur', () => {
-    render(<UserProfile user={mockUser} />);
-    
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
-    expect(screen.getByText('john@example.com')).toBeInTheDocument();
-  });
+### Structure des clés de traduction
 
-  it('appelle onEdit quand le bouton est cliqué', () => {
-    const onEdit = jest.fn();
-    render(<UserProfile user={mockUser} onEdit={onEdit} />);
-    
-    fireEvent.click(screen.getByText('Modifier'));
-    expect(onEdit).toHaveBeenCalledWith(mockUser);
-  });
-});
+```json
+// public/locales/fr/translation.json
+{
+  "common": {
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "save": "Enregistrer"
+  },
+  "user": {
+    "profile": {
+      "title": "Profil utilisateur",
+      "welcome": "Bienvenue {{name}}"
+    }
+  },
+  "supplies": {
+    "campaign": {
+      "title": "Campagne de fournitures",
+      "create": "Créer une campagne"
+    }
+  }
+}
 ```
 
 ## 📚 Documentation
@@ -511,15 +554,229 @@ const useApiCall = <T>(apiFunction: () => Promise<T>) => {
 ### Avant de soumettre un PR
 
 - [ ] Code lisible et bien documenté
-- [ ] Tests ajoutés/modifiés si nécessaire
 - [ ] Pas d'erreurs ESLint
 - [ ] Types TypeScript corrects
 - [ ] Performance optimisée
 - [ ] Sécurité vérifiée
 - [ ] Accessibilité respectée
 - [ ] Responsive design testé
+- [ ] Traductions ajoutées (FR/EN)
+- [ ] Couleurs EdConnekt utilisées
+- [ ] Headers API corrects (X-Etab, X-Roles)
+- [ ] Clients OpenAPI correctement configurés
+- [ ] Types générés utilisés
+
+## 📡 Standards OpenAPI Generator
+
+### Utilisation des types générés
+
+```typescript
+// ✅ Bon - Utiliser les types générés
+import { Student, CreateStudentRequest, ApiResponse } from '@/api/student-service';
+
+interface StudentFormProps {
+  onSubmit: (student: CreateStudentRequest) => void;
+  initialData?: Partial<Student>;
+}
+
+const StudentForm: React.FC<StudentFormProps> = ({ onSubmit, initialData }) => {
+  const [formData, setFormData] = useState<CreateStudentRequest>({
+    name: initialData?.name || '',
+    email: initialData?.email || '',
+    classId: initialData?.classId || ''
+  });
+
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      onSubmit(formData);
+    }}>
+      {/* Formulaire */}
+    </form>
+  );
+};
+```
+
+### Factory pattern pour les clients API
+
+```typescript
+// ✅ Bon - Factory centralisée pour les clients API
+class ApiClientFactory {
+  private static axiosInstance = this.createAxiosInstance();
+
+  private static createAxiosInstance() {
+    const instance = axios.create();
+    
+    instance.interceptors.request.use((config) => {
+      const establishment = localStorage.getItem('selectedEstablishment');
+      const roles = localStorage.getItem('userRoles');
+      
+      if (establishment) config.headers['X-Etab'] = establishment;
+      if (roles) config.headers['X-Roles'] = roles;
+      
+      return config;
+    });
+
+    return instance;
+  }
+
+  static createStudentApi(): StudentsApi {
+    const config = new Configuration({
+      basePath: process.env.VITE_STUDENT_API_BASE_URL,
+    });
+    return new StudentsApi(config, undefined, this.axiosInstance);
+  }
+
+  static createClasseApi(): ClassesApi {
+    const config = new Configuration({
+      basePath: process.env.VITE_CLASSE_API_BASE_URL,
+    });
+    return new ClassesApi(config, undefined, this.axiosInstance);
+  }
+}
+
+// Utilisation
+const studentApi = ApiClientFactory.createStudentApi();
+const classeApi = ApiClientFactory.createClasseApi();
+```
+
+### Hook générique pour OpenAPI
+
+```typescript
+// ✅ Bon - Hook réutilisable pour tous les clients OpenAPI
+const useApiClient = <TApi>(createClient: () => TApi) => {
+  const clientRef = useRef<TApi>();
+  
+  if (!clientRef.current) {
+    clientRef.current = createClient();
+  }
+  
+  return clientRef.current;
+};
+
+// Utilisation dans un composant
+const SuppliesCampaignPage = () => {
+  const suppliesApi = useApiClient(() => ApiClientFactory.createSuppliesApi());
+  const { data: campaigns, loading, error, execute } = useOpenApiCall(
+    () => suppliesApi.getCampaigns()
+  );
+
+  useEffect(() => {
+    execute();
+  }, []);
+
+  return (
+    <div>
+      {loading && <div>Chargement...</div>}
+      {error && <div>Erreur: {error}</div>}
+      {campaigns?.map(campaign => (
+        <div key={campaign.id}>{campaign.name}</div>
+      ))}
+    </div>
+  );
+};
+```
+
+## 🚀 Standards API EdConnekt
+
+### Configuration des clients OpenAPI
+
+```typescript
+// ✅ Bon - Configuration client OpenAPI avec headers
+import { Configuration, StudentsApi } from '@/api/student-service';
+import axios, { AxiosRequestConfig } from 'axios';
+
+// Création d'une instance axios avec intercepteurs
+const createApiClient = (baseURL: string) => {
+  const axiosInstance = axios.create({ baseURL });
+  
+  // Intercepteur pour ajouter les headers de contexte
+  axiosInstance.interceptors.request.use((config) => {
+    const establishment = localStorage.getItem('selectedEstablishment');
+    const roles = localStorage.getItem('userRoles');
+    
+    if (establishment) {
+      config.headers['X-Etab'] = establishment;
+    }
+    if (roles) {
+      config.headers['X-Roles'] = roles;
+    }
+    
+    return config;
+  });
+  
+  return axiosInstance;
+};
+
+// Configuration du client OpenAPI
+const createStudentApiClient = () => {
+  const axiosInstance = createApiClient(process.env.VITE_STUDENT_API_BASE_URL!);
+  
+  const config = new Configuration({
+    basePath: process.env.VITE_STUDENT_API_BASE_URL,
+  });
+  
+  return new StudentsApi(config, undefined, axiosInstance);
+};
+```
+
+### Gestion des erreurs avec OpenAPI
+
+```typescript
+// ✅ Bon - Hook générique pour clients OpenAPI
+import { AxiosResponse } from 'axios';
+
+const useOpenApiCall = <T>(apiCall: () => Promise<AxiosResponse<T>>) => {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
+
+  const execute = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await apiCall();
+      setData(response.data);
+    } catch (err: any) {
+      const message = err?.response?.data?.message || 
+                     err?.message || 
+                     t('errors.generic');
+      setError(message);
+      console.error('API Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { data, loading, error, execute };
+};
+
+// Exemple d'utilisation
+const StudentProfile = ({ studentId }: { studentId: string }) => {
+  const studentApi = createStudentApiClient();
+  
+  const { data: student, loading, error, execute } = useOpenApiCall(
+    () => studentApi.getStudentById(studentId)
+  );
+  
+  useEffect(() => {
+    execute();
+  }, [studentId]);
+  
+  if (loading) return <div>Chargement...</div>;
+  if (error) return <div>Erreur: {error}</div>;
+  
+  return (
+    <div>
+      <h1>{student?.name}</h1>
+      <p>{student?.email}</p>
+    </div>
+  );
+};
+```
 
 ---
 
-*Standards mis à jour le : [Date]*
-*Version : [Version du projet]* 
+*Standards mis à jour le : 10 octobre 2025*
+*Version : EdConnekt React Frontend v1.0*
