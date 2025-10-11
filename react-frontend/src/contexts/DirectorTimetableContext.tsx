@@ -1,8 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { AbsencesApi } from '../api/timetable-service/api';
-import { Configuration } from '../api/timetable-service';
-import { timetableAxios, TIMETABLE_API_BASE_URL } from '../api/timetable-service/http';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { absencesApi, replacementsApi, auditApi } from '../api/timetable-service/client';
+import { useAuth } from '../pages/authentification/useAuth';
 
 // Types pour l'emploi du temps du directeur
 interface Absence {
@@ -105,14 +104,14 @@ export const DirectorTimetableProvider: React.FC<DirectorTimetableProviderProps>
   const [remplacementsEnCours, setRemplacementsEnCours] = useState<Replacement[]>(mockRemplacementsEnCours);
   const [auditTrail, setAuditTrail] = useState<LessonAudit[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { user: authUser } = useAuth();
+  const validatedBy = (authUser as unknown as { sub?: string })?.sub || authUser?.username || 'unknown';
 
   // Valider une absence
   const validateAbsence = async (absenceId: string): Promise<void> => {
     setIsLoading(true);
     try {
-      const config = new Configuration({ basePath: TIMETABLE_API_BASE_URL });
-      const api = new AbsencesApi(config, undefined, timetableAxios);
-      await api.validateAbsenceAbsencesAbsenceIdValidatePost(absenceId);
+      await absencesApi.validateAbsenceAbsencesAbsenceIdValidatePost(absenceId);
       setAbsencesEnAttente(prev => prev.map(a => a.id === absenceId ? { ...a, status: 'VALIDATED' as const } : a));
     } catch (error) {
       console.error('Erreur lors de la validation de l\'absence:', error);
@@ -122,25 +121,34 @@ export const DirectorTimetableProvider: React.FC<DirectorTimetableProviderProps>
     }
   };
 
+  // Auto-refresh au montage pour remplacer les données mockées
+  useEffect(() => {
+    refreshData().catch(() => {/* no-op */});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Créer un remplacement
   const createReplacement = async (lessonId: string, newTeacherId: string) => {
     setIsLoading(true);
     try {
-      // TODO: Appel API createReplacementReplacementsPost
-      console.log(`Création d'un remplacement pour le cours ${lessonId} avec l'enseignant ${newTeacherId}`);
-      
-      const newReplacement: Replacement = {
-        id: `replacement_${Date.now()}`,
+      const res = await replacementsApi.createReplacementReplacementsPost({
         lesson_id: lessonId,
-        old_teacher_id: 'teacher_1', // À récupérer depuis l'API
         new_teacher_id: newTeacherId,
-        validated_by: 'director_1',
-        validated_at: new Date().toISOString()
+        validated_by: validatedBy,
+      });
+      const r = res.data;
+      const created: Replacement = {
+        id: r.id,
+        lesson_id: r.lesson_id,
+        old_teacher_id: r.old_teacher_id,
+        new_teacher_id: r.new_teacher_id,
+        validated_by: r.validated_by ?? validatedBy,
+        validated_at: r.validated_at ?? undefined,
       };
-      
-      setRemplacementsEnCours(prev => [...prev, newReplacement]);
+      setRemplacementsEnCours(prev => [...prev, created]);
     } catch (error) {
       console.error('Erreur lors de la création du remplacement:', error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -150,25 +158,10 @@ export const DirectorTimetableProvider: React.FC<DirectorTimetableProviderProps>
   const getLessonAudit = async (lessonId: string) => {
     setIsLoading(true);
     try {
-      // TODO: Appel API getLessonAuditLessonsLessonIdAuditGet
-      console.log(`Récupération de l'audit pour le cours ${lessonId}`);
-      
-      // Mock data
-      const mockAudit: LessonAudit[] = [
-        {
-          id: '1',
-          entity_type: 'lesson',
-          entity_id: lessonId,
-          action: 'UPDATE',
-          actor_id: 'teacher_1',
-          actor_role: 'ENSEIGNANT',
-          diff: { room_id: { old: 'room_1', new: 'room_2' } },
-          created_at: '2024-01-19T15:30:00'
-        }
-      ];
-      
-      setAuditTrail(mockAudit);
-      return mockAudit;
+      const res = await auditApi.getLessonAuditLessonsLessonIdAuditGet(lessonId);
+      const data = res.data as unknown as LessonAudit[];
+      setAuditTrail(data);
+      return data;
     } catch (error) {
       console.error('Erreur lors de la récupération de l\'audit:', error);
       return [];
@@ -181,11 +174,32 @@ export const DirectorTimetableProvider: React.FC<DirectorTimetableProviderProps>
   const refreshData = async () => {
     setIsLoading(true);
     try {
-      // TODO: Appels API pour récupérer les données fraîches
-      console.log('Actualisation des données d\'emploi du temps');
-      
-      // Pour l'instant, on garde les données mockées
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const [absRes, replRes] = await Promise.all([
+        absencesApi.listAbsencesAbsencesGet(0, 100),
+        replacementsApi.listReplacementsReplacementsGet(0, 100),
+      ]);
+      const abs = (absRes.data || [])
+        .filter((a: any) => a.status === 'REPORTED')
+        .map((a: any) => ({
+          id: a.id,
+          teacher_id: a.teacher_id,
+          date: a.date,
+          timeslot_id: a.timeslot_id,
+          reason: a.reason,
+          status: a.status as 'REPORTED' | 'VALIDATED',
+          created_at: a.created_at,
+        })) as Absence[];
+      const repl = (replRes.data || []).map((r: any) => ({
+        id: r.id,
+        lesson_id: r.lesson_id,
+        old_teacher_id: r.old_teacher_id,
+        new_teacher_id: r.new_teacher_id,
+        validated_by: r.validated_by ?? validatedBy,
+        validated_at: r.validated_at ?? undefined,
+      })) as Replacement[];
+
+      setAbsencesEnAttente(abs);
+      setRemplacementsEnCours(repl);
     } catch (error) {
       console.error('Erreur lors de l\'actualisation:', error);
     } finally {

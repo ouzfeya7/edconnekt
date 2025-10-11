@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParentChecklist, useParentChecklistProgress, useToggleChecklistItem } from '../../hooks/useSuppliesParentChecklist';
 import { Toaster, toast } from 'react-hot-toast';
 import { CheckCircle2, Circle, Package, User, Search, ShoppingCart } from 'lucide-react';
+import { getActiveContext } from '../../utils/contextStorage';
+import { useClasses } from '../../hooks/useClasses';
+import { Combobox } from '../../components/ui/Combobox';
 
 const ParentSuppliesChecklistPage: React.FC = () => {
   const { t } = useTranslation();
@@ -23,6 +26,20 @@ const ParentSuppliesChecklistPage: React.FC = () => {
   const toggle = useToggleChecklistItem(campaignId || undefined, childId || undefined, classId || undefined);
 
   const canQuery = Boolean(campaignId && childId && classId);
+
+  // Options de classe pour une meilleure UX
+  const { etabId } = getActiveContext();
+  const { data: classesResp } = useClasses({ etablissementId: etabId || '', limit: 100 });
+  const classOptions = (classesResp?.data ?? []).map(c => ({ value: c.id, label: `${c.nom} (${c.niveau})` }));
+
+  // Auto-affectation de la classe lorsque l'ID de campagne est saisi
+  useEffect(() => {
+    if (campaignId && childId && !classId) {
+      if ((classesResp?.data?.length ?? 0) === 1) {
+        setClassId(classesResp!.data![0]!.id);
+      }
+    }
+  }, [campaignId, childId, classId, classesResp]);
 
   const checkedCount = data?.items.filter((item: { is_checked: boolean }) => item.is_checked).length || 0;
   const totalCount = data?.items.length || 0;
@@ -75,12 +92,14 @@ const ParentSuppliesChecklistPage: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">{t('Class ID', 'ID Classe')}</label>
-              <input 
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" 
-                placeholder={t('Saisir l\'ID de la classe', 'Saisir l\'ID de la classe')} 
-                value={classId} 
-                onChange={(e) => setClassId(e.target.value)} 
+              <label className="text-sm font-medium text-gray-700">{t('Classe', 'Classe')}</label>
+              <Combobox
+                options={classOptions}
+                value={classId || undefined}
+                onChange={(val) => setClassId(val)}
+                placeholder={t('Sélectionner une classe…', 'Sélectionner une classe…')}
+                searchPlaceholder={t('Rechercher une classe…', 'Rechercher une classe…')}
+                noResultsMessage={t('Aucun résultat', 'Aucun résultat')}
               />
             </div>
           </div>

@@ -7,6 +7,8 @@ import { Toaster, toast } from 'react-hot-toast';
 import { getActiveContext } from '../../utils/contextStorage';
 import FilterBarGeneric from '../../components/ui/FilterBarGeneric';
 import CampaignCard from '../../components/supplies/CampaignCard';
+import { useClasses } from '../../hooks/useClasses';
+import MultiSelect, { MultiSelectOption } from '../../components/ui/MultiSelect';
 
 import { 
   Calendar, 
@@ -25,7 +27,7 @@ const SuppliesCampaignsPage: React.FC = () => {
   
   const [newName, setNewName] = useState<string>('');
   const [newSchoolYear, setNewSchoolYear] = useState<string>('');
-  const [newClasses, setNewClasses] = useState<string>('');
+  const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
   const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
   const [selectedCampaignId, setSelectedCampaignId] = useState<string>('');
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
@@ -62,6 +64,11 @@ const SuppliesCampaignsPage: React.FC = () => {
   const validate = useValidateCampaign();
   const publish = usePublishCampaign();
   const close = useCloseCampaign();
+
+  // Chargement des classes depuis le classe-service
+  const { etabId } = getActiveContext();
+  const { data: classesResp } = useClasses({ etablissementId: etabId || '', limit: 100 });
+  const classes = classesResp?.data ?? [];
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -396,14 +403,19 @@ const SuppliesCampaignsPage: React.FC = () => {
                 </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('Classes (IDs, séparés par des virgules)', 'Classes (IDs, séparés par des virgules)')}
+                  {t('Classes', 'Classes')}
                 </label>
-                <input
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:border-gray-300"
-                  placeholder={t('Ex: 6A,6B,CM2', 'Ex: 6A,6B,CM2')}
-                  value={newClasses}
-                  onChange={(e) => setNewClasses(e.target.value)}
+                <MultiSelect
+                  options={classes.map((c) => ({ value: c.id, label: `${c.nom} (${c.niveau})` } as MultiSelectOption))}
+                  value={selectedClassIds}
+                  onChange={setSelectedClassIds}
+                  placeholder={t('Sélectionner…', 'Sélectionner…')}
+                  searchPlaceholder={t('Rechercher…', 'Rechercher…')}
+                  noResultsMessage={t('Aucun résultat', 'Aucun résultat')}
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  {t('Sélectionnez une ou plusieurs classes', 'Sélectionnez une ou plusieurs classes')}
+                </p>
               </div>
                 <div className="flex justify-end gap-3 pt-2">
                   <button
@@ -423,19 +435,15 @@ const SuppliesCampaignsPage: React.FC = () => {
                           toast.error(t("Aucun établissement sélectionné", 'Aucun établissement sélectionné'));
                           return;
                         }
-                        const classesArray = newClasses
-                          .split(',')
-                          .map((s) => s.trim())
-                          .filter((s) => s.length > 0);
                         const created = await create.mutateAsync({
                           name: newName.trim(),
                           establishmentId: etabId,
                           schoolYear: newSchoolYear.trim(),
-                          ...(classesArray.length > 0 ? { classes: classesArray } : {}),
+                          ...(selectedClassIds.length > 0 ? { classes: selectedClassIds } : {}),
                         });
                         setNewName('');
                         setNewSchoolYear('');
-                        setNewClasses('');
+                        setSelectedClassIds([]);
                         setIsCreateOpen(false);
                         const createdId = (created as { id?: string } | undefined)?.id;
                         if (createdId) {

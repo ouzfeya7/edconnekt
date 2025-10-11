@@ -17,6 +17,10 @@ const PublicSuppliesListPage: React.FC = () => {
   const { t } = useTranslation();
   const [campaignId, setCampaignId] = useState<string>('');
   const [classId, setClassId] = useState<string>('');
+  // Options de classe (meilleure UX publique si déjà connecté à un établissement)
+  // On n'impose pas l'établissement ici si non disponible
+  // (Comportement safe: si pas d'etabId, la Combobox affichera une liste vide et l'input fonctionnera quand même)
+  // NB: On évite l'import de useClasses ici pour ne pas exposer de contexte si la page est publique sans session.
   const [items, setItems] = useState<{ id: string; label: string; quantity: number; unit?: string | null }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
