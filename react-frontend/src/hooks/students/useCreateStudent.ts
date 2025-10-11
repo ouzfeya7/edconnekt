@@ -6,7 +6,7 @@ export function useCreateStudent() {
   const qc = useQueryClient();
   return useMutation<StudentResponse, Error, { payload: StudentCreate; etabId?: string }>({
     mutationKey: ['student:create'],
-    mutationFn: async ({ payload, etabId }) => {
+    mutationFn: async ({ payload }) => {
       const { data } = await studentsApi.createStudentApiStudentsPost(payload);
       return data;
     },

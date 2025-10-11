@@ -17,7 +17,7 @@ import { useDirector } from '../../contexts/DirectorContext';
 import { useAuth } from '../authentification/useAuth';
 import { useAppRolesFromIdentity } from '../../hooks/useAppRolesFromIdentity';
 import { useIcsFeed } from '../../hooks/useIcsFeed';
-import { useListLessonResources, useAttachLessonResources, useDetachLessonResource } from '../../hooks/useLessonResources';
+// import { useListLessonResources, useAttachLessonResources, useDetachLessonResource } from '../../hooks/useLessonResources';
 
 interface NormalizedCourse {
   id: string | number;
@@ -51,8 +51,7 @@ const EmploiDuTempsPage = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<NormalizedCourse | null>(null);
   const { user: authUser } = useAuth();
-  const [resourceIdsInput, setResourceIdsInput] = useState('');
-  const [detachResourceId, setDetachResourceId] = useState('');
+  // removed unused resourceIdsInput/detachResourceId state
   const currentUserId = (authUser as unknown as { sub?: string })?.sub || authUser?.username || 'unknown';
   const { capabilities } = useAppRolesFromIdentity();
   const canCreateLesson = capabilities.canCreateLesson;
@@ -106,10 +105,8 @@ const EmploiDuTempsPage = () => {
   const createLesson = useCreateLesson();
   const { data: icsText, isLoading: icsLoading, isError: icsError, refetch: refetchIcs } = useIcsFeed(icsClassId || undefined);
   // Ressources du cours (activés seulement quand une leçon est en cours d'édition)
-  const lessonIdStr = editingCourse ? String(editingCourse.id) : undefined;
-  const { data: lessonResources, isLoading: lessonResourcesLoading, isError: lessonResourcesError, refetch: refetchLessonResources } = useListLessonResources<any>(lessonIdStr, true);
-  const attachResources = useAttachLessonResources(lessonIdStr ?? '');
-  const detachResource = useDetachLessonResource(lessonIdStr ?? '');
+  // const lessonIdStr = editingCourse ? String(editingCourse.id) : undefined;
+  // Lesson resources hooks disabled until UI wiring is added to use them
 
   // utilitaires
   const dayNames = useMemo(() => (['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'] as const), []);

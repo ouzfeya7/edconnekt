@@ -6,7 +6,7 @@ export function useUpdateStudent() {
   const qc = useQueryClient();
   return useMutation<StudentResponse, Error, { studentId: string; update: StudentUpdate; etabId?: string }>({
     mutationKey: ['student:update'],
-    mutationFn: async ({ studentId, update, etabId }) => {
+    mutationFn: async ({ studentId, update }) => {
       const { data } = await studentsApi.updateStudentApiStudentsStudentIdPatch(
         studentId,
         update

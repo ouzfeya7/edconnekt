@@ -35,13 +35,13 @@ export function useProvisioningGenerateUsername() {
       mutationKey: ['prov:generate-username'],
       mutationFn: async ({ firstname, lastname, email }) => {
         const { data } = await provisioningApi.generateUsernameProvisioningGenerateUsernamePost(firstname, lastname, email);
-        const d: any = data as any;
-        if (typeof d === 'string') return d;
-        if (d?.username) return String(d.username);
-        if (d?.data?.username) return String(d.data.username);
-        if (typeof d?.data === 'string') return d.data as string;
+        if (typeof data === 'string') return data;
+        const obj = data as unknown as { username?: unknown; data?: unknown };
+        if (typeof obj?.username === 'string') return obj.username;
+        if (typeof (obj?.data as { username?: unknown })?.username === 'string') return (obj.data as { username: string }).username;
+        if (typeof obj?.data === 'string') return obj.data as string;
         // Fallback: stringify object
-        return JSON.stringify(d);
+        return JSON.stringify(data);
       },
     }
   );

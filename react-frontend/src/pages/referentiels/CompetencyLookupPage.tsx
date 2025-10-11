@@ -19,7 +19,7 @@ const CompetencyLookupPage: React.FC = () => {
   });
 
   useEffect(() => {
-    const status = (error as any)?.response?.status;
+    const status = (error as { response?: { status?: number } } | null | undefined)?.response?.status;
     if (error && status !== 404) {
       toast.error(t('competency.lookup.load_error_toast', 'Une erreur est survenue lors de la recherche.'));
     }
@@ -81,7 +81,7 @@ const CompetencyLookupPage: React.FC = () => {
 
       <div className="mt-4">
         {error && (() => {
-          const status = (error as any)?.response?.status;
+          const status = (error as { response?: { status?: number } } | null | undefined)?.response?.status;
           if (status === 404) {
             return (
               <div className="rounded border border-amber-300 bg-amber-50 p-4">

@@ -15,7 +15,7 @@ interface SubjectCardProps {
   };
   domainName?: string;
   isSelected?: boolean;
-  onEdit?: (subject: any) => void;
+  onEdit?: (subject: SubjectCardProps['subject']) => void;
   onDelete?: (id: string) => void;
   onView?: (id: string) => void;
   onSelect?: (id: string) => void;

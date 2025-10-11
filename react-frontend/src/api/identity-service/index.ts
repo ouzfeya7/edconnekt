@@ -1,5 +1,4 @@
 /* tslint:disable */
-/* eslint-disable */
 /**
  * identity-service
  * Service de gestion des identités - Bulk Import et Traçabilité

@@ -163,7 +163,9 @@ export const DirectorProvider: React.FC<DirectorProviderProps> = ({ children }) 
   const setCurrentEtablissementId = (id: string | undefined) => {
     setCurrentEtablissementIdState(id);
     if (id) {
-      try { setActiveEtabId(id); } catch {}
+      try { setActiveEtabId(id); } catch {
+        // ignore persistence errors
+      }
     }
   };
 

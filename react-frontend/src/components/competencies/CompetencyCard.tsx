@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MoreVertical, Edit, Trash2, Eye, BookOpen, Calendar, User } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, Eye, BookOpen, Calendar } from 'lucide-react';
 import Badge from '../ui/Badge';
 
 interface CompetencyCardProps {
@@ -272,7 +272,6 @@ export const CompetencyCardCompact: React.FC<CompetencyCardProps> = ({
   competency,
   subjectName,
   onEdit,
-  onDelete,
   onView
 }) => {
   return (

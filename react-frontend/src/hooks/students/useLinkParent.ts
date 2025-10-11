@@ -6,7 +6,7 @@ export function useLinkParent() {
   const qc = useQueryClient();
   return useMutation<StudentParentResponse, Error, { payload: StudentParentCreate; etabId?: string }>({
     mutationKey: ['student:link-parent'],
-    mutationFn: async ({ payload, etabId }) => {
+    mutationFn: async ({ payload }) => {
       const { data } = await studentsApi.linkParentToStudentApiStudentsStudentIdParentsPost(
         payload.student_id,
         payload,

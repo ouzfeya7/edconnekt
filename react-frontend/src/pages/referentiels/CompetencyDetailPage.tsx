@@ -12,7 +12,7 @@ const CompetencyDetailPage: React.FC = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    const status = (error as any)?.response?.status;
+    const status = (error as { response?: { status?: number } } | null | undefined)?.response?.status;
     if (error && status !== 404) {
       toast.error(t('competency.detail.competency.load_error_toast', 'Une erreur est survenue lors du chargement de la compétence.'));
     }
@@ -21,7 +21,7 @@ const CompetencyDetailPage: React.FC = () => {
   if (!competencyId) return <div>{t('param_missing', 'Paramètre manquant')}: competencyId</div>;
   if (isLoading) return <div>{t('loading_competency', 'Chargement de la compétence...')}</div>;
   if (error) {
-    const status = (error as any)?.response?.status;
+    const status = (error as { response?: { status?: number } } | null | undefined)?.response?.status;
     if (status === 404) {
       return (
         <div className="p-6 max-w-3xl mx-auto">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { publicationApi } from '../../api/supplies-service/client';
+// removed unused publicationApi import
 import { usePublicList, usePublicListPdf } from '../../hooks/useSuppliesTeacherListMutations';
 import { Toaster, toast } from 'react-hot-toast';
 import { 

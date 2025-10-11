@@ -83,7 +83,7 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ isOpen, o
 
 const exportCsv = (filename: string, rows: Array<Record<string, unknown>>) => {
   const headers = rows.length ? Object.keys(rows[0]) : [];
-  const csv = [headers.join(','), ...rows.map((r) => headers.map((h) => JSON.stringify((r as any)[h] ?? '')).join(','))].join('\n');
+  const csv = [headers.join(','), ...rows.map((r) => headers.map((h) => JSON.stringify((r[h as keyof typeof r] ?? '')).toString()).join(','))].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -107,7 +107,7 @@ const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({ referentialId, 
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; label: string } | null>(null);
 
   const filtered = useMemo(() => {
-    return (assignments ?? []).filter((a: any) => {
+    return (assignments ?? []).filter((a: { scope_value?: string; scope_type?: string; id: string; created_at?: string }) => {
       if (filters.search) {
         const s = filters.search.toLowerCase();
         if (!String(a.scope_value || '').toLowerCase().includes(s)) return false;
@@ -125,8 +125,15 @@ const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({ referentialId, 
         title="Affectations"
         searchPlaceholder="Rechercher une affectation…"
         filters={filters}
-        onFiltersChange={setFilters as any}
-        onExport={() => exportCsv('affectations.csv', filtered.map((a: any) => ({
+        onFiltersChange={(f) => {
+          const next = f as Record<string, unknown>;
+          setFilters({
+            search: String(next.search ?? ''),
+            scopeType: String(next.scopeType ?? ''),
+            showAdvanced: Boolean(next.showAdvanced ?? false),
+          });
+        }}
+        onExport={() => exportCsv('affectations.csv', filtered.map((a) => ({
           id: a.id,
           scope_type: a.scope_type,
           scope_value: a.scope_value,
@@ -163,7 +170,7 @@ const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({ referentialId, 
           </div>
         ) : (
           <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
-            {filtered.map((a: any) => (
+            {filtered.map((a: { id: string; scope_type: string; scope_value: string; created_at?: string }) => (
               <AssignmentCard
                 key={a.id}
                 assignment={{
@@ -214,7 +221,7 @@ const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({ referentialId, 
               { loading: 'Création…', success: 'Affectation créée', error: 'Échec de la création' }
             );
             setCreateOpen(false);
-          } catch (e) {
+          } catch {
             // handled by toast
           }
         }}
@@ -233,7 +240,7 @@ const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({ referentialId, 
             );
             setDeleteOpen(false);
             setDeleteTarget(null);
-          } catch (e) {
+          } catch {
             // handled by toast
           }
         }}

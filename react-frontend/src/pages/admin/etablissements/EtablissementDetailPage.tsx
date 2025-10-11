@@ -15,9 +15,9 @@ import ImportClassesModal from '../classes/ImportClassesModal';
 import { FaPlus, FaFileImport, FaArrowLeft } from 'react-icons/fa';
 import { X } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
-import { useEstablishmentAudit, useEstablishmentAuditStatistics, useExportEstablishmentAudit, useCreateManualAuditEntry, useEstablishmentAuditSummary } from '../../../hooks/useEstablishmentAudit';
+import { useEstablishmentAudit, useEstablishmentAuditStatistics, useExportEstablishmentAudit, useCreateManualAuditEntry } from '../../../hooks/useEstablishmentAudit';
 import { useClasses } from '../../../hooks/useClasses';
-import { FaChalkboard, FaDoorOpen, FaClock, FaListAlt } from 'react-icons/fa';
+// removed unused icons FaChalkboard, FaDoorOpen, FaClock, FaListAlt
 import toast from 'react-hot-toast';
 import EventsManager from '../../../components/events/EventsManager';
 import { roomsFromEstablishment } from '../../../config/featureFlags';

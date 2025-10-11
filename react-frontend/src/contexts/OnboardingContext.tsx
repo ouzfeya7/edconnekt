@@ -96,7 +96,7 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
   const { roles } = useAuth();
   const isAdmin = useMemo(() => {
     if (!Array.isArray(roles)) return false;
-    return roles.some((r: any) => {
+    return roles.some((r) => {
       const v = String(r || '').toUpperCase();
       return v === 'ADMINISTRATEUR'.toUpperCase() || v.includes('ROLE_ADMIN');
     });
@@ -131,7 +131,7 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     }, 200);
 
     try {
-      const res = await bulkImport.mutateAsync({ file, establishmentId });
+      await bulkImport.mutateAsync({ file, establishmentId });
       setUploadStatus('success');
       setUploadProgress(100);
       

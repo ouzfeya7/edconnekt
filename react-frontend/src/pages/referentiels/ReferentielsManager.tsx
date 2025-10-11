@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useReferentials } from '../../hooks/competence/useReferentials';
-import { useSubjects, usePublicSubjectsByScope } from '../../hooks/competence/useSubjects';
-import { useCompetencies, useLookupCompetencyByCode, usePublicCompetenciesForSubject } from '../../hooks/competence/useCompetencies';
+import { useSubjects } from '../../hooks/competence/useSubjects';
+import { useCompetencies, useLookupCompetencyByCode } from '../../hooks/competence/useCompetencies';
 import { useDomains } from '../../hooks/competence/useDomains';
 import { usePublicReferentialTree } from '../../hooks/competence/usePublicReferentials';
 import { useGlobalReferentials } from '../../hooks/competence/useGlobalReferentials';
@@ -75,7 +75,7 @@ const ReferentielsManager: React.FC = () => {
   const [selectedCompetencies, setSelectedCompetencies] = useState<Set<string>>(new Set());
   const [selectedDomains, setSelectedDomains] = useState<Set<string>>(new Set());
   const [selectedSubjects, setSelectedSubjects] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<'cards' | 'compact'>('cards');
+  const [viewMode] = useState<'cards' | 'compact'>('cards');
   
   // Filtres unifiés pour chaque onglet
   const [referentialFilters, setReferentialFilters] = useState({
@@ -234,7 +234,7 @@ const ReferentielsManager: React.FC = () => {
   };
 
   const handleCompetencyDelete = (competencyId: string) => {
-    const competencyToDelete = (competenciesPage?.items ?? []).find((c: any) => c.id === competencyId);
+    const competencyToDelete = ((competenciesPage?.items as CompetencyRow[] | undefined) ?? []).find((c) => c.id === competencyId);
     const competencyName = competencyToDelete?.label || competencyToDelete?.code || `Compétence ${competencyId.substring(0, 8)}...`;
     
     setDeleteData({
@@ -250,10 +250,7 @@ const ReferentielsManager: React.FC = () => {
     handleCompetencyClick(competencyId);
   };
 
-  const handleSelectAll = () => {
-    const allIds = (competenciesPage?.items ?? []).map((c: CompetencyRow) => c.id);
-    setSelectedCompetencies(new Set(allIds));
-  };
+  // removed unused handleSelectAll
 
   const handleDeselectAll = () => {
     setSelectedCompetencies(new Set());
@@ -407,10 +404,11 @@ const ReferentielsManager: React.FC = () => {
     if (refForm.description?.trim()) payload.description = refForm.description.trim();
     if (refForm.visibility) payload.visibility = refForm.visibility;
     // Si admin et un établissement est sélectionné, utiliser l'override X-Etab
-    const mutationVars = isAdmin && createRefEtabId
+    type CreateReferentialVars = { payload: typeof payload; etabIdOverride?: string } | typeof payload;
+    const mutationVars: CreateReferentialVars = isAdmin && createRefEtabId
       ? { payload, etabIdOverride: createRefEtabId }
       : payload;
-    await toast.promise(createRef.mutateAsync(mutationVars as any), { loading: 'Création…', success: 'Référentiel créé', error: 'Échec de la création' });
+    await toast.promise(createRef.mutateAsync(mutationVars), { loading: 'Création…', success: 'Référentiel créé', error: 'Échec de la création' });
     setRefModalOpen(false);
   };
   const handlePublishRef = async () => {
@@ -437,7 +435,7 @@ const ReferentielsManager: React.FC = () => {
   };
 
   const handleDeleteRef = (referentialId: string, versionNumber: number) => {
-    const refToDelete = (refsPage?.items ?? []).find((r: any) => r.id === referentialId);
+    const refToDelete = ((refsPage?.items as ReferentialListItem[] | undefined) ?? []).find((r) => r.id === referentialId);
     const refName = refToDelete?.name || `Référentiel ${referentialId.substring(0, 8)}...`;
     
     setDeleteData({
@@ -504,7 +502,7 @@ const ReferentielsManager: React.FC = () => {
   };
 
   const handleDeleteDomain = (domainId: string) => {
-    const domainToDelete = (domains ?? []).find((d: any) => d.id === domainId);
+    const domainToDelete = ((domains as Array<{ id: string; name: string }> | undefined) ?? []).find((d) => d.id === domainId);
     const domainName = domainToDelete?.name || `Domaine ${domainId.substring(0, 8)}...`;
     
     setDeleteData({
@@ -700,7 +698,7 @@ const ReferentielsManager: React.FC = () => {
       );
       setReplayConfirmOpen(false);
       await refetchEvents();
-    } catch (e) {
+    } catch {
       // toast déjà géré ci-dessus
     }
   };
@@ -960,11 +958,18 @@ const ReferentielsManager: React.FC = () => {
                 showAdvanced: referentialFilters.showAdvanced
               }}
               onFiltersChange={(newFilters) => {
-                setReferentialFilters(newFilters);
-                setQ(newFilters.search);
-                setCycle(newFilters.cycle || null);
-                setRefState(newFilters.state || null);
-                setVisibility(newFilters.visibility || null);
+                const nf = newFilters as Record<string, unknown>;
+                setReferentialFilters({
+                  search: String(nf.search ?? ''),
+                  cycle: String(nf.cycle ?? ''),
+                  state: String(nf.state ?? ''),
+                  visibility: String(nf.visibility ?? ''),
+                  showAdvanced: Boolean(nf.showAdvanced ?? false),
+                });
+                setQ(String(nf.search ?? ''));
+                setCycle((nf.cycle ? String(nf.cycle) : null));
+                setRefState((nf.state ? String(nf.state) : null));
+                setVisibility((nf.visibility ? String(nf.visibility) : null));
                 setPage(1);
               }}
               onExport={() => exportCsv('referentiels.csv', (refsPage?.items ?? []).map((r: ReferentialListItem) => ({ 
@@ -1022,7 +1027,7 @@ const ReferentielsManager: React.FC = () => {
                   label: 'Cloner version',
                   onClick: () => {
                     if (!effectiveReferentialId) return;
-                    const selectedRef = (refsPage?.items ?? []).find((r: any) => r.id === effectiveReferentialId);
+                    const selectedRef = ((refsPage?.items as ReferentialListItem[] | undefined) ?? []).find((r) => r.id === effectiveReferentialId);
                     if (selectedRef) {
                       setCloneData({
                         id: effectiveReferentialId,
@@ -1160,10 +1165,15 @@ const ReferentielsManager: React.FC = () => {
               searchPlaceholder="Rechercher un référentiel global..."
               filters={globalFilters}
               onFiltersChange={(f) => {
-                setGlobalFilters(f);
+                const n = f as Record<string, unknown>;
+                setGlobalFilters({
+                  search: String(n.search ?? ''),
+                  cycle: String(n.cycle ?? ''),
+                  showAdvanced: Boolean(n.showAdvanced ?? false),
+                });
                 setGlobalPage(1);
               }}
-              onExport={() => exportCsv('catalogue-global.csv', (globalRefsPage?.items ?? []).map((gr: any) => ({ 
+              onExport={() => exportCsv('catalogue-global.csv', (globalRefsPage?.items ?? []).map((gr: { id: string; name?: string; cycle?: string }) => ({
                 id: gr.id, 
                 name: gr.name || '', 
                 cycle: gr.cycle || ''
@@ -1189,14 +1199,14 @@ const ReferentielsManager: React.FC = () => {
             <div className="p-6">
               <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
                 {(globalRefsPage?.items ?? [])
-                  .filter((gr: any) => {
+                  .filter((gr: { id: string; name?: string; cycle?: string }) => {
                     if (globalFilters.search) {
                       const searchLower = globalFilters.search.toLowerCase();
                       return gr.name?.toLowerCase().includes(searchLower);
                     }
                     return true;
                   })
-                  .map((gr: any) => (
+                  .map((gr: { id: string; name?: string; cycle?: string; description?: string; created_at?: string; updated_at?: string }) => (
                     <GlobalReferentialCard
                       key={gr.id}
                       globalReferential={{
@@ -1275,10 +1285,19 @@ const ReferentielsManager: React.FC = () => {
               searchPlaceholder="Rechercher par type d'événement..."
               filters={eventsFilters}
               onFiltersChange={(f) => {
-                setEventsFilters(f);
+                const n = f as Record<string, unknown>;
+                setEventsFilters({
+                  search: String(n.search ?? ''),
+                  aggregateType: String(n.aggregateType ?? ''),
+                  aggregateId: String(n.aggregateId ?? ''),
+                  status: String(n.status ?? ''),
+                  startDate: String(n.startDate ?? ''),
+                  endDate: String(n.endDate ?? ''),
+                  showAdvanced: Boolean(n.showAdvanced ?? false),
+                });
                 setEventsPage(1);
               }}
-              onExport={() => exportCsv('evenements.csv', (outboxEvents ?? []).map((e: any) => ({ 
+              onExport={() => exportCsv('evenements.csv', (outboxEvents ?? []).map((e: { id: string; event_type?: string; aggregate_type?: string; aggregate_id?: string; status?: string; created_at?: string }) => ({ 
                 id: e.id, 
                 event_type: e.event_type, 
                 aggregate_type: e.aggregate_type,
@@ -1314,7 +1333,7 @@ const ReferentielsManager: React.FC = () => {
                 <>
                   <div className={viewMode === 'cards' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
                     {(outboxEvents ?? [])
-                      .filter((e: any) => {
+                      .filter((e: { id: string; event_type?: string; aggregate_type?: string; aggregate_id?: string; status?: string; created_at?: string }) => {
                         if (eventsFilters.search) {
                           const searchLower = eventsFilters.search.toLowerCase();
                           return e.event_type?.toLowerCase().includes(searchLower);
@@ -1327,28 +1346,28 @@ const ReferentielsManager: React.FC = () => {
                         }
                         // startDate / endDate filtrage côté client (optionnel si back filtre déjà)
                         if (eventsFilters.startDate) {
-                          const d = new Date(e.created_at);
+                          const d = new Date(String(e.created_at || ''));
                           if (isFinite(d.getTime()) && d < new Date(eventsFilters.startDate)) return false;
                         }
                         if (eventsFilters.endDate) {
-                          const d = new Date(e.created_at);
+                          const d = new Date(String(e.created_at || ''));
                           if (isFinite(d.getTime()) && d > new Date(eventsFilters.endDate)) return false;
                         }
                         return true;
                       })
-                      .map((e: any) => (
+                      .map((e) => (
                         <EventCard
                           key={e.id}
                           event={{
                             id: e.id,
-                            event_type: e.event_type,
-                            aggregate_type: e.aggregate_type,
-                            aggregate_id: e.aggregate_id,
+                            event_type: e.event_type || '',
+                            aggregate_type: e.aggregate_type || '',
+                            aggregate_id: e.aggregate_id || '',
                             status: e.status,
                             created_at: e.created_at,
                             processed_at: e.processed_at,
                             tenant_id: e.tenant_id,
-                            payload: e.payload,
+                            payload: e.payload as object | undefined,
                           }}
                           isSelected={selectedEvents.has(e.id)}
                           onSelect={(id) => {
@@ -1428,8 +1447,12 @@ const ReferentielsManager: React.FC = () => {
                 showAdvanced: domainFilters.showAdvanced
               }}
               onFiltersChange={(newFilters) => {
-                setDomainFilters(newFilters);
-                setDomainFilter(newFilters.search);
+                const nf = newFilters as Record<string, unknown>;
+                setDomainFilters({
+                  search: String(nf.search ?? ''),
+                  showAdvanced: Boolean(nf.showAdvanced ?? false),
+                });
+                setDomainFilter(String(nf.search ?? ''));
               }}
               onCreate={openCreateDomain}
               isLoading={false}
@@ -1527,8 +1550,9 @@ const ReferentielsManager: React.FC = () => {
                 showAdvanced: subjectFilters.showAdvanced
               }}
               onFiltersChange={(newFilters) => {
-                setSubjectFilters((prev) => ({ ...prev, domain: newFilters.domain }));
-                setSubjectQ(newFilters.search);
+                const nf = newFilters as Record<string, unknown>;
+                setSubjectFilters((prev) => ({ ...prev, domain: String(nf.domain ?? '') }));
+                setSubjectQ(String(nf.search ?? ''));
                 setSubjectPage(1);
               }}
               onExport={() => exportCsv('matieres.csv', (subjectsPage?.items ?? []).map((s: SubjectRow) => ({ 
@@ -1606,7 +1630,7 @@ const ReferentielsManager: React.FC = () => {
                           isSelected={selectedSubjects.has(s.id)}
                           onEdit={openEditSubject}
                           onDelete={(id) => {
-                            const subjectToDelete = (subjectsPage?.items ?? []).find((s: any) => s.id === id);
+                            const subjectToDelete = ((subjectsPage?.items as SubjectRow[] | undefined) ?? []).find((s) => s.id === id);
                             const subjectName = subjectToDelete?.name || subjectToDelete?.code || `Matière ${id.substring(0, 8)}...`;
                             
                             setDeleteData({
@@ -1944,7 +1968,7 @@ const ReferentielsManager: React.FC = () => {
                     onChange={(e) => setCreateRefEtabId(e.target.value)}
                   >
                     <option value="">— Utiliser le contexte actif —</option>
-                    {(publicEstabs ?? []).map((etab: any) => (
+                    {(publicEstabs ?? []).map((etab: { id?: string; nom?: string }) => (
                       <option key={etab?.id} value={etab?.id}>{etab?.nom || etab?.id}</option>
                     ))}
                   </select>
@@ -2212,7 +2236,7 @@ const ReferentielsManager: React.FC = () => {
 
 export default ReferentielsManager;
 // Modal de confirmation pour Rejouer les événements
-// Implémentée localement pour éviter d’alourdir avec un nouveau fichier de composant.
+// Implémentée localement pour éviter d'alourdir avec un nouveau fichier de composant.
 // Aligne le style avec les autres modales (couleurs neutres/bleues).
 const ReplayConfirmModal: React.FC<{
   isOpen: boolean;

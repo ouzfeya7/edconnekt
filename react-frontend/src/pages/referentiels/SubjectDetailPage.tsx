@@ -12,7 +12,7 @@ const SubjectDetailPage: React.FC = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    const status = (error as any)?.response?.status;
+    const status = (error as { response?: { status?: number } } | null | undefined)?.response?.status;
     if (error && status !== 404) {
       toast.error(t('competency.detail.subject.load_error_toast', 'Une erreur est survenue lors du chargement de la matière.'));
     }
@@ -21,7 +21,7 @@ const SubjectDetailPage: React.FC = () => {
   if (!subjectId) return <div>{t('param_missing', 'Paramètre manquant')}: subjectId</div>;
   if (isLoading) return <div>{t('loading_subject', 'Chargement de la matière...')}</div>;
   if (error) {
-    const status = (error as any)?.response?.status;
+    const status = (error as { response?: { status?: number } } | null | undefined)?.response?.status;
     if (status === 404) {
       return (
         <div className="p-6 max-w-3xl mx-auto">

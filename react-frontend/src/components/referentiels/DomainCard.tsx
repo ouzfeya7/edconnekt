@@ -14,7 +14,7 @@ interface DomainCardProps {
   };
   referentialName?: string;
   isSelected?: boolean;
-  onEdit?: (domain: any) => void;
+  onEdit?: (domain: DomainCardProps['domain']) => void;
   onDelete?: (id: string) => void;
   onView?: (id: string) => void;
   onSelect?: (id: string) => void;

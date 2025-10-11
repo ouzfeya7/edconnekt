@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MoreVertical, Eye, CheckCircle, Send, X, Calendar, Activity, Settings, AlertCircle } from 'lucide-react';
-import Badge from '../ui/Badge';
+// removed unused Badge import
 
 interface CampaignCardProps {
   campaign: {

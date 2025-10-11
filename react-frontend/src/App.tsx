@@ -78,7 +78,8 @@ import DirectorSuppliesPage from './pages/directeur/DirectorSuppliesPage';
 import PublicSuppliesListPage from './pages/famille/PublicSuppliesListPage';
 import DirecteurEventsPage from './pages/directeur/DirecteurEventsPage';
 import EventDetailPage from './pages/events/EventDetailPage';
-import IdentityContextProvider, { useIdentityContext } from './contexts/IdentityContextProvider';
+import IdentityContextProvider from './contexts/IdentityContextProvider';
+import { useIdentityContext } from './contexts/IdentityContext';
 import SelectContextPage from './pages/context/SelectContextPage';
 
 // Pages de détail Référentiels / Compétences

@@ -24,113 +24,13 @@ const allowedHeadersMap: Record<Domain, string[]> = {
   admin_staff: [...requiredHeadersMap.admin_staff, ...allowedExtraHeaders],
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function readCsvFirstHeaderLine(file: File): Promise<string[] | null> {
-  try {
-    const text = await file.text();
-    const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-    if (lines.length === 0) return null;
-    const headerLine = lines[0];
-    // Detect delimiter by count; prefer ';' if tie (API examples use ';')
-    const semi = (headerLine.match(/;/g) || []).length;
-    const comma = (headerLine.match(/,/g) || []).length;
-    const delimiter = semi >= comma ? ';' : ',';
-    return headerLine
-      .split(delimiter)
-      .map((h) => h.trim())
-      .filter((h) => h.length > 0);
-  } catch {
-    return null;
-  }
-}
+// removed unused helper readCsvFirstHeaderLine
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function validateHeaders(actual: string[] | null, required: string[], allowed: string[]): { ok: boolean; missing: string[]; unknown: string[] } {
-  if (!actual) return { ok: false, missing: required, unknown: [] };
-  const norm = (arr: string[]) => arr.map((s) => s.trim().toLowerCase());
-  const act = norm(actual);
-  const req = norm(required);
-  const all = norm(allowed);
-  const missing = req.filter((e) => !act.includes(e));
-  const unknown = act.filter((a) => !all.includes(a));
-  return { ok: missing.length === 0 && unknown.length === 0, missing, unknown };
-}
+// removed unused helper validateHeaders
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function parseCsv(fileText: string): { headers: string[]; rows: string[][]; delimiter: string } | null {
-  const lines = fileText.split(/\r?\n/).filter((l) => l.trim().length > 0);
-  if (lines.length === 0) return null;
-  const headerLine = lines[0];
-  const semi = (headerLine.match(/;/g) || []).length;
-  const comma = (headerLine.match(/,/g) || []).length;
-  const delimiter = semi >= comma ? ';' : ',';
-  const headers = headerLine.split(delimiter).map((h) => h.trim());
-  const rows = lines.slice(1).map((l) => l.split(delimiter));
-  return { headers, rows, delimiter };
-}
+// removed unused helper parseCsv
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function validateRows(fileText: string, domain: Domain): string[] {
-  const parsed = parseCsv(fileText);
-  if (!parsed) return ['Fichier vide ou illisible.'];
-  const headerLower = parsed.headers.map((h) => h.trim().toLowerCase());
-  const indexOf = (name: string) => headerLower.indexOf(name);
-
-  const required = requiredHeadersMap[domain];
-  const errors: string[] = [];
-  const push = (line: number, message: string) => errors.push(`Ligne ${line}: ${message}`);
-
-  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
-  const dateRe = /^\d{4}-\d{2}-\d{2}$/;
-  const boolValues = new Set(['true', 'false', '1', '0', 'yes', 'no']);
-
-  parsed.rows.forEach((cells, idx) => {
-    const lineNum = idx + 2; // +1 header, +1-based
-    // Requis non vides
-    required.forEach((col) => {
-      const i = indexOf(col);
-      const v = i >= 0 ? (cells[i]?.trim?.() ?? '') : '';
-      if (!v) push(lineNum, `Champ requis manquant: ${col}`);
-    });
-
-    // Contrôles spécifiques
-    if (domain === 'student') {
-      const bd = cells[indexOf('birth_date')]?.trim?.() ?? '';
-      const g = cells[indexOf('gender')]?.trim?.().toLowerCase() ?? '';
-      const ar = cells[indexOf('account_required')]?.trim?.().toLowerCase() ?? '';
-      if (bd && !dateRe.test(bd)) push(lineNum, 'birth_date doit être au format YYYY-MM-DD');
-      if (g && !['m', 'f', 'male', 'female'].includes(g)) push(lineNum, "gender doit être 'M'/'F' ou 'male'/'female'");
-      if (ar && !boolValues.has(ar)) push(lineNum, "account_required doit être l'un de: true/false/1/0/yes/no");
-      // Si un compte doit être créé, l'email est requis pour l'invitation Keycloak
-      const emailVal = cells[indexOf('email')]?.trim?.() ?? '';
-      const requiresAccount = ['true', '1', 'yes'].includes(ar);
-      if (requiresAccount && !emailVal) push(lineNum, "email requis lorsque account_required est à 'true'");
-      if (requiresAccount && emailVal && !emailRe.test(emailVal)) push(lineNum, 'email invalide');
-    }
-    if (domain === 'teacher' || domain === 'admin_staff') {
-      const hd = cells[indexOf('hire_date')]?.trim?.() ?? '';
-      if (hd && !dateRe.test(hd)) push(lineNum, 'hire_date doit être au format YYYY-MM-DD');
-      // Email requis pour l'envoi d'invitations Keycloak
-      const emailVal = cells[indexOf('email')]?.trim?.() ?? '';
-      if (!emailVal) push(lineNum, 'email requis');
-      if (emailVal && !emailRe.test(emailVal)) push(lineNum, 'email invalide');
-    }
-    if (domain === 'parent') {
-      // Email requis pour l'envoi d'invitations Keycloak
-      const emailVal = cells[indexOf('email')]?.trim?.() ?? '';
-      if (!emailVal) push(lineNum, 'email requis');
-      if (emailVal && !emailRe.test(emailVal)) push(lineNum, 'email invalide');
-    }
-
-    // Contrôles génériques optionnels
-    const email = cells[indexOf('email')]?.trim?.() ?? '';
-    const phone = cells[indexOf('phone')]?.trim?.() ?? '';
-    if (email && !emailRe.test(email)) push(lineNum, 'email invalide');
-    if (phone && !/^[+]?[^A-Za-z]{7,}$/.test(phone)) push(lineNum, 'phone invalide');
-  });
-
-  return errors;
-}
+// removed unused helper validateRows
 
 const Section: React.FC<{ title: string; domain: Domain; }> = ({ title, domain }) => {
   const { handleUpload, isUploading, uploadProgress, currentUploadDomain, canUpload, isAdmin } = useOnboarding();

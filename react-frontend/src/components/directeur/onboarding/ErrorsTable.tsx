@@ -8,12 +8,12 @@ interface IdentityErrorItem {
   error_type?: string;
   message?: string;
   msg?: string;
-  context?: any;
-  [key: string]: any;
+  context?: unknown;
+  [key: string]: unknown;
 }
 
 interface ErrorsData {
-  errors?: IdentityErrorItem[];
+  errors?: unknown[];
   pages?: number;
   total?: number;
 }

@@ -5,7 +5,7 @@ export function useUnlinkParent() {
   const qc = useQueryClient();
   return useMutation<void, Error, { studentId: string; parentId: string; etabId?: string }>({
     mutationKey: ['student:unlink-parent'],
-    mutationFn: async ({ studentId, parentId, etabId }) => {
+    mutationFn: async ({ studentId, parentId }) => {
       await studentsApi.unlinkParentFromStudentApiStudentsStudentIdParentsParentIdDelete(
         studentId,
         parentId

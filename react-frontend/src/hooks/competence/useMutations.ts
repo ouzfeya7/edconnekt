@@ -27,18 +27,19 @@ export function useCreateReferential() {
             etabIdOverride?: string;
           }
     ) => {
-      const hasWrapper = (vars as any)?.payload !== undefined;
-      const payload: ReferentialCreate = hasWrapper ? (vars as any).payload : (vars as ReferentialCreate);
-      const etabIdOverride: string | undefined = hasWrapper ? (vars as any).etabIdOverride : undefined;
-      const options = etabIdOverride
-        ? ({ headers: { 'X-Etab': etabIdOverride } } as any)
+      const maybeWrapper = vars as { payload?: ReferentialCreate; etabIdOverride?: string };
+      const hasWrapper = typeof maybeWrapper === 'object' && maybeWrapper !== null && 'payload' in maybeWrapper;
+      const payload: ReferentialCreate = hasWrapper ? (maybeWrapper.payload as ReferentialCreate) : (vars as ReferentialCreate);
+      const etabIdOverride: string | undefined = hasWrapper ? maybeWrapper.etabIdOverride : undefined;
+      const options: { headers: { 'X-Etab': string } } | undefined = etabIdOverride
+        ? { headers: { 'X-Etab': etabIdOverride } }
         : undefined;
       const { data } = await competenceReferentialsApi.createReferentialApiCompetenceReferentialsPost(payload, options);
       return data;
     },
     onSuccess: (_res, vars) => {
-      const hasWrapper = (vars as any)?.payload !== undefined;
-      const payload: ReferentialCreate = hasWrapper ? (vars as any).payload : (vars as ReferentialCreate);
+      const maybeWrapper = vars as { payload?: ReferentialCreate } | ReferentialCreate;
+      const payload: ReferentialCreate = (maybeWrapper as { payload?: ReferentialCreate }).payload ?? (maybeWrapper as ReferentialCreate);
       qc.invalidateQueries({ queryKey: ['competence:referentials'] });
       // Si le référentiel est créé en visibilité GLOBAL, rafraîchir aussi le catalogue global
       if (payload?.visibility === VisibilityEnum.Global) {
