@@ -25,266 +25,13 @@
                 }
             }
         },
-        "/rooms/": {
-            "post": {
-                "tags": [
-                    "Rooms"
-                ],
-                "summary": "Create Room",
-                "description": "Créer une salle. Rôles: ADMIN, COORDONNATEUR",
-                "operationId": "create_room_rooms__post",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RoomCreate"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RoomRead"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "get": {
-                "tags": [
-                    "Rooms"
-                ],
-                "summary": "List Rooms",
-                "description": "Lister les salles (optionnellement filtrées par établissement).",
-                "operationId": "list_rooms_rooms__get",
-                "parameters": [
-                    {
-                        "name": "skip",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 0,
-                            "title": "Skip"
-                        }
-                    },
-                    {
-                        "name": "limit",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 100,
-                            "title": "Limit"
-                        }
-                    },
-                    {
-                        "name": "establishment_id",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string",
-                                    "format": "uuid"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "title": "Establishment Id"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/RoomRead"
-                                    },
-                                    "title": "Response List Rooms Rooms  Get"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/rooms/{room_id}": {
-            "get": {
-                "tags": [
-                    "Rooms"
-                ],
-                "summary": "Get Room",
-                "description": "Récupérer une salle par ID.",
-                "operationId": "get_room_rooms__room_id__get",
-                "parameters": [
-                    {
-                        "name": "room_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid",
-                            "title": "Room Id"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RoomRead"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "tags": [
-                    "Rooms"
-                ],
-                "summary": "Update Room",
-                "description": "Mettre à jour une salle. Rôles: ADMIN, COORDONNATEUR",
-                "operationId": "update_room_rooms__room_id__patch",
-                "parameters": [
-                    {
-                        "name": "room_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid",
-                            "title": "Room Id"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RoomUpdate"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RoomRead"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Rooms"
-                ],
-                "summary": "Delete Room",
-                "description": "Supprimer une salle. Rôles: ADMIN, COORDONNATEUR",
-                "operationId": "delete_room_rooms__room_id__delete",
-                "parameters": [
-                    {
-                        "name": "room_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid",
-                            "title": "Room Id"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RoomRead"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/timeslots/": {
             "post": {
                 "tags": [
                     "Timeslots"
                 ],
                 "summary": "Create Timeslot",
-                "description": "Créer un créneau horaire. Rôles: ADMIN, COORDONNATEUR",
+                "description": "Créer un créneau horaire. Rôles: ADMIN",
                 "operationId": "create_timeslot_timeslots__post",
                 "requestBody": {
                     "required": true,
@@ -441,7 +188,7 @@
                     "Timeslots"
                 ],
                 "summary": "Update Timeslot",
-                "description": "Mettre à jour un créneau horaire. Rôles: ADMIN, COORDONNATEUR",
+                "description": "Mettre à jour un créneau horaire. Rôles: ADMIN",
                 "operationId": "update_timeslot_timeslots__timeslot_id__patch",
                 "parameters": [
                     {
@@ -493,7 +240,7 @@
                     "Timeslots"
                 ],
                 "summary": "Delete Timeslot",
-                "description": "Supprimer un créneau horaire. Rôles: ADMIN, COORDONNATEUR",
+                "description": "Supprimer un créneau horaire. Rôles: ADMIN",
                 "operationId": "delete_timeslot_timeslots__timeslot_id__delete",
                 "parameters": [
                     {
@@ -531,13 +278,174 @@
                 }
             }
         },
+        "/lessons/{lesson_id}/resources": {
+            "post": {
+                "tags": [
+                    "Resources"
+                ],
+                "summary": "Attach Lesson Resources",
+                "description": "Attacher 1..N ressources à une leçon en proxyant vers resource-service.",
+                "operationId": "attach_lesson_resources_lessons__lesson_id__resources_post",
+                "parameters": [
+                    {
+                        "name": "lesson_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Lesson Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AttachResourcesRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Resources"
+                ],
+                "summary": "List Lesson Resources",
+                "description": "Lister les ressources liées à une leçon. Optionnellement enrichir via resource-service.",
+                "operationId": "list_lesson_resources_lessons__lesson_id__resources_get",
+                "parameters": [
+                    {
+                        "name": "lesson_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Lesson Id"
+                        }
+                    },
+                    {
+                        "name": "enrich",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "default": false,
+                            "title": "Enrich"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/lessons/{lesson_id}/resources/{resource_id}": {
+            "delete": {
+                "tags": [
+                    "Resources"
+                ],
+                "summary": "Detach Lesson Resource",
+                "description": "Détacher une ressource d'une leçon en proxyant vers resource-service.",
+                "operationId": "detach_lesson_resource_lessons__lesson_id__resources__resource_id__delete",
+                "parameters": [
+                    {
+                        "name": "lesson_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Lesson Id"
+                        }
+                    },
+                    {
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Resource Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/lessons/": {
             "post": {
                 "tags": [
                     "Lessons"
                 ],
                 "summary": "Create Lessons",
-                "description": "Créer un cours ou une série (repeatweekly). Rôles: ENSEIGNANT, COORDONNATEUR, ADMIN",
+                "description": "Créer un cours ou une série (repeatweekly). Rôles: ENSEIGNANT, ADMIN",
                 "operationId": "create_lessons_lessons__post",
                 "requestBody": {
                     "required": true,
@@ -703,7 +611,7 @@
                     "Lessons"
                 ],
                 "summary": "Update Lesson",
-                "description": "Mettre à jour salle/timeslot. Vérifie conflit. Rôles: ENSEIGNANT, COORDONNATEUR, ADMIN",
+                "description": "Mettre à jour salle/timeslot. Vérifie conflit. Rôles: ENSEIGNANT, ADMIN",
                 "operationId": "update_lesson_lessons__lesson_id__patch",
                 "parameters": [
                     {
@@ -755,7 +663,7 @@
                     "Lessons"
                 ],
                 "summary": "Delete Lesson",
-                "description": "Supprimer un cours. Rôles: COORDONNATEUR, ADMIN",
+                "description": "Supprimer un cours. Rôles: ADMIN",
                 "operationId": "delete_lesson_lessons__lesson_id__delete",
                 "parameters": [
                     {
@@ -799,7 +707,7 @@
                     "Absences"
                 ],
                 "summary": "Create Absence",
-                "description": "Déclarer une absence (status REPORTED). Rôles: ENSEIGNANT, COORDONNATEUR, ADMIN",
+                "description": "Déclarer une absence (status REPORTED). Rôles: ENSEIGNANT, ADMIN",
                 "operationId": "create_absence_absences__post",
                 "requestBody": {
                     "required": true,
@@ -897,7 +805,7 @@
                     "Absences"
                 ],
                 "summary": "Validate Absence",
-                "description": "Valider une absence (status VALIDATED). Rôle: DIRECTION. Propage le status sur les lessons du créneau.",
+                "description": "Valider une absence (status VALIDATED). Rôle: ADMINSTAFF. Propage le status sur les lessons du créneau.",
                 "operationId": "validate_absence_absences__absence_id__validate_post",
                 "parameters": [
                     {
@@ -941,7 +849,7 @@
                     "Absences"
                 ],
                 "summary": "Delete Absence",
-                "description": "Supprimer une absence. Rôles: COORDONNATEUR, ADMIN",
+                "description": "Supprimer une absence. Rôles: ADMIN",
                 "operationId": "delete_absence_absences__absence_id__delete",
                 "parameters": [
                     {
@@ -985,7 +893,7 @@
                     "Replacements"
                 ],
                 "summary": "Create Replacement",
-                "description": "Créer un remplacement (status=REPLACED). Rôles: COORDONNATEUR, DIRECTION, ADMIN",
+                "description": "Créer un remplacement (status=REPLACED). Rôles: ADMINSTAFF, ADMIN",
                 "operationId": "create_replacement_replacements__post",
                 "requestBody": {
                     "required": true,
@@ -1083,7 +991,7 @@
                     "Replacements"
                 ],
                 "summary": "Delete Replacement",
-                "description": "Supprimer un remplacement. Rôles: COORDONNATEUR, ADMIN",
+                "description": "Supprimer un remplacement. Rôles: ADMIN",
                 "operationId": "delete_replacement_replacements__replacement_id__delete",
                 "parameters": [
                     {
@@ -1169,7 +1077,7 @@
                     "Audit"
                 ],
                 "summary": "Get Lesson Audit",
-                "description": "Journal d'audit pour un cours. Rôle: DIRECTION",
+                "description": "Journal d'audit pour un cours. Rôle: ADMINSTAFF",
                 "operationId": "get_lesson_audit_lessons__lesson_id__audit_get",
                 "parameters": [
                     {
@@ -1217,7 +1125,7 @@
                     "Audit"
                 ],
                 "summary": "Get Audit Trail",
-                "description": "Journal d'audit complet. Rôle: DIRECTION, ADMIN",
+                "description": "Journal d'audit complet. Rôle: ADMINSTAFF, ADMIN",
                 "operationId": "get_audit_trail_audit__get",
                 "parameters": [
                     {
@@ -1368,6 +1276,23 @@
                 ],
                 "title": "AbsenceStatus"
             },
+            "AttachResourcesRequest": {
+                "properties": {
+                    "resource_ids": {
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "type": "array",
+                        "title": "Resource Ids"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "resource_ids"
+                ],
+                "title": "AttachResourcesRequest"
+            },
             "HTTPValidationError": {
                 "properties": {
                     "detail": {
@@ -1404,13 +1329,27 @@
                         "title": "Date"
                     },
                     "timeslot_id": {
-                        "type": "string",
-                        "format": "uuid",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Timeslot Id"
                     },
                     "room_id": {
-                        "type": "string",
-                        "format": "uuid",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Room Id"
                     },
                     "status": {
@@ -1428,9 +1367,7 @@
                     "class_id",
                     "subject_id",
                     "teacher_id",
-                    "date",
-                    "timeslot_id",
-                    "room_id"
+                    "date"
                 ],
                 "title": "LessonCreate"
             },
@@ -1467,8 +1404,15 @@
                         "title": "Timeslot Id"
                     },
                     "room_id": {
-                        "type": "string",
-                        "format": "uuid",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Room Id"
                     },
                     "status": {
@@ -1493,7 +1437,6 @@
                     "teacher_id",
                     "date",
                     "timeslot_id",
-                    "room_id",
                     "status",
                     "created_at",
                     "created_by"
@@ -1642,136 +1585,6 @@
                     "created_by"
                 ],
                 "title": "ReplacementRead"
-            },
-            "RoomCreate": {
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "title": "Name"
-                    },
-                    "capacity": {
-                        "type": "integer",
-                        "title": "Capacity"
-                    },
-                    "establishment_id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "title": "Establishment Id"
-                    },
-                    "building_id": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "uuid"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Building Id"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "name",
-                    "capacity",
-                    "establishment_id"
-                ],
-                "title": "RoomCreate"
-            },
-            "RoomRead": {
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "title": "Id"
-                    },
-                    "name": {
-                        "type": "string",
-                        "title": "Name"
-                    },
-                    "capacity": {
-                        "type": "integer",
-                        "title": "Capacity"
-                    },
-                    "establishment_id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "title": "Establishment Id"
-                    },
-                    "building_id": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "uuid"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Building Id"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "title": "Created At"
-                    },
-                    "created_by": {
-                        "type": "string",
-                        "format": "uuid",
-                        "title": "Created By"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "id",
-                    "name",
-                    "capacity",
-                    "establishment_id",
-                    "created_at",
-                    "created_by"
-                ],
-                "title": "RoomRead"
-            },
-            "RoomUpdate": {
-                "properties": {
-                    "name": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Name"
-                    },
-                    "capacity": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Capacity"
-                    },
-                    "building_id": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "uuid"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Building Id"
-                    }
-                },
-                "type": "object",
-                "title": "RoomUpdate"
             },
             "TimeslotCreate": {
                 "properties": {

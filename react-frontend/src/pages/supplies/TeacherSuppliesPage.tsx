@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSuppliesTeacherList } from '../../hooks/useSuppliesTeacherList';
 import { useSubmitTeacherList, useUpsertTeacherList } from '../../hooks/useSuppliesTeacherListMutations';
@@ -6,6 +6,9 @@ import type { TeacherListItemPayload, TeacherListResponseItem } from '../../api/
 import { useFilters } from '../../contexts/FilterContext';
 import { Toaster, toast } from 'react-hot-toast';
 import { PlusCircle, Trash2, Send, Package, Search } from 'lucide-react';
+import { getActiveContext } from '../../utils/contextStorage';
+import { useClasses } from '../../hooks/useClasses';
+import { Combobox } from '../../components/ui/Combobox';
 
 const TeacherSuppliesPage: React.FC = () => {
   const { t } = useTranslation();
@@ -27,6 +30,22 @@ const TeacherSuppliesPage: React.FC = () => {
   const [draft, setDraft] = useState<TeacherListItemPayload>({ label: '', quantity: 1 });
 
   const canQuery = Boolean(campaignId && classId);
+
+  // Chargement des classes pour une sélection moderne
+  const { etabId } = getActiveContext();
+  const { data: classesResp } = useClasses({ etablissementId: etabId || '', limit: 100 });
+  const classOptions = (classesResp?.data ?? []).map(c => ({ value: c.id, label: `${c.nom} (${c.niveau})` }));
+
+  // Auto-affectation de la classe lorsque l'ID de campagne est saisi
+  useEffect(() => {
+    if (campaignId && !classId) {
+      if (currentClasse) {
+        setClassId(currentClasse);
+      } else if ((classesResp?.data?.length ?? 0) === 1) {
+        setClassId(classesResp!.data![0]!.id);
+      }
+    }
+  }, [campaignId, classId, currentClasse, classesResp]);
 
   const handleAdd = async () => {
     if (!draft.label.trim()) {
@@ -104,12 +123,14 @@ const TeacherSuppliesPage: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">{t('Class ID', 'ID Classe')}</label>
-              <input
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder={t('Saisir l\'ID de la classe', 'Saisir l\'ID de la classe')}
-                value={classId}
-                onChange={(e) => setClassId(e.target.value)}
+              <label className="text-sm font-medium text-gray-700">{t('Classe', 'Classe')}</label>
+              <Combobox
+                options={classOptions}
+                value={classId || undefined}
+                onChange={(val) => setClassId(val)}
+                placeholder={t('Sélectionner une classe…', 'Sélectionner une classe…')}
+                searchPlaceholder={t('Rechercher une classe…', 'Rechercher une classe…')}
+                noResultsMessage={t('Aucun résultat', 'Aucun résultat')}
               />
             </div>
             <div className="space-y-2">

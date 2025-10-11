@@ -28,13 +28,27 @@ timetableAxios.interceptors.request.use((config) => {
   }
   // Multi-tenant: en-têtes (le Gateway confirmera via X-Etab/X-Roles)
   const { etabId: activeEtabId, role: activeRole } = getActiveContext();
-  if (activeEtabId) {
-    config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Etab'] = activeEtabId;
+  const hdrs = (config.headers = config.headers ?? {});
+  // Respect d'un override explicite si déjà présent
+  const hasXEtabOverride = 'X-Etab' in (hdrs as Record<string, unknown>) || 'x-etab' in (hdrs as Record<string, unknown>);
+  if (activeEtabId && !hasXEtabOverride) {
+    (hdrs as Record<string, string>)['X-Etab'] = activeEtabId;
   }
-  if (activeRole) {
-    config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)['X-Roles'] = activeRole;
+  const hasXRolesOverride = 'X-Roles' in (hdrs as Record<string, unknown>) || 'x-roles' in (hdrs as Record<string, unknown>);
+  if (activeRole && !hasXRolesOverride) {
+    (hdrs as Record<string, string>)['X-Roles'] = activeRole;
+  }
+
+  // Log de debug en DEV (Authorization masqué)
+  if (import.meta.env.DEV) {
+    const headers = { ...(config.headers as Record<string, unknown>) };
+    if (headers && 'Authorization' in headers) (headers as unknown as Record<string, string>).Authorization = '[REDACTED]';
+    console.debug('[timetable-api][request]', {
+      method: (config.method || 'GET').toUpperCase(),
+      url: `${config.baseURL || ''}${config.url || ''}`,
+      params: config.params,
+      headers,
+    });
   }
   return config;
 });
@@ -61,3 +75,4 @@ timetableAxios.interceptors.response.use(
 
 // Attach centralized auth refresh interceptor (last added -> first run on errors)
 attachAuthRefresh(timetableAxios);
+
