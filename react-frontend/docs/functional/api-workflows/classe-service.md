@@ -24,7 +24,7 @@
 ## Prérequis
 
 ### Rôles Utilisateur
-- [x] **Directeur** (gestion complète des classes de son établissement)
+- [x] **Admin Staff** (gestion complète des classes de son établissement)
 - [x] **Admin** (gestion toutes classes, tous établissements)
 - [x] **Enseignant** (consultation des classes assignées)
 - [ ] Élève
@@ -177,21 +177,21 @@ const classesToCreate: ClasseCreate[] = csvData.map(row => ({
 bulkCreateMutation.mutate(classesToCreate);
 ```
 
-## Workflow E2E - Directeur : Gestion d'Établissement
+## Workflow E2E - Admin Staff : Gestion d'Établissement
 
-### 1. Point d'Entrée Directeur
+### 1. Point d'Entrée Admin Staff
 **Page** : `src/pages/admin/etablissements/EtablissementDetailPage.tsx`  
 **Route** : `/etablissements/{id}?tab=classes`  
-**Navigation** : Dashboard directeur → Mon établissement → Onglet Classes
+**Navigation** : Dashboard admin staff → Mon établissement → Onglet Classes
 
 **Contexte automatique** :
-- **Établissement fixe** : Celui du directeur connecté
+- **Établissement fixe** : Celui de l'admin staff connecté
 - **Filtrage automatique** : Classes de son établissement uniquement
 - **Permissions restreintes** : Selon son rôle
 
 **Appel API contextualisé** :
 ```typescript
-// Établissement automatiquement défini par le contexte directeur
+// Établissement automatiquement défini par le contexte admin staff
 const ctx = getActiveContext();
 const { data: classes } = useClasses({
   etablissementId: ctx.etabId, // Fixé par le contexte
@@ -337,7 +337,7 @@ interface ClasseAuditOut {
 - **competence-service** : Évaluations par classe
 
 #### **Contextes Utilisateurs** :
-- **DirectorContext** : Classes de l'établissement du directeur
+- **AdminStaffContext** : Classes de l'établissement de l'admin staff
 - **ScheduleContext** : Classes pour emploi du temps
 - **FilterContext** : Filtres par classe dans diverses vues
 
@@ -352,7 +352,7 @@ interface ClasseAuditOut {
 - [x] **Historique** : Snapshots des états
 - [x] **Statistiques** : Métriques par classe
 - [x] **Multi-établissements** : Gestion admin globale
-- [x] **Contexte directeur** : Restriction automatique
+- [x] **Contexte admin staff** : Restriction automatique
 
 ### Techniques
 - [x] **Headers X-Etab et X-Roles** : Conformes au refactor
@@ -483,7 +483,7 @@ Le **classe-service** représente l'**intégration la plus complète** d'EdConne
 
 ### ✅ **Points Forts**
 - **Couverture exhaustive** : 13/13 endpoints intégrés
-- **Workflows complets** : Admin, directeur, enseignant
+- **Workflows complets** : Admin, admin staff, enseignant
 - **Audit trail** : Traçabilité complète
 - **Performance optimisée** : Cache intelligent
 - **UX exemplaire** : Interface intuitive et responsive

@@ -36,7 +36,7 @@ docs/functional/
 │   ├── student-enrollment.md
 │   └── campaign-management.md
 └── user-journeys/             # Parcours utilisateur par rôle
-    ├── directeur-workflows.md
+    ├── admin-staff-workflows.md
     ├── enseignant-workflows.md
     ├── eleve-workflows.md
     ├── parent-workflows.md
@@ -162,7 +162,7 @@ Description courte du workflow et de son objectif.
 ## 🚀 Prochaines Étapes
 
 ### Phase 1 : Documentation des APIs Intégrées
-1. **supplies-service** : Workflow complet enseignant + directeur
+1. **supplies-service** : Workflow complet enseignant + admin staff
 2. **classe-service** : Gestion des classes et groupes
 3. **student-service** : CRUD élèves et profils
 4. **timetable-service** : Emplois du temps et planification
@@ -179,7 +179,7 @@ Description courte du workflow et de son objectif.
 3. **Campaign management** : Fournitures → Classes → Validation
 
 ### Phase 4 : Parcours Utilisateur par Rôle
-1. **Directeur** : Dashboard → Gestion → Validation
+1. **Admin Staff** : Dashboard → Gestion → Validation
 2. **Enseignant** : Classes → Ressources → Évaluation
 3. **Élève** : Profil → Ressources → Activités
 4. **Parent** : Suivi → Communication → Validation

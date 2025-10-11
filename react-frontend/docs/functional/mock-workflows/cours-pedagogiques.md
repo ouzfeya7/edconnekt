@@ -4,7 +4,7 @@
 
 **Statut** : ❌ Mock
 
-**Description** : Interface pédagogique pour la gestion des cours, leçons, évaluations et remédiations. Permet aux enseignants et directeurs de suivre le progrès pédagogique avec des statistiques détaillées et des ressources associées.
+**Description** : Interface pédagogique pour la gestion des cours, leçons, évaluations et remédiations. Permet aux enseignants et admin staff de suivre le progrès pédagogique avec des statistiques détaillées et des ressources associées.
 
 **Type de données** : Mockées / Simulées  
 **Source des données** : 
@@ -16,7 +16,7 @@
 ## Prérequis
 
 ### Rôles Utilisateur
-- [x] Directeur
+- [x] Admin Staff
 - [x] Enseignant  
 - [x] Élève (lecture seule)
 - [ ] Parent

@@ -17,7 +17,7 @@
 
 ### Rôles Utilisateur
 - [x] **Admin** (gestion globale tous établissements)
-- [x] **Directeur** (gestion de son établissement uniquement)
+- [x] **Admin Staff** (gestion de son établissement uniquement)
 - [ ] Enseignant
 - [ ] Élève
 - [ ] Parent
@@ -32,9 +32,9 @@
 - `audit:export` : Export des données d'audit
 
 ### État Initial du Système
-- Utilisateur authentifié avec rôle Admin ou Directeur
+- Utilisateur authentifié avec rôle Admin ou Admin Staff
 - Headers X-Etab et X-Roles configurés automatiquement
-- Établissement de contexte défini pour les directeurs
+- Établissement de contexte défini pour les admin staff
 
 ## Analyse Exhaustive des Endpoints
 
@@ -222,15 +222,15 @@ updateStatusMutation.mutate({
 - **Prévisualisation** : Aperçu des établissements à créer
 - **Gestion d'erreurs** : Rapport détaillé des échecs
 
-## Workflow E2E - Directeur : Gestion de son Établissement
+## Workflow E2E - Admin Staff : Gestion de son Établissement
 
-### 1. Point d'Entrée Directeur
+### 1. Point d'Entrée Admin Staff
 **Page** : `src/pages/admin/etablissements/EtablissementDetailPage.tsx`  
 **Route** : `/etablissements/{id}`  
-**Navigation** : Dashboard directeur → Mon établissement
+**Navigation** : Dashboard admin staff → Mon établissement
 
 **Contexte automatique** :
-- **Établissement fixe** : Celui du directeur connecté
+- **Établissement fixe** : Celui de l'admin staff connecté
 - **Permissions restreintes** : Modification limitée à son établissement
 - **Audit visible** : Journal des modifications de son établissement
 
@@ -517,7 +517,7 @@ L'**establishment-service** représente le **cœur de l'architecture multi-tenan
 
 ### 🏆 **Référence Multi-Tenant**
 - **Headers automatiques** : X-Etab/X-Roles selon contexte
-- **Permissions granulaires** : Admin global vs Directeur local
+- **Permissions granulaires** : Admin global vs Admin Staff local
 - **Isolation des données** : Sécurité par établissement
 - **Audit centralisé** : Conformité et traçabilité
 

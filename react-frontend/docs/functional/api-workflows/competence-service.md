@@ -16,7 +16,7 @@
 ## Prérequis
 
 ### Rôles Utilisateur
-- [x] **Directeur** (gestion référentiels de son établissement)
+- [x] **Admin Staff** (gestion référentiels de son établissement)
 - [x] **Admin** (gestion globale, référentiels multi-établissements)
 - [x] **Enseignant** (consultation référentiels assignés, création de compétences)
 - [x] **Élève** (consultation via PublicApi pour évaluations)
@@ -227,11 +227,11 @@ cloneFromGlobalMutation.mutate({
 });
 ```
 
-## Workflow E2E - Directeur : Gestion d'Établissement
+## Workflow E2E - Admin Staff : Gestion d'Établissement
 
 ### 1. Contexte Établissement
 **Restriction automatique** : Référentiels de son établissement uniquement
-**Headers automatiques** : X-Etab défini par le contexte directeur
+**Headers automatiques** : X-Etab défini par le contexte admin staff
 
 **Filtrage contextuel** :
 ```typescript

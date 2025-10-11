@@ -16,7 +16,7 @@
 
 ### Rôles Utilisateur
 - [x] **Admin** (gestion globale toutes identités)
-- [x] **Directeur** (gestion identités de son établissement)
+- [x] **Admin Staff** (gestion identités de son établissement)
 - [x] **Tous les rôles** (sélection de contexte personnel)
 
 ### Permissions Requises
@@ -215,11 +215,11 @@ const handleValidateContext = async () => {
 };
 ```
 
-## Workflow E2E - Gestion des Identités (Directeur)
+## Workflow E2E - Gestion des Identités (Admin Staff)
 
-### 1. Point d'Entrée Directeur
-**Composant** : `IdentitiesManagement.tsx` intégré dans interface directeur  
-**Navigation** : Dashboard directeur → Gestion des utilisateurs → Identités
+### 1. Point d'Entrée Admin Staff
+**Composant** : `IdentitiesManagement.tsx` intégré dans interface admin staff  
+**Navigation** : Dashboard admin staff → Gestion des utilisateurs → Identités
 
 **Interface de gestion complète** :
 ```typescript

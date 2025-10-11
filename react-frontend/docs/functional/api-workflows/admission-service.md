@@ -19,7 +19,7 @@
 ## Prérequis
 
 ### Rôles Utilisateur
-- [x] Directeur (gestion des admissions)
+- [x] Admin Staff (gestion des admissions)
 - [ ] Enseignant  
 - [ ] Élève
 - [x] Parent (formulaire public)

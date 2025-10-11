@@ -17,7 +17,7 @@
 
 ### Rôles Utilisateur
 - [x] Admin
-- [ ] Directeur
+- [ ] Admin Staff
 - [ ] Enseignant  
 - [ ] Élève
 - [ ] Parent
@@ -56,7 +56,7 @@ interface Utilisateur {
   nom: string;
   prenom: string;
   email: string;
-  role: 'admin' | 'directeur' | 'enseignant' | 'parent' | 'eleve';
+  role: 'admin' | 'admin_staff' | 'enseignant' | 'parent' | 'eleve';
   etablissementId?: string;
   etablissementNom?: string;
   statut: 'actif' | 'inactif' | 'suspendu';
@@ -347,7 +347,7 @@ interface Utilisateur {
   nom: string;
   prenom: string;
   email: string;
-  role: 'admin' | 'directeur' | 'enseignant' | 'parent' | 'eleve';
+  role: 'admin' | 'admin_staff' | 'enseignant' | 'parent' | 'eleve';
   etablissementId?: string;
   etablissementNom?: string;
   statut: 'actif' | 'inactif' | 'suspendu';
@@ -359,7 +359,7 @@ interface Utilisateur {
 
 // Générateur d'utilisateurs réalistes
 const generateMockUtilisateur = (role?: string): Utilisateur => {
-  const userRole = role || faker.helpers.arrayElement(['directeur', 'enseignant', 'parent', 'eleve']);
+  const userRole = role || faker.helpers.arrayElement(['admin_staff', 'enseignant', 'parent', 'eleve']);
   const firstName = faker.name.firstName();
   const lastName = faker.name.lastName();
   
@@ -484,7 +484,7 @@ const useUtilisateurs = (filters?: UserFilters) => {
 ### Configuration
 ```typescript
 // Rôles disponibles
-const USER_ROLES = ['admin', 'directeur', 'enseignant', 'parent', 'eleve'] as const;
+const USER_ROLES = ['admin', 'admin_staff', 'enseignant', 'parent', 'eleve'] as const;
 
 // Statuts utilisateur
 const USER_STATUSES = ['actif', 'inactif', 'suspendu'] as const;
