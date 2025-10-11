@@ -15,7 +15,7 @@
 ## Prérequis
 
 ### Rôles Utilisateur
-- [x] **Directeur** (gestion événements de son établissement)
+- [x] **Admin Staff** (gestion événements de son établissement)
 - [x] **Admin** (gestion globale multi-établissements)
 - [x] **Enseignant** (consultation et inscription)
 - [x] **Élève** (inscription aux événements)
@@ -96,15 +96,15 @@
    - Inscription rapide
    - Gestion multi-établissements pour admin
 
-## Workflow E2E - Directeur : Gestion d'Événements
+## Workflow E2E - Admin Staff : Gestion d'Événements
 
-### 1. Point d'Entrée Directeur
+### 1. Point d'Entrée Admin Staff
 **Composant** : `EventsManager` intégré dans `EtablissementDetailPage`  
 **Route** : `/etablissements/{id}?tab=events`  
-**Navigation** : Dashboard directeur → Mon établissement → Onglet Événements
+**Navigation** : Dashboard admin staff → Mon établissement → Onglet Événements
 
 **Contexte automatique** :
-- **Établissement fixe** : Celui du directeur connecté
+- **Établissement fixe** : Celui de l'admin staff connecté
 - **Filtrage automatique** : Événements de son établissement uniquement
 - **Headers automatiques** : X-Etab défini par le contexte
 
@@ -325,7 +325,7 @@ const useCancelRegistration = (eventId?: string) => {
 **Fonctionnalité** : Export CSV/JSON des participants
 
 **Cas d'usage** :
-- **Directeurs** : Suivi des participations
+- **Admin Staff** : Suivi des participations
 - **Enseignants** : Feuilles de présence pour sorties
 - **Administration** : Rapports de fréquentation
 
@@ -371,8 +371,8 @@ const useExportAttendance = (eventId?: string) => {
 )}
 ```
 
-### 2. **Contexte Directeur**
-**Usage** : Établissement automatique via DirectorContext
+### 2. **Contexte Admin Staff**
+**Usage** : Établissement automatique via AdminStaffContext
 
 **Configuration** :
 ```typescript
@@ -387,7 +387,7 @@ const resolvedEtabId = propEtabId ?? currentEtablissementId ?? null;
 ```typescript
 const { roles } = useAuth();
 const isAdmin = Array.isArray(roles) && roles.includes('administrateur');
-const canCreateEvents = roles.includes('directeur') || isAdmin;
+const canCreateEvents = roles.includes('admin_staff') || isAdmin;
 const canRegister = roles.includes('eleve') || roles.includes('parent') || roles.includes('enseignant');
 ```
 

@@ -208,7 +208,7 @@ const username = await generateUsername.mutateAsync({
 ### Composants principaux
 
 #### 1. OnboardingTracking
-**Fichier** : `src/components/directeur/onboarding/OnboardingTracking.tsx`
+**Fichier** : `src/components/admin/onboarding/OnboardingTracking.tsx`
 
 **Fonctionnalités** :
 - Interface unifiée pour les lots Identity et Provisioning
@@ -228,7 +228,7 @@ import {
 ```
 
 #### 2. BatchTable
-**Fichier** : `src/components/directeur/onboarding/BatchTable.tsx`
+**Fichier** : `src/components/admin/onboarding/BatchTable.tsx`
 
 **Fonctionnalités** :
 - Affichage tabulaire des lots
@@ -236,7 +236,7 @@ import {
 - Navigation entre lots Identity et Provisioning
 
 #### 3. ProvisioningBatchesList
-**Fichier** : `src/components/directeur/onboarding/ProvisioningBatchesList.tsx`
+**Fichier** : `src/components/admin/onboarding/ProvisioningBatchesList.tsx`
 
 **Fonctionnalités** :
 - Liste dédiée aux lots de provisioning

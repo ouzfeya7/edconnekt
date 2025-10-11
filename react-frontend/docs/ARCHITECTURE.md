@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-EdConnekt est une plateforme éducative complète avec une architecture frontend moderne basée sur React, TypeScript et Vite. L'application supporte multiple rôles (directeur, enseignant, élève, parent, admin) avec une architecture microservices et des clients API générés automatiquement via OpenAPI Generator.
+EdConnekt est une plateforme éducative complète avec une architecture frontend moderne basée sur React, TypeScript et Vite. L'application supporte multiple rôles (admin staff, enseignant, élève, parent, admin) avec une architecture microservices et des clients API générés automatiquement via OpenAPI Generator.
 
 ## Structure du Projet
 
@@ -43,7 +43,7 @@ src/
 │   ├── AdmissionContext.tsx
 │   └── PDIContext.tsx
 ├── pages/                  # Pages par rôle
-│   ├── directeur/         # Interface directeur
+│   ├── directeur/         # Interface admin staff
 │   ├── enseignant/        # Interface enseignant
 │   ├── eleve/             # Interface élève
 │   ├── parent/            # Interface parent

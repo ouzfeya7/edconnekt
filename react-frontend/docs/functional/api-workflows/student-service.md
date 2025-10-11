@@ -424,7 +424,7 @@ await downloadTemplate.mutateAsync();
 ### Composant principal
 
 #### StudentsManagement
-**Fichier** : `src/components/directeur/users/StudentsManagement.tsx`
+**Fichier** : `src/components/admin/users/StudentsManagement.tsx`
 
 **Fonctionnalités complètes** :
 - **Liste paginée** avec filtres avancés (classe, statut, recherche)
@@ -661,7 +661,7 @@ onSuccess: () => {
 const ctx = getActiveContext();
 const isScopedToSingleEtab = ctx.role === 'admin_staff';
 const canCreateStudents = studentCreationEnabled && 
-                         (ctx.role === 'directeur' || ctx.role === 'admin_staff');
+                         (ctx.role === 'admin_staff');
 
 // Filtrage par établissement
 const currentEtabId = selectedEtabId;

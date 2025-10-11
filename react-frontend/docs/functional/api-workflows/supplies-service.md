@@ -4,7 +4,7 @@
 
 **Statut** : ✅ Intégré
 
-**Description** : Système complet de gestion des campagnes de fournitures scolaires permettant aux directeurs de créer des campagnes et aux enseignants de gérer les listes de fournitures par classe.
+**Description** : Système complet de gestion des campagnes de fournitures scolaires permettant aux admin staff de créer des campagnes et aux enseignants de gérer les listes de fournitures par classe.
 
 **Service API** : `supplies-service`  
 **Endpoints utilisés** : 
@@ -18,7 +18,7 @@
 ## Prérequis
 
 ### Rôles Utilisateur
-- [x] Directeur (création et gestion des campagnes)
+- [x] Admin Staff (création et gestion des campagnes)
 - [x] Enseignant (gestion des listes par classe)
 - [ ] Élève
 - [ ] Parent
@@ -31,19 +31,19 @@
 - `supplies:items:write` : Gestion des articles
 
 ### État Initial du Système
-- Utilisateur authentifié avec rôle Directeur ou Enseignant
+- Utilisateur authentifié avec rôle Admin Staff ou Enseignant
 - Établissement sélectionné (header X-Etab)
 - Année scolaire active configurée
 
-## Workflow E2E - Directeur : Création de Campagne
+## Workflow E2E - Admin Staff : Création de Campagne
 
 ### 1. Point d'Entrée
-**Page** : `src/pages/directeur/SuppliesCampaignsPage.tsx`  
-**Route** : `/directeur/supplies/campaigns`  
+**Page** : `src/pages/admin/SuppliesCampaignsPage.tsx`  
+**Route** : `/admin/supplies/campaigns`  
 **Navigation** : Menu principal → Fournitures → Campagnes
 
 **Action utilisateur** :
-- Clic sur "Fournitures" dans le menu directeur
+- Clic sur "Fournitures" dans le menu admin staff
 - Accès à la liste des campagnes existantes
 
 **Appel API** :

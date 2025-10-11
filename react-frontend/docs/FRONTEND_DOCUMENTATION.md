@@ -6,6 +6,20 @@
 
 ---
 
+## ⚠️ **MIGRATION URGENTE EN COURS**
+
+> **IMPORTANT** : Le rôle `directeur` est en cours de migration vers `admin_staff` dans tout le codebase frontend. 
+> 
+> **État actuel :**
+> - ✅ **Documentation** : Migration terminée (84 occurrences corrigées)
+> - ⚠️ **Code Frontend** : Migration **NON TERMINÉE** - **ACTION URGENTE REQUISE**
+> 
+> **Impact :** Les références au rôle `directeur` dans le code TypeScript/React (composants, pages, routes, types, hooks) doivent être mises à jour vers `admin_staff` pour maintenir la cohérence avec l'API backend.
+> 
+> **Fichiers concernés :** `src/pages/directeur/`, `src/components/directeur/`, types de rôles, navigation, etc.
+
+---
+
 ## Table des Matières
 
 1.  [**Vue d’ensemble de l’architecture**](#a-vue-densemble-de-larchitecture)
@@ -20,7 +34,7 @@
     *   [Intercepteurs et contexte](#intercepteurs-et-contexte)
     *   [Tableau récapitulatif des services API](#tableau-recapitulatif-des-services-api)
 5.  [**Domaines fonctionnels clés**](#e-domaines-fonctionnels-cles)
-    *   [Onboarding Directeur](#onboarding-directeur)
+    *   [Onboarding Admin Staff](#onboarding-admin-staff)
     *   [Supplies (Fournitures)](#supplies-fournitures)
     *   [Compétences (competence-service)](#competences-competence-service)
 6.  [**États, données et gestion des erreurs**](#f-etats-donnees-et-gestion-des-erreurs)
@@ -41,7 +55,7 @@ L'organisation du code dans `react-frontend/src/` suit une approche par type de 
 
 -   `src/api/`: **Cœur de la communication Backend.** Contient les clients API générés (via OpenAPI) pour chaque microservice (ex: `supplies-service`, `competence-service`). Chaque sous-dossier contient la configuration de l'instance Axios (`http.ts`), les types de données (DTOs) et les endpoints.
 -   `src/assets/`: Fichiers statiques comme les images et les polices.
--   `src/components/`: **Composants React réutilisables.** Ils sont organisés en sous-dossiers correspondant aux domaines fonctionnels ou aux pages (ex: `components/directeur/onboarding`, `components/supplies`). Le dossier `components/ui/` contient des composants d'interface génériques (boutons, inputs, etc.).
+-   `src/components/`: **Composants React réutilisables.** Ils sont organisés en sous-dossiers correspondant aux domaines fonctionnels ou aux pages (ex: `components/admin/onboarding`, `components/supplies`). Le dossier `components/ui/` contient des composants d'interface génériques (boutons, inputs, etc.).
 -   `src/contexts/`: **Gestion de l'état global client.** Contient tous les providers de contexte React (ex: `IdentityContextProvider.tsx`, `OnboardingContext.tsx`).
 -   `src/hooks/`: **Logique métier et accès aux données.** Contient tous les hooks personnalisés, qui encapsulent les appels API (via TanStack Query) et la logique métier complexe. C'est le cerveau de l'application.
 -   `src/layouts/`: Composants de mise en page principaux, comme `DashboardLayout.tsx` qui structure l'interface post-connexion.
@@ -162,178 +176,45 @@ Deux intercepteurs Axios sont cruciaux pour le fonctionnement de l'application :
     -   Le fichier `src/api/httpAuth.ts` contient une fonction `attachAuthRefresh`.
     -   Cette fonction attache un intercepteur qui gère le renouvellement de token. Si une API retourne une erreur `401 Unauthorized`, il tente de rafraîchir le token via Keycloak et de rejouer la requête automatiquement.
 
-### Intégration des Services API
+### Tableau récapitulatif des services API
 
-Voici une description détaillée de chaque microservice API et de son intégration dans le front-end via les hooks personnalisés.
+L'application intègre **13 microservices** via des clients API générés automatiquement. Chaque service dispose de ses propres hooks personnalisés pour l'intégration frontend.
 
-#### `admission-service`
--   **Rôle**: Gère le processus d'admission des élèves.
--   **Client API**: `src/api/admission-service/`
--   **Hooks associés**:
-    -   `useAdmissions`: Récupère la liste des admissions.
-    -   `useAdmissionStats`: Récupère les statistiques sur les admissions.
-    -   `useAdmissionMutations`: Contient les hooks pour créer, mettre à jour ou supprimer des admissions.
+| Service | Rôle Principal | Documentation Détaillée |
+|---------|---------------|-------------------------|
+| **admission-service** | Gestion des admissions | [📋 admission-service.md](functional/api-workflows/admission-service.md) |
+| **classe-service** | Gestion des classes | [📋 classe-service.md](functional/api-workflows/classe-service.md) |
+| **competence-service** | Référentiels pédagogiques | [📋 competence-service.md](functional/api-workflows/competence-service.md) |
+| **establishment-service** | Gestion des établissements | [📋 establishment-service.md](functional/api-workflows/establishment-service.md) |
+| **event-service** | Événements et agenda | [📋 event-service.md](functional/api-workflows/event-service.md) |
+| **identity-service** | Identités et onboarding | [📋 identity-service.md](functional/api-workflows/identity-service.md) |
+| **message-service** | Messagerie interne | [📋 message-service.md](functional/api-workflows/message-service.md) |
+| **pdi-service** | Plans de développement | [📋 pdi-service.md](functional/api-workflows/pdi-service.md) |
+| **provisioning-service** | Provisioning comptes | [📋 provisioning-service.md](functional/api-workflows/provisioning-service.md) |
+| **resource-service** | Ressources pédagogiques | [📋 resource-service.md](functional/api-workflows/resource-service.md) |
+| **student-service** | Gestion des élèves | [📋 student-service.md](functional/api-workflows/student-service.md) |
+| **supplies-service** | Campagnes de fournitures | [📋 supplies-service.md](functional/api-workflows/supplies-service.md) |
+| **timetable-service** | Emplois du temps | [📋 timetable-service.md](functional/api-workflows/timetable-service.md) |
 
-#### `classe-service`
--   **Rôle**: Gère les informations sur les classes, y compris les élèves et les enseignants qui y sont rattachés.
--   **Client API**: `src/api/classe-service/`
--   **Hooks associés**:
-    -   `useClasses`, `useClasse`: Récupèrent la liste des classes ou une classe spécifique.
-    -   `useClasseEleves`, `useClasseEnseignants`: Listent les élèves et enseignants d'une classe.
-    -   `useCreateClasse`, `useUpdateClasse`, `useArchiveClasse`: Gèrent le cycle de vie d'une classe.
-    -   `useAssignEleve`, `useAssignEnseignant`: Gèrent l'affectation des utilisateurs à une classe.
-
-#### `competence-service`
--   **Rôle**: Service très complet pour la gestion des référentiels pédagogiques (domaines, matières, compétences).
--   **Client API**: `src/api/competence-service/`
--   **Hooks associés (dans `src/hooks/competence/`)**:
-    -   `useReferentials`, `useDomains`, `useSubjects`, `useCompetencies`: Hooks de lecture pour l'ensemble des entités du référentiel.
-    -   `usePublicReferentialTree`: Récupère l'arborescence complète d'un référentiel public.
-    -   `useLookupCompetencyByCode`: Recherche une compétence par son code unique.
-    -   `useMutations`: Un hook central qui expose toutes les mutations (création, mise à jour, suppression, publication, clonage) pour les référentiels et leurs composants.
-    -   `useEvents`: Permet de suivre les événements du domaine (pattern Outbox).
-
-#### `establishment-service`
--   **Rôle**: Gère les informations sur les établissements, leurs bâtiments et leurs salles.
--   **Client API**: `src/api/establishment-service/`
--   **Hooks associés**:
-    -   `useEstablishments`, `useEstablishment`: Récupèrent la liste des établissements ou un établissement spécifique.
-    -   `usePublicEstablishments`: Récupère la liste des établissements publics (utilisé par les administrateurs).
-    -   `useBuildings`, `useRooms`: Gèrent les bâtiments et les salles.
-    -   `useCreateEstablishment`, `useUpdateEstablishment`: Gèrent le cycle de vie d'un établissement.
-
-#### `event-service`
--   **Rôle**: Gère les événements de l'agenda (calendrier).
--   **Client API**: `src/api/event-service/`
--   **Hooks associés**:
-    -   `useEvents`: Récupère la liste des événements pour une période donnée.
-    -   `useEventMutations`: Contient les hooks pour créer, mettre à jour et supprimer des événements.
-    -   `useEventParticipants`: Gère les participants à un événement.
-
-#### `identity-service`
--   **Rôle**: Gère l'identité des utilisateurs, les lots d'import et l'authentification (via Keycloak). C'est un service central pour l'onboarding.
--   **Client API**: `src/api/identity-service/`
--   **Hooks associés**:
-    -   `useIdentity`: Récupère les informations d'un lot d'import d'identités (`IdentityBatch`).
-    -   `useIdentityContext`: Bien que ce soit un hook de contexte, il est étroitement lié à ce service pour gérer le contexte de l'utilisateur authentifié.
-
-#### `message-service`
--   **Rôle**: Gère la messagerie interne de l'application.
--   **Client API**: `src/api/message-service/`
--   **Hooks associés**:
-    -   `useMessageConversations`: Récupère la liste des conversations.
-    -   `useMessageMessages`: Récupère les messages d'une conversation spécifique.
-    -   `useMessageUploads`: Gère les pièces jointes dans les messages.
-
-#### `pdi-service`
--   **Rôle**: Gère les PDI (Plans de Développement Individualisés).
--   **Client API**: `src/api/pdi-service/`
--   **Hooks associés**: Le nom des hooks n'est pas explicite dans la liste, mais ils sont probablement liés à `usePdi...` ou intégrés dans d'autres hooks plus généraux.
-
-#### `provisioning-service`
--   **Rôle**: Gère la deuxième étape de l'onboarding : la création effective des comptes utilisateurs dans Keycloak après la validation des identités.
--   **Client API**: `src/api/provisioning-service/`
--   **Hooks associés**:
-    -   `useProvisioning`: Contient les hooks pour créer et exécuter un lot de provisioning (`useProvisioningCreateBatch`, `useProvisioningRunBatch`).
-
-#### `resource-service`
--   **Rôle**: Gère les ressources pédagogiques (fichiers, liens, etc.).
--   **Client API**: `src/api/resource-service/`
--   **Hooks associés**:
-    -   `useResources`, `useResourceDetail`: Récupèrent la liste des ressources ou une ressource spécifique.
-    -   `useCreateResource`, `useUpdateResource`, `useArchiveResource`, `useRestoreResource`: Gèrent le cycle de vie d'une ressource.
-    -   `useDownloadResourceFile`: Gère le téléchargement des fichiers de ressources.
-
-#### `student-service`
--   **Rôle**: Gère les informations spécifiques aux élèves, comme les absences et les notes.
--   **Client API**: `src/api/student-service/`
--   **Hooks associés (dans `src/hooks/students/`)**:
-    -   `useAbsences`: Gère les absences des élèves.
-    -   (Les hooks de notes sont probablement dans ce service également).
-
-#### `supplies-service`
--   **Rôle**: Gère les campagnes de fournitures scolaires et les listes associées.
--   **Client API**: `src/api/supplies-service/`
--   **Hooks associés**:
-    -   `useSuppliesCampaigns`, `useSuppliesCampaignDashboard`: Récupèrent les informations sur les campagnes de fournitures.
-    -   `useSuppliesTeacherList`, `useSuppliesParentChecklist`: Récupèrent les listes de fournitures pour les enseignants et les parents.
-    -   `useSuppliesCampaignMutations`, `useSuppliesTeacherListMutations`: Contiennent les hooks pour créer/modifier les campagnes et les listes.
-
-#### `timetable-service`
--   **Rôle**: Gère tout ce qui concerne l'emploi du temps.
--   **Client API**: `src/api/timetable-service/`
--   **Hooks associés**:
-    -   `useTimeslots`: Récupère les créneaux horaires.
-    -   `useReplacements`: Gère les remplacements d'enseignants.
-    -   `useAuditTrail`: Récupère l'historique des modifications de l'emploi du temps.
+> 📚 **Documentation complète** : Consultez [functional/README.md](functional/README.md) pour une vue d'ensemble des workflows fonctionnels.
 
 ## E. Domaines fonctionnels clés
 
-### Onboarding Directeur
+Les domaines fonctionnels majeurs sont documentés en détail dans des fichiers dédiés :
 
-Le flux d'onboarding permet aux directeurs d'importer des utilisateurs en masse via des fichiers CSV. La logique est principalement contenue dans les composants sous `src/components/directeur/onboarding/` et pilotée par le `OnboardingContext`.
+### 🔗 **Workflows Intégrés (API)**
+- **📋 Onboarding** : Import utilisateurs CSV → [identity-service.md](functional/api-workflows/identity-service.md) & [provisioning-service.md](functional/api-workflows/provisioning-service.md)
+- **📋 Fournitures** : Campagnes et listes → [supplies-service.md](functional/api-workflows/supplies-service.md)  
+- **📋 Compétences** : Référentiels pédagogiques → [competence-service.md](functional/api-workflows/competence-service.md)
+- **📋 Classes** : Gestion classes/élèves → [classe-service.md](functional/api-workflows/classe-service.md)
+- **📋 Emplois du temps** : Planning et remplacements → [timetable-service.md](functional/api-workflows/timetable-service.md)
 
--   **Composants clés**:
-    -   `CSVUploader.tsx`: Interface pour téléverser les fichiers CSV pour chaque type d'utilisateur (élèves, parents, etc.).
-    -   `OnboardingTracking.tsx`: Tableau de bord pour suivre la progression des imports (phase d'identité) et du provisioning (création des comptes).
-    -   `ProgressStats.tsx` / `ErrorsTable.tsx`: Composants pour afficher les statistiques de progression et les erreurs de validation détaillées.
-    -   `EstablishmentSelector.tsx`: **Ce composant est bien présent dans `CSVUploader.tsx`** pour permettre au directeur de choisir l'établissement cible de l'import.
+### 🔗 **Workflows Mockés (Données simulées)**
+- **📋 Dashboard KPIs** : Statistiques → [mock-workflows/](functional/mock-workflows/)
+- **📋 Notifications** : Système d'alertes → [mock-workflows/](functional/mock-workflows/)
+- **📋 Gestion utilisateurs** : Interface admin → [mock-workflows/admin-utilisateurs.md](functional/mock-workflows/admin-utilisateurs.md)
 
--   **Workflow et décisions techniques**:
-    1.  **Upload**: Le directeur dépose un fichier dans `CSVUploader`.
-    2.  **Validation (côté serveur)**: Le code front-end de validation CSV existe mais est désactivé. La validation est maintenant entièrement déléguée à l'API pour plus de robustesse.
-    3.  **Suivi**: `OnboardingTracking.tsx` affiche les "lots" d'import. Il utilise une combinaison de polling et de **Server-Sent Events (SSE)** pour un suivi en temps réel.
-    4.  **Provisioning**: Une fois qu'un lot est validé, le directeur peut lancer manuellement le "provisioning", qui crée les comptes dans Keycloak.
-
-```mermaid
-sequenceDiagram
-    participant U as Directeur
-    participant UI as "UI (CSVUploader)"
-    participant Ctx as OnboardingContext
-    participant API as "Identity API"
-    participant TrackUI as "UI (OnboardingTracking)"
-
-    U->>UI: Dépose un fichier CSV
-    UI->>Ctx: Appelle handleUpload(file, domain)
-    Ctx->>API: POST /bulkimport (envoie le fichier)
-    API-->>Ctx: Répond avec un batchId
-    Ctx->>TrackUI: Met à jour le dernier batchId
-    U->>TrackUI: Navigue vers le suivi
-    TrackUI->>API: GET /bulkimport/{batchId}/progress (polling/SSE)
-    API-->>TrackUI: Renvoie la progression (PENDING, PROCESSING, SUCCESS, ERROR)
-    TrackUI-->>U: Affiche la progression en temps réel
-    alt En cas de succès
-        U->>TrackUI: Clique sur "Lancer le Provisioning"
-        TrackUI->>API: POST /provisioning (basé sur le batchId d'identité)
-        API-->>TrackUI: Confirme le lancement
-        TrackUI-->>U: Affiche le suivi du provisioning
-    end
-```
-
-### Supplies (Fournitures)
-
--   **Page Enseignant (`src/pages/supplies/TeacherSuppliesPage.tsx`)**:
-    -   Permet aux enseignants de gérer la liste de fournitures pour une classe et une campagne données.
-    -   Utilise le hook `useSuppliesTeacherList(campaignId, classId)` pour récupérer les données. Le **filtrage par `classId` est fait côté serveur**, ce qui est performant.
-    -   Le hook `useFilters()` et le `FilterContext` sont utilisés pour **mémoriser la dernière classe sélectionnée par l'enseignant**, améliorant l'UX.
-    -   Les suggestions d'articles ne sont pas visibles directement dans ce fichier, mais la logique d'ajout est simple.
-
--   **Page Directeur (`src/pages/directeur/SuppliesCampaignsPage.tsx`)**:
-    -   Permet de créer et gérer les campagnes de fournitures.
-    -   Le hook `useCreateCampaign` est utilisé pour la création. Le payload envoyé à l'API inclut bien un champ `classes?: Array<string>`, ce qui est conforme aux exigences de l'API.
-
-### Compétences (competence-service)
-
-Ce module, très complet, est géré principalement par `src/pages/referentiels/ReferentielsManager.tsx`.
-
--   **Intégration complète de l'API**:
-    -   `usePublicReferentialTree`: Implémente la récupération de l'arborescence complète d'un référentiel.
-    -   `useLookupCompetencyByCode`: Implémente la fonctionnalité de recherche par code exact.
-    -   `useCompetency`, `useSubject`, `useAssignment`: Implémentent les appels `GET by id` pour les pages de détail (`CompetencyDetailPage.tsx`, etc.).
--   **Fonctionnalités avancées**:
-    -   Un onglet "Catalogue Global" permet de visualiser et de cloner des référentiels globaux.
-    -   Un onglet "Événements" permet de suivre les événements de domaine (pattern Outbox) et de les rejouer si nécessaire, un outil de diagnostic puissant.
--   **UI et UX**: L'interface est riche et organisée en onglets, avec des filtres, de la pagination, et une navigation contextuelle (un double-clic sur un référentiel navigue vers les domaines, etc.).
+> 📚 **Navigation complète** : Consultez [functional/README.md](functional/README.md) pour l'index complet des workflows.
 
 ## F. États, données et gestion des erreurs
 
@@ -373,26 +254,25 @@ Ce module, très complet, est géré principalement par `src/pages/referentiels/
 
 ## J. Roadmap et extensions
 
--   **Points d'extension**: L'architecture modulaire facilite l'ajout de nouvelles fonctionnalités. Pour ajouter une nouvelle page :
-    1.  Créer le composant de page dans `src/pages/`.
-    2.  Créer les hooks nécessaires dans `src/hooks/` pour interagir avec l'API.
-    3.  Créer les composants de présentation dans `src/components/`.
-    4.  Ajouter la nouvelle route à l'objet `routesByRole` dans `src/App.tsx`.
--   **Tech Debt / TODOs repérés**:
-    -   `src/components/directeur/onboarding/CSVUploader.tsx`: Contient du code de validation CSV côté client qui est commenté et non utilisé. Il pourrait être nettoyé pour éviter toute confusion, car la validation est maintenant déléguée au serveur.
+> 📚 **Documentation détaillée** : Consultez [ARCHITECTURE.md](ARCHITECTURE.md) pour l'architecture complète et [API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md) pour les guides d'intégration.
+
+**Points d'extension** : L'architecture modulaire facilite l'ajout de nouvelles fonctionnalités selon le pattern établi (pages → hooks → composants → routes).
 
 ---
 
-## Comment contribuer
+## 📚 **Ressources Complémentaires**
 
-1.  **Logique métier**: La logique complexe doit être placée dans un hook personnalisé dans `src/hooks/`, pas directement dans un composant.
-2.  **État global**: Si un état doit être partagé entre plusieurs composants non liés, créez un nouveau Contexte dans `src/contexts/`. N'abusez pas du contexte pour des états locaux.
-3.  **Composants UI**: Si un composant d'interface est réutilisable, placez-le dans `src/components/ui/`.
-4.  **Traductions**: N'oubliez pas d'ajouter les clés de traduction dans les deux langues (`fr` et `en`) pour tout texte visible par l'utilisateur.
-5.  **En-têtes de contexte**: Vous n'avez pas besoin de gérer manuellement les en-têtes `X-Etab` et `X-Roles`. L'intercepteur Axios s'en charge automatiquement pour toutes les requêtes.
+| Documentation | Description |
+|---------------|-------------|
+| [📋 ARCHITECTURE.md](ARCHITECTURE.md) | Architecture générale et structure du projet |
+| [📋 API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md) | Guide d'intégration des APIs |
+| [📋 CODING_STANDARDS.md](CODING_STANDARDS.md) | Standards de développement |
+| [📋 functional/README.md](functional/README.md) | Index des workflows fonctionnels |
+| [📋 functional/_templates/](functional/_templates/) | Templates pour documenter de nouveaux modules |
 
-## Pièges fréquents
+## ⚠️ **Points d'Attention**
 
--   **Oublier le contexte**: De nombreuses fonctionnalités dépendent du contexte actif (`etabId`, `role`). Si une page ne fonctionne pas comme prévu, vérifiez d'abord que le `IdentityContext` est correctement initialisé et fournit les bonnes valeurs.
--   **Modifier directement les DTOs générés**: Les fichiers dans `src/api/*/` sont générés. Ne les modifiez pas manuellement. Si un type ou un endpoint doit changer, il faut mettre à jour la spécification OpenAPI et régénérer les clients.
+-   **Contexte requis** : Vérifiez que `IdentityContext` est initialisé pour les fonctionnalités multi-tenant
+-   **DTOs générés** : Ne modifiez jamais les fichiers dans `src/api/*/` - ils sont auto-générés
+-   **Headers automatiques** : `X-Etab` et `X-Roles` sont injectés automatiquement par les intercepteurs
 -   **Valider côté client**: Comme vu dans l'Onboarding, la tendance est de déléguer la validation métier complexe à l'API. Évitez de dupliquer cette logique côté front, sauf pour des validations de format simples (ex: email).

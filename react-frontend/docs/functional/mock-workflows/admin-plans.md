@@ -16,7 +16,7 @@
 
 ### Rôles Utilisateur
 - [x] Admin
-- [ ] Directeur
+- [ ] Admin Staff
 - [ ] Enseignant  
 - [ ] Élève
 - [ ] Parent

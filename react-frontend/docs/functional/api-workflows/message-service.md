@@ -19,7 +19,7 @@
 - [x] **Élève** (conversations avec enseignants et camarades)
 - [x] **Parent** (conversations avec enseignants et administration)
 - [x] **Enseignant** (conversations avec élèves, parents, collègues)
-- [x] **Directeur** (conversations avec toute la communauté scolaire)
+- [x] **Admin Staff** (conversations avec toute la communauté scolaire)
 - [x] **Admin** (accès global aux conversations)
 
 ### Permissions Requises
@@ -153,8 +153,8 @@ const MessagePage = () => {
     userRole = 'enseignant';
   } else if (capabilities.isParent || roles.includes('parent')) {
     userRole = 'parent';
-  } else if (capabilities.isAdminStaff || roles.includes('directeur')) {
-    userRole = 'directeur';
+  } else if (capabilities.isAdminStaff || roles.includes('admin_staff')) {
+    userRole = 'admin_staff';
   } else if (capabilities.isStudent || roles.includes('eleve')) {
     userRole = 'eleve';
   }

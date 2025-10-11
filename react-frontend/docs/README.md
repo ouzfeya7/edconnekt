@@ -1,46 +1,68 @@
-# Documentation EdConnekt
+# Documentation EdConnekt Frontend
 
-Ce dossier contient toute la documentation technique et utilisateur du projet EdConnekt.
+> **Documentation complète** de l'application React EdConnekt - Architecture, APIs, Workflows et Guides
 
-## 📁 Structure de la documentation
+Ce dossier contient toute la documentation technique et fonctionnelle du frontend EdConnekt, organisée pour faciliter la navigation et la contribution.
 
-### 🎯 Fonctionnalités principales
+---
 
-- **[REMEDIATION_RESOURCES.md](./REMEDIATION_RESOURCES.md)** - Documentation de l'intégration des ressources dans les remédiations
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Architecture générale du projet (à créer)
-- **[API_DOCUMENTATION.md](./API_DOCUMENTATION.md)** - Documentation des APIs (à créer)
+## **MIGRATION URGENTE EN COURS**
 
-### 🛠️ Guides techniques
+> **IMPORTANT** : Le rôle `directeur` est en cours de migration vers `admin_staff` dans le codebase frontend.  
+> **Documentation** : Terminée | **Code Frontend** : **ACTION URGENTE REQUISE**
 
-- **[DEVELOPMENT_SETUP.md](./DEVELOPMENT_SETUP.md)** - Guide de configuration de l'environnement de développement (à créer)
+---
+
+## **Structure de la Documentation**
+
+### **Documentation Principale**
+
+- **[FRONTEND_DOCUMENTATION.md](./FRONTEND_DOCUMENTATION.md)** - **Point d'entrée principal** - Vue d'ensemble technique
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Architecture générale et structure du projet
+- **[API_INTEGRATION_GUIDE.md](./API_INTEGRATION_GUIDE.md)** - Guide d'intégration des APIs
+- **[PENDING_API_INTEGRATIONS.md](./PENDING_API_INTEGRATIONS.md)** - **APIs prêtes** mais non intégrées (6 services)
+
+### **Workflows Fonctionnels**
+
+- **[functional/README.md](./functional/README.md)** - Index complet des workflows
+- **[functional/api-workflows/](./functional/api-workflows/)** - **13 services API** documentés
+- **[functional/mock-workflows/](./functional/mock-workflows/)** - **5 workflows** avec données simulées
+- **[functional/_templates/](./functional/_templates/)** - Templates pour nouveaux modules
+
+### **Guides Techniques**
+
+- **[DEVELOPMENT_SETUP.md](./DEVELOPMENT_SETUP.md)** - Guide de configuration de l'environnement (à créer)
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Guide de déploiement (à créer)
 - **[TESTING.md](./TESTING.md)** - Guide des tests (à créer)
-
-### 👥 Guides utilisateur
-
-- **[USER_GUIDE.md](./USER_GUIDE.md)** - Guide utilisateur complet (à créer)
-- **[TEACHER_GUIDE.md](./TEACHER_GUIDE.md)** - Guide spécifique aux enseignants (à créer)
-- **[ADMIN_GUIDE.md](./ADMIN_GUIDE.md)** - Guide d'administration (à créer)
-
-### 📋 Standards et conventions
-
 - **[CODING_STANDARDS.md](./CODING_STANDARDS.md)** - Standards de codage (à créer)
-- **[COMMIT_CONVENTIONS.md](./COMMIT_CONVENTIONS.md)** - Conventions de commit (à créer)
+
+### **Ressources Spécialisées**
+
+- **[REMEDIATION_RESOURCES.md](./REMEDIATION_RESOURCES.md)** - Intégration ressources/remédiations
 - **[UI_GUIDELINES.md](./UI_GUIDELINES.md)** - Guidelines d'interface utilisateur (à créer)
+- **[COMMIT_CONVENTIONS.md](./COMMIT_CONVENTIONS.md)** - Conventions de commit (à créer)
 
-## 🚀 Utilisation
+## 🚀 **Navigation Rapide**
 
-### Pour les développeurs
+### 🔥 **Démarrage Développeur**
 
-1. **Démarrage rapide** : Consultez `DEVELOPMENT_SETUP.md` pour configurer votre environnement
-2. **Architecture** : Lisez `ARCHITECTURE.md` pour comprendre la structure du projet
-3. **Standards** : Suivez `CODING_STANDARDS.md` pour maintenir la cohérence du code
+1. **📋 Vue d'ensemble** : [FRONTEND_DOCUMENTATION.md](./FRONTEND_DOCUMENTATION.md) - Point d'entrée principal
+2. **🏗️ Architecture** : [ARCHITECTURE.md](./ARCHITECTURE.md) - Structure et principes
+3. **🔌 APIs** : [functional/README.md](./functional/README.md) - Index des 13 services intégrés
+4. **⚠️ Urgences** : [PENDING_API_INTEGRATIONS.md](./PENDING_API_INTEGRATIONS.md) - 6 APIs à intégrer
 
-### Pour les utilisateurs
+### 📊 **Par Domaine Fonctionnel**
 
-1. **Première utilisation** : Commencez par `USER_GUIDE.md`
-2. **Fonctionnalités spécifiques** : Consultez les guides spécialisés selon votre rôle
-3. **Support** : Consultez les guides de dépannage en cas de problème
+- **🎓 Onboarding** : [identity-service.md](./functional/api-workflows/identity-service.md) & [provisioning-service.md](./functional/api-workflows/provisioning-service.md)
+- **📚 Fournitures** : [supplies-service.md](./functional/api-workflows/supplies-service.md)
+- **🎯 Compétences** : [competence-service.md](./functional/api-workflows/competence-service.md)
+- **👥 Classes** : [classe-service.md](./functional/api-workflows/classe-service.md)
+- **📅 Emploi du temps** : [timetable-service.md](./functional/api-workflows/timetable-service.md)
+
+### 🛠️ **Développement**
+
+- **📝 Templates** : [functional/_templates/](./functional/_templates/) - Pour documenter de nouveaux modules
+- **🔧 Intégration API** : [API_INTEGRATION_GUIDE.md](./API_INTEGRATION_GUIDE.md) - Process standardisé
 
 ## 📝 Contribution à la documentation
 
@@ -75,14 +97,21 @@ Exemples concrets d'utilisation
 - Vérifiez la cohérence entre la documentation et le code
 - Supprimez la documentation obsolète
 
-## 📞 Support
-
-Pour toute question sur la documentation :
-- Créez une issue sur le repository
-- Contactez l'équipe de développement
-- Consultez les guides de dépannage
 
 ---
 
-*Dernière mise à jour : [Date]*
-*Version : [Version du projet]* 
+## 📈 **État de la Documentation**
+
+| Catégorie | Fichiers | Statut |
+|-----------|----------|---------|
+| **Documentation Principale** | 4 fichiers | ✅ À jour |
+| **Workflows API** | 13 services | ✅ Documentés |
+| **Workflows Mock** | 5 workflows | ✅ Documentés |
+| **APIs Pendantes** | 6 services | ⚠️ En attente d'intégration |
+| **Migration directeur→admin_staff** | Documentation | ✅ Terminée |
+| **Migration directeur→admin_staff** | Code Frontend | ❌ **URGENT** |
+
+---
+
+*Dernière mise à jour : 11 octobre 2025*  
+*Prochaine révision : Hebdomadaire* 

@@ -15,7 +15,7 @@
 
 ### Rôles Utilisateur
 - [x] **Enseignant/Facilitateur** (création et gestion des séances PDI)
-- [x] **Directeur** (supervision et validation des PDI)
+- [x] **Admin Staff** (supervision et validation des PDI)
 - [x] **Parent** (consultation des rapports PDI de leur enfant)
 - [x] **Élève** (consultation de leur progression PDI)
 
@@ -23,7 +23,7 @@
 - `pdi:read` : Lecture des séances PDI
 - `pdi:write` : Création/modification des séances
 - `pdi:publish` : Publication des rapports PDI
-- `pdi:supervise` : Supervision des séances (directeur)
+- `pdi:supervise` : Supervision des séances (admin staff)
 
 ### État Initial du Système
 - Utilisateur authentifié avec rôle approprié
@@ -94,7 +94,7 @@ enum AssistanceLevelEnum {
 #### **Pages Principales** :
 1. **PdiSeancePage.tsx** (147 lignes) - Vue d'ensemble des facilitateurs
 2. **PdiDetailPage.tsx** - Détail d'une séance PDI
-3. **DirectorPdiPage.tsx** - Interface de supervision directeur
+3. **AdminStaffPdiPage.tsx** - Interface de supervision admin staff
 
 #### **Composants Spécialisés** :
 4. **PdiSessionsList.tsx** (195 lignes) - Liste des séances avec filtres
@@ -224,7 +224,7 @@ interface PdiSession {
   name: 'PDI',
   href: '/pdi-seances',
   icon: Target,
-  roles: ['enseignant', 'directeur'],
+  roles: ['enseignant', 'admin_staff'],
   children: [
     { name: 'Séances', href: '/pdi-seances' },
     { name: 'Rapports', href: '/pdi-rapports' },
@@ -273,7 +273,7 @@ const ParentRapportPage = () => {
 - [x] **Filtrage avancé** : Par statut, classe, période
 - [x] **Gestion des élèves** : Niveaux d'assistance configurables
 - [x] **Rapports** : Prévisualisation et historique
-- [x] **Multi-rôles** : Facilitateur, directeur, parent, élève
+- [x] **Multi-rôles** : Facilitateur, admin staff, parent, élève
 - [x] **Responsive design** : Mobile et desktop
 - ⚠️ **API limitée** : Seuls les endpoints basiques disponibles
 
@@ -419,7 +419,7 @@ Le **pdi-service** représente un **développement d'interface avancé** avec :
 - **Interface complète** : 11 composants développés (60KB+ de code)
 - **Workflow PDI complet** : Création → Gestion → Publication
 - **Design moderne** : Cartes colorées et statistiques temps réel
-- **Multi-rôles** : Facilitateur, directeur, parent, élève
+- **Multi-rôles** : Facilitateur, admin staff, parent, élève
 - **Architecture préparée** : Structure prête pour intégration API
 - **UX optimisée** : Filtrage avancé et navigation intuitive
 

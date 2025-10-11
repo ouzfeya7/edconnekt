@@ -430,7 +430,7 @@ await createReplacement.mutateAsync({
 ### Page principale
 
 #### EmploiDuTempsPage
-**Fichier** : `src/pages/directeur/EmploiDuTempsPage.tsx`
+**Fichier** : `src/pages/admin/EmploiDuTempsPage.tsx`
 
 **Fonctionnalités complètes** :
 - **Vue calendrier** : Affichage hebdomadaire des cours
@@ -463,7 +463,7 @@ const [activeTab, setActiveTab] = useState<'calendar' | 'replacements' | 'confli
 ### Composants spécialisés
 
 #### AbsenceValidationPanel
-**Fichier** : `src/components/directeur/emploi-du-temps/AbsenceValidationPanel.tsx`
+**Fichier** : `src/components/admin/emploi-du-temps/AbsenceValidationPanel.tsx`
 
 **Fonctionnalités** :
 - Liste des absences en attente de validation

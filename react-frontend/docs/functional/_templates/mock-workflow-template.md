@@ -16,7 +16,7 @@
 ## Prérequis
 
 ### Rôles Utilisateur
-- [ ] Directeur
+- [ ] Admin Staff
 - [ ] Enseignant  
 - [ ] Élève
 - [ ] Parent
